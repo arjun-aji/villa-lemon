@@ -6,16 +6,48 @@ import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Globe } from "lucide-react";
 
-interface NavItem {
+interface SubItem {
   name: string;
   href: string;
 }
 
+interface NavItem {
+  name: string;
+  href: string;
+  children?: SubItem[];
+}
+
 const navItems: NavItem[] = [
   { name: "HOME", href: "#home" },
-  { name: "ACCOMMODATIONS", href: "#villas" },
-  { name: "PACKAGES", href: "#packages" },
-  { name: "YOGATOURS", href: "#yogatours" },
+  {
+    name: "ACCOMMODATIONS",
+    href: "#villas",
+    children: [
+      { name: "entireVillas", href: "#entire-villas" },
+      { name: "privateFloors", href: "#private-floors" },
+      { name: "individualRooms", href: "#individual-rooms" },
+    ],
+  },
+  {
+    name: "PACKAGES",
+    href: "#packages",
+    children: [
+      { name: "varkalaSightseeing", href: "#varkala-sightseeing" },
+      { name: "dayTrips", href: "#day-trips" },
+      { name: "backwaterExperiences", href: "#backwater-experiences" },
+      { name: "adventureActivities", href: "#adventure-activities" },
+    ],
+  },
+  {
+    name: "YOGATOURS",
+    href: "#yogatours",
+    children: [
+      { name: "yogaRetreats", href: "#yoga-retreats" },
+      { name: "dailyYogaClasses", href: "#daily-yoga-classes" },
+      { name: "privateYogaSessions", href: "#private-yoga-sessions" },
+      { name: "meetOurTeachers", href: "#meet-our-teachers" },
+    ],
+  },
   { name: "GALLERY", href: "#gallery" },
   { name: "CONTACT", href: "#contact" },
 ];
@@ -37,6 +69,8 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("HOME");
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
 
   const currentLang = locale.toUpperCase();
 
@@ -59,10 +93,20 @@ export default function Navbar() {
       if (e.key === "Escape") {
         setIsMobileMenuOpen(false);
         setIsLangDropdownOpen(false);
+        setOpenDropdown(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Close dropdowns on outside clicks
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setOpenDropdown(null);
+    };
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
 
   return (
@@ -127,25 +171,70 @@ export default function Navbar() {
         {/* DESKTOP NAV ITEMS */}
         <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
           {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={() => setActiveItem(item.name)}
-              className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${
-                isScrolled
-                  ? "text-brand-dark/80 hover:text-brand-dark"
-                  : "text-brand-cream/80 hover:text-brand-cream"
-              }`}
-            >
-              {t(item.name)}
-              {activeItem === item.name && (
-                <motion.div
-                  layoutId="activeNavLine"
-                  className="absolute bottom-0 left-0 w-full h-[1px] bg-brand-gold"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
+            <div key={item.name} className="relative flex items-center gap-0.5 group/menu">
+              <Link
+                href={item.href}
+                onClick={() => setActiveItem(item.name)}
+                className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${
+                  isScrolled
+                    ? "text-brand-dark/80 hover:text-brand-dark"
+                    : "text-brand-cream/80 hover:text-brand-cream"
+                } ${activeItem === item.name ? "text-brand-gold font-semibold" : ""}`}
+              >
+                {t(item.name)}
+                {activeItem === item.name && (
+                  <motion.div
+                    layoutId="activeNavLine"
+                    className="absolute bottom-0 left-0 w-full h-[1px] bg-brand-gold"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+              {item.children && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === item.name ? null : item.name);
+                  }}
+                  className={`p-1 hover:text-brand-gold transition-colors duration-300 focus:outline-none ${
+                    isScrolled ? "text-brand-dark/60" : "text-brand-cream/60"
+                  }`}
+                  aria-label={`Toggle ${item.name} sub-menu`}
+                >
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform duration-300 ${
+                      openDropdown === item.name ? "rotate-180 text-brand-gold" : ""
+                    }`}
+                  />
+                </button>
               )}
-            </Link>
+
+              {/* Sub-menu Dropdown List */}
+              <AnimatePresence>
+                {item.children && openDropdown === item.name && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 mt-1 w-56 bg-brand-dark border border-brand-gold/20 rounded-sm shadow-xl z-50 overflow-hidden flex flex-col py-2"
+                  >
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        onClick={() => {
+                          setOpenDropdown(null);
+                        }}
+                        className="w-full text-left px-4 py-2 text-[10px] font-semibold tracking-[0.15em] text-brand-cream/80 hover:text-brand-gold hover:bg-brand-gold/5 transition-colors duration-200 uppercase"
+                      >
+                        {t(child.name)}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ))}
         </nav>
 
@@ -154,7 +243,10 @@ export default function Navbar() {
           {/* Custom Language Dropdown */}
           <div className="relative">
             <button
-              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLangDropdownOpen(!isLangDropdownOpen);
+              }}
               className={`flex items-center gap-1.5 text-xs font-semibold tracking-widest focus:outline-none border px-3 py-1.5 rounded-sm transition-all duration-300 ${
                 isScrolled
                   ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
@@ -166,8 +258,7 @@ export default function Navbar() {
               <Globe className="w-3.5 h-3.5 text-brand-gold" />
               <span>{currentLang}</span>
               <ChevronDown
-                className={`w-3 h-3 text-brand-gold/60 transition-transform duration-300 ${isLangDropdownOpen ? "rotate-180" : ""
-                  }`}
+                className={`w-3 h-3 text-brand-gold/60 transition-transform duration-300 ${isLangDropdownOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -178,7 +269,7 @@ export default function Navbar() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-32 bg-brand-dark-soft border border-brand-gold/20 rounded-sm shadow-xl z-50 overflow-hidden"
+                  className="absolute right-0 mt-2 w-32 bg-brand-dark border border-brand-gold/20 rounded-sm shadow-xl z-50 overflow-hidden"
                 >
                   {languages.map((lang) => (
                     <button
@@ -247,11 +338,11 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.35, ease: "easeOut" }}
-              className="fixed right-0 top-0 bottom-0 w-[280px] bg-brand-dark border-l border-brand-gold/10 z-50 p-8 flex flex-col justify-between lg:hidden shadow-2xl"
+              className="fixed right-0 top-0 bottom-0 w-[280px] bg-brand-dark border-l border-brand-gold/10 z-50 p-8 flex flex-col justify-between lg:hidden shadow-2xl overflow-y-auto"
             >
-              <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-8">
                 {/* Header inside drawer */}
-                <div className="flex items-center justify-between pb-6 border-b border-brand-cream/10">
+                <div className="flex items-center justify-between pb-4 border-b border-brand-cream/10">
                   <span className="font-serif text-md tracking-[0.1em] text-brand-gold">
                     {t("menu")}
                   </span>
@@ -265,28 +356,66 @@ export default function Navbar() {
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex flex-col gap-6">
+                <nav className="flex flex-col gap-4">
                   {navItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => {
-                        setActiveItem(item.name);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`text-sm font-semibold tracking-[0.2em] transition-colors duration-300 py-1.5 focus:outline-none ${activeItem === item.name
-                          ? "text-brand-gold border-l-2 border-brand-gold pl-3"
-                          : "text-brand-cream/80 hover:text-brand-cream pl-0"
-                        }`}
-                    >
-                      {t(item.name)}
-                    </Link>
+                    <div key={item.name} className="flex flex-col w-full">
+                      <div className="flex items-center justify-between w-full py-1">
+                        <Link
+                          href={item.href}
+                          onClick={() => {
+                            setActiveItem(item.name);
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className={`text-sm font-semibold tracking-[0.2em] transition-colors duration-300 focus:outline-none ${activeItem === item.name
+                              ? "text-brand-gold border-l-2 border-brand-gold pl-3"
+                              : "text-brand-cream/80 hover:text-brand-cream pl-0"
+                            }`}
+                        >
+                          {t(item.name)}
+                        </Link>
+                        {item.children && (
+                          <button
+                            onClick={() => {
+                              setOpenMobileDropdown(
+                                openMobileDropdown === item.name ? null : item.name
+                              );
+                            }}
+                            className="p-2 text-brand-cream/60 hover:text-brand-gold focus:outline-none"
+                            aria-label={`Toggle ${item.name} sub-menu`}
+                          >
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-300 ${
+                                openMobileDropdown === item.name ? "rotate-180 text-brand-gold" : ""
+                              }`}
+                            />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Mobile children submenu */}
+                      {item.children && openMobileDropdown === item.name && (
+                        <div className="flex flex-col pl-4 mt-2 border-l border-brand-gold/20 gap-3.5">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.name}
+                              href={child.href}
+                              onClick={() => {
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className="text-[10px] font-semibold tracking-[0.15em] text-brand-cream/60 hover:text-brand-gold transition-colors duration-200 uppercase py-1"
+                            >
+                              {t(child.name)}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </nav>
               </div>
 
               {/* Footer inside drawer */}
-              <div className="flex flex-col gap-4 border-t border-brand-cream/10 pt-6">
+              <div className="flex flex-col gap-4 border-t border-brand-cream/10 pt-6 mt-8">
                 {/* Language toggle inside drawer */}
                 <div className="flex items-center gap-3 pb-2 select-none">
                   <span className="text-[9px] tracking-widest text-brand-cream/40 uppercase font-sans">

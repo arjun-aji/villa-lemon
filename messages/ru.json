@@ -10,7 +10,18 @@
     "selectLanguage": "Выбрать язык",
     "changeLanguage": "Изменить язык",
     "stayRelax": "Отдых • Расслабление • Омоложение",
-    "bookNow": "ЗАБРОНИРОВАТЬ"
+    "bookNow": "ЗАБРОНИРОВАТЬ",
+    "entireVillas": "Виллы целиком",
+    "privateFloors": "Отдельные этажи",
+    "individualRooms": "Отдельные номера",
+    "varkalaSightseeing": "Экскурсия по Варкале",
+    "dayTrips": "Однодневные поездки",
+    "backwaterExperiences": "Прогулки по затонам",
+    "adventureActivities": "Активный отдых",
+    "yogaRetreats": "Йога-ретриты",
+    "dailyYogaClasses": "Ежедневные занятия",
+    "privateYogaSessions": "Индивидуальные сессии",
+    "meetOurTeachers": "Наши преподаватели"
   },
   "Hero": {
     "tagline": "Роскошный курорт на лоне природы",

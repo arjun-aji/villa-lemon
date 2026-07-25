@@ -133,7 +133,8 @@ export default function Accommodations() {
           {cards.map((card, index) => (
             <div
               key={index}
-              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              id={index === 0 ? "entire-villas" : index === 1 ? "private-floors" : "individual-rooms"}
+              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
             >
               {/* IMAGE CONTAINER */}
               <div className="relative w-full h-40 sm:h-48 md:h-auto md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">

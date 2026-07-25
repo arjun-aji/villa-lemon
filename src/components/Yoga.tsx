@@ -157,7 +157,16 @@ export default function Yoga() {
           {cards.map((card, index) => (
             <div
               key={index}
-              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              id={
+                index === 0
+                  ? "yoga-retreats"
+                  : index === 1
+                  ? "daily-yoga-classes"
+                  : index === 2
+                  ? "private-yoga-sessions"
+                  : "meet-our-teachers"
+              }
+              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
             >
               {/* IMAGE CONTAINER */}
               <div className="relative w-full h-40 sm:h-48 md:h-auto md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
