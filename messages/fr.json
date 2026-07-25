@@ -1,0 +1,88 @@
+{
+  "Navbar": {
+    "HOME": "ACCUEIL",
+    "ACCOMMODATIONS": "HÉBERGEMENTS",
+    "PACKAGES": "FORFAITS",
+    "YOGATOURS": "SEJOURS YOGA",
+    "GALLERY": "GALERIE",
+    "CONTACT": "CONTACT",
+    "menu": "MENU",
+    "selectLanguage": "Choisir la langue",
+    "changeLanguage": "Changer de langue",
+    "stayRelax": "Séjourner • Se détendre • Se ressourcer",
+    "bookNow": "RÉSERVER"
+  },
+  "Hero": {
+    "tagline": "Complexe Sauvage de Luxe",
+    "headingPart1": "Votre refuge",
+    "headingPart2": "privé en pleine",
+    "nature": "Nature",
+    "description": "Des villas élégantes entourées d'une végétation luxuriante, conçues pour le confort, la paix et des souvenirs de bien-être inoubliables.",
+    "bookStay": "Réserver votre séjour",
+    "whatsappBooking": "Réservation WhatsApp",
+    "imageAlt": "Villa privée de luxe Villa Lemon entourée de verdure tropicale au crépuscule"
+  },
+  "HighlightsBar": {
+    "premiumVillasTitle": "Villas Premium",
+    "premiumVillasSubtitle": "Confort & Luxe",
+    "greatLocationsTitle": "Emplacements Idéaux",
+    "greatLocationsSubtitle": "Proche de la Nature",
+    "wellnessTitle": "Bien-être & Détente",
+    "wellnessSubtitle": "Yoga & Ressourcement"
+  },
+  "Accommodations": {
+    "tagline": "Séjours Sélectionnés",
+    "heading": "Trouvez Votre Séjour Idéal",
+    "viewAll": "Voir Tous Les Séjours",
+    "villaTitle": "Villas Entières",
+    "villaDesc": "Villas privées spacieuses avec des équipements modernes, idéales pour les familles et les groupes.",
+    "villaPrice": "À partir de ₹16 500 /nuit",
+    "villaExplore": "Explorer Les Villas",
+    "floorTitle": "Étages Privés",
+    "floorDesc": "Étages indépendants alliant intimité et confort, parfaits pour les petites familles.",
+    "floorPrice": "À partir de ₹8 500 /nuit",
+    "floorExplore": "Explorer Les Étages",
+    "roomTitle": "Chambres Individuelles",
+    "roomDesc": "Chambres joliment décorées disposant de tous les éléments essentiels pour un séjour de détente.",
+    "roomPrice": "À partir de ₹3 800 /nuit",
+    "roomExplore": "Explorer Les Chambres"
+  },
+  "Packages": {
+    "tagline": "Des Expériences Qui Inspirent",
+    "heading": "Explorez Nos Meilleurs Forfaits",
+    "viewAll": "Voir Tous Les Forfaits",
+    "varkalaTitle": "Visites de Varkala",
+    "varkalaDesc": "Explorez les plus belles plages, les falaises et les attractions locales.",
+    "varkalaExplore": "Explorer",
+    "daytripsTitle": "Excursions d'une Journée",
+    "daytripsDesc": "Des escapades parfaites d'une journée autour du Kerala.",
+    "daytripsExplore": "Explorer",
+    "backwaterTitle": "Expériences dans les Backwaters",
+    "backwaterDesc": "Naviguez dans les backwaters et les lagunes sereines.",
+    "backwaterExplore": "Explorer",
+    "adventureTitle": "Activités d'Aventure",
+    "adventureDesc": "Des activités palpitantes pour les amateurs d'aventure.",
+    "adventureExplore": "Les Découvrir"
+  },
+  "Yoga": {
+    "tagline": "Bien-être & Yoga",
+    "heading": "Équilibre. Respire. Épanouis-toi.",
+    "viewAll": "Voir Tous Les Programmes De Yoga",
+    "retreatsTitle": "Retraites de Yoga",
+    "retreatsDesc": "Des retraites transformatrices pour l'esprit, le corps et l'âme.",
+    "retreatsExplore": "Explorer",
+    "classesTitle": "Cours de Yoga Quotidiens",
+    "classesDesc": "Rejoignez nos séances quotidiennes pour tous les niveaux.",
+    "classesExplore": "Explorer",
+    "privateTitle": "Séances de Yoga Privées",
+    "privateDesc": "Séances personnalisées pour particuliers et groupes.",
+    "privateExplore": "Explorer",
+    "teachersTitle": "Rencontrez Nos Enseignants",
+    "teachersDesc": "Des enseignants expérimentés pour guider votre parcours de bien-être.",
+    "teachersExplore": "Les Découvrir"
+  },
+  "Metadata": {
+    "title": "Villa Lemon | Location de Villas de Luxe & Séjours Bien-être",
+    "description": "Découvrez le luxe absolu, la tranquillité et le bien-être à la Villa Lemon. Explorez nos villas privées haut de gamme entourées de nature, nos séjours yoga sur mesure et nos forfaits touristiques exclusifs."
+  }
+}

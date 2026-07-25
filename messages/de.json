@@ -1,0 +1,88 @@
+{
+  "Navbar": {
+    "HOME": "STARTSEITE",
+    "ACCOMMODATIONS": "UNTERKÜNFTE",
+    "PACKAGES": "PAKETE",
+    "YOGATOURS": "YOGA TOUREN",
+    "GALLERY": "GALERIE",
+    "CONTACT": "KONTAKT",
+    "menu": "MENÜ",
+    "selectLanguage": "Sprache auswählen",
+    "changeLanguage": "Sprache ändern",
+    "stayRelax": "Bleiben • Entspannen • Verjüngen",
+    "bookNow": "JETZT BUCHEN"
+  },
+  "Hero": {
+    "tagline": "Luxuriöses Wildnis-Resort",
+    "headingPart1": "Ihr privater",
+    "headingPart2": "Rückzugsort in der",
+    "nature": "Natur",
+    "description": "Elegante Villen umgeben von üppigem Grün, entworfen für Komfort, Ruhe und unvergessliche Wellness-Erinnerungen.",
+    "bookStay": "Aufenthalt buchen",
+    "whatsappBooking": "WhatsApp Buchung",
+    "imageAlt": "Luxuriöse private Villa Villa Lemon umgeben von tropischem Grün in der Dämmerung"
+  },
+  "HighlightsBar": {
+    "premiumVillasTitle": "Premium-Villen",
+    "premiumVillasSubtitle": "Komfort & Luxus",
+    "greatLocationsTitle": "Tolle Lagen",
+    "greatLocationsSubtitle": "Nah an der Natur",
+    "wellnessTitle": "Wellness & Entspannung",
+    "wellnessSubtitle": "Yoga & Verjüngung"
+  },
+  "Accommodations": {
+    "tagline": "Handverlesene Aufenthalte",
+    "heading": "Finden Sie Ihren Perfekten Aufenthalt",
+    "viewAll": "Alle Unterkünfte Sehen",
+    "villaTitle": "Ganze Villen",
+    "villaDesc": "Geräumige private Villen mit modernen Annehmlichkeiten, perfekt für Familien und Gruppen.",
+    "villaPrice": "Ab ₹16.500 /Nacht",
+    "villaExplore": "Villen Erkunden",
+    "floorTitle": "Private Etagen",
+    "floorDesc": "Unabhängige Etagen mit Privatsphäre und Komfort, ideal für kleine Familien.",
+    "floorPrice": "Ab ₹8.500 /Nacht",
+    "floorExplore": "Etagen Erkunden",
+    "roomTitle": "Einzelzimmer",
+    "roomDesc": "Schön eingerichtete Zimmer mit allen Annehmlichkeiten für einen erholsamen Aufenthalt.",
+    "roomPrice": "Ab ₹3.800 /Nacht",
+    "roomExplore": "Zimmer Erkunden"
+  },
+  "Packages": {
+    "tagline": "Erlebnisse, Die Inspirieren",
+    "heading": "Entdecken Sie Unsere Top-Pakete",
+    "viewAll": "Alle Pakete Sehen",
+    "varkalaTitle": "Varkala Besichtigung",
+    "varkalaDesc": "Erkunden Sie die besten Strände, Klippen und lokalen Attraktionen.",
+    "varkalaExplore": "Erkunden",
+    "daytripsTitle": "Tagesausflüge",
+    "daytripsDesc": "Perfekte eintägige Ausflüge in ganz Kerala.",
+    "daytripsExplore": "Erkunden",
+    "backwaterTitle": "Backwater-Erlebnisse",
+    "backwaterDesc": "Kreuzen Sie durch ruhige Backwaters und Lagunen.",
+    "backwaterExplore": "Erkunden",
+    "adventureTitle": "Abenteueraktivitäten",
+    "adventureDesc": "Aufregende Aktivitäten für Abenteuerlustige.",
+    "adventureExplore": "Kennenlernen"
+  },
+  "Yoga": {
+    "tagline": "Wellness & Yoga",
+    "heading": "Gleichgewicht. Atmen. Aufblühen.",
+    "viewAll": "Alle Yoga-Programme Sehen",
+    "retreatsTitle": "Yoga-Retreats",
+    "retreatsDesc": "Transformative Retreats für Geist, Körper & Seele.",
+    "retreatsExplore": "Erkunden",
+    "classesTitle": "Tägliche Yoga-Kurse",
+    "classesDesc": "Nehmen Sie an unseren täglichen Sitzungen für alle Niveaus teil.",
+    "classesExplore": "Erkunden",
+    "privateTitle": "Private Yoga-Sitzungen",
+    "privateDesc": "Personalisierte Sitzungen für Einzelpersonen & Gruppen.",
+    "privateExplore": "Erkunden",
+    "teachersTitle": "Treffen Sie Unsere Lehrer",
+    "teachersDesc": "Erfahrene Lehrer begleiten Ihre Wellness-Reise.",
+    "teachersExplore": "Kennenlernen"
+  },
+  "Metadata": {
+    "title": "Villa Lemon | Luxuriöse Villenvermietung & Wellness-Urlaub",
+    "description": "Erleben Sie absoluten Luxus, Ruhe und Wellness in der Villa Lemon. Entdecken Sie unsere erstklassigen privaten Villen inmitten der Natur, maßgeschneiderte Yoga-Touren und kuratierte Sightseeing-Pakete."
+  }
+}
