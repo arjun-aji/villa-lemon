@@ -10,5 +10,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Match only internationalized pathnames and ignore static assets
-  matcher: ["/", "/(en|de|fr)/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/", "/(en|de|fr|ru)/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
 };

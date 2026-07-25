@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: "Villa Lemon - Your Private Escape in Nature",
         },
       ],
-      locale: locale === "en" ? "en_US" : locale === "de" ? "de_DE" : "fr_FR",
+      locale: locale === "en" ? "en_US" : locale === "de" ? "de_DE" : locale === "fr" ? "fr_FR" : "ru_RU",
       type: "website",
     },
     twitter: {
@@ -79,7 +79,7 @@ export const viewport = {
 };
 
 export function generateStaticParams() {
-  return [{ locale: "en" }, { locale: "de" }, { locale: "fr" }];
+  return [{ locale: "en" }, { locale: "de" }, { locale: "fr" }, { locale: "ru" }];
 }
 
 export default async function RootLayout({

@@ -24,6 +24,7 @@ const languages = [
   { code: "EN", name: "English" },
   { code: "DE", name: "Deutsch" },
   { code: "FR", name: "Français" },
+  { code: "RU", name: "Русский" },
 ];
 
 export default function Navbar() {
