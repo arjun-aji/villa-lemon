@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import "../globals.css";
+import Preloader from "@/components/Preloader";
 
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-serif",
@@ -141,6 +142,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#121212] text-[#fbf9f6] select-none">
         <NextIntlClientProvider messages={messages}>
+          <Preloader />
           {children}
         </NextIntlClientProvider>
       </body>
