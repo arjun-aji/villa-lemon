@@ -104,6 +104,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleOutsideClick = () => {
       setOpenDropdown(null);
+      setIsLangDropdownOpen(false);
     };
     window.addEventListener("click", handleOutsideClick);
     return () => window.removeEventListener("click", handleOutsideClick);
@@ -294,13 +295,56 @@ export default function Navbar() {
 
         {/* MOBILE MENU TRIGGER */}
         <div className="flex lg:hidden items-center gap-3">
-          {/* Mobile Booking Button */}
-          <a
-            href="#booking"
-            className="flex items-center justify-center bg-brand-gold hover:bg-brand-gold-dark text-white font-sans font-bold text-[10px] tracking-widest uppercase rounded-[3px] px-3.5 py-2 transition-all duration-300 shadow-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
-          >
-            {t("bookNow")}
-          </a>
+          {/* Custom Language Dropdown for Mobile */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLangDropdownOpen(!isLangDropdownOpen);
+              }}
+              className={`flex items-center gap-1.5 text-[10px] font-semibold tracking-widest focus:outline-none border px-2 py-1.5 rounded-sm transition-all duration-300 ${
+                isScrolled
+                  ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
+                  : "text-brand-cream/80 hover:text-brand-cream border-brand-cream/20 hover:border-brand-gold/50 bg-[#121212]/20"
+              }`}
+              aria-label={t("selectLanguage")}
+              aria-expanded={isLangDropdownOpen}
+            >
+              <Globe className="w-3.5 h-3.5 text-brand-gold" />
+              <span>{currentLang}</span>
+              <ChevronDown
+                className={`w-2.5 h-2.5 text-brand-gold/60 transition-transform duration-300 ${isLangDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            <AnimatePresence>
+              {isLangDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2 w-32 bg-brand-dark border border-brand-gold/20 rounded-sm shadow-xl z-50 overflow-hidden"
+                >
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        router.replace(pathname, { locale: lang.code.toLowerCase() });
+                        setIsLangDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-xs font-medium tracking-wider hover:bg-brand-gold/10 transition-colors duration-200 ${currentLang === lang.code
+                          ? "text-brand-gold bg-brand-gold/5"
+                          : "text-brand-cream/80"
+                        }`}
+                    >
+                      {lang.name}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -338,17 +382,17 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.35, ease: "easeOut" }}
-              className="fixed right-0 top-0 bottom-0 w-[280px] bg-brand-dark border-l border-brand-gold/10 z-50 p-8 flex flex-col justify-between lg:hidden shadow-2xl overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-[280px] bg-white/50 backdrop-blur-md border-l border-brand-gold/20 z-50 p-8 flex flex-col justify-between lg:hidden shadow-2xl overflow-y-auto"
             >
               <div className="flex flex-col gap-8">
                 {/* Header inside drawer */}
-                <div className="flex items-center justify-between pb-4 border-b border-brand-cream/10">
-                  <span className="font-serif text-md tracking-[0.1em] text-brand-gold">
+                <div className="flex items-center justify-between pb-4 border-b border-brand-dark/10">
+                  <span className="font-serif text-md tracking-[0.1em] text-brand-gold font-medium">
                     {t("menu")}
                   </span>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-1 text-brand-cream hover:text-brand-gold focus:outline-none"
+                    className="p-1 text-brand-dark hover:text-brand-gold focus:outline-none"
                     aria-label="Close menu"
                   >
                     <X className="w-5 h-5" />
@@ -368,7 +412,7 @@ export default function Navbar() {
                           }}
                           className={`text-sm font-semibold tracking-[0.2em] transition-colors duration-300 focus:outline-none ${activeItem === item.name
                               ? "text-brand-gold border-l-2 border-brand-gold pl-3"
-                              : "text-brand-cream/80 hover:text-brand-cream pl-0"
+                              : "text-brand-dark/80 hover:text-brand-gold pl-0"
                             }`}
                         >
                           {t(item.name)}
@@ -380,7 +424,7 @@ export default function Navbar() {
                                 openMobileDropdown === item.name ? null : item.name
                               );
                             }}
-                            className="p-2 text-brand-cream/60 hover:text-brand-gold focus:outline-none"
+                            className="p-2 text-brand-dark/60 hover:text-brand-gold focus:outline-none"
                             aria-label={`Toggle ${item.name} sub-menu`}
                           >
                             <ChevronDown
@@ -394,7 +438,7 @@ export default function Navbar() {
 
                       {/* Mobile children submenu */}
                       {item.children && openMobileDropdown === item.name && (
-                        <div className="flex flex-col pl-4 mt-2 border-l border-brand-gold/20 gap-3.5">
+                        <div className="flex flex-col pl-4 mt-2 border-l border-brand-gold/25 gap-3.5">
                           {item.children.map((child) => (
                             <Link
                               key={child.name}
@@ -402,7 +446,7 @@ export default function Navbar() {
                               onClick={() => {
                                 setIsMobileMenuOpen(false);
                               }}
-                              className="text-[10px] font-semibold tracking-[0.15em] text-brand-cream/60 hover:text-brand-gold transition-colors duration-200 uppercase py-1"
+                              className="text-[10px] font-semibold tracking-[0.15em] text-brand-dark/70 hover:text-brand-gold transition-colors duration-200 uppercase py-1"
                             >
                               {t(child.name)}
                             </Link>
@@ -412,13 +456,24 @@ export default function Navbar() {
                     </div>
                   ))}
                 </nav>
+
+                {/* Mobile Booking Button */}
+                <div className="pt-2">
+                  <a
+                    href="#booking"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center bg-brand-gold hover:bg-brand-gold-dark text-white font-sans font-bold text-xs tracking-widest uppercase rounded-[3px] py-3.5 transition-all duration-300 shadow-md focus:outline-none focus:ring-1 focus:ring-brand-gold w-full text-center"
+                  >
+                    {t("bookNow")}
+                  </a>
+                </div>
               </div>
 
               {/* Footer inside drawer */}
-              <div className="flex flex-col gap-4 border-t border-brand-cream/10 pt-6 mt-8">
+              <div className="flex flex-col gap-4 border-t border-brand-dark/10 pt-6 mt-8">
                 {/* Language toggle inside drawer */}
                 <div className="flex items-center gap-3 pb-2 select-none">
-                  <span className="text-[9px] tracking-widest text-brand-cream/40 uppercase font-sans">
+                  <span className="text-[9px] tracking-widest text-brand-dark/50 uppercase font-sans">
                     Language:
                   </span>
                   <div className="flex gap-1.5">
@@ -430,7 +485,7 @@ export default function Navbar() {
                         }}
                         className={`px-2 py-0.5 text-[9px] font-semibold tracking-wider rounded-sm transition-all duration-300 ${currentLang === lang.code
                             ? "text-brand-gold border border-brand-gold bg-brand-gold/10"
-                            : "text-brand-cream/60 border border-brand-cream/10 hover:border-brand-gold/30 hover:text-brand-cream"
+                            : "text-brand-dark/70 border border-brand-dark/20 hover:border-brand-gold/45 hover:text-brand-dark hover:bg-brand-dark/5"
                           }`}
                       >
                         {lang.code}
@@ -439,10 +494,10 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                <span className="text-[9px] tracking-widest text-brand-gold/60 font-sans uppercase">
+                <span className="text-[9px] tracking-widest text-brand-gold font-sans uppercase">
                   Villa Lemon
                 </span>
-                <span className="text-[10px] text-brand-cream/40 leading-relaxed font-sans">
+                <span className="text-[10px] text-brand-dark/60 leading-relaxed font-sans">
                   {t("stayRelax")}
                   <br />
                   info@villalemon.com
