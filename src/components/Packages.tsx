@@ -82,43 +82,89 @@ const AdventureIcon = () => (
   </svg>
 );
 
-export default function Packages() {
+interface PackageItem {
+  _id?: string;
+  category: string;
+  title: string;
+  description: string;
+  image: string;
+  explore: string;
+  href: string;
+}
+
+interface PackagesProps {
+  data?: PackageItem[];
+  tagline?: string;
+  heading?: string;
+  viewAll?: string;
+}
+
+export default function Packages({
+  data,
+  tagline: taglineOverride,
+  heading: headingOverride,
+  viewAll: viewAllOverride,
+}: PackagesProps) {
   const t = useTranslations("Packages");
 
-  const cards = [
-    {
-      img: "/assets/package_varkala.png",
-      icon: <VarkalaIcon />,
-      title: t("varkalaTitle"),
-      desc: t("varkalaDesc"),
-      explore: t("varkalaExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/package_daytrips.png",
-      icon: <DayTripsIcon />,
-      title: t("daytripsTitle"),
-      desc: t("daytripsDesc"),
-      explore: t("daytripsExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/package_houseboat.png",
-      icon: <HouseboatIcon />,
-      title: t("backwaterTitle"),
-      desc: t("backwaterDesc"),
-      explore: t("backwaterExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/package_adventure.png",
-      icon: <AdventureIcon />,
-      title: t("adventureTitle"),
-      desc: t("adventureDesc"),
-      explore: t("adventureExplore"),
-      href: "#contact",
-    },
-  ];
+  const tagline = taglineOverride || t("tagline");
+  const heading = headingOverride || t("heading");
+  const viewAll = viewAllOverride || t("viewAll");
+
+  const cards = React.useMemo(() => {
+    if (data && data.length > 0) {
+      return data.map((item) => ({
+        img: item.image,
+        icon:
+          item.category === "varkalaSightseeing"
+            ? <VarkalaIcon />
+            : item.category === "dayTrips"
+            ? <DayTripsIcon />
+            : item.category === "backwaterExperiences"
+            ? <HouseboatIcon />
+            : <AdventureIcon />,
+        title: item.title,
+        desc: item.description,
+        explore: item.explore,
+        href: item.href || "#contact",
+      }));
+    }
+
+    return [
+      {
+        img: "/assets/package_varkala.png",
+        icon: <VarkalaIcon />,
+        title: t("varkalaTitle"),
+        desc: t("varkalaDesc"),
+        explore: t("varkalaExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/package_daytrips.png",
+        icon: <DayTripsIcon />,
+        title: t("daytripsTitle"),
+        desc: t("daytripsDesc"),
+        explore: t("daytripsExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/package_houseboat.png",
+        icon: <HouseboatIcon />,
+        title: t("backwaterTitle"),
+        desc: t("backwaterDesc"),
+        explore: t("backwaterExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/package_adventure.png",
+        icon: <AdventureIcon />,
+        title: t("adventureTitle"),
+        desc: t("adventureDesc"),
+        explore: t("adventureExplore"),
+        href: "#contact",
+      },
+    ];
+  }, [data, t]);
 
   return (
     <section
@@ -131,17 +177,17 @@ export default function Packages() {
         <div className="flex items-end justify-between mb-12 md:mb-16 gap-4">
           <div>
             <span className="text-[10px] md:text-xs font-semibold tracking-[0.25em] text-brand-gold uppercase block mb-2 select-none">
-              {t("tagline")}
+              {tagline}
             </span>
             <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-4.5xl font-serif font-normal text-brand-dark leading-tight tracking-wide">
-              {t("heading")}
+              {heading}
             </h2>
           </div>
           <a
             href="#packages-list"
             className="group flex items-center gap-1.5 text-[9px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 select-none border-b border-transparent hover:border-brand-gold pb-1 shrink-0"
           >
-            <span>{t("viewAll")}</span>
+            <span>{viewAll}</span>
             <span className="transition-transform duration-300 group-hover:translate-x-0.5">
               →
             </span>

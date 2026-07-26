@@ -18,38 +18,39 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "HOME", href: "#home" },
+  { name: "HOME", href: "/" },
   {
     name: "ACCOMMODATIONS",
-    href: "#villas",
+    href: "/#villas",
     children: [
-      { name: "entireVillas", href: "#entire-villas" },
-      { name: "privateFloors", href: "#private-floors" },
-      { name: "individualRooms", href: "#individual-rooms" },
+      { name: "entireVillas", href: "/accommodation/villas" },
+      { name: "privateFloors", href: "/accommodation/floors" },
+      { name: "individualRooms", href: "/accommodation/rooms" },
     ],
   },
   {
     name: "PACKAGES",
-    href: "#packages",
+    href: "/#packages",
     children: [
-      { name: "varkalaSightseeing", href: "#varkala-sightseeing" },
-      { name: "dayTrips", href: "#day-trips" },
-      { name: "backwaterExperiences", href: "#backwater-experiences" },
-      { name: "adventureActivities", href: "#adventure-activities" },
+      { name: "varkalaSightseeing", href: "/packages/varkala-sightseeing" },
+      { name: "dayTrips", href: "/packages/day-trips" },
+      { name: "backwaterExperiences", href: "/packages/backwater-experiences" },
+      { name: "adventureActivities", href: "/packages/adventure-activities" },
     ],
   },
   {
     name: "YOGATOURS",
-    href: "#yogatours",
+    href: "/#yogatours",
     children: [
-      { name: "yogaRetreats", href: "#yoga-retreats" },
-      { name: "dailyYogaClasses", href: "#daily-yoga-classes" },
-      { name: "privateYogaSessions", href: "#private-yoga-sessions" },
-      { name: "meetOurTeachers", href: "#meet-our-teachers" },
+      { name: "yogaRetreats", href: "/yoga/yoga-retreats" },
+      { name: "dailyYogaClasses", href: "/yoga/daily-yoga-classes" },
+      { name: "privateYogaSessions", href: "/yoga/private-yoga-sessions" },
+      { name: "meetOurTeachers", href: "/yoga/teachers" },
     ],
   },
-  { name: "GALLERY", href: "#gallery" },
-  { name: "CONTACT", href: "#contact" },
+  { name: "ABOUT", href: "/#about" },
+  { name: "GALLERY", href: "/#gallery" },
+  { name: "CONTACT", href: "/#contact" },
 ];
 
 const languages = [
@@ -59,7 +60,7 @@ const languages = [
   { code: "RU", name: "Русский" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolean }) {
   const t = useTranslations("Navbar");
   const locale = useLocale();
   const router = useRouter();
@@ -112,7 +113,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 bg-transparent ${
+      className={`${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 bg-transparent ${
         isScrolled
           ? "py-4 border-b border-brand-gold/10"
           : "py-6"

@@ -86,43 +86,89 @@ const TeachersIcon = () => (
   </svg>
 );
 
-export default function Yoga() {
+interface YogaProgramItem {
+  _id?: string;
+  type: string;
+  title: string;
+  description: string;
+  image: string;
+  explore: string;
+  href: string;
+}
+
+interface YogaProps {
+  data?: YogaProgramItem[];
+  tagline?: string;
+  heading?: string;
+  viewAll?: string;
+}
+
+export default function Yoga({
+  data,
+  tagline: taglineOverride,
+  heading: headingOverride,
+  viewAll: viewAllOverride,
+}: YogaProps) {
   const t = useTranslations("Yoga");
 
-  const cards = [
-    {
-      img: "/assets/yoga_retreats.png",
-      icon: <RetreatsIcon />,
-      title: t("retreatsTitle"),
-      desc: t("retreatsDesc"),
-      explore: t("retreatsExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/yoga_classes.png",
-      icon: <ClassesIcon />,
-      title: t("classesTitle"),
-      desc: t("classesDesc"),
-      explore: t("classesExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/yoga_private.png",
-      icon: <PrivateIcon />,
-      title: t("privateTitle"),
-      desc: t("privateDesc"),
-      explore: t("privateExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/yoga_teachers.png",
-      icon: <TeachersIcon />,
-      title: t("teachersTitle"),
-      desc: t("teachersDesc"),
-      explore: t("teachersExplore"),
-      href: "#contact",
-    },
-  ];
+  const tagline = taglineOverride || t("tagline");
+  const heading = headingOverride || t("heading");
+  const viewAll = viewAllOverride || t("viewAll");
+
+  const cards = React.useMemo(() => {
+    if (data && data.length > 0) {
+      return data.map((item) => ({
+        img: item.image,
+        icon:
+          item.type === "retreats"
+            ? <RetreatsIcon />
+            : item.type === "classes"
+            ? <ClassesIcon />
+            : item.type === "private"
+            ? <PrivateIcon />
+            : <TeachersIcon />,
+        title: item.title,
+        desc: item.description,
+        explore: item.explore,
+        href: item.href || "#contact",
+      }));
+    }
+
+    return [
+      {
+        img: "/assets/yoga_retreats.png",
+        icon: <RetreatsIcon />,
+        title: t("retreatsTitle"),
+        desc: t("retreatsDesc"),
+        explore: t("retreatsExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/yoga_classes.png",
+        icon: <ClassesIcon />,
+        title: t("classesTitle"),
+        desc: t("classesDesc"),
+        explore: t("classesExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/yoga_private.png",
+        icon: <PrivateIcon />,
+        title: t("privateTitle"),
+        desc: t("privateDesc"),
+        explore: t("privateExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/yoga_teachers.png",
+        icon: <TeachersIcon />,
+        title: t("teachersTitle"),
+        desc: t("teachersDesc"),
+        explore: t("teachersExplore"),
+        href: "#contact",
+      },
+    ];
+  }, [data, t]);
 
   return (
     <section
@@ -135,17 +181,17 @@ export default function Yoga() {
         <div className="flex items-end justify-between mb-12 md:mb-16 gap-4">
           <div>
             <span className="text-[10px] md:text-xs font-semibold tracking-[0.25em] text-brand-gold uppercase block mb-2 select-none">
-              {t("tagline")}
+              {tagline}
             </span>
             <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-4.5xl font-serif font-normal text-brand-dark leading-tight tracking-wide">
-              {t("heading")}
+              {heading}
             </h2>
           </div>
           <a
             href="#yoga-programs"
             className="group flex items-center gap-1.5 text-[9px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 select-none border-b border-transparent hover:border-brand-gold pb-1 shrink-0"
           >
-            <span>{t("viewAll")}</span>
+            <span>{viewAll}</span>
             <span className="transition-transform duration-300 group-hover:translate-x-0.5">
               →
             </span>

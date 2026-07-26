@@ -23,9 +23,39 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-export default function Hero() {
+interface HeroProps {
+  data?: {
+    tagline?: string;
+    headingPart1?: string;
+    headingPart2?: string;
+    nature?: string;
+    description?: string;
+    bookStay?: string;
+    whatsappBooking?: string;
+    imageAlt?: string;
+  };
+  highlightsData?: {
+    premiumVillasTitle?: string;
+    premiumVillasSubtitle?: string;
+    greatLocationsTitle?: string;
+    greatLocationsSubtitle?: string;
+    wellnessTitle?: string;
+    wellnessSubtitle?: string;
+  };
+}
+
+export default function Hero({ data, highlightsData }: HeroProps) {
   const t = useTranslations("Hero");
   const shouldReduceMotion = useReducedMotion();
+
+  // Localized string fallbacks
+  const tagline = data?.tagline || t("tagline");
+  const headingPart1 = data?.headingPart1 || t("headingPart1");
+  const headingPart2 = data?.headingPart2 || t("headingPart2");
+  const nature = data?.nature || t("nature");
+  const description = data?.description || t("description");
+  const bookStay = data?.bookStay || t("bookStay");
+  const whatsappBooking = data?.whatsappBooking || t("whatsappBooking");
 
   // Animation variants supporting reduced motion preferences
   const fadeInUp: Variants = {
@@ -98,7 +128,7 @@ export default function Hero() {
           >
             <div className="w-8 h-[1px] bg-brand-gold" />
             <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] text-brand-gold uppercase">
-              {t("tagline")}
+              {tagline}
             </span>
           </motion.div>
 
@@ -110,10 +140,10 @@ export default function Hero() {
             variants={fadeInUp}
             className="text-[40px] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7.5xl font-serif font-normal tracking-wide text-brand-cream md:leading-[1.1]"
           >
-            {t("headingPart1")} <br />
-            {t("headingPart2")} <br className="block md:hidden" />
+            {headingPart1} <br />
+            {headingPart2} <br className="block md:hidden" />
             <span className="text-brand-gold md:text-transparent md:bg-clip-text md:bg-gradient-to-r md:from-brand-gold md:to-brand-gold-dark md:font-medium md:italic">
-              {t("nature")}
+              {nature}
             </span>
           </motion.h1>
 
@@ -128,7 +158,7 @@ export default function Hero() {
             variants={fadeInUp}
             className="text-xs sm:text-sm md:text-base leading-relaxed text-brand-cream/80 max-w-lg font-light tracking-wide font-sans"
           >
-            {t("description")}
+            {description}
           </motion.p>
 
           {/* Call-to-Actions (CTAs) */}
@@ -156,7 +186,7 @@ export default function Hero() {
               className="group flex items-center justify-center gap-2.5 px-6 md:px-7 py-3.5 border border-white/60 md:border-brand-cream/20 hover:border-brand-gold hover:bg-brand-gold text-white hover:text-[#121212] font-semibold text-xs md:text-sm tracking-widest uppercase rounded-sm transition-all duration-300 backdrop-blur-sm bg-black/25 md:bg-black/10 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 focus:ring-offset-[#121212]"
             >
               <WhatsAppIcon />
-              <span>{t("whatsappBooking")}</span>
+              <span>{whatsappBooking}</span>
             </a>
           </motion.div>
         </div>
@@ -169,7 +199,7 @@ export default function Hero() {
         variants={fadeIn}
         className="relative z-20 pb-12 md:pb-16 w-full"
       >
-        <HighlightsBar />
+        <HighlightsBar data={highlightsData} />
       </motion.div>
     </section>
   );

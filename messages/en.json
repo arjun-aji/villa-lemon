@@ -1,6 +1,7 @@
 {
   "Navbar": {
     "HOME": "HOME",
+    "ABOUT": "ABOUT",
     "ACCOMMODATIONS": "ACCOMMODATIONS",
     "PACKAGES": "PACKAGES",
     "YOGATOURS": "YOGA TOURS",
@@ -22,6 +23,31 @@
     "dailyYogaClasses": "Daily Yoga Classes",
     "privateYogaSessions": "Private Yoga Sessions",
     "meetOurTeachers": "Meet Our Teachers"
+  },
+  "About": {
+    "tagline": "OUR STORY",
+    "heading": "A Private Escape Closer to Nature",
+    "paragraph1": "Villa Lemon is a collection of handpicked villas nestled in the serene landscapes of Varkala, Kerala. Surrounded by lush greenery, tranquil views, and the soothing sounds of nature, our villas offer the perfect blend of luxury, privacy, and authentic local charm.",
+    "paragraph2": "Whether you're here to relax, reconnect, or celebrate, we ensure every moment is thoughtfully curated for your comfort.",
+    "button": "DISCOVER OUR VILLAS",
+    "natureTitle": "Nature First",
+    "natureDesc": "Villas surrounded by lush greenery and breathtaking views.",
+    "luxuryTitle": "Luxury Living",
+    "luxuryDesc": "Spacious villas with modern amenities designed for ultimate comfort.",
+    "serviceTitle": "Personalized Service",
+    "serviceDesc": "Dedicated 24/7 support to make your stay smooth and memorable.",
+    "everyoneTitle": "Perfect for Everyone",
+    "everyoneDesc": "Ideal for families, couples, friends, and special occasions.",
+    "quoteText": "We don't just offer stays, we create unforgettable experiences.",
+    "quoteAuthor": "The Villa Lemon Team",
+    "statsVillasVal": "25+",
+    "statsVillasLabel": "Handpicked Villas",
+    "statsGuestsVal": "5000+",
+    "statsGuestsLabel": "Happy Guests",
+    "statsRatingVal": "4.9/5",
+    "statsRatingLabel": "Guest Ratings",
+    "statsLocationVal": "1",
+    "statsLocationLabel": "Beautiful Location"
   },
   "Hero": {
     "tagline": "Luxury Wilderness Resort",
@@ -95,5 +121,51 @@
   "Metadata": {
     "title": "Villa Lemon | Luxury Private Villa Rentals & Wellness Escapes",
     "description": "Experience absolute luxury, tranquility, and wellness at Villa Lemon. Discover our premium private villas surrounded by nature, bespoke yoga tours, and curated sightseeing packages."
+  },
+  "AccommodationDetails": {
+    "overview": "Overview",
+    "rooms": "Rooms & Apartment",
+    "amenities": "Amenities",
+    "facilities": "Facilities",
+    "location": "Location",
+    "policies": "Info & Policies",
+    "aboutProperty": "About Property",
+    "whyLoveUs": "Why Guests Love Us",
+    "distances": "Distances from the Property",
+    "perfectLocation": "A Perfect Location",
+    "roomAmenities": "Room Amenities",
+    "idealFor": "Ideal For",
+    "groupAccommodation": "Group Accommodation",
+    "checkInOut": "Check-in & Check-out",
+    "additionalServices": "Additional Services Available on Request",
+    "bookStay": "BOOK YOUR STAY",
+    "whatsappUs": "WHATSAPP US",
+    "needHelp": "Need Help Planning Your Stay?",
+    "support247": "Our team is here to help you 24/7.",
+    "chatOnWhatsapp": "CHAT ON WHATSAPP",
+    "bookNow": "BOOK NOW",
+    "back": "Back"
+  },
+  "PackageDetails": {
+    "overview": "Overview",
+    "itinerary": "Itinerary",
+    "inclusions": "Inclusions",
+    "exclusions": "Exclusions",
+    "whyLoveUs": "Why Guests Love Us",
+    "duration": "Duration",
+    "price": "Price",
+    "bookNow": "Book Now",
+    "whatsappUs": "WhatsApp Us",
+    "back": "Back"
+  },
+  "YogaDetails": {
+    "overview": "Overview",
+    "schedule": "Schedule",
+    "benefits": "Benefits & Inclusions",
+    "duration": "Duration",
+    "price": "Price",
+    "bookNow": "Book Now",
+    "back": "Back",
+    "teachers": "Meet Our Teachers"
   }
 }

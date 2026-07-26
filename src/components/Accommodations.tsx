@@ -67,38 +67,79 @@ const RoomIcon = () => (
   </svg>
 );
 
-export default function Accommodations() {
+interface AccommodationItem {
+  _id?: string;
+  type: string;
+  title: string;
+  description: string;
+  price: string;
+  image: string;
+  explore: string;
+  href: string;
+}
+
+interface AccommodationsProps {
+  data?: AccommodationItem[];
+  tagline?: string;
+  heading?: string;
+  viewAll?: string;
+}
+
+export default function Accommodations({
+  data,
+  tagline: taglineOverride,
+  heading: headingOverride,
+  viewAll: viewAllOverride,
+}: AccommodationsProps) {
   const t = useTranslations("Accommodations");
 
-  const cards = [
-    {
-      img: "/assets/villa_entire.png",
-      price: t("villaPrice"),
-      icon: <VillaIcon />,
-      title: t("villaTitle"),
-      desc: t("villaDesc"),
-      explore: t("villaExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/villa_terrace.png",
-      price: t("floorPrice"),
-      icon: <FloorIcon />,
-      title: t("floorTitle"),
-      desc: t("floorDesc"),
-      explore: t("floorExplore"),
-      href: "#contact",
-    },
-    {
-      img: "/assets/villa_room.png",
-      price: t("roomPrice"),
-      icon: <RoomIcon />,
-      title: t("roomTitle"),
-      desc: t("roomDesc"),
-      explore: t("roomExplore"),
-      href: "#contact",
-    },
-  ];
+  const tagline = taglineOverride || t("tagline");
+  const heading = headingOverride || t("heading");
+  const viewAll = viewAllOverride || t("viewAll");
+
+  const cards = React.useMemo(() => {
+    if (data && data.length > 0) {
+      return data.map((item) => ({
+        img: item.image,
+        price: item.price,
+        icon: item.type === "villa" ? <VillaIcon /> : item.type === "floor" ? <FloorIcon /> : <RoomIcon />,
+        title: item.title,
+        desc: item.description,
+        explore: item.explore,
+        href: item.href || "#contact",
+      }));
+    }
+
+    return [
+      {
+        img: "/assets/villa_entire.png",
+        price: t("villaPrice"),
+        icon: <VillaIcon />,
+        title: t("villaTitle"),
+        desc: t("villaDesc"),
+        explore: t("villaExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/villa_terrace.png",
+        price: t("floorPrice"),
+        icon: <FloorIcon />,
+        title: t("floorTitle"),
+        desc: t("floorDesc"),
+        explore: t("floorExplore"),
+        href: "#contact",
+      },
+      {
+        img: "/assets/villa_room.png",
+        price: t("roomPrice"),
+        icon: <RoomIcon />,
+        title: t("roomTitle"),
+        desc: t("roomDesc"),
+        explore: t("roomExplore"),
+        href: "#contact",
+      },
+    ];
+  }, [data, t]);
 
   return (
     <section
@@ -111,17 +152,17 @@ export default function Accommodations() {
         <div className="flex items-end justify-between mb-12 md:mb-16 gap-4">
           <div>
             <span className="text-[10px] md:text-xs font-semibold tracking-[0.25em] text-brand-gold uppercase block mb-2 select-none">
-              {t("tagline")}
+              {tagline}
             </span>
             <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-4.5xl font-serif font-normal text-brand-dark leading-tight tracking-wide">
-              {t("heading")}
+              {heading}
             </h2>
           </div>
           <a
             href="#stays"
             className="group flex items-center gap-1.5 text-[9px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 select-none border-b border-transparent hover:border-brand-gold pb-1 shrink-0"
           >
-            <span>{t("viewAll")}</span>
+            <span>{viewAll}</span>
             <span className="transition-transform duration-300 group-hover:translate-x-0.5">
               →
             </span>

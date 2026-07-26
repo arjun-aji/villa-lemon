@@ -42,31 +42,42 @@ interface HighlightItem {
   subtitleKey: string;
 }
 
-const highlights: HighlightItem[] = [
-  {
-    icon: <Bed className="w-5 h-5 md:w-6 h-6 text-brand-gold stroke-[1.5]" />,
-    titleKey: "premiumVillasTitle",
-    subtitleKey: "premiumVillasSubtitle",
-  },
-  {
-    icon: <MapPin className="w-5 h-5 md:w-6 h-6 text-brand-gold stroke-[1.5]" />,
-    titleKey: "greatLocationsTitle",
-    subtitleKey: "greatLocationsSubtitle",
-  },
-  {
-    icon: <YogaIcon />,
-    titleKey: "wellnessTitle",
-    subtitleKey: "wellnessSubtitle",
-  },
-];
+interface HighlightsBarProps {
+  data?: {
+    premiumVillasTitle?: string;
+    premiumVillasSubtitle?: string;
+    greatLocationsTitle?: string;
+    greatLocationsSubtitle?: string;
+    wellnessTitle?: string;
+    wellnessSubtitle?: string;
+  };
+}
 
-export default function HighlightsBar() {
+export default function HighlightsBar({ data }: HighlightsBarProps) {
   const t = useTranslations("HighlightsBar");
+
+  const list = [
+    {
+      icon: <Bed className="w-5 h-5 md:w-6 h-6 text-brand-gold stroke-[1.5]" />,
+      title: data?.premiumVillasTitle || t("premiumVillasTitle"),
+      subtitle: data?.premiumVillasSubtitle || t("premiumVillasSubtitle"),
+    },
+    {
+      icon: <MapPin className="w-5 h-5 md:w-6 h-6 text-brand-gold stroke-[1.5]" />,
+      title: data?.greatLocationsTitle || t("greatLocationsTitle"),
+      subtitle: data?.greatLocationsSubtitle || t("greatLocationsSubtitle"),
+    },
+    {
+      icon: <YogaIcon />,
+      title: data?.wellnessTitle || t("wellnessTitle"),
+      subtitle: data?.wellnessSubtitle || t("wellnessSubtitle"),
+    },
+  ];
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 md:px-0">
       <div className="grid grid-cols-3 md:grid-cols-3 gap-0 md:gap-px border-0 md:border border-brand-cream/10 rounded-none md:rounded-lg overflow-hidden backdrop-blur-none md:backdrop-blur-md bg-transparent md:bg-[#121212]/35 shadow-none md:shadow-2xl divide-x divide-brand-cream/10 md:divide-x-0">
-        {highlights.map((item, idx) => (
+        {list.map((item, idx) => (
           <div
             key={idx}
             className="flex flex-col items-center text-center p-2 md:p-6 bg-transparent md:bg-[#121212]/45 md:flex-row md:items-center md:text-left gap-2 md:gap-4 hover:bg-transparent md:hover:bg-[#121212]/60 transition-all duration-300 group cursor-default"
@@ -76,10 +87,10 @@ export default function HighlightsBar() {
             </div>
             <div className="flex flex-col mt-2 md:mt-0 select-none">
               <span className="text-[9px] sm:text-[10px] md:text-xs font-semibold tracking-wider text-brand-cream uppercase leading-tight md:leading-normal">
-                {t(item.titleKey)}
+                {item.title}
               </span>
               <span className="text-[8px] sm:text-[9px] md:text-[11px] tracking-wider text-brand-cream/50 mt-0.5 md:mt-1 font-medium font-sans">
-                {t(item.subtitleKey)}
+                {item.subtitle}
               </span>
             </div>
           </div>
