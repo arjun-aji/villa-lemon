@@ -155,20 +155,20 @@ const retreat11Days = {
   ],
 
   excursions: [
-    { name: L("Spiritual Varkala Tour"), duration: L("2 Hours"), description: L("Discover the spiritual heritage of Varkala through a guided visit to the ancient Janardanaswamy Temple. Continue to Sivagiri Ashram and Varkala Town."), included: true },
-    { name: L("Golden Island Backwater Experience"), duration: L("2 Hours"), description: L("Escape into Kerala's backwaters with a visit to the peaceful Golden Island, surrounded by coconut plantations."), included: true },
-    { name: L("Kaveri Elephant Park"), duration: L("2 Hours"), description: L("Spend time with India's gentle giants in a beautiful natural setting. Learn about elephant conservation."), included: true },
-    { name: L("Jatayu Earth's Center"), duration: L("4–5 Hours"), description: L("Visit the world's largest bird sculpture. Ride the hilltop cable car and explore the cultural and mythological park."), included: true },
-    { name: L("Kappil Beach & Kappil Lake"), duration: L("2–3 Hours"), description: L("Discover the scenic coastal destination where golden sandy beaches meet peaceful backwaters."), included: true },
-    { name: L("Special Cultural Experience – Saree & Bollywood Dance Party"), duration: L("2–3 Hours (Evening)"), description: L("Dress in traditional sarees, learn Bollywood dance steps, enjoy lively music, and conclude with a festive dinner."), included: true },
+    { name: L("Spiritual Varkala Tour"), duration: L("2 Hours"), description: L("Guided visit to Janardanaswamy Temple, Sivagiri Ashram and Varkala Town."), included: true },
+    { name: L("Golden Island Backwater Experience"), duration: L("2 Hours"), description: L("Tranquil boat ride through palm tree backwaters."), included: true },
+    { name: L("Kaveri Elephant Park"), duration: L("2 Hours"), description: L("Wildlife care interaction and countryside scenery."), included: true },
+    { name: L("Jatayu Earth's Center"), duration: L("4–5 Hours"), description: L("Hilltop cable car ride to view the largest bird sculpture."), included: true },
+    { name: L("Kappil Beach & Kappil Lake"), duration: L("2–3 Hours"), description: L("Nature walk where backwaters meet the Arabian Sea."), included: true },
+    { name: L("Special Cultural Experience – Saree & Bollywood Dance Party"), duration: L("2–3 Hours"), description: L("Traditional saree dressup and Bollywood dance party."), included: true },
   ],
 
   rooms: [
     { name: L("Budget Room"), occupancy: 2, sharedPrice: 24999, privatePrice: 32999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached private bathroom"), L("Complimentary Wi-Fi")] },
     { name: L("Standard Room"), occupancy: 2, sharedPrice: 29999, privatePrice: 38999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached bathroom with hot water"), L("Shared kitchen & dining")] },
-    { name: L("Deluxe Room"), occupancy: 2, sharedPrice: 34999, privatePrice: 44999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("Spacious & Modern layout"), L("AC"), L("Attached bathroom with hot water")] },
-    { name: L("Deluxe Room with Balcony"), occupancy: 2, sharedPrice: 39999, privatePrice: 49999, hasAC: true, hasBathroom: true, hasBalcony: true, hotWater: true, features: [L("Private Balcony"), L("AC"), L("Attached bathroom with hot water")] },
-    { name: L("Superior Deluxe Room (Villa Lemon Inn)"), occupancy: 2, sharedPrice: 44999, privatePrice: 56999, hasAC: true, hasBathroom: true, hasBalcony: true, hasWorkspace: true, hotWater: true, features: [L("Premium Superior accommodation"), L("Spacious room with elegant interiors"), L("Private Balcony")] },
+    { name: L("Deluxe Room"), occupancy: 2, sharedPrice: 34999, privatePrice: 44999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("Spacious layout"), L("AC"), L("Attached bathroom with hot water")] },
+    { name: L("Deluxe Room with Balcony"), occupancy: 2, sharedPrice: 39999, privatePrice: 49999, hasAC: true, hasBathroom: true, hasBalcony: true, hotWater: true, features: [L("Private Balcony"), L("AC"), L("Attached bathroom")] },
+    { name: L("Superior Deluxe Room (Villa Lemon Inn)"), occupancy: 2, sharedPrice: 44999, privatePrice: 56999, hasAC: true, hasBathroom: true, hasBalcony: true, hasWorkspace: true, hotWater: true, features: [L("Premium room"), L("Spacious layouts"), L("Private Balcony")] },
   ],
 
   meals: [
@@ -253,7 +253,7 @@ const retreat8Days = {
   slug: "varkala-yoga-retreat-8-days",
   days: 8,
   nights: 7,
-  price: 19999, // reasonable default price for 8 days
+  price: 19999,
   displayOrder: 2,
   minAge: 18,
   maxCapacity: 20,
@@ -374,26 +374,26 @@ const retreat8Days = {
   ],
 
   excursions: [
-    { name: L("Spiritual Varkala Tour"), duration: L("2 Hours"), description: L("Discover the spiritual heritage of Varkala with a guided visit to Janardanaswamy Temple and Sivagiri Ashram."), included: true },
-    { name: L("Golden Island Backwater Experience"), duration: L("2 Hours"), description: L("Explore Kerala's tranquil backwaters on a traditional boat ride to Golden Island."), included: true },
-    { name: L("Kaveri Elephant Park"), duration: L("2 Hours"), description: L("Spend time with gentle elephants and learn about their conservation and care."), included: true },
-    { name: L("Jatayu Earth's Center"), duration: L("4–5 Hours"), description: L("Visit the world's largest bird sculpture and ride the scenic hilltop cable car."), included: true },
-    { name: L("Kappil Beach & Kappil Lake"), duration: L("2–3 Hours"), description: L("Enjoy the picturesque views where sandy beaches meet tranquil backwaters."), included: true },
-    { name: L("Special Saree & Bollywood Cultural Evening"), duration: L("2–3 Hours (Evening)"), description: L("Dress in traditional saree, learn Bollywood dance moves, and enjoy festive dining."), included: true },
+    { name: L("Spiritual Varkala Tour"), duration: L("2 Hours"), description: L("Guided visit to Janardanaswamy Temple and Sivagiri Ashram."), included: true },
+    { name: L("Golden Island Backwater Experience"), duration: L("2 Hours"), description: L("Tranquil boat ride through palm tree backwaters."), included: true },
+    { name: L("Kaveri Elephant Park"), duration: L("2 Hours"), description: L("Wildlife care interaction and countryside scenery."), included: true },
+    { name: L("Jatayu Earth's Center"), duration: L("4–5 Hours"), description: L("Hilltop cable car ride to view the largest bird sculpture."), included: true },
+    { name: L("Kappil Beach & Kappil Lake"), duration: L("2–3 Hours"), description: L("Nature walk where backwaters meet the Arabian Sea."), included: true },
+    { name: L("Special Saree & Bollywood Cultural Evening"), duration: L("2–3 Hours"), description: L("Traditional saree dressup and Bollywood dance party."), included: true },
   ],
 
   rooms: [
     { name: L("Budget Room"), occupancy: 2, sharedPrice: 19999, privatePrice: 26999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached private bathroom"), L("Complimentary Wi-Fi")] },
     { name: L("Standard Room"), occupancy: 2, sharedPrice: 24999, privatePrice: 32999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached bathroom with hot water"), L("Shared kitchen & dining")] },
-    { name: L("Deluxe Room"), occupancy: 2, sharedPrice: 29999, privatePrice: 38999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("Spacious layout"), L("AC"), L("Attached bathroom")] },
+    { name: L("Deluxe Room"), occupancy: 2, sharedPrice: 29999, privatePrice: 38999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("Spacious layout"), L("AC"), L("Attached bathroom with hot water")] },
     { name: L("Deluxe Room with Balcony"), occupancy: 2, sharedPrice: 34999, privatePrice: 44999, hasAC: true, hasBathroom: true, hasBalcony: true, hotWater: true, features: [L("Private Balcony"), L("AC"), L("Attached bathroom")] },
-    { name: L("Superior Deluxe Room (Villa Lemon Inn)"), occupancy: 2, sharedPrice: 39999, privatePrice: 49999, hasAC: true, hasBathroom: true, hasBalcony: true, hasWorkspace: true, hotWater: true, features: [L("Main Activity Hub"), L("Spacious room with elegant interiors"), L("Private Balcony")] },
+    { name: L("Superior Deluxe Room (Villa Lemon Inn)"), occupancy: 2, sharedPrice: 39999, privatePrice: 49999, hasAC: true, hasBathroom: true, hasBalcony: true, hasWorkspace: true, hotWater: true, features: [L("Premium room"), L("Spacious layouts"), L("Private Balcony")] },
   ],
 
   meals: [
-    { mealType: L("Morning Herbal Tea"), description: L("Freshly prepared herbal tea served at the Shala."), isVegan: true, isGlutenFree: true },
-    { mealType: L("Healthy Breakfast"), description: L("Nutritious vegetarian choices served daily."), isVegan: true, isGlutenFree: false },
-    { mealType: L("Fresh Fruit Brunch"), description: L("Seasonal tropical fruits brunch."), isVegan: true, isGlutenFree: true },
+    { mealType: L("Morning Herbal Tea"), description: L("Freshly prepared herbal tea served at the Shala to start the day."), isVegan: true, isGlutenFree: true },
+    { mealType: L("Healthy Breakfast"), description: L("Nutritious vegetarian choices to refuel after morning practice."), isVegan: true, isGlutenFree: false },
+    { mealType: L("Fresh Fruit Brunch"), description: L("Seasonal tropical fruits including Pineapple, Watermelon, Papaya, etc."), isVegan: true, isGlutenFree: true },
     { mealType: L("Traditional Vegetarian Lunch"), description: L("Freshly prepared authentic Kerala vegetarian dishes."), isVegan: true, isGlutenFree: false },
     { mealType: L("Wholesome Vegetarian Dinner"), description: L("A balanced vegetarian dinner menu inspired by traditional Indian cuisine."), isVegan: true, isGlutenFree: true },
   ],
@@ -412,7 +412,7 @@ const retreat8Days = {
   ],
 
   ayurvedaTitle: L("Traditional Kerala Ayurvedic Wellness"),
-  ayurvedaDescription: L("No wellness journey in Kerala is complete without experiencing the ancient healing science of Ayurveda. Consultations and optional therapies are easily arranged."),
+  ayurvedaDescription: L("No wellness journey in Kerala is complete without experiencing the ancient healing science of Ayurveda. During your retreat, we can arrange professional consultations and therapies."),
   ayurvedaTreatments: [
     { name: L("Abhyanga Massage"), description: L("Rejuvenating full body warm herbal oil massage."), isOptional: true, extraCost: 2500 },
   ],
@@ -432,7 +432,7 @@ const retreat8Days = {
     L("Guided meditation, pranayama and yoga philosophy lectures"),
     L("Airport group transfers from/to Trivandrum International Airport"),
     L("Private transportation for all scheduled excursions"),
-    L("All listed sightseeing tours and cultural events"),
+    L("All listed excursions and cultural events"),
     L("Certificate of Completion signed by an Indian yoga teacher"),
   ],
   exclusions: [
@@ -466,6 +466,196 @@ const retreat8Days = {
   keywords: L("yoga retreat varkala, kerala spiritual retreat"),
 };
 
+// ─── Retreat 3: 4-Day Varkala Retreat ─────────────────────────────────────────
+
+const retreat4Days = {
+  slug: "varkala-yoga-wellness-retreat-4-days",
+  days: 4,
+  nights: 3,
+  price: 14999, // reasonable default price for 4 days
+  displayOrder: 3,
+  minAge: 18,
+  maxCapacity: 20,
+  yogaHours: 12, // approx 12 hours of classes
+  status: "published",
+  featured: true,
+  certificate: true,
+  bookingOpen: true,
+
+  location: L("Varkala, Kerala, India"),
+  difficulty: L("Beginner Friendly"),
+  yogaLevel: L("Beginner to Advanced"),
+  language: L("English"),
+  groupSize: L("Small groups for a personalized experience"),
+  accommodationType: L("Shared Twin Room or Private Room"),
+
+  heroTitle: L("Varkala Yoga & Wellness Retreat (4 Days)"),
+  heroSubtitle: L("Relax • Rejuvenate • Reconnect"),
+  tagline: L("Escape to the peaceful coastal town of Varkala, Kerala, for a rejuvenating 4 Days / 3 Nights Yoga & Wellness Retreat. Designed for those seeking a short but meaningful break."),
+  shortDescription: L(
+    "Designed for a short but meaningful break, combining daily yoga & meditation, healthy vegetarian cuisine, comfortable stay, and a Golden Island backwater excursion."
+  ),
+  fullDescription: L(
+    "Escape to the peaceful coastal town of Varkala, Kerala, for a rejuvenating 4 Days / 3 Nights Yoga & Wellness Retreat. Designed for those seeking a short but meaningful break, this retreat combines daily yoga and meditation, healthy vegetarian cuisine, comfortable accommodation, and a memorable backwater excursion to Golden Island.\n\nWhether you are new to yoga or an experienced practitioner, this retreat offers the perfect opportunity to relax, recharge, and experience the authentic beauty of Kerala."
+  ),
+  retreatOverview: L(
+    "Our 4 Days / 3 Nights Varkala Yoga & Wellness Retreat is the perfect introduction to yoga, mindfulness, and Kerala's natural beauty. Through daily yoga, nourishing vegetarian cuisine, peaceful accommodation, and the unforgettable Golden Island backwater experience, you'll return home feeling refreshed, balanced, and inspired."
+  ),
+  whyChoose: L(
+    "• Daily Yoga & Meditation\n• Healthy Vegetarian Cuisine\n• Comfortable Villa Accommodation\n• Authentic Kerala Hospitality\n• Peaceful Tropical Surroundings\n• Golden Island Backwater Experience\n• Small Group Experience\n• Free Time for Beach, Shopping & Relaxation\n• Optional Ayurvedic Consultations & Treatments"
+  ),
+  whoIsItFor: L(
+    "Ideal for guests looking for a quick weekend wellness getaway, a short introduction to mindfulness, or a relaxing stay in a tranquil beach setting."
+  ),
+  bestTime: L(
+    "Year-round availability, best enjoyed from October to March."
+  ),
+  cta: L("Book Your 4-Day Retreat"),
+
+  highlights: [
+    { icon: "Sun", title: L("Yoga & Meditation"), description: L("Daily morning and evening sessions led by traditional teachers.") },
+    { icon: "Leaf", title: L("Ayurvedic consultations"), description: L("Optional Ayurvedic massage and herbal oil treatments.") },
+    { icon: "Utensils", title: L("Vegetarian Recipes"), description: L("Four healthy communal vegetarian meals served fresh daily.") },
+    { icon: "Mountain", title: L("Backwater Excursion"), description: L("A guided boat trip to the serene Golden Island backwaters.") },
+  ],
+
+  dailySchedule: [
+    { time: "06:00 – 08:00 AM", activity: L("Morning Yoga & Meditation"), description: L("Rise and shine with traditional yoga postures and breathing.") },
+    { time: "08:15 AM", activity: L("Herbal Tea"), description: L("Hot herbal tea served to stimulate digestion.") },
+    { time: "09:00 AM", activity: L("Healthy Breakfast"), description: L("Nourishing vegetarian breakfast selection.") },
+    { time: "10:00 AM – 01:00 PM", activity: L("Excursion / Free Time"), description: L("Golden Island excursion or relaxing beach walks.") },
+    { time: "11:00 AM", activity: L("Fresh Fruit Brunch"), description: L("Seasonal tropical fruit salad brunch.") },
+    { time: "01:00 PM", activity: L("Vegetarian Lunch"), description: L("Traditional Kerala vegetarian lunch.") },
+    { time: "02:00 – 03:30 PM", activity: L("Meditation / Yoga Philosophy"), description: L("Lectures on yogic lifestyle and breath awareness.") },
+    { time: "03:30 – 05:00 PM", activity: L("Beach / Relaxation / Massage"), description: L("Free time for swimming or booking optional therapies.") },
+    { time: "05:00 PM", activity: L("Healthy Dinner"), description: L("Light and wholesome dinner menu.") },
+    { time: "07:30 – 09:00 PM", activity: L("Evening Yoga"), description: L("Gentle evening yoga class to restore and stretch.") },
+  ],
+
+  curriculum: [
+    {
+      dayNumber: 1,
+      dayTitle: L("Arrival & Welcome"),
+      description: L("Upon arrival at Trivandrum International Airport or Varkala Railway Station, you will be welcomed by our team and transferred to Villa Lemon. After check-in, relax in the peaceful surroundings before meeting your yoga teachers and fellow participants during the welcome session. The evening includes a gentle yoga class followed by a healthy vegetarian dinner."),
+      learningOutcome: L("Arrive comfortably, meet teachers, and set your wellness intentions."),
+      topics: [L("Airport Transfer"), L("Welcome Drink"), L("Check-in"), L("Orientation"), L("Gentle Yoga"), L("Healthy Dinner")],
+    },
+    {
+      dayNumber: 2,
+      dayTitle: L("Golden Island Backwater Experience"),
+      description: L("Start your day with sunrise yoga and meditation before travelling to the beautiful Golden Island. Enjoy one of Kerala's most peaceful backwater destinations where you'll experience traditional village life, coconut plantations, scenic backwaters, a nature walk, local culture, and beautiful photography opportunities. Return to the villa for relaxation before your evening yoga and meditation session."),
+      learningOutcome: L("Explore Kerala's rustic backwater village landscapes."),
+      topics: [L("Sunrise Yoga"), L("Golden Island Visit"), L("Traditional Village Life"), L("Coconut Plantations"), L("Nature Walk & Photos"), L("Evening Yoga")],
+    },
+    {
+      dayNumber: 3,
+      dayTitle: L("Wellness & Beach Day"),
+      description: L("Following your morning yoga practice, enjoy a relaxing day at your own pace. You may choose to walk along Varkala Beach, visit the famous Varkala Cliff, enjoy an Ayurvedic Massage, explore local shops & cafés, relax at the villa, or join an optional meditation session. The evening concludes with an extended yoga class and a farewell dinner celebrating your retreat experience."),
+      learningOutcome: L("Deepen physical relaxation and integrate your yoga practice."),
+      topics: [L("Morning Yoga"), L("Varkala Cliff Walk"), L("Ayurvedic Massage Option"), L("Boutique Shops & Cafés"), L("Extended Yoga"), L("Farewell Dinner")],
+    },
+    {
+      dayNumber: 4,
+      dayTitle: L("Departure"),
+      description: L("Begin your final morning with meditation and a gentle yoga session. After breakfast, enjoy some free time before your transfer to Trivandrum International Airport or Varkala Railway Station. Leave Varkala feeling refreshed, relaxed, and inspired to continue your wellness journey."),
+      learningOutcome: L("Wrap up with renewed focus and transition back with peace."),
+      topics: [L("Morning Meditation"), L("Gentle Yoga"), L("Breakfast"), L("Free Time"), L("Airport/Station Transfer")],
+    },
+  ],
+
+  excursions: [
+    { name: L("Golden Island Backwater Experience"), duration: L("2 Hours"), description: L("Scenic boat tour through Kerala's backwater channels and village visits."), included: true },
+  ],
+
+  rooms: [
+    { name: L("Budget Room"), occupancy: 2, sharedPrice: 14999, privatePrice: 19999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached private bathroom"), L("Complimentary Wi-Fi"), L("Comfortable Beds"), L("Daily Housekeeping")] },
+    { name: L("Standard Room"), occupancy: 2, sharedPrice: 17999, privatePrice: 24999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("AC"), L("Attached bathroom with hot water"), L("Shared kitchen & dining"), L("Complimentary Wi-Fi")] },
+    { name: L("Deluxe Room"), occupancy: 2, sharedPrice: 20999, privatePrice: 29999, hasAC: true, hasBathroom: true, hotWater: true, features: [L("Spacious & Modern layout"), L("AC"), L("Attached bathroom with hot water"), L("Comfortable seating area")] },
+    { name: L("Deluxe Room with Balcony"), occupancy: 2, sharedPrice: 23999, privatePrice: 34999, hasAC: true, hasBathroom: true, hasBalcony: true, hotWater: true, features: [L("Private Balcony"), L("AC"), L("Attached bathroom with hot water")] },
+    { name: L("Superior Deluxe Room (Villa Lemon Inn)"), occupancy: 2, sharedPrice: 26999, privatePrice: 39999, hasAC: true, hasBathroom: true, hasBalcony: true, hasWorkspace: true, hotWater: true, features: [L("Main Activity Hub"), L("Spacious room with elegant interiors"), L("Private Balcony")] },
+  ],
+
+  meals: [
+    { mealType: L("Morning Herbal Tea"), description: L("Nourishing hot herbal tea to wake up the senses."), isVegan: true, isGlutenFree: true },
+    { mealType: L("Healthy Breakfast"), description: L("Freshly prepared vegetarian breakfast choices."), isVegan: true, isGlutenFree: false },
+    { mealType: L("Fresh Fruit Brunch"), description: L("Brunch of seasonal local fruits including pineapple, papaya, watermelon."), isVegan: true, isGlutenFree: true },
+    { mealType: L("Vegetarian Lunch"), description: L("Fresh vegetarian recipes served hot daily."), isVegan: true, isGlutenFree: false },
+    { mealType: L("Healthy Dinner"), description: L("Wholesome vegetarian dinner options to promote sleep."), isVegan: true, isGlutenFree: true },
+  ],
+
+  yogaStyle: L("Traditional Hatha & Vinyasa Yoga"),
+  morningSession: L("06:00–08:00 AM"),
+  eveningSession: L("07:30–09:00 PM"),
+  meditation: L("Guided Meditation & Pranayama"),
+  pranayama: L("Nadi Shodhana, Anulom Vilom"),
+  suitableFor: L("Beginners and experienced practitioners alike"),
+  yogaCertificate: L("Participation Certificate"),
+  yogaDescription: L("Each day begins with energizing yoga and ends with relaxing evening practice, guided by experienced instructors."),
+
+  teachers: [
+    { name: "Experienced Indian Yoga Teachers", experience: "10+ Years", specialization: L("Hatha, Vinyasa, Pranayama & Meditation"), bio: L("All sessions are led by experienced Indian yoga teachers focusing on safe alignment and breathing.") },
+  ],
+
+  ayurvedaTitle: L("Ayurvedic Wellness Treatments"),
+  ayurvedaDescription: L("Enhance your retreat with an optional Ayurvedic consultation and treatments. Professional practitioners can recommend personalized stress relief and rejuvenation programs."),
+  ayurvedaTreatments: [
+    { name: L("Abhyanga Massage"), description: L("Full body massage with warm herbal oils."), isOptional: true, extraCost: 2500 },
+  ],
+
+  pricingRows: [
+    { roomCategory: L("Budget Room"), sharedPrice: 14999, privatePrice: 19999, availability: L("Available") },
+    { roomCategory: L("Standard Room"), sharedPrice: 17999, privatePrice: 24999, availability: L("Available") },
+    { roomCategory: L("Deluxe Room"), sharedPrice: 20999, privatePrice: 29999, availability: L("Available") },
+    { roomCategory: L("Deluxe Room with Balcony"), sharedPrice: 23999, privatePrice: 34999, availability: L("Available") },
+    { roomCategory: L("Superior Deluxe Room"), sharedPrice: 26999, privatePrice: 39999, availability: L("Available") },
+  ],
+
+  inclusions: [
+    L("3 Nights comfortable villa accommodation at Villa Lemon properties in Varkala"),
+    L("Four healthy vegetarian meals daily including brunch fruits and herbal tea"),
+    L("Daily morning & evening yoga sessions"),
+    L("Guided meditation & yoga philosophy sessions"),
+    L("Golden Island Backwater boat excursion"),
+    L("Airport transfers (Trivandrum Airport/Varkala Station)"),
+    L("Private transportation during excursions"),
+    L("Concierge service and friendly team support"),
+    L("Complimentary high-speed Wi-Fi"),
+    L("Daily housekeeping"),
+  ],
+  exclusions: [
+    L("International or Domestic Flights"),
+    L("Visa Fees"),
+    L("Travel Insurance"),
+    L("Ayurvedic Treatments and Massages"),
+    L("Personal Expenses (laundry, additional shopping)"),
+    L("Optional Activities and sightseeing entrance fees"),
+    L("Tips & Gratuities"),
+  ],
+  thingsToBring: [
+    L("Comfortable modest clothing suitable for yoga"),
+    L("Personal water bottle"),
+    L("Sunscreen, hat, and sunglasses"),
+  ],
+  dressCode: [L("Comfortable modest clothing suitable for yoga.")],
+  requirements: [L("Openness to yoga practice and basic physical fitness.")],
+  whoShouldAvoid: [L("Guests with acute health conditions should seek medical advice first.")],
+
+  faqs: [
+    { question: L("Is this short retreat suitable for beginners?"), answer: L("Yes, the program is designed for all levels from beginner to advanced.") },
+  ],
+
+  deposit: L("A 30% deposit is required to confirm your booking."),
+  balancePayment: L("The remaining balance is due 14 days before the retreat begins."),
+  cancellation: L("Free cancellation is available up to 14 days before arrival."),
+  checkIn: "12:00 PM",
+  checkOut: "11:00 AM",
+  bookingTerms: L("By booking, you agree to Villa Lemon's guidelines and cancellation policy."),
+
+  metaTitle: L("4-Day Varkala Yoga & Wellness Retreat | Villa Lemon"),
+  metaDescription: L("Recharge with a 4-day Hatha & Vinyasa Yoga and wellness retreat in Varkala, Kerala. Includes yoga, vegetarian meals, and a backwater boat ride."),
+  keywords: L("yoga retreat varkala, 4 day wellness retreat, kerala yoga weekend"),
+};
+
 const seed = async () => {
   const uri = process.env.MONGODB_URI;
   if (!uri) { console.error("No MONGODB_URI in .env"); process.exit(1); }
@@ -476,6 +666,7 @@ const seed = async () => {
   // Remove existing
   await Retreat.deleteOne({ slug: retreat11Days.slug });
   await Retreat.deleteOne({ slug: retreat8Days.slug });
+  await Retreat.deleteOne({ slug: retreat4Days.slug });
   console.log("🗑️  Cleared existing retreats with same slugs (if any)");
 
   const doc1 = await Retreat.create(retreat11Days);
@@ -483,6 +674,9 @@ const seed = async () => {
   
   const doc2 = await Retreat.create(retreat8Days);
   console.log("🌿 Retreat 2 created (8 Days):", doc2._id.toString());
+
+  const doc3 = await Retreat.create(retreat4Days);
+  console.log("🌿 Retreat 3 created (4 Days):", doc3._id.toString());
 
   await mongoose.disconnect();
   console.log("🔒 Disconnected. Done!");
