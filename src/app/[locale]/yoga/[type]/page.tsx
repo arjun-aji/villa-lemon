@@ -31,6 +31,20 @@ interface TeacherType {
   image: string;
 }
 
+async function getRetreats() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/retreats?status=published`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[retreats catalog fetch]: Failed", err);
+    return [];
+  }
+}
+
 async function getYogaItems(type: string): Promise<YogaItemType[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/items?type=${type}`, {
@@ -166,42 +180,137 @@ export default async function YogaCatalogPage({
     );
   }
 
-  // PROGRAM CATALOG LAYOUT
-  let dbType = "retreats";
-  let titleKey = "retreatsTitle";
-  let descKey = "retreatsDesc";
+  // ── YOGA RETREATS — pulls from /api/retreats ──────────────────────────────
+  if (type === "yoga-retreats") {
+    const rawRetreats = await getRetreats();
+    const retreats = rawRetreats.map((r: any) => ({
+      id: r._id,
+      slug: r.slug,
+      heroImage: r.heroImage || "",
+      title: (r.heroTitle?.[locale] || r.heroTitle?.en || "Yoga Retreat"),
+      tagline: (r.tagline?.[locale] || r.tagline?.en || ""),
+      shortDescription: (r.shortDescription?.[locale] || r.shortDescription?.en || ""),
+      price: r.price || 0,
+      days: r.days || 7,
+      nights: r.nights || 6,
+      yogaLevel: (r.yogaLevel?.[locale] || r.yogaLevel?.en || ""),
+      groupSize: (r.groupSize?.[locale] || r.groupSize?.en || ""),
+      location: (r.location?.[locale] || r.location?.en || "Varkala, Kerala"),
+      featured: r.featured,
+      status: r.status,
+    }));
 
-  if (type === "daily-yoga-classes") {
-    dbType = "classes";
-    titleKey = "classesTitle";
-    descKey = "classesDesc";
-  } else if (type === "private-yoga-sessions") {
-    dbType = "private";
-    titleKey = "privateTitle";
-    descKey = "privateDesc";
+    const title = tYoga.retreatsTitle || "Yoga Retreats";
+    const desc = tYoga.retreatsDesc || "Transformative retreats for mind, body & soul.";
+
+    return (
+      <>
+        <Navbar />
+        <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
+          <PageAutoTranslator locale={locale}>
+          {/* HEADER */}
+          <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
+            <div className="absolute inset-0 z-0">
+              {retreats.length > 0 && retreats[0].heroImage ? (
+                <Image
+                  src={retreats[0].heroImage}
+                  alt={title}
+                  fill
+                  className="object-cover opacity-45 brightness-75 select-none"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-[#1e1e1e]" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/40 to-transparent z-10" />
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
+              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase mb-3 font-semibold select-none">
+                <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
+                <span>&gt;</span>
+                <Link href={`/${locale}/yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <span>&gt;</span>
+                <span className="text-brand-gold">{title}</span>
+              </div>
+              <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
+                {title}
+              </h1>
+              <p className="max-w-2xl text-xs sm:text-sm text-white/80 font-light leading-relaxed font-sans">{desc}</p>
+            </div>
+          </section>
+
+          {/* RETREAT CARDS */}
+          <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-12 md:mt-16 animate-fade-in">
+            {retreats.length === 0 ? (
+              <div className="py-16 text-center text-gray-400 bg-white border border-[#eae6db]/80 rounded-md shadow-sm">
+                <p className="text-sm font-semibold">No retreats found. Check back soon.</p>
+                <Link href="/#yoga" className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">Back to yoga</Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {retreats.map((r: any) => (
+                  <div key={r.id} className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
+                      {r.heroImage ? (
+                        <Image
+                          src={r.heroImage}
+                          alt={r.title}
+                          fill
+                          className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#1a1a2e] to-[#2d1b69] flex items-center justify-center">
+                          <span className="text-white/40 text-3xl font-serif">☽</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                      <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
+                        ₹{r.price.toLocaleString()} · {r.days} Days
+                      </div>
+                      {r.featured && (
+                        <div className="absolute top-3 right-3 bg-brand-gold text-black text-[9px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
+                          Featured
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6 flex flex-col flex-grow items-start text-left">
+                      {r.location && (
+                        <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none">
+                          <Users className="w-3.5 h-3.5" />
+                          <span>{r.location}</span>
+                        </div>
+                      )}
+                      <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
+                        {r.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text">
+                        {r.shortDescription}
+                      </p>
+                      <div className="flex items-center gap-3 mb-4 text-[10px] text-gray-400 font-medium w-full">
+                        {r.yogaLevel && <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5 text-brand-gold" />{r.yogaLevel}</span>}
+                        {r.groupSize && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{r.groupSize}</span>}
+                      </div>
+                      <Link
+                        href={`/${locale}/retreats/${r.slug}`}
+                        className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] select-none"
+                      >
+                        Explore Retreat
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+          </PageAutoTranslator>
+        </main>
+      </>
+    );
   }
 
-  const rawPrograms = await getYogaItems(dbType);
-
-  const programs = await Promise.all(
-    rawPrograms.map(async (p) => {
-      const lp = await localizeObject(p, locale) as any;
-      return {
-        id: lp._id,
-        title: lp.title,
-        slug: lp.slug,
-        price: lp.price,
-        pricePeriod: lp.pricePeriod,
-        image: lp.image,
-        duration: lp.duration,
-        shortDescription: lp.shortDescription,
-        tagline: lp.tagline,
-      };
-    })
-  );
-
-  const title = tYoga[titleKey] || "Yoga Program";
-  const programDescription = tYoga[descKey] || "";
+  // PROGRAM CATALOG LAYOUT (daily-yoga-classes / private-yoga-sessions)
 
   return (
     <>
