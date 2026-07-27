@@ -164,6 +164,7 @@ interface PackageItemData {
   tagline: LocalizedText;
   aboutText: LocalizedText;
   itinerary: { timeOrDay: LocalizedText; activity: LocalizedText; desc: LocalizedText }[];
+  itineraryEvening?: { timeOrDay: LocalizedText; activity: LocalizedText; desc: LocalizedText }[];
   inclusions: LocalizedText[];
   exclusions: LocalizedText[];
   highlights: { icon: string; label: LocalizedText }[];
@@ -734,6 +735,9 @@ export default function AdminDashboard() {
       itinerary: [
         { timeOrDay: createEmptyLocalizedText("09:00 AM"), activity: createEmptyLocalizedText("Pick-up"), desc: createEmptyLocalizedText("Meeting at cliff helipad.") }
       ],
+      itineraryEvening: [
+        { timeOrDay: createEmptyLocalizedText("03:30 PM"), activity: createEmptyLocalizedText("Pick-up"), desc: createEmptyLocalizedText("Meeting at cliff helipad.") }
+      ],
       highlights: [{ icon: "compass", label: createEmptyLocalizedText("Sightseeing") }],
       whyGuestsLoveUs: [{ icon: "star", title: createEmptyLocalizedText("Best Guides"), desc: createEmptyLocalizedText("Expert storytellers.") }],
       
@@ -848,6 +852,7 @@ export default function AdminDashboard() {
       formData.append("inclusions", JSON.stringify(packageForm.inclusions || []));
       formData.append("exclusions", JSON.stringify(packageForm.exclusions || []));
       formData.append("itinerary", JSON.stringify(packageForm.itinerary || []));
+      formData.append("itineraryEvening", JSON.stringify(packageForm.itineraryEvening || []));
       formData.append("highlights", JSON.stringify(packageForm.highlights || []));
       formData.append("whyGuestsLoveUs", JSON.stringify(packageForm.whyGuestsLoveUs || []));
       formData.append("quickFacts", JSON.stringify(packageForm.quickFacts || []));
@@ -3687,10 +3692,10 @@ export default function AdminDashboard() {
               )}
 
               {activePkgFormTab === "itinerary" && (
-                <div className="space-y-4 animate-fade-in">
-                  {/* Itinerary editor */}
+                <div className="space-y-6 animate-fade-in">
+                  {/* Morning / Primary Itinerary editor */}
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Morning / Primary Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
                     <div className="flex flex-col gap-3">
                       {(packageForm.itinerary || []).map((step, idx) => (
                         <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
@@ -3721,10 +3726,10 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="font-semibold text-gray-500 block mb-1">Activity Label</label>
-                        <input type="text" id="newStepActivity" placeholder="e.g. Cliff Helipad Meetup" className="border p-2 rounded w-full text-xs" />
+                        <input type="text" id="newStepActivity" placeholder="e.g. Pick-up" className="border p-2 rounded w-full text-xs" />
                       </div>
                       <div className="flex gap-2">
-                        <input type="text" id="newStepDesc" placeholder="e.g. Coordinator details..." className="border p-2 rounded flex-grow text-xs" />
+                        <input type="text" id="newStepDesc" placeholder="e.g. Meeting at Villa Lemon..." className="border p-2 rounded flex-grow text-xs" />
                         <button
                           type="button"
                           onClick={() => {
@@ -3752,6 +3757,74 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
+                  {/* Evening Itinerary editor */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Evening Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
+                    <div className="flex flex-col gap-3">
+                      {(packageForm.itineraryEvening || []).map((step, idx) => (
+                        <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
+                          <div>
+                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[10px] block">{step.timeOrDay[activeLangTab]}</span>
+                            <h5 className="font-serif font-semibold text-xs text-[#121212] mt-1">{step.activity[activeLangTab]}</h5>
+                            <p className="text-[11px] text-gray-500 font-light font-sans mt-0.5">{step.desc[activeLangTab]}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                              itineraryEvening.splice(idx, 1);
+                              setPackageForm({ ...packageForm, itineraryEvening });
+                            }}
+                            className="text-red-500 mt-1 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end pt-2 border-t border-dashed">
+                      <div>
+                        <label className="font-semibold text-gray-500 block mb-1">Time/Day Label</label>
+                        <input type="text" id="newStepTimeEvening" placeholder="e.g. 03:30 PM" className="border p-2 rounded w-full text-xs" />
+                      </div>
+                      <div>
+                        <label className="font-semibold text-gray-500 block mb-1">Activity Label</label>
+                        <input type="text" id="newStepActivityEvening" placeholder="e.g. Pick-up" className="border p-2 rounded w-full text-xs" />
+                      </div>
+                      <div className="flex gap-2">
+                        <input type="text" id="newStepDescEvening" placeholder="e.g. Meeting at Villa Lemon..." className="border p-2 rounded flex-grow text-xs" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tIn = document.getElementById("newStepTimeEvening") as HTMLInputElement;
+                            const aIn = document.getElementById("newStepActivityEvening") as HTMLInputElement;
+                            const dIn = document.getElementById("newStepDescEvening") as HTMLInputElement;
+                            if (tIn && aIn && dIn && tIn.value.trim() && aIn.value.trim() && dIn.value.trim()) {
+                              const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                              itineraryEvening.push({
+                                timeOrDay: createEmptyLocalizedText(tIn.value.trim()),
+                                activity: createEmptyLocalizedText(aIn.value.trim()),
+                                desc: createEmptyLocalizedText(dIn.value.trim())
+                              });
+                              setPackageForm({ ...packageForm, itineraryEvening });
+                              tIn.value = "";
+                              aIn.value = "";
+                              dIn.value = "";
+                            }
+                          }}
+                          className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
+                        >
+                          Add Step
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "itinerary" && (
+                <div className="space-y-4 animate-fade-in">
                   {/* Nearby Attractions */}
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
                     <label className="font-bold text-gray-600 uppercase block">Nearby Attractions ({activeLangTab.toUpperCase()})</label>

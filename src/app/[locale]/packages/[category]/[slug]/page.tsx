@@ -35,6 +35,7 @@ interface PackageDetails {
   tagline: Record<string, string>;
   aboutText: Record<string, string>;
   itinerary: Array<{ timeOrDay: Record<string, string>; activity: Record<string, string>; desc: Record<string, string> }>;
+  itineraryEvening?: Array<{ timeOrDay: Record<string, string>; activity: Record<string, string>; desc: Record<string, string> }>;
   inclusions: Array<Record<string, string>>;
   exclusions: Array<Record<string, string>>;
   highlights: Array<{ icon: string; label: Record<string, string> }>;
@@ -181,6 +182,11 @@ export default async function PackageDetailsPage({
     tagline: loc(rawPackage.tagline),
     aboutText: loc(rawPackage.aboutText),
     itinerary: (rawPackage.itinerary || []).map((it: any) => ({
+      timeOrDay: loc(it.timeOrDay),
+      activity: loc(it.activity),
+      desc: loc(it.desc),
+    })),
+    itineraryEvening: (rawPackage.itineraryEvening || []).map((it: any) => ({
       timeOrDay: loc(it.timeOrDay),
       activity: loc(it.activity),
       desc: loc(it.desc),
@@ -589,27 +595,80 @@ export default async function PackageDetailsPage({
                 <h3 className="font-serif text-2xl font-normal text-[#121212] mb-8 border-b border-[#eae6db] pb-3">
                   {tPkg.itinerary || "Itinerary"}
                 </h3>
-                <div className="relative pl-6 border-l-2 border-brand-gold/30 space-y-8 select-text">
-                  {pkg.itinerary.map((it, idx) => (
-                    <div key={idx} className="relative">
-                      {/* Timeline dot */}
-                      <div className="w-3.5 h-3.5 bg-[#121212] border-2 border-brand-gold rounded-full absolute -left-[33px] top-1.5" />
-                      
-                      <div className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none select-none">
-                        {it.timeOrDay}
-                      </div>
-                      <h4 className="font-serif text-base font-semibold text-[#121212] mt-1.5 leading-tight">
-                        {it.activity}
+
+                {pkg.itineraryEvening && pkg.itineraryEvening.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Morning Tour Column */}
+                    <div>
+                      <h4 className="font-serif text-sm font-semibold text-brand-gold uppercase tracking-wider mb-4 border-b border-brand-gold/10 pb-1 select-none">
+                        Morning Tour
                       </h4>
-                      <p className="text-xs text-gray-500 font-light leading-relaxed mt-1 font-sans">
-                        {it.desc}
-                      </p>
+                      <div className="relative pl-6 border-l border-brand-gold/20 space-y-6 select-text">
+                        {pkg.itinerary.map((it, idx) => (
+                          <div key={idx} className="relative">
+                            <div className="w-2.5 h-2.5 bg-[#121212] border border-brand-gold rounded-full absolute -left-[31px] top-1" />
+                            <div className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none select-none">
+                              {it.timeOrDay}
+                            </div>
+                            <h5 className="font-serif text-sm font-semibold text-[#121212] mt-1.5 leading-tight">
+                              {it.activity}
+                            </h5>
+                            <p className="text-xs text-gray-500 font-light leading-relaxed mt-1 font-sans">
+                              {it.desc}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* Evening Tour Column */}
+                    <div>
+                      <h4 className="font-serif text-sm font-semibold text-brand-gold uppercase tracking-wider mb-4 border-b border-brand-gold/10 pb-1 select-none">
+                        Evening Tour
+                      </h4>
+                      <div className="relative pl-6 border-l border-brand-gold/20 space-y-6 select-text">
+                        {pkg.itineraryEvening.map((it, idx) => (
+                          <div key={idx} className="relative">
+                            <div className="w-2.5 h-2.5 bg-[#121212] border border-brand-gold rounded-full absolute -left-[31px] top-1" />
+                            <div className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none select-none">
+                              {it.timeOrDay}
+                            </div>
+                            <h5 className="font-serif text-sm font-semibold text-[#121212] mt-1.5 leading-tight">
+                              {it.activity}
+                            </h5>
+                            <p className="text-xs text-gray-500 font-light leading-relaxed mt-1 font-sans">
+                              {it.desc}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // Single Itinerary Timeline
+                  <div className="relative pl-6 border-l-2 border-brand-gold/30 space-y-8 select-text">
+                    {pkg.itinerary.map((it, idx) => (
+                      <div key={idx} className="relative">
+                        {/* Timeline dot */}
+                        <div className="w-3.5 h-3.5 bg-[#121212] border-2 border-brand-gold rounded-full absolute -left-[33px] top-1.5" />
+                        
+                        <div className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none select-none">
+                          {it.timeOrDay}
+                        </div>
+                        <h4 className="font-serif text-base font-semibold text-[#121212] mt-1.5 leading-tight">
+                          {it.activity}
+                        </h4>
+                        <p className="text-xs text-gray-500 font-light leading-relaxed mt-1 font-sans">
+                          {it.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
+
 
           {/* Right: Why Choose, Things to bring & Guidelines (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-8">

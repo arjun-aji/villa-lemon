@@ -75,6 +75,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
 
     // Arrays/Objects
     const itinerary = parseField(req.body.itinerary);
+    const itineraryEvening = parseField(req.body.itineraryEvening);
     const inclusions = parseField(req.body.inclusions);
     const exclusions = parseField(req.body.exclusions);
     const highlights = parseField(req.body.highlights);
@@ -144,6 +145,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       tagline,
       aboutText,
       itinerary,
+      itineraryEvening,
       inclusions,
       exclusions,
       highlights,
@@ -256,6 +258,7 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
 
     // Lists
     if (req.body.itinerary) item.itinerary = parseField(req.body.itinerary);
+    if (req.body.itineraryEvening) item.itineraryEvening = parseField(req.body.itineraryEvening);
     if (req.body.inclusions) item.inclusions = parseField(req.body.inclusions);
     if (req.body.exclusions) item.exclusions = parseField(req.body.exclusions);
     if (req.body.highlights) item.highlights = parseField(req.body.highlights);

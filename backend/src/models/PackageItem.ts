@@ -81,6 +81,7 @@ const packageItemSchema = new Schema<IPackageItem>(
     tagline: { type: localizedTextSchema },
     aboutText: { type: localizedTextSchema },
     itinerary: [itinerarySchema],
+    itineraryEvening: [itinerarySchema],
     inclusions: [localizedTextSchema],
     exclusions: [localizedTextSchema],
     highlights: [highlightSchema],
