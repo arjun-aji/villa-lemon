@@ -5,6 +5,7 @@ import {
   createRetreat,
   updateRetreat,
   deleteRetreat,
+  uploadRetreatImage,
 } from "../controllers/retreatController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -31,8 +32,10 @@ const retreatUpload = upload.fields([
   { name: "ogImage", maxCount: 1 },
 ]);
 
+router.post("/upload-image", protect as any, upload.single("image"), uploadRetreatImage);
 router.post("/", protect as any, retreatUpload, createRetreat);
 router.put("/:id", protect as any, retreatUpload, updateRetreat);
 router.delete("/:id", protect as any, deleteRetreat);
 
 export default router;
+

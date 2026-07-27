@@ -258,6 +258,8 @@ export default function RetreatsTab({
   const [activeFormTab, setActiveFormTab] = useState<FormTabId>("general");
   const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
   const [saving, setSaving] = useState(false);
+  const [uploadingRoomIdx, setUploadingRoomIdx] = useState<number | null>(null);
+  const [uploadingExcursionIdx, setUploadingExcursionIdx] = useState<number | null>(null);
 
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState("");
@@ -718,6 +720,71 @@ export default function RetreatsTab({
                     </div>
                     <LocalTextarea value={exc.description} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], description: v }; setF("excursions", arr); }} label="Excursion Details Description" activeLang={activeLangTab} placeholder="Boat ride through peaceful backwaters..." rows={3} />
                     
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Excursion Image URL</label>
+                        <input
+                          type="text"
+                          value={exc.image || ""}
+                          onChange={e => {
+                            const arr = [...form.excursions];
+                            arr[i] = { ...arr[i], image: e.target.value };
+                            setF("excursions", arr);
+                          }}
+                          placeholder="https://images.unsplash.com/..."
+                          className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {exc.image && (
+                          <div className="w-16 h-10 rounded border overflow-hidden shrink-0 bg-gray-100">
+                            <img src={exc.image} className="w-full h-full object-cover" alt="Preview" />
+                          </div>
+                        )}
+                        <label className="flex-1 border border-dashed border-gray-300 hover:border-brand-gold rounded p-2.5 cursor-pointer text-center bg-gray-50 hover:bg-amber-50/20 transition-all select-none">
+                          <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                            {uploadingExcursionIdx === i ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-gold" />
+                            ) : (
+                              <Upload className="w-3.5 h-3.5" />
+                            )}
+                            <span>{uploadingExcursionIdx === i ? "Uploading..." : "Upload Image File"}</span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadingExcursionIdx(i);
+                              try {
+                                const fd = new FormData();
+                                fd.append("image", file);
+                                const res = await fetch(`${API_BASE_URL}/api/retreats/upload-image`, {
+                                  method: "POST",
+                                  headers: { Authorization: `Bearer ${token}` },
+                                  body: fd,
+                                });
+                                if (res.ok) {
+                                  const data = await res.json();
+                                  const arr = [...form.excursions];
+                                  arr[i] = { ...arr[i], image: data.secure_url };
+                                  setF("excursions", arr);
+                                } else {
+                                  alert("Upload failed");
+                                }
+                              } catch (err) {
+                                alert("Error uploading excursion image");
+                              } finally {
+                                setUploadingExcursionIdx(null);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="flex flex-col gap-1">
                         <label className="font-bold text-gray-600 uppercase text-[9px]">Highlights Bullet List (Comma separated)</label>
@@ -780,6 +847,71 @@ export default function RetreatsTab({
                       </div>
                     </div>
                     <LocalTextarea value={rm.description} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], description: v }; setF("rooms", arr); }} label="Room Details / Description" activeLang={activeLangTab} placeholder="Spacious room with elegant interiors..." rows={2} />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Room Image URL</label>
+                        <input
+                          type="text"
+                          value={rm.image || ""}
+                          onChange={e => {
+                            const arr = [...form.rooms];
+                            arr[i] = { ...arr[i], image: e.target.value };
+                            setF("rooms", arr);
+                          }}
+                          placeholder="https://images.unsplash.com/..."
+                          className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {rm.image && (
+                          <div className="w-16 h-10 rounded border overflow-hidden shrink-0 bg-gray-100">
+                            <img src={rm.image} className="w-full h-full object-cover" alt="Preview" />
+                          </div>
+                        )}
+                        <label className="flex-1 border border-dashed border-gray-300 hover:border-brand-gold rounded p-2.5 cursor-pointer text-center bg-gray-50 hover:bg-amber-50/20 transition-all select-none">
+                          <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                            {uploadingRoomIdx === i ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-gold" />
+                            ) : (
+                              <Upload className="w-3.5 h-3.5" />
+                            )}
+                            <span>{uploadingRoomIdx === i ? "Uploading..." : "Upload Room Image file"}</span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadingRoomIdx(i);
+                              try {
+                                const fd = new FormData();
+                                fd.append("image", file);
+                                const res = await fetch(`${API_BASE_URL}/api/retreats/upload-image`, {
+                                  method: "POST",
+                                  headers: { Authorization: `Bearer ${token}` },
+                                  body: fd,
+                                });
+                                if (res.ok) {
+                                  const data = await res.json();
+                                  const arr = [...form.rooms];
+                                  arr[i] = { ...arr[i], image: data.secure_url };
+                                  setF("rooms", arr);
+                                } else {
+                                  alert("Upload failed");
+                                }
+                              } catch (err) {
+                                alert("Error uploading room image");
+                              } finally {
+                                setUploadingRoomIdx(null);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 select-none">
                       <div className="flex flex-wrap gap-3">

@@ -318,3 +318,15 @@ export const deleteRetreat = async (req: Request, res: Response): Promise<any> =
     res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+export const uploadRetreatImage = async (req: Request, res: Response): Promise<any> => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ status: "fail", message: "No file uploaded" });
+    }
+    const up = await uploadImage(req.file.buffer, "retreats/media");
+    res.status(200).json({ status: "success", secure_url: up.secure_url, public_id: up.public_id });
+  } catch (error: any) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
