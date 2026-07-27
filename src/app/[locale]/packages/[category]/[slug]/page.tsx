@@ -420,8 +420,8 @@ export default async function PackageDetailsPage({
         {/* SECTION 1: OVERVIEW, DETAILS & HIGHLIGHTS */}
         <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-12 md:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-12 text-left">
           
-          {/* Left Column: Description & Core features (8 cols) */}
-          <div className="lg:col-span-8 flex flex-col items-start space-y-10">
+          {/* Left Column: Description & Core features (6 cols) */}
+          <div className="lg:col-span-6 flex flex-col items-start space-y-10">
             
             {/* GENERAL & QUICK FACTS SUMMARY */}
             <div className="w-full bg-white border border-[#eae6db]/65 p-6 md:p-8 rounded-sm shadow-sm">
@@ -431,7 +431,7 @@ export default async function PackageDetailsPage({
               <h2 className="font-serif text-2xl font-normal text-[#121212] mb-6">
                 Tour General Information
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 select-text text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6 select-text text-xs">
                 {pkg.difficulty && (
                   <div className="flex flex-col gap-1">
                     <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Difficulty</span>
@@ -536,9 +536,9 @@ export default async function PackageDetailsPage({
 
           </div>
 
-          {/* Right Column: Top Sidebar (4 cols) */}
-          <div className="lg:col-span-4 flex flex-col gap-8">
-            <div className="relative w-full aspect-[4/3] rounded-sm overflow-hidden shadow-sm border border-[#eae6db] select-none">
+          {/* Right Column: Top Sidebar (6 cols) */}
+          <div className="lg:col-span-6 flex flex-col gap-8">
+            <div className="relative w-full h-[300px] lg:h-[460px] rounded-sm overflow-hidden shadow-sm border border-[#eae6db] select-none">
               {pkg.aboutImage ? (
                 <Image
                   src={pkg.aboutImage}
