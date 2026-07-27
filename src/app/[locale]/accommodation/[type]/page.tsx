@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,7 +31,7 @@ interface PropertyItem {
 async function getProperties(type: string): Promise<PropertyItem[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations/items?type=${type}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -44,7 +45,7 @@ async function getProperties(type: string): Promise<PropertyItem[]> {
 async function getCategory(type: string): Promise<any> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations?type=${type}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const json = await res.json();

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,7 +40,7 @@ interface TeacherType {
 async function getYogaDetails(slug: string): Promise<YogaDetails | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/items/${slug}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -53,7 +54,7 @@ async function getYogaDetails(slug: string): Promise<YogaDetails | null> {
 async function getLeadTeacher(): Promise<TeacherType | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/teachers`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -68,7 +69,7 @@ async function getLeadTeacher(): Promise<TeacherType | null> {
 async function getAllYoga(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -82,7 +83,7 @@ async function getAllYoga(): Promise<any[]> {
 async function getAllProperties(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -96,7 +97,7 @@ async function getAllProperties(): Promise<any[]> {
 async function getAllPackages(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/packages/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();

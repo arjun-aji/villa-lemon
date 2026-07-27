@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +25,7 @@ interface PackageItemType {
 async function getPackageItems(category: string): Promise<PackageItemType[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/packages/items?category=${category}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();

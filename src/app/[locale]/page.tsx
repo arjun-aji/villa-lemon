@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Hero from "@/components/Hero";
 import Accommodations from "@/components/Accommodations";
 import Packages from "@/components/Packages";
@@ -11,7 +12,7 @@ import { localizeObject } from "@/utils/translator";
 async function getHomepageData() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/homepage`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
@@ -25,7 +26,7 @@ async function getHomepageData() {
 async function getAccommodations() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
@@ -39,7 +40,7 @@ async function getAccommodations() {
 async function getPackages() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/packages`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
@@ -53,7 +54,7 @@ async function getPackages() {
 async function getYogaPrograms() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/programs`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();

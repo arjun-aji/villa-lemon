@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
@@ -43,7 +44,7 @@ interface PropertyDetails {
 async function getPropertyDetails(slug: string): Promise<PropertyDetails | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations/items/${slug}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -57,7 +58,7 @@ async function getPropertyDetails(slug: string): Promise<PropertyDetails | null>
 async function getAllProperties(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/accommodations/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -71,7 +72,7 @@ async function getAllProperties(): Promise<any[]> {
 async function getAllPackages(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/packages/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -85,7 +86,7 @@ async function getAllPackages(): Promise<any[]> {
 async function getAllYoga(): Promise<any[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/items`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();

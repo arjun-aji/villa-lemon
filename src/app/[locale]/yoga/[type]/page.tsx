@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,7 +33,7 @@ interface TeacherType {
 async function getYogaItems(type: string): Promise<YogaItemType[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/items?type=${type}`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -46,7 +47,7 @@ async function getYogaItems(type: string): Promise<YogaItemType[]> {
 async function getTeachers(): Promise<TeacherType[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/yoga/teachers`, {
-      next: { revalidate: 10 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const json = await res.json();
