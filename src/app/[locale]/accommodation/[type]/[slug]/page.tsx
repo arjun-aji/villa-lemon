@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import PropertyDetailsClient from "./PropertyDetailsClient";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";

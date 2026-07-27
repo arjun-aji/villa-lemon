@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Clock, Check, Shield, Calendar, Phone, ChevronLeft, MapPin, Smile } from "lucide-react";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
@@ -275,6 +276,7 @@ interface LocalizedYogaDetails {
     <>
       <Navbar absoluteOnly={true} />
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16 font-sans">
+        <PageAutoTranslator locale={locale}>
         
         {/* BANNER COVER PHOTO */}
         <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-10">
@@ -538,7 +540,7 @@ interface LocalizedYogaDetails {
             </div>
           </section>
         )}
-
+        </PageAutoTranslator>
       </main>
     </>
   );

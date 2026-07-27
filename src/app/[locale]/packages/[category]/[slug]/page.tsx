@@ -11,8 +11,15 @@ import {
   Map, Briefcase, Play, Users, Gauge, Info
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { T } from "@/components/AutoTranslate";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
 
-import { localizeObject } from "@/utils/translator";
+// Extract the English-first value from a localized Record or plain string
+function loc(field: Record<string, string> | string | undefined | null, locale?: string): string {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  return field[locale ?? "en"] || field["en"] || Object.values(field)[0] || "";
+}
 
 interface PackageDetails {
   _id: string;
@@ -160,126 +167,50 @@ export default async function PackageDetailsPage({
   const messages = await getMessages({ locale });
   const tPkg = messages.PackageDetails as any;
 
-interface LocalizedPackageDetails {
-  id: string;
-  category: string;
-  title: string;
-  price: number;
-  pricePeriod: string;
-  image: string;
-  aboutImage: string;
-  duration: string;
-  shortDescription: string;
-  tagline: string;
-  aboutText: string;
-  itinerary: Array<{ timeOrDay: string; activity: string; desc: string }>;
-  inclusions: string[];
-  exclusions: string[];
-  highlights: Array<{ icon: string; label: string }>;
-  whyGuestsLoveUs: Array<{ icon: string; title: string; desc: string }>;
-  travelTime: string;
-  entryFee: string;
-  optionalCharges: string;
-  difficulty: string;
-  groupSize: string;
-  location: string;
-  tourOverview: string;
-  bestTime: string;
-  dressCode: string;
-  cta: string;
-  video: string;
-  gallery: string[];
-  quickFacts: Array<{ key: string; value: string }>;
-  thingsToBring: string[];
-  nearbyAttractions: Array<{ name: string; distance: string }>;
-  relatedPackages: string[];
-  faqs: Array<{ question: string; answer: string }>;
-  cancellation: string;
-  refund: string;
-  pickup: string;
-  drop: string;
-  notes: string;
-}
-
-  // Localize properties using helper
-  const lp = await localizeObject(rawPackage, locale) as any;
-  const pkg: LocalizedPackageDetails = {
+  // Extract English-first values — client <T> components will auto-translate
+  const pkg = {
     id: rawPackage._id,
     category: rawPackage.packageCategory,
-    title: lp.title,
-    price: lp.price,
-    pricePeriod: lp.pricePeriod,
-    image: lp.image,
-    aboutImage: rawPackage.aboutImage || rawPackage.image,
-    duration: lp.duration,
-    shortDescription: lp.shortDescription,
-    tagline: lp.tagline,
-    aboutText: lp.aboutText,
-    itinerary: await Promise.all(
-      (rawPackage.itinerary || []).map(async (it) => ({
-        timeOrDay: await localizeObject(it.timeOrDay, locale) as any,
-        activity: await localizeObject(it.activity, locale) as any,
-        desc: await localizeObject(it.desc, locale) as any,
-      }))
-    ),
-    inclusions: await Promise.all(
-      (rawPackage.inclusions || []).map((inc) => localizeObject(inc, locale) as any)
-    ),
-    exclusions: await Promise.all(
-      (rawPackage.exclusions || []).map((exc) => localizeObject(exc, locale) as any)
-    ),
-    highlights: await Promise.all(
-      (rawPackage.highlights || []).map(async (h) => ({
-        icon: h.icon,
-        label: await localizeObject(h.label, locale) as any,
-      }))
-    ),
-    whyGuestsLoveUs: await Promise.all(
-      (rawPackage.whyGuestsLoveUs || []).map(async (w) => ({
-        icon: w.icon,
-        title: await localizeObject(w.title, locale) as any,
-        desc: await localizeObject(w.desc, locale) as any,
-      }))
-    ),
-    travelTime: lp.travelTime,
-    entryFee: lp.entryFee,
-    optionalCharges: lp.optionalCharges,
-    difficulty: lp.difficulty,
-    groupSize: lp.groupSize,
-    location: lp.location,
-    tourOverview: lp.tourOverview,
-    bestTime: lp.bestTime,
-    dressCode: lp.dressCode,
-    cta: lp.cta,
-    video: lp.video || "",
-    gallery: lp.gallery || [],
-    quickFacts: await Promise.all(
-      (rawPackage.quickFacts || []).map(async (qf) => ({
-        key: await localizeObject(qf.key, locale) as any,
-        value: await localizeObject(qf.value, locale) as any,
-      }))
-    ),
-    thingsToBring: await Promise.all(
-      (rawPackage.thingsToBring || []).map((tb) => localizeObject(tb, locale) as any)
-    ),
-    nearbyAttractions: await Promise.all(
-      (rawPackage.nearbyAttractions || []).map(async (na) => ({
-        name: await localizeObject(na.name, locale) as any,
-        distance: await localizeObject(na.distance, locale) as any,
-      }))
-    ),
+    title: loc(rawPackage.title),
+    price: rawPackage.price,
+    pricePeriod: loc(rawPackage.pricePeriod),
+    image: rawPackage.image || "",
+    aboutImage: rawPackage.aboutImage || rawPackage.image || "",
+    duration: loc(rawPackage.duration),
+    shortDescription: loc(rawPackage.shortDescription),
+    tagline: loc(rawPackage.tagline),
+    aboutText: loc(rawPackage.aboutText),
+    itinerary: (rawPackage.itinerary || []).map((it: any) => ({
+      timeOrDay: loc(it.timeOrDay),
+      activity: loc(it.activity),
+      desc: loc(it.desc),
+    })),
+    inclusions: (rawPackage.inclusions || []).map((inc: any) => loc(inc)),
+    exclusions: (rawPackage.exclusions || []).map((exc: any) => loc(exc)),
+    highlights: (rawPackage.highlights || []).map((h: any) => ({ icon: h.icon, label: loc(h.label) })),
+    whyGuestsLoveUs: (rawPackage.whyGuestsLoveUs || []).map((w: any) => ({ icon: w.icon, title: loc(w.title), desc: loc(w.desc) })),
+    travelTime: loc(rawPackage.travelTime),
+    entryFee: loc(rawPackage.entryFee),
+    optionalCharges: loc(rawPackage.optionalCharges),
+    difficulty: loc(rawPackage.difficulty),
+    groupSize: loc(rawPackage.groupSize),
+    location: loc(rawPackage.location),
+    tourOverview: loc(rawPackage.tourOverview),
+    bestTime: loc(rawPackage.bestTime),
+    dressCode: loc(rawPackage.dressCode),
+    cta: loc(rawPackage.cta),
+    video: rawPackage.video || "",
+    gallery: rawPackage.gallery || [],
+    quickFacts: (rawPackage.quickFacts || []).map((qf: any) => ({ key: loc(qf.key), value: loc(qf.value) })),
+    thingsToBring: (rawPackage.thingsToBring || []).map((tb: any) => loc(tb)),
+    nearbyAttractions: (rawPackage.nearbyAttractions || []).map((na: any) => ({ name: loc(na.name), distance: loc(na.distance) })),
     relatedPackages: rawPackage.relatedPackages || [],
-    faqs: await Promise.all(
-      (rawPackage.faqs || []).map(async (faq) => ({
-        question: await localizeObject(faq.question, locale) as any,
-        answer: await localizeObject(faq.answer, locale) as any,
-      }))
-    ),
-    cancellation: lp.cancellation,
-    refund: lp.refund,
-    pickup: lp.pickup,
-    drop: lp.drop,
-    notes: lp.notes,
+    faqs: (rawPackage.faqs || []).map((faq: any) => ({ question: loc(faq.question), answer: loc(faq.answer) })),
+    cancellation: loc(rawPackage.cancellation),
+    refund: loc(rawPackage.refund),
+    pickup: loc(rawPackage.pickup),
+    drop: loc(rawPackage.drop),
+    notes: loc(rawPackage.notes),
   };
 
   // Resolve related items lists
@@ -395,7 +326,7 @@ interface LocalizedPackageDetails {
     <>
       <Navbar absoluteOnly={true} />
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16 font-sans">
-        
+        <PageAutoTranslator locale={locale}>
         {/* BANNER COVER PHOTO */}
         <section className="relative w-full min-h-[300px] md:min-h-[400px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-12">
           <div className="absolute inset-0 z-0">
@@ -952,7 +883,7 @@ interface LocalizedPackageDetails {
           )}
 
         </section>
-
+        </PageAutoTranslator>
       </main>
     </>
   );

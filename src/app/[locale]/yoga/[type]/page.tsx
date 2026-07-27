@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users } from "lucide-react";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
@@ -88,6 +89,7 @@ export default async function YogaCatalogPage({
       <>
         <Navbar />
         <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
+          <PageAutoTranslator locale={locale}>
           {/* HEADER SECTION */}
           <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
             <div className="absolute inset-0 z-0">
@@ -158,6 +160,7 @@ export default async function YogaCatalogPage({
               </div>
             )}
           </section>
+          </PageAutoTranslator>
         </main>
       </>
     );
@@ -204,6 +207,7 @@ export default async function YogaCatalogPage({
     <>
       <Navbar />
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
+        <PageAutoTranslator locale={locale}>
         {/* HEADER SECTION */}
         <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
           <div className="absolute inset-0 z-0">
@@ -294,7 +298,7 @@ export default async function YogaCatalogPage({
             </div>
           )}
         </section>
-
+        </PageAutoTranslator>
       </main>
     </>
   );

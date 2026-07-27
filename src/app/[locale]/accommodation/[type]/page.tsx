@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Compass, CheckCircle } from "lucide-react";
 import CatalogClient from "./CatalogClient";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
@@ -126,6 +127,7 @@ export default async function AccommodationCatalogPage({
     <>
       <Navbar />
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
+        <PageAutoTranslator locale={locale}>
         {/* HERO BANNER SECTION */}
         <section className="relative w-full h-[250px] md:h-[320px] flex items-end bg-[#121212] overflow-hidden pt-24">
           {/* Cover background image */}
@@ -186,7 +188,7 @@ export default async function AccommodationCatalogPage({
 
         {/* INTERACTIVE FILTERS & CARDS GRID (CLIENT SIDE CONTAINER) */}
         <CatalogClient properties={properties} typePath={type} locale={locale} />
-        
+        </PageAutoTranslator>
       </main>
     </>
   );
