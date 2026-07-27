@@ -66,7 +66,7 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
   return (
     <div className="relative w-full">
       {/* Navigation Buttons (Desktop only, overlayed on the sides) */}
-      {packages.length > 4 && (
+      {packages.length >= 4 && (
         <>
           <button
             onClick={() => scroll("left")}
@@ -98,7 +98,7 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
           return (
             <div
               key={p.id}
-              className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(26%-18px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             >
               {/* Photo cover */}
               <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
