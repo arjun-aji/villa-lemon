@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import PropertyDetailsClient from "./PropertyDetailsClient";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface PropertyDetails {
   _id: string;
   accommodationType: string;
@@ -110,51 +112,47 @@ export default async function PropertyDetailsPage({
   const messages = await getMessages({ locale });
   const tDetails = messages.AccommodationDetails as any;
 
-  // Map database localizations to current locale strings for rendering
-  const property = {
-    id: rawProperty._id,
-    type: rawProperty.accommodationType,
-    title: rawProperty.title[locale] || rawProperty.title["en"] || "",
-    price: rawProperty.price,
-    pricePeriod: rawProperty.pricePeriod[locale] || rawProperty.pricePeriod["en"] || "",
-    image: rawProperty.image,
-    aboutImage: rawProperty.aboutImage,
-    bedrooms: rawProperty.bedrooms,
-    bathrooms: rawProperty.bathrooms,
-    guests: rawProperty.guests,
-    location: rawProperty.location[locale] || rawProperty.location["en"] || "",
-    shortDescription: rawProperty.shortDescription[locale] || rawProperty.shortDescription["en"] || "",
-    tagline: rawProperty.tagline[locale] || rawProperty.tagline["en"] || "",
-    aboutText1: rawProperty.aboutText1[locale] || rawProperty.aboutText1["en"] || "",
-    aboutText2: rawProperty.aboutText2[locale] || rawProperty.aboutText2["en"] || "",
-    perfectLocationText: rawProperty.perfectLocationText[locale] || rawProperty.perfectLocationText["en"] || "",
-    groupAccommodationText: rawProperty.groupAccommodationText[locale] || rawProperty.groupAccommodationText["en"] || "",
-    checkInTime: rawProperty.checkInTime,
-    checkOutTime: rawProperty.checkOutTime,
-    highlights: (rawProperty.highlights || []).map((h) => ({
+  // Localize properties using helper
+  const property = await localizeObject(rawProperty, locale) as any;
+  property.id = rawProperty._id;
+  property.type = rawProperty.accommodationType;
+  property.aboutImage = rawProperty.aboutImage || rawProperty.image;
+  property.relatedAccommodations = rawProperty.relatedAccommodations || [];
+
+  property.highlights = await Promise.all(
+    (rawProperty.highlights || []).map(async (h) => ({
       icon: h.icon,
-      label: h.label[locale] || h.label["en"] || "",
-    })),
-    whyGuestsLoveUs: (rawProperty.whyGuestsLoveUs || []).map((w) => ({
+      label: await localizeObject(h.label, locale),
+    }))
+  );
+  property.whyGuestsLoveUs = await Promise.all(
+    (rawProperty.whyGuestsLoveUs || []).map(async (w) => ({
       icon: w.icon,
-      title: w.title[locale] || w.title["en"] || "",
-      desc: w.desc[locale] || w.desc["en"] || "",
-    })),
-    distances: (rawProperty.distances || []).map((d) => ({
-      place: d.place[locale] || d.place["en"] || "",
-      distance: d.distance[locale] || d.distance["en"] || "",
-    })),
-    roomAmenities: (rawProperty.roomAmenities || []).map((r) => r[locale] || r["en"] || ""),
-    idealFor: (rawProperty.idealFor || []).map((i) => i[locale] || i["en"] || ""),
-    checkInOutRules: (rawProperty.checkInOutRules || []).map((c) => c[locale] || c["en"] || ""),
-    additionalServices: (rawProperty.additionalServices || []).map((a) => ({
-      service: a.service[locale] || a.service["en"] || "",
-      details: a.details[locale] || a.details["en"] || "",
-    })),
-    mapLink: rawProperty.mapLink || "",
-    gallery: rawProperty.gallery || [],
-    relatedAccommodations: rawProperty.relatedAccommodations || [],
-  };
+      title: await localizeObject(w.title, locale),
+      desc: await localizeObject(w.desc, locale),
+    }))
+  );
+  property.distances = await Promise.all(
+    (rawProperty.distances || []).map(async (d) => ({
+      place: await localizeObject(d.place, locale),
+      distance: await localizeObject(d.distance, locale),
+    }))
+  );
+  property.roomAmenities = await Promise.all(
+    (rawProperty.roomAmenities || []).map((r) => localizeObject(r, locale))
+  );
+  property.idealFor = await Promise.all(
+    (rawProperty.idealFor || []).map((i) => localizeObject(i, locale))
+  );
+  property.checkInOutRules = await Promise.all(
+    (rawProperty.checkInOutRules || []).map((c) => localizeObject(c, locale))
+  );
+  property.additionalServices = await Promise.all(
+    (rawProperty.additionalServices || []).map(async (a) => ({
+      service: await localizeObject(a.service, locale),
+      details: await localizeObject(a.details, locale),
+    }))
+  );
 
   // Get Suggestions (You May Also Like)
   const [allProperties, allPackages, allYoga] = await Promise.all([

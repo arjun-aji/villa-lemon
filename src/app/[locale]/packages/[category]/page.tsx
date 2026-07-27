@@ -6,6 +6,8 @@ import { getMessages } from "next-intl/server";
 import { Clock, ShieldCheck, MapPin, Compass } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface PackageItemType {
   _id: string;
   packageCategory: string;
@@ -62,17 +64,22 @@ export default async function PackagesCatalogPage({
   const rawPackages = await getPackageItems(dbCategory);
 
   // Localize packages
-  const packages = rawPackages.map((p) => ({
-    id: p._id,
-    title: p.title[locale] || p.title["en"] || "",
-    slug: p.slug,
-    price: p.price,
-    pricePeriod: p.pricePeriod[locale] || p.pricePeriod["en"] || "",
-    image: p.image,
-    duration: p.duration[locale] || p.duration["en"] || "",
-    shortDescription: p.shortDescription[locale] || p.shortDescription["en"] || "",
-    tagline: p.tagline[locale] || p.tagline["en"] || "",
-  }));
+  const packages = await Promise.all(
+    rawPackages.map(async (p) => {
+      const lp = await localizeObject(p, locale) as any;
+      return {
+        id: lp._id,
+        title: lp.title,
+        slug: lp.slug,
+        price: lp.price,
+        pricePeriod: lp.pricePeriod,
+        image: lp.image,
+        duration: lp.duration,
+        shortDescription: lp.shortDescription,
+        tagline: lp.tagline,
+      };
+    })
+  );
 
   // Fetch translation messages
   const messages = await getMessages({ locale });

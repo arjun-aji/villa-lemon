@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface PackageDetails {
   _id: string;
   packageCategory: string;
@@ -157,84 +159,126 @@ export default async function PackageDetailsPage({
   const messages = await getMessages({ locale });
   const tPkg = messages.PackageDetails as any;
 
-  // Localize properties
-  const pkg = {
+interface LocalizedPackageDetails {
+  id: string;
+  category: string;
+  title: string;
+  price: number;
+  pricePeriod: string;
+  image: string;
+  aboutImage: string;
+  duration: string;
+  shortDescription: string;
+  tagline: string;
+  aboutText: string;
+  itinerary: Array<{ timeOrDay: string; activity: string; desc: string }>;
+  inclusions: string[];
+  exclusions: string[];
+  highlights: Array<{ icon: string; label: string }>;
+  whyGuestsLoveUs: Array<{ icon: string; title: string; desc: string }>;
+  travelTime: string;
+  entryFee: string;
+  optionalCharges: string;
+  difficulty: string;
+  groupSize: string;
+  location: string;
+  tourOverview: string;
+  bestTime: string;
+  dressCode: string;
+  cta: string;
+  video: string;
+  gallery: string[];
+  quickFacts: Array<{ key: string; value: string }>;
+  thingsToBring: string[];
+  nearbyAttractions: Array<{ name: string; distance: string }>;
+  relatedPackages: string[];
+  faqs: Array<{ question: string; answer: string }>;
+  cancellation: string;
+  refund: string;
+  pickup: string;
+  drop: string;
+  notes: string;
+}
+
+  // Localize properties using helper
+  const lp = await localizeObject(rawPackage, locale) as any;
+  const pkg: LocalizedPackageDetails = {
     id: rawPackage._id,
     category: rawPackage.packageCategory,
-    title: rawPackage.title[locale] || rawPackage.title["en"] || "",
-    price: rawPackage.price,
-    pricePeriod: rawPackage.pricePeriod[locale] || rawPackage.pricePeriod["en"] || "",
-    image: rawPackage.image,
+    title: lp.title,
+    price: lp.price,
+    pricePeriod: lp.pricePeriod,
+    image: lp.image,
     aboutImage: rawPackage.aboutImage || rawPackage.image,
-    duration: rawPackage.duration[locale] || rawPackage.duration["en"] || "",
-    shortDescription: rawPackage.shortDescription[locale] || rawPackage.shortDescription["en"] || "",
-    tagline: rawPackage.tagline[locale] || rawPackage.tagline["en"] || "",
-    aboutText: rawPackage.aboutText[locale] || rawPackage.aboutText["en"] || "",
-    itinerary: (rawPackage.itinerary || []).map((it) => ({
-      timeOrDay: it.timeOrDay[locale] || it.timeOrDay["en"] || "",
-      activity: it.activity[locale] || it.activity["en"] || "",
-      desc: it.desc[locale] || it.desc["en"] || "",
-    })),
-    inclusions: (rawPackage.inclusions || []).map((inc) => inc[locale] || inc["en"] || ""),
-    exclusions: (rawPackage.exclusions || []).map((exc) => exc[locale] || exc["en"] || ""),
-    highlights: (rawPackage.highlights || []).map((h) => ({
-      icon: h.icon,
-      label: h.label[locale] || h.label["en"] || "",
-    })),
-    whyGuestsLoveUs: (rawPackage.whyGuestsLoveUs || []).map((w) => ({
-      icon: w.icon,
-      title: w.title[locale] || w.title["en"] || "",
-      desc: w.desc[locale] || w.desc["en"] || "",
-    })),
-
-    // General Info
-    travelTime: rawPackage.travelTime?.[locale] || rawPackage.travelTime?.["en"] || "",
-    entryFee: rawPackage.entryFee?.[locale] || rawPackage.entryFee?.["en"] || "",
-    optionalCharges: rawPackage.optionalCharges?.[locale] || rawPackage.optionalCharges?.["en"] || "",
-    difficulty: rawPackage.difficulty?.[locale] || rawPackage.difficulty?.["en"] || "",
-    groupSize: rawPackage.groupSize?.[locale] || rawPackage.groupSize?.["en"] || "",
-    location: rawPackage.location?.[locale] || rawPackage.location?.["en"] || "",
-
-    // Localized Content
-    tourOverview: rawPackage.tourOverview?.[locale] || rawPackage.tourOverview?.["en"] || "",
-    bestTime: rawPackage.bestTime?.[locale] || rawPackage.bestTime?.["en"] || "",
-    dressCode: rawPackage.dressCode?.[locale] || rawPackage.dressCode?.["en"] || "",
-    cta: rawPackage.cta?.[locale] || rawPackage.cta?.["en"] || "",
-
-    // Media
-    video: rawPackage.video || "",
-    gallery: rawPackage.gallery || [],
-
-    // Quick Facts
-    quickFacts: (rawPackage.quickFacts || []).map((qf) => ({
-      key: qf.key[locale] || qf.key["en"] || "",
-      value: qf.value[locale] || qf.value["en"] || "",
-    })),
-
-    // Things to Bring
-    thingsToBring: (rawPackage.thingsToBring || []).map((tb) => tb[locale] || tb["en"] || ""),
-
-    // Nearby Attractions
-    nearbyAttractions: (rawPackage.nearbyAttractions || []).map((na) => ({
-      name: na.name[locale] || na.name["en"] || "",
-      distance: na.distance[locale] || na.distance["en"] || "",
-    })),
-
-    // Related Packages
+    duration: lp.duration,
+    shortDescription: lp.shortDescription,
+    tagline: lp.tagline,
+    aboutText: lp.aboutText,
+    itinerary: await Promise.all(
+      (rawPackage.itinerary || []).map(async (it) => ({
+        timeOrDay: await localizeObject(it.timeOrDay, locale) as any,
+        activity: await localizeObject(it.activity, locale) as any,
+        desc: await localizeObject(it.desc, locale) as any,
+      }))
+    ),
+    inclusions: await Promise.all(
+      (rawPackage.inclusions || []).map((inc) => localizeObject(inc, locale) as any)
+    ),
+    exclusions: await Promise.all(
+      (rawPackage.exclusions || []).map((exc) => localizeObject(exc, locale) as any)
+    ),
+    highlights: await Promise.all(
+      (rawPackage.highlights || []).map(async (h) => ({
+        icon: h.icon,
+        label: await localizeObject(h.label, locale) as any,
+      }))
+    ),
+    whyGuestsLoveUs: await Promise.all(
+      (rawPackage.whyGuestsLoveUs || []).map(async (w) => ({
+        icon: w.icon,
+        title: await localizeObject(w.title, locale) as any,
+        desc: await localizeObject(w.desc, locale) as any,
+      }))
+    ),
+    travelTime: lp.travelTime,
+    entryFee: lp.entryFee,
+    optionalCharges: lp.optionalCharges,
+    difficulty: lp.difficulty,
+    groupSize: lp.groupSize,
+    location: lp.location,
+    tourOverview: lp.tourOverview,
+    bestTime: lp.bestTime,
+    dressCode: lp.dressCode,
+    cta: lp.cta,
+    video: lp.video || "",
+    gallery: lp.gallery || [],
+    quickFacts: await Promise.all(
+      (rawPackage.quickFacts || []).map(async (qf) => ({
+        key: await localizeObject(qf.key, locale) as any,
+        value: await localizeObject(qf.value, locale) as any,
+      }))
+    ),
+    thingsToBring: await Promise.all(
+      (rawPackage.thingsToBring || []).map((tb) => localizeObject(tb, locale) as any)
+    ),
+    nearbyAttractions: await Promise.all(
+      (rawPackage.nearbyAttractions || []).map(async (na) => ({
+        name: await localizeObject(na.name, locale) as any,
+        distance: await localizeObject(na.distance, locale) as any,
+      }))
+    ),
     relatedPackages: rawPackage.relatedPackages || [],
-
-    // FAQs
-    faqs: (rawPackage.faqs || []).map((faq) => ({
-      question: faq.question[locale] || faq.question["en"] || "",
-      answer: faq.answer[locale] || faq.answer["en"] || "",
-    })),
-
-    // Booking Information
-    cancellation: rawPackage.cancellation?.[locale] || rawPackage.cancellation?.["en"] || "",
-    refund: rawPackage.refund?.[locale] || rawPackage.refund?.["en"] || "",
-    pickup: rawPackage.pickup?.[locale] || rawPackage.pickup?.["en"] || "",
-    drop: rawPackage.drop?.[locale] || rawPackage.drop?.["en"] || "",
-    notes: rawPackage.notes?.[locale] || rawPackage.notes?.["en"] || "",
+    faqs: await Promise.all(
+      (rawPackage.faqs || []).map(async (faq) => ({
+        question: await localizeObject(faq.question, locale) as any,
+        answer: await localizeObject(faq.answer, locale) as any,
+      }))
+    ),
+    cancellation: lp.cancellation,
+    refund: lp.refund,
+    pickup: lp.pickup,
+    drop: lp.drop,
+    notes: lp.notes,
   };
 
   // Resolve related items lists

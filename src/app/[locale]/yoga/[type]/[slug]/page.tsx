@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { Clock, Check, Shield, Calendar, Phone, ChevronLeft, MapPin, Smile } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface YogaDetails {
   _id: string;
   yogaType: string;
@@ -112,7 +114,7 @@ export default async function YogaDetailsPage({
 }) {
   const { locale, type, slug } = await params;
   
-  const [rawYoga, teacher, allYoga, allProperties, allPackages] = await Promise.all([
+  const [rawYoga, rawTeacher, allYoga, allProperties, allPackages] = await Promise.all([
     getYogaDetails(slug),
     getLeadTeacher(),
     getAllYoga(),
@@ -128,27 +130,54 @@ export default async function YogaDetailsPage({
   const messages = await getMessages({ locale });
   const tYoga = messages.YogaDetails as any;
 
-  // Localize properties
-  const yoga = {
+interface LocalizedYogaDetails {
+  id: string;
+  type: string;
+  title: string;
+  price: number;
+  pricePeriod: string;
+  image: string;
+  aboutImage: string;
+  duration: string;
+  shortDescription: string;
+  tagline: string;
+  aboutText: string;
+  schedule: Array<{ time: string; activity: string }>;
+  benefits: string[];
+  inclusions: string[];
+  relatedYoga: string[];
+}
+
+  // Localize properties using translator helper
+  const ly = await localizeObject(rawYoga, locale) as any;
+  const yoga: LocalizedYogaDetails = {
     id: rawYoga._id,
     type: rawYoga.yogaType,
-    title: rawYoga.title[locale] || rawYoga.title["en"] || "",
-    price: rawYoga.price,
-    pricePeriod: rawYoga.pricePeriod[locale] || rawYoga.pricePeriod["en"] || "",
-    image: rawYoga.image,
+    title: ly.title,
+    price: ly.price,
+    pricePeriod: ly.pricePeriod,
+    image: ly.image,
     aboutImage: rawYoga.aboutImage || rawYoga.image,
-    duration: rawYoga.duration[locale] || rawYoga.duration["en"] || "",
-    shortDescription: rawYoga.shortDescription[locale] || rawYoga.shortDescription["en"] || "",
-    tagline: rawYoga.tagline[locale] || rawYoga.tagline["en"] || "",
-    aboutText: rawYoga.aboutText[locale] || rawYoga.aboutText["en"] || "",
-    schedule: (rawYoga.schedule || []).map((sc) => ({
-      time: sc.time[locale] || sc.time["en"] || "",
-      activity: sc.activity[locale] || sc.activity["en"] || "",
-    })),
-    benefits: (rawYoga.benefits || []).map((b) => b[locale] || b["en"] || ""),
-    inclusions: (rawYoga.inclusions || []).map((inc) => inc[locale] || inc["en"] || ""),
+    duration: ly.duration,
+    shortDescription: ly.shortDescription,
+    tagline: ly.tagline,
+    aboutText: ly.aboutText,
+    schedule: await Promise.all(
+      (rawYoga.schedule || []).map(async (sc) => ({
+        time: await localizeObject(sc.time, locale) as any,
+        activity: await localizeObject(sc.activity, locale) as any,
+      }))
+    ),
+    benefits: await Promise.all(
+      (rawYoga.benefits || []).map((b) => localizeObject(b, locale) as any)
+    ),
+    inclusions: await Promise.all(
+      (rawYoga.inclusions || []).map((inc) => localizeObject(inc, locale) as any)
+    ),
     relatedYoga: rawYoga.relatedYoga || [],
   };
+
+  const teacher = rawTeacher ? await localizeObject(rawTeacher, locale) as any : null;
 
   // Resolve suggestions
   let suggestionsList: any[] = [];
@@ -417,10 +446,10 @@ export default async function YogaDetailsPage({
                 </div>
                 <h4 className="font-serif font-semibold text-[#121212] leading-tight">{teacher.name}</h4>
                 <span className="text-[9px] text-brand-gold uppercase tracking-wider font-bold mt-0.5 mb-3 block leading-none">
-                  {teacher.role[locale] || teacher.role["en"] || ""}
+                  {teacher.role}
                 </span>
                 <p className="text-[11px] text-gray-500 font-light leading-relaxed font-sans">
-                  {teacher.bio[locale] || teacher.bio["en"] || ""}
+                  {teacher.bio}
                 </p>
               </div>
             )}

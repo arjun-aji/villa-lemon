@@ -8,6 +8,8 @@ import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Compass, CheckCircle
 import CatalogClient from "./CatalogClient";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface PropertyItem {
   _id: string;
   accommodationType: string;
@@ -81,20 +83,25 @@ export default async function AccommodationCatalogPage({
   ]);
 
   // Localize properties for rendering
-  const properties = rawProperties.map((p) => ({
-    id: p._id,
-    title: p.title[locale] || p.title["en"] || "",
-    slug: p.slug,
-    price: p.price,
-    pricePeriod: p.pricePeriod[locale] || p.pricePeriod["en"] || "",
-    image: p.image,
-    bedrooms: p.bedrooms,
-    bathrooms: p.bathrooms,
-    guests: p.guests,
-    location: p.location[locale] || p.location["en"] || "",
-    shortDescription: p.shortDescription[locale] || p.shortDescription["en"] || "",
-    tagline: p.tagline[locale] || p.tagline["en"] || "",
-  }));
+  const properties = await Promise.all(
+    rawProperties.map(async (p) => {
+      const lp = await localizeObject(p, locale) as any;
+      return {
+        id: lp._id,
+        title: lp.title,
+        slug: lp.slug,
+        price: lp.price,
+        pricePeriod: lp.pricePeriod,
+        image: lp.image,
+        bedrooms: lp.bedrooms,
+        bathrooms: lp.bathrooms,
+        guests: lp.guests,
+        location: lp.location,
+        shortDescription: lp.shortDescription,
+        tagline: lp.tagline,
+      };
+    })
+  );
 
   // Fetch translation messages
   const messages = await getMessages({ locale });

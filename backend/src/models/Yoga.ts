@@ -4,9 +4,9 @@ import { IYogaProgram, ITeacher } from "../types";
 const localizedTextSchema = new Schema(
   {
     en: { type: String, required: true },
-    de: { type: String, required: true },
-    fr: { type: String, required: true },
-    ru: { type: String, required: true },
+    de: { type: String, default: "" },
+    fr: { type: String, default: "" },
+    ru: { type: String, default: "" },
   },
   { _id: false }
 );

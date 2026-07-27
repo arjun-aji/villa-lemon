@@ -6,6 +6,8 @@ import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
+import { localizeObject } from "@/utils/translator";
+
 interface YogaItemType {
   _id: string;
   yogaType: string;
@@ -67,7 +69,19 @@ export default async function YogaCatalogPage({
 
   if (type === "teachers") {
     // TEACHERS DIRECTORY LAYOUT
-    const teachersList = await getTeachers();
+    const rawTeachersList = await getTeachers();
+    const teachersList = await Promise.all(
+      rawTeachersList.map(async (teacher) => {
+        const lt = await localizeObject(teacher, locale) as any;
+        return {
+          _id: teacher._id,
+          name: teacher.name,
+          image: teacher.image,
+          role: lt.role,
+          bio: lt.bio,
+        };
+      })
+    );
 
     return (
       <>
@@ -133,10 +147,10 @@ export default async function YogaCatalogPage({
                       {teacher.name}
                     </h3>
                     <span className="text-[10px] font-bold text-brand-gold uppercase tracking-wider mt-1 mb-4 select-none">
-                      {teacher.role[locale] || teacher.role["en"] || ""}
+                      {teacher.role}
                     </span>
                     <p className="text-xs text-gray-500 font-light font-sans leading-relaxed select-text">
-                      {teacher.bio[locale] || teacher.bio["en"] || ""}
+                      {teacher.bio}
                     </p>
                   </div>
                 ))}
@@ -165,17 +179,22 @@ export default async function YogaCatalogPage({
 
   const rawPrograms = await getYogaItems(dbType);
 
-  const programs = rawPrograms.map((p) => ({
-    id: p._id,
-    title: p.title[locale] || p.title["en"] || "",
-    slug: p.slug,
-    price: p.price,
-    pricePeriod: p.pricePeriod[locale] || p.pricePeriod["en"] || "",
-    image: p.image,
-    duration: p.duration[locale] || p.duration["en"] || "",
-    shortDescription: p.shortDescription[locale] || p.shortDescription["en"] || "",
-    tagline: p.tagline[locale] || p.tagline["en"] || "",
-  }));
+  const programs = await Promise.all(
+    rawPrograms.map(async (p) => {
+      const lp = await localizeObject(p, locale) as any;
+      return {
+        id: lp._id,
+        title: lp.title,
+        slug: lp.slug,
+        price: lp.price,
+        pricePeriod: lp.pricePeriod,
+        image: lp.image,
+        duration: lp.duration,
+        shortDescription: lp.shortDescription,
+        tagline: lp.tagline,
+      };
+    })
+  );
 
   const title = tYoga[titleKey] || "Yoga Program";
   const programDescription = tYoga[descKey] || "";

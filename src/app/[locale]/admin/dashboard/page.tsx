@@ -1749,7 +1749,7 @@ export default function AdminDashboard() {
                         setSubgroupForm({ ...subgroupForm, title });
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   
@@ -1764,7 +1764,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Explore Entire Villas"
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -1781,7 +1781,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="From ₹24,500 / night"
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 )}
@@ -1796,7 +1796,7 @@ export default function AdminDashboard() {
                       setSubgroupForm({ ...subgroupForm, description });
                     }}
                     className="border p-2.5 rounded font-sans"
-                    required
+                    required={activeLangTab === "en"}
                   />
                 </div>
               </div>
@@ -2000,7 +2000,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Lemon Grove Villa"
                       className="border border-gray-200 p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -2014,7 +2014,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="/ night"
                       className="border border-gray-200 p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -2028,7 +2028,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Varkala, Kerala"
                       className="border border-gray-200 p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -2042,7 +2042,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Unrivaled ocean breezes surrounding private pool sanctuary..."
                       className="border border-gray-200 p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -2058,7 +2058,7 @@ export default function AdminDashboard() {
                     }}
                     placeholder="Short description displayed on card catalog grids."
                     className="border border-gray-200 p-2.5 rounded font-sans"
-                    required
+                    required={activeLangTab === "en"}
                   />
                 </div>
 
@@ -2074,7 +2074,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Main about paragraph..."
                       className="border border-gray-200 p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -2088,7 +2088,7 @@ export default function AdminDashboard() {
                       }}
                       placeholder="Secondary about paragraph..."
                       className="border border-gray-200 p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -2104,7 +2104,7 @@ export default function AdminDashboard() {
                         setStayForm({ ...stayForm, perfectLocationText });
                       }}
                       className="border border-gray-200 p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -2117,7 +2117,7 @@ export default function AdminDashboard() {
                         setStayForm({ ...stayForm, groupAccommodationText });
                       }}
                       className="border border-gray-200 p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -4060,7 +4060,7 @@ export default function AdminDashboard() {
                         setYogaForm({ ...yogaForm, title });
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -4073,7 +4073,7 @@ export default function AdminDashboard() {
                         setYogaForm({ ...yogaForm, pricePeriod });
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -4086,7 +4086,7 @@ export default function AdminDashboard() {
                         setYogaForm({ ...yogaForm, duration });
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -4101,7 +4101,7 @@ export default function AdminDashboard() {
                       setYogaForm({ ...yogaForm, tagline });
                     }}
                     className="border p-2.5 rounded"
-                    required
+                    required={activeLangTab === "en"}
                   />
                 </div>
 
@@ -4116,7 +4116,7 @@ export default function AdminDashboard() {
                         setYogaForm({ ...yogaForm, shortDescription });
                       }}
                       className="border p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -4129,7 +4129,7 @@ export default function AdminDashboard() {
                         setYogaForm({ ...yogaForm, aboutText });
                       }}
                       className="border p-2.5 rounded font-sans"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
@@ -4354,7 +4354,7 @@ export default function AdminDashboard() {
                   }}
                   placeholder="e.g. Lead Yoga Acharya & Meditation Guide"
                   className="border p-2.5 rounded"
-                  required
+                  required={activeLangTab === "en"}
                 />
               </div>
 
@@ -4369,7 +4369,7 @@ export default function AdminDashboard() {
                   }}
                   placeholder="Brief description of experience and mindfulness background..."
                   className="border p-2.5 rounded font-sans"
-                  required
+                  required={activeLangTab === "en"}
                 />
               </div>
 
@@ -4455,7 +4455,7 @@ export default function AdminDashboard() {
                         setHomepageData(copy);
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -4469,7 +4469,7 @@ export default function AdminDashboard() {
                         setHomepageData(copy);
                       }}
                       className="border p-2.5 rounded"
-                      required
+                      required={activeLangTab === "en"}
                     />
                   </div>
                 </div>
