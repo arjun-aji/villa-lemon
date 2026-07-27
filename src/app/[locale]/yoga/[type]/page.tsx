@@ -311,6 +311,41 @@ export default async function YogaCatalogPage({
   }
 
   // PROGRAM CATALOG LAYOUT (daily-yoga-classes / private-yoga-sessions)
+  let dbType = "retreats";
+  let titleKey = "retreatsTitle";
+  let descKey = "retreatsDesc";
+
+  if (type === "daily-yoga-classes") {
+    dbType = "classes";
+    titleKey = "classesTitle";
+    descKey = "classesDesc";
+  } else if (type === "private-yoga-sessions") {
+    dbType = "private";
+    titleKey = "privateTitle";
+    descKey = "privateDesc";
+  }
+
+  const rawPrograms = await getYogaItems(dbType);
+
+  const programs = await Promise.all(
+    rawPrograms.map(async (p) => {
+      const lp = await localizeObject(p, locale) as any;
+      return {
+        id: lp._id,
+        title: lp.title,
+        slug: lp.slug,
+        price: lp.price,
+        pricePeriod: lp.pricePeriod,
+        image: lp.image,
+        duration: lp.duration,
+        shortDescription: lp.shortDescription,
+        tagline: lp.tagline,
+      };
+    })
+  );
+
+  const title = tYoga[titleKey] || "Yoga Program";
+  const programDescription = tYoga[descKey] || "";
 
   return (
     <>
