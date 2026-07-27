@@ -251,3 +251,249 @@ export interface IYogaItem extends Document {
   updatedAt: Date;
 }
 
+// ─── Retreat ──────────────────────────────────────────────────────────────────
+
+export interface IRetreatHighlight {
+  icon: string;
+  title: ILocalizedText;
+  description: ILocalizedText;
+}
+
+export interface IRetreatScheduleItem {
+  time: string;
+  activity: ILocalizedText;
+  description: ILocalizedText;
+  icon: string;
+}
+
+export interface IRetreatCurriculumDay {
+  dayNumber: number;
+  dayTitle: ILocalizedText;
+  description: ILocalizedText;
+  topics: ILocalizedText[];
+  learningOutcome: ILocalizedText;
+  images: string[];
+}
+
+export interface IRetreatExcursion {
+  name: ILocalizedText;
+  duration: ILocalizedText;
+  description: ILocalizedText;
+  image: string;
+  highlights: ILocalizedText[];
+  relatedTour: string;
+  included: boolean;
+}
+
+export interface IRetreatRoom {
+  name: ILocalizedText;
+  image: string;
+  imagePublicId: string;
+  description: ILocalizedText;
+  occupancy: number;
+  isPrivate: boolean;
+  hasAC: boolean;
+  hasBathroom: boolean;
+  hasBalcony: boolean;
+  hasWorkspace: boolean;
+  hotWater: boolean;
+  sharedPrice: number;
+  privatePrice: number;
+  features: ILocalizedText[];
+}
+
+export interface IRetreatMeal {
+  mealType: ILocalizedText;
+  description: ILocalizedText;
+  isVegan: boolean;
+  isGlutenFree: boolean;
+  isLactoseFree: boolean;
+  gallery: string[];
+  menuItems: ILocalizedText[];
+}
+
+export interface IRetreatTeacher {
+  name: string;
+  photo: string;
+  photoPublicId: string;
+  experience: string;
+  specialization: ILocalizedText;
+  bio: ILocalizedText;
+  certificates: ILocalizedText[];
+  instagramUrl: string;
+  facebookUrl: string;
+  websiteUrl: string;
+}
+
+export interface IRetreatAyurvedaTreatment {
+  name: ILocalizedText;
+  description: ILocalizedText;
+  isOptional: boolean;
+  extraCost: number;
+}
+
+export interface IRetreatPricingRow {
+  roomCategory: ILocalizedText;
+  sharedPrice: number;
+  privatePrice: number;
+  availability: ILocalizedText;
+  upgradeCost: number;
+}
+
+export interface IRetreatFAQ {
+  question: ILocalizedText;
+  answer: ILocalizedText;
+}
+
+export interface IRetreatReview {
+  name: string;
+  country: string;
+  photo: string;
+  stars: number;
+  review: ILocalizedText;
+  retreatJoined: string;
+}
+
+export interface IRetreatCertificate {
+  image: string;
+  name: ILocalizedText;
+  description: ILocalizedText;
+}
+
+export interface IRetreat extends Document {
+  // General Info
+  slug: string;
+  days: number;
+  nights: number;
+  price: number;
+  location: ILocalizedText;
+  difficulty: ILocalizedText;
+  yogaLevel: ILocalizedText;
+  language: ILocalizedText;
+  groupSize: ILocalizedText;
+  minAge: number;
+  maxCapacity: number;
+  certificate: boolean;
+  accommodationType: ILocalizedText;
+  status: "draft" | "published" | "archived";
+  featured: boolean;
+  displayOrder: number;
+
+  // Content
+  heroTitle: ILocalizedText;
+  heroSubtitle: ILocalizedText;
+  tagline: ILocalizedText;
+  shortDescription: ILocalizedText;
+  fullDescription: ILocalizedText;
+  retreatOverview: ILocalizedText;
+  whyChoose: ILocalizedText;
+  whoIsItFor: ILocalizedText;
+  bestTime: ILocalizedText;
+  cta: ILocalizedText;
+
+  // Media
+  heroImage: string;
+  heroImagePublicId: string;
+  video: string;
+  retreatMap: string;
+  brochurePdf: string;
+
+  // Sections
+  highlights: IRetreatHighlight[];
+  dailySchedule: IRetreatScheduleItem[];
+  curriculum: IRetreatCurriculumDay[];
+  excursions: IRetreatExcursion[];
+  rooms: IRetreatRoom[];
+  meals: IRetreatMeal[];
+
+  // Yoga Program
+  yogaStyle: ILocalizedText;
+  morningSession: ILocalizedText;
+  eveningSession: ILocalizedText;
+  meditation: ILocalizedText;
+  pranayama: ILocalizedText;
+  philosophy: ILocalizedText;
+  classLanguage: ILocalizedText;
+  suitableFor: ILocalizedText;
+  yogaCertificate: ILocalizedText;
+  yogaHours: number;
+  yogaDescription: ILocalizedText;
+
+  // Teachers
+  teachers: IRetreatTeacher[];
+
+  // Ayurveda
+  ayurvedaTitle: ILocalizedText;
+  ayurvedaDescription: ILocalizedText;
+  ayurvedaTreatments: IRetreatAyurvedaTreatment[];
+
+  // Pricing
+  pricingRows: IRetreatPricingRow[];
+
+  // Checklists
+  inclusions: ILocalizedText[];
+  exclusions: ILocalizedText[];
+  thingsToBring: ILocalizedText[];
+  dressCode: ILocalizedText[];
+  requirements: ILocalizedText[];
+  whoShouldAvoid: ILocalizedText[];
+
+  // FAQs
+  faqs: IRetreatFAQ[];
+
+  // Reviews
+  reviews: IRetreatReview[];
+
+  // Certificates
+  certificates: IRetreatCertificate[];
+
+  // Gallery (categorized)
+  galleryYoga: string[];
+  galleryAccommodation: string[];
+  galleryExcursions: string[];
+  galleryFood: string[];
+  galleryTeachers: string[];
+  galleryBeach: string[];
+  galleryStudents: string[];
+  galleryCampus: string[];
+
+  // Downloads
+  brochureUrl: string;
+  packingListUrl: string;
+  schedulePdfUrl: string;
+  termsPdfUrl: string;
+
+  // Booking
+  deposit: ILocalizedText;
+  balancePayment: ILocalizedText;
+  cancellation: ILocalizedText;
+  refund: ILocalizedText;
+  pickup: ILocalizedText;
+  drop: ILocalizedText;
+  checkIn: string;
+  checkOut: string;
+  emergencyContact: string;
+  medicalInfo: ILocalizedText;
+  specialRequests: ILocalizedText;
+  bookingTerms: ILocalizedText;
+
+  // Settings
+  maxParticipants: number;
+  minParticipants: number;
+  bookingOpen: boolean;
+  availableDates: string[];
+  isPopular: boolean;
+  isSoldOut: boolean;
+  isUpcoming: boolean;
+
+  // SEO
+  metaTitle: ILocalizedText;
+  metaDescription: ILocalizedText;
+  keywords: ILocalizedText;
+  ogImage: string;
+  ogImagePublicId: string;
+  canonicalUrl: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+}

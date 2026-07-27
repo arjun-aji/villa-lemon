@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { API_BASE_URL } from "@/config/api";
+import RetreatsTab from "./RetreatsTab";
 import {
   LayoutDashboard,
   Home,
@@ -235,7 +236,7 @@ interface TeacherData {
   image: string;
 }
 
-type TabType = "dashboard" | "stays" | "packages" | "yoga" | "teachers" | "homepage";
+type TabType = "dashboard" | "stays" | "packages" | "yoga" | "retreats" | "teachers" | "homepage";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -1180,6 +1181,16 @@ export default function AdminDashboard() {
               }`}
             >
               <Activity className="w-4 h-4 text-brand-gold" />
+              <span>Yoga Programs</span>
+            </div>
+
+            <div 
+              onClick={() => setActiveTab("retreats")}
+              className={`px-3.5 py-3 rounded-sm flex items-center gap-3 cursor-pointer transition-colors ${
+                activeTab === "retreats" ? "bg-[#c5a880]/10 text-brand-gold border-l-2 border-brand-gold" : "hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Compass className="w-4 h-4 text-brand-gold" />
               <span>Yoga Retreats</span>
             </div>
 
@@ -1637,6 +1648,10 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {activeTab === "retreats" && (
+                <RetreatsTab token={token || ""} />
               )}
 
             </div>
