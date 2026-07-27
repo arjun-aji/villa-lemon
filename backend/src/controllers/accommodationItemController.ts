@@ -84,6 +84,7 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
     const idealFor = parseField(req.body.idealFor);
     const checkInOutRules = parseField(req.body.checkInOutRules);
     const additionalServices = parseField(req.body.additionalServices);
+    const relatedAccommodations = parseField(req.body.relatedAccommodations) || [];
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const imageFile = files?.image?.[0];
@@ -147,6 +148,7 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       mapLink: mapLink || "",
       gallery: galleryUrls,
       galleryPublicIds: galleryPublicIds,
+      relatedAccommodations,
     });
 
     await newItem.save();
@@ -205,6 +207,7 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     if (req.body.idealFor) item.idealFor = parseField(req.body.idealFor);
     if (req.body.checkInOutRules) item.checkInOutRules = parseField(req.body.checkInOutRules);
     if (req.body.additionalServices) item.additionalServices = parseField(req.body.additionalServices);
+    if (req.body.relatedAccommodations) item.relatedAccommodations = parseField(req.body.relatedAccommodations);
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const imageFile = files?.image?.[0];

@@ -3,11 +3,12 @@ import Accommodations from "@/components/Accommodations";
 import Packages from "@/components/Packages";
 import Yoga from "@/components/Yoga";
 import About from "@/components/About";
+import { API_BASE_URL } from "@/config/api";
 
 // Fetch Homepage data from Backend
 async function getHomepageData() {
   try {
-    const res = await fetch("http://localhost:5001/api/homepage", {
+    const res = await fetch(`${API_BASE_URL}/api/homepage`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
@@ -21,7 +22,7 @@ async function getHomepageData() {
 // Fetch Accommodations list
 async function getAccommodations() {
   try {
-    const res = await fetch("http://localhost:5001/api/accommodations", {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
@@ -35,7 +36,7 @@ async function getAccommodations() {
 // Fetch Tour Packages
 async function getPackages() {
   try {
-    const res = await fetch("http://localhost:5001/api/packages", {
+    const res = await fetch(`${API_BASE_URL}/api/packages`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
@@ -49,7 +50,7 @@ async function getPackages() {
 // Fetch Yoga Programs
 async function getYogaPrograms() {
   try {
-    const res = await fetch("http://localhost:5001/api/yoga/programs", {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/programs`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;

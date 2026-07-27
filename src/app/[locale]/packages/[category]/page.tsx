@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { Clock, ShieldCheck, MapPin, Compass } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 interface PackageItemType {
   _id: string;
@@ -20,7 +21,7 @@ interface PackageItemType {
 
 async function getPackageItems(category: string): Promise<PackageItemType[]> {
   try {
-    const res = await fetch(`http://localhost:5001/api/packages/items?category=${category}`, {
+    const res = await fetch(`${API_BASE_URL}/api/packages/items?category=${category}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];

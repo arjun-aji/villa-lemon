@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 interface YogaItemType {
   _id: string;
@@ -28,7 +29,7 @@ interface TeacherType {
 
 async function getYogaItems(type: string): Promise<YogaItemType[]> {
   try {
-    const res = await fetch(`http://localhost:5001/api/yoga/items?type=${type}`, {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/items?type=${type}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];
@@ -42,7 +43,7 @@ async function getYogaItems(type: string): Promise<YogaItemType[]> {
 
 async function getTeachers(): Promise<TeacherType[]> {
   try {
-    const res = await fetch("http://localhost:5001/api/yoga/teachers", {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/teachers`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];

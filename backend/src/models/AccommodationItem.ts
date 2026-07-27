@@ -81,6 +81,7 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     mapLink: { type: String, default: "" },
     gallery: [{ type: String }],
     galleryPublicIds: [{ type: String }],
+    relatedAccommodations: [{ type: String }],
   },
   {
     timestamps: true,

@@ -77,6 +77,7 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
     const schedule = parseField(req.body.schedule);
     const benefits = parseField(req.body.benefits);
     const inclusions = parseField(req.body.inclusions);
+    const relatedYoga = parseField(req.body.relatedYoga) || [];
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const imageFile = files?.image?.[0];
@@ -111,6 +112,7 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
       schedule,
       benefits,
       inclusions,
+      relatedYoga,
     });
 
     await newItem.save();
@@ -156,6 +158,7 @@ export const updateYogaItem = async (req: Request, res: Response): Promise<any> 
     if (req.body.schedule) item.schedule = parseField(req.body.schedule);
     if (req.body.benefits) item.benefits = parseField(req.body.benefits);
     if (req.body.inclusions) item.inclusions = parseField(req.body.inclusions);
+    if (req.body.relatedYoga) item.relatedYoga = parseField(req.body.relatedYoga);
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const imageFile = files?.image?.[0];

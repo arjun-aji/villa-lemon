@@ -134,41 +134,10 @@ export default function Yoga({
       }));
     }
 
-    return [
-      {
-        img: "/assets/yoga_retreats.png",
-        icon: <RetreatsIcon />,
-        title: t("retreatsTitle"),
-        desc: t("retreatsDesc"),
-        explore: t("retreatsExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/yoga_classes.png",
-        icon: <ClassesIcon />,
-        title: t("classesTitle"),
-        desc: t("classesDesc"),
-        explore: t("classesExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/yoga_private.png",
-        icon: <PrivateIcon />,
-        title: t("privateTitle"),
-        desc: t("privateDesc"),
-        explore: t("privateExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/yoga_teachers.png",
-        icon: <TeachersIcon />,
-        title: t("teachersTitle"),
-        desc: t("teachersDesc"),
-        explore: t("teachersExplore"),
-        href: "#contact",
-      },
-    ];
-  }, [data, t]);
+    return [];
+  }, [data]);
+
+  if (cards.length === 0) return null;
 
   return (
     <section

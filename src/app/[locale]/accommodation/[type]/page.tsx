@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Compass, CheckCircle } from "lucide-react";
 import CatalogClient from "./CatalogClient";
+import { API_BASE_URL } from "@/config/api";
 
 interface PropertyItem {
   _id: string;
@@ -26,7 +27,7 @@ interface PropertyItem {
 
 async function getProperties(type: string): Promise<PropertyItem[]> {
   try {
-    const res = await fetch(`http://localhost:5001/api/accommodations/items?type=${type}`, {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations/items?type=${type}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];
@@ -40,7 +41,7 @@ async function getProperties(type: string): Promise<PropertyItem[]> {
 
 async function getCategory(type: string): Promise<any> {
   try {
-    const res = await fetch(`http://localhost:5001/api/accommodations?type=${type}`, {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations?type=${type}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return null;

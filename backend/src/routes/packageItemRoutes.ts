@@ -15,13 +15,15 @@ const router = Router();
 router.get("/", getAllPackageItems);
 router.get("/:slug", getPackageItemBySlug);
 
-// Protected routes (require token and handle cover + about image files)
+// Protected routes (require token and handle cover + details + gallery + SEO images)
 router.post(
   "/",
   protect as any,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "aboutImage", maxCount: 1 },
+    { name: "gallery", maxCount: 10 },
+    { name: "ogImage", maxCount: 1 },
   ]),
   createPackageItem
 );
@@ -32,6 +34,8 @@ router.put(
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "aboutImage", maxCount: 1 },
+    { name: "gallery", maxCount: 10 },
+    { name: "ogImage", maxCount: 1 },
   ]),
   updatePackageItem
 );

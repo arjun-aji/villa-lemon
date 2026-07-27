@@ -9,7 +9,7 @@ const signToken = (id: string): string => {
     { id },
     process.env.JWT_SECRET || "defaultsupersecretkey",
     {
-      expiresIn: (process.env.JWT_EXPIRES_IN as any) || "7d",
+      expiresIn: (process.env.JWT_EXPIRES_IN as any) || "90d",
     }
   );
 };

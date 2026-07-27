@@ -130,41 +130,10 @@ export default function Packages({
       }));
     }
 
-    return [
-      {
-        img: "/assets/package_varkala.png",
-        icon: <VarkalaIcon />,
-        title: t("varkalaTitle"),
-        desc: t("varkalaDesc"),
-        explore: t("varkalaExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/package_daytrips.png",
-        icon: <DayTripsIcon />,
-        title: t("daytripsTitle"),
-        desc: t("daytripsDesc"),
-        explore: t("daytripsExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/package_houseboat.png",
-        icon: <HouseboatIcon />,
-        title: t("backwaterTitle"),
-        desc: t("backwaterDesc"),
-        explore: t("backwaterExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/package_adventure.png",
-        icon: <AdventureIcon />,
-        title: t("adventureTitle"),
-        desc: t("adventureDesc"),
-        explore: t("adventureExplore"),
-        href: "#contact",
-      },
-    ];
-  }, [data, t]);
+    return [];
+  }, [data]);
+
+  if (cards.length === 0) return null;
 
   return (
     <section

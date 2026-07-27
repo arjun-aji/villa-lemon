@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Clock, Check, Shield, Calendar, Phone, ChevronLeft, MapPin, Smile } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 interface YogaDetails {
   _id: string;
@@ -22,6 +23,7 @@ interface YogaDetails {
   schedule: Array<{ time: Record<string, string>; activity: Record<string, string> }>;
   benefits: Array<Record<string, string>>;
   inclusions: Array<Record<string, string>>;
+  relatedYoga?: string[];
 }
 
 interface TeacherType {
@@ -34,7 +36,7 @@ interface TeacherType {
 
 async function getYogaDetails(slug: string): Promise<YogaDetails | null> {
   try {
-    const res = await fetch(`http://localhost:5001/api/yoga/items/${slug}`, {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/items/${slug}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return null;
@@ -48,7 +50,7 @@ async function getYogaDetails(slug: string): Promise<YogaDetails | null> {
 
 async function getLeadTeacher(): Promise<TeacherType | null> {
   try {
-    const res = await fetch("http://localhost:5001/api/yoga/teachers", {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/teachers`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return null;
@@ -61,6 +63,48 @@ async function getLeadTeacher(): Promise<TeacherType | null> {
   }
 }
 
+async function getAllYoga(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/items`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[yoga suggestions fetch]: Failed to load yoga items", err);
+    return [];
+  }
+}
+
+async function getAllProperties(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations/items`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[suggestions fetch]: Failed to load properties", err);
+    return [];
+  }
+}
+
+async function getAllPackages(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/packages/items`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[suggestions fetch]: Failed to load packages", err);
+    return [];
+  }
+}
+
 export default async function YogaDetailsPage({
   params,
 }: {
@@ -68,9 +112,12 @@ export default async function YogaDetailsPage({
 }) {
   const { locale, type, slug } = await params;
   
-  const [rawYoga, teacher] = await Promise.all([
+  const [rawYoga, teacher, allYoga, allProperties, allPackages] = await Promise.all([
     getYogaDetails(slug),
-    getLeadTeacher()
+    getLeadTeacher(),
+    getAllYoga(),
+    getAllProperties(),
+    getAllPackages(),
   ]);
 
   if (!rawYoga) {
@@ -100,7 +147,99 @@ export default async function YogaDetailsPage({
     })),
     benefits: (rawYoga.benefits || []).map((b) => b[locale] || b["en"] || ""),
     inclusions: (rawYoga.inclusions || []).map((inc) => inc[locale] || inc["en"] || ""),
+    relatedYoga: rawYoga.relatedYoga || [],
   };
+
+  // Resolve suggestions
+  let suggestionsList: any[] = [];
+
+  for (const rSlug of yoga.relatedYoga) {
+    // 1. Check stays
+    const foundStay = allProperties.find((p) => p.slug === rSlug);
+    if (foundStay) {
+      suggestionsList.push({
+        id: foundStay._id,
+        cardType: "accommodation",
+        type: foundStay.accommodationType,
+        title: foundStay.title[locale] || foundStay.title["en"] || "",
+        price: foundStay.price,
+        pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
+        image: foundStay.image,
+        slug: foundStay.slug,
+        category: foundStay.accommodationType === "villa" ? "villas" : foundStay.accommodationType === "floor" ? "floors" : "rooms",
+      });
+      continue;
+    }
+
+    // 2. Check packages
+    const foundPkg = allPackages.find((p) => p.slug === rSlug);
+    if (foundPkg) {
+      suggestionsList.push({
+        id: foundPkg._id,
+        cardType: "package",
+        type: foundPkg.packageCategory,
+        title: foundPkg.title[locale] || foundPkg.title["en"] || "",
+        price: foundPkg.price,
+        pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
+        image: foundPkg.image,
+        slug: foundPkg.slug,
+        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities",
+      });
+      continue;
+    }
+
+    // 3. Check yoga
+    const foundYoga = allYoga.find((y) => y.slug === rSlug);
+    if (foundYoga) {
+      suggestionsList.push({
+        id: foundYoga._id,
+        cardType: "yoga",
+        type: foundYoga.yogaType,
+        title: foundYoga.title[locale] || foundYoga.title["en"] || "",
+        price: foundYoga.price,
+        pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
+        image: foundYoga.image,
+        slug: foundYoga.slug,
+        category: foundYoga.yogaType,
+      });
+      continue;
+    }
+  }
+
+  // Fallback to other yoga programs if empty
+  if (suggestionsList.length === 0) {
+    const defaultYoga = allYoga.filter((y) => y._id.toString() !== rawYoga._id.toString()).slice(0, 3);
+    suggestionsList = defaultYoga.map((foundYoga) => ({
+      id: foundYoga._id,
+      cardType: "yoga",
+      type: foundYoga.yogaType,
+      title: foundYoga.title[locale] || foundYoga.title["en"] || "",
+      price: foundYoga.price,
+      pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
+      image: foundYoga.image,
+      slug: foundYoga.slug,
+      category: foundYoga.yogaType,
+    }));
+  } else if (suggestionsList.length < 3) {
+    const alreadySlugs = suggestionsList.map((s) => s.slug);
+    const fillers = allYoga.filter((y) => 
+      y._id.toString() !== rawYoga._id.toString() && !alreadySlugs.includes(y.slug)
+    ).slice(0, 3 - suggestionsList.length);
+    const mappedFillers = fillers.map((foundYoga) => ({
+      id: foundYoga._id,
+      cardType: "yoga",
+      type: foundYoga.yogaType,
+      title: foundYoga.title[locale] || foundYoga.title["en"] || "",
+      price: foundYoga.price,
+      pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
+      image: foundYoga.image,
+      slug: foundYoga.slug,
+      category: foundYoga.yogaType,
+    }));
+    suggestionsList = [...suggestionsList, ...mappedFillers];
+  }
+
+  const suggestions = suggestionsList;
 
   return (
     <>
@@ -304,6 +443,71 @@ export default async function YogaDetailsPage({
           </div>
 
         </section>
+
+        {/* Row: Related yoga programs */}
+        {suggestions.length > 0 && (
+          <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-16 border-t border-[#eae6db] pt-16 text-left">
+            <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block select-none">
+              Recommendations
+            </span>
+            <h3 className="font-serif text-3xl font-normal text-[#121212] mb-8">
+              Other Yoga Programs You Might Enjoy
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {suggestions.map((y) => {
+                let href = `/${locale}/yoga/${y.category}/${y.slug}`;
+                if (y.cardType === "accommodation") {
+                  href = `/${locale}/accommodation/${y.category}/${y.slug}`;
+                } else if (y.cardType === "package") {
+                  href = `/${locale}/packages/${y.category}/${y.slug}`;
+                }
+
+                return (
+                  <Link
+                    key={y.slug}
+                    href={href}
+                    className="bg-white border border-[#eae6db]/80 rounded-sm overflow-hidden hover:shadow-md group transition-all duration-300 flex flex-col"
+                  >
+                    <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden">
+                      {y.image ? (
+                        <Image
+                          src={y.image}
+                          alt={y.title}
+                          fill
+                          className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#121212]/20" />
+                      )}
+                    </div>
+                    <div className="p-5 flex-grow flex flex-col justify-between">
+                      <div>
+                        <span className="text-[8px] font-bold text-brand-gold uppercase tracking-wider block mb-1">
+                          {y.cardType === "accommodation" ? "🏨 Stay" : y.cardType === "yoga" ? "🧘 Yoga" : "🎒 Tour"}
+                        </span>
+                        <h4 className="font-serif text-base font-semibold text-[#121212] group-hover:text-brand-gold transition-colors line-clamp-2 leading-tight">
+                          {y.title}
+                        </h4>
+                      </div>
+                      {y.duration && (
+                        <div className="flex items-center justify-between border-t border-gray-150 pt-4 mt-4 text-[10px]">
+                          <span className="text-gray-400 uppercase tracking-widest text-[9px] font-medium">Duration</span>
+                          <span className="font-medium text-gray-600">{y.duration}</span>
+                        </div>
+                      )}
+                      <div className={`flex items-center justify-between text-[10px] ${y.duration ? "pt-2" : "border-t border-gray-150 pt-4 mt-4"}`}>
+                        <span className="text-gray-400 uppercase tracking-widest text-[9px] font-medium">Starting from</span>
+                        <span className="font-bold text-gray-800">
+                          {y.price > 0 ? `₹${y.price.toLocaleString()} ${y.pricePeriod}` : "On Request"}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
       </main>
     </>

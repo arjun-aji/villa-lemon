@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import PropertyDetailsClient from "./PropertyDetailsClient";
+import { API_BASE_URL } from "@/config/api";
 
 interface PropertyDetails {
   _id: string;
@@ -34,11 +35,12 @@ interface PropertyDetails {
   additionalServices: Array<{ service: Record<string, string>; details: Record<string, string> }>;
   mapLink?: string;
   gallery?: string[];
+  relatedAccommodations?: string[];
 }
 
 async function getPropertyDetails(slug: string): Promise<PropertyDetails | null> {
   try {
-    const res = await fetch(`http://localhost:5001/api/accommodations/items/${slug}`, {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations/items/${slug}`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return null;
@@ -52,7 +54,7 @@ async function getPropertyDetails(slug: string): Promise<PropertyDetails | null>
 
 async function getAllProperties(): Promise<any[]> {
   try {
-    const res = await fetch("http://localhost:5001/api/accommodations/items", {
+    const res = await fetch(`${API_BASE_URL}/api/accommodations/items`, {
       next: { revalidate: 10 },
     });
     if (!res.ok) return [];
@@ -60,6 +62,34 @@ async function getAllProperties(): Promise<any[]> {
     return json.data || [];
   } catch (err) {
     console.warn("[suggestions fetch]: Failed to load properties", err);
+    return [];
+  }
+}
+
+async function getAllPackages(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/packages/items`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[suggestions fetch]: Failed to load packages", err);
+    return [];
+  }
+}
+
+async function getAllYoga(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/yoga/items`, {
+      next: { revalidate: 10 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (err) {
+    console.warn("[suggestions fetch]: Failed to load yoga items", err);
     return [];
   }
 }
@@ -123,26 +153,130 @@ export default async function PropertyDetailsPage({
     })),
     mapLink: rawProperty.mapLink || "",
     gallery: rawProperty.gallery || [],
+    relatedAccommodations: rawProperty.relatedAccommodations || [],
   };
 
-  // Get Suggestions
-  const allProperties = await getAllProperties();
-  const rawSuggestions = allProperties.filter((p) => p._id.toString() !== rawProperty._id.toString()).slice(0, 3);
-  const suggestions = rawSuggestions.map((p) => ({
-    id: p._id,
-    type: p.accommodationType,
-    title: p.title[locale] || p.title["en"] || "",
-    price: p.price,
-    pricePeriod: p.pricePeriod[locale] || p.pricePeriod["en"] || "",
-    image: p.image,
-    bedrooms: p.bedrooms,
-    bathrooms: p.bathrooms,
-    guests: p.guests,
-    location: p.location[locale] || p.location["en"] || "",
-    shortDescription: p.shortDescription[locale] || p.shortDescription["en"] || "",
-    tagline: p.tagline[locale] || p.tagline["en"] || "",
-    slug: p.slug,
-  }));
+  // Get Suggestions (You May Also Like)
+  const [allProperties, allPackages, allYoga] = await Promise.all([
+    getAllProperties(),
+    getAllPackages(),
+    getAllYoga(),
+  ]);
+
+  let suggestionsList: any[] = [];
+
+  for (const rSlug of property.relatedAccommodations) {
+    // 1. Check stays
+    const foundStay = allProperties.find((p) => p.slug === rSlug);
+    if (foundStay) {
+      suggestionsList.push({
+        id: foundStay._id,
+        cardType: "accommodation",
+        type: foundStay.accommodationType,
+        title: foundStay.title[locale] || foundStay.title["en"] || "",
+        price: foundStay.price,
+        pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
+        image: foundStay.image,
+        bedrooms: foundStay.bedrooms,
+        bathrooms: foundStay.bathrooms,
+        guests: foundStay.guests,
+        location: foundStay.location[locale] || foundStay.location["en"] || "",
+        shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
+        tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
+        slug: foundStay.slug,
+      });
+      continue;
+    }
+
+    // 2. Check packages
+    const foundPkg = allPackages.find((p) => p.slug === rSlug);
+    if (foundPkg) {
+      suggestionsList.push({
+        id: foundPkg._id,
+        cardType: "package",
+        type: foundPkg.packageCategory,
+        title: foundPkg.title[locale] || foundPkg.title["en"] || "",
+        price: foundPkg.price,
+        pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
+        image: foundPkg.image,
+        bedrooms: 0,
+        bathrooms: 0,
+        guests: 0,
+        location: foundPkg.location?.[locale] || foundPkg.location?.["en"] || "Varkala, Kerala",
+        shortDescription: foundPkg.shortDescription[locale] || foundPkg.shortDescription["en"] || "",
+        tagline: foundPkg.tagline[locale] || foundPkg.tagline["en"] || "",
+        slug: foundPkg.slug,
+      });
+      continue;
+    }
+
+    // 3. Check yoga
+    const foundYoga = allYoga.find((y) => y.slug === rSlug);
+    if (foundYoga) {
+      suggestionsList.push({
+        id: foundYoga._id,
+        cardType: "yoga",
+        type: foundYoga.yogaType,
+        title: foundYoga.title[locale] || foundYoga.title["en"] || "",
+        price: foundYoga.price,
+        pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
+        image: foundYoga.image,
+        bedrooms: 0,
+        bathrooms: 0,
+        guests: 0,
+        location: "Varkala, Kerala",
+        shortDescription: foundYoga.shortDescription[locale] || foundYoga.shortDescription["en"] || "",
+        tagline: foundYoga.tagline[locale] || foundYoga.tagline["en"] || "",
+        slug: foundYoga.slug,
+      });
+      continue;
+    }
+  }
+
+  // Fallback if none found
+  if (suggestionsList.length === 0) {
+    const defaultStays = allProperties.filter((p) => p._id.toString() !== rawProperty._id.toString()).slice(0, 3);
+    suggestionsList = defaultStays.map((foundStay) => ({
+      id: foundStay._id,
+      cardType: "accommodation",
+      type: foundStay.accommodationType,
+      title: foundStay.title[locale] || foundStay.title["en"] || "",
+      price: foundStay.price,
+      pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
+      image: foundStay.image,
+      bedrooms: foundStay.bedrooms,
+      bathrooms: foundStay.bathrooms,
+      guests: foundStay.guests,
+      location: foundStay.location[locale] || foundStay.location["en"] || "",
+      shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
+      tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
+      slug: foundStay.slug,
+    }));
+  } else if (suggestionsList.length < 3) {
+    const alreadySlugs = suggestionsList.map((s) => s.slug);
+    const fillers = allProperties.filter((p) => 
+      p._id.toString() !== rawProperty._id.toString() && !alreadySlugs.includes(p.slug)
+    ).slice(0, 3 - suggestionsList.length);
+    const mappedFillers = fillers.map((foundStay) => ({
+      id: foundStay._id,
+      cardType: "accommodation",
+      type: foundStay.accommodationType,
+      title: foundStay.title[locale] || foundStay.title["en"] || "",
+      price: foundStay.price,
+      pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
+      image: foundStay.image,
+      bedrooms: foundStay.bedrooms,
+      bathrooms: foundStay.bathrooms,
+      guests: foundStay.guests,
+      location: foundStay.location[locale] || foundStay.location["en"] || "",
+      shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
+      tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
+      slug: foundStay.slug,
+    }));
+    suggestionsList = [...suggestionsList, ...mappedFillers];
+  }
+
+  const suggestions = suggestionsList;
 
   return (
     <>

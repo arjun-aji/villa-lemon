@@ -41,6 +41,7 @@ const yogaItemSchema = new Schema<IYogaItem>(
     schedule: [scheduleSchema],
     benefits: [localizedTextSchema],
     inclusions: [localizedTextSchema],
+    relatedYoga: [{ type: String }],
   },
   {
     timestamps: true,

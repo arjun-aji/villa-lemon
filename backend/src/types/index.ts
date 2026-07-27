@@ -151,6 +151,7 @@ export interface IAccommodationItem extends Document {
   mapLink?: string;
   gallery?: string[];
   galleryPublicIds?: string[];
+  relatedAccommodations?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -174,6 +175,48 @@ export interface IPackageItem extends Document {
   exclusions: ILocalizedText[];
   highlights: { icon: string; label: ILocalizedText }[];
   whyGuestsLoveUs: { icon: string; title: ILocalizedText; desc: ILocalizedText }[];
+  
+  // General Info
+  travelTime?: ILocalizedText;
+  entryFee?: ILocalizedText;
+  optionalCharges?: ILocalizedText;
+  difficulty?: ILocalizedText;
+  groupSize?: ILocalizedText;
+  location?: ILocalizedText;
+
+  // Localized Content
+  tourOverview?: ILocalizedText;
+  bestTime?: ILocalizedText;
+  dressCode?: ILocalizedText;
+  cta?: ILocalizedText;
+
+  // Images & Media
+  gallery?: string[];
+  galleryPublicIds?: string[];
+  video?: string;
+
+  // Structural lists
+  quickFacts?: { key: ILocalizedText; value: ILocalizedText }[];
+  thingsToBring?: ILocalizedText[];
+  nearbyAttractions?: { name: ILocalizedText; distance: ILocalizedText }[];
+  relatedPackages?: string[];
+  faqs?: { question: ILocalizedText; answer: ILocalizedText }[];
+
+  // SEO
+  metaTitle?: ILocalizedText;
+  metaDescription?: ILocalizedText;
+  keywords?: ILocalizedText;
+  ogImage?: string;
+  ogImagePublicId?: string;
+  canonicalUrl?: string;
+
+  // Booking Info
+  cancellation?: ILocalizedText;
+  refund?: ILocalizedText;
+  pickup?: ILocalizedText;
+  drop?: ILocalizedText;
+  notes?: ILocalizedText;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -195,6 +238,7 @@ export interface IYogaItem extends Document {
   schedule: { time: ILocalizedText; activity: ILocalizedText }[];
   benefits: ILocalizedText[];
   inclusions: ILocalizedText[];
+  relatedYoga?: string[];
   createdAt: Date;
   updatedAt: Date;
 }

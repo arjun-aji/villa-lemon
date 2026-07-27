@@ -110,36 +110,10 @@ export default function Accommodations({
       }));
     }
 
-    return [
-      {
-        img: "/assets/villa_entire.png",
-        price: t("villaPrice"),
-        icon: <VillaIcon />,
-        title: t("villaTitle"),
-        desc: t("villaDesc"),
-        explore: t("villaExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/villa_terrace.png",
-        price: t("floorPrice"),
-        icon: <FloorIcon />,
-        title: t("floorTitle"),
-        desc: t("floorDesc"),
-        explore: t("floorExplore"),
-        href: "#contact",
-      },
-      {
-        img: "/assets/villa_room.png",
-        price: t("roomPrice"),
-        icon: <RoomIcon />,
-        title: t("roomTitle"),
-        desc: t("roomDesc"),
-        explore: t("roomExplore"),
-        href: "#contact",
-      },
-    ];
-  }, [data, t]);
+    return [];
+  }, [data]);
+
+  if (cards.length === 0) return null;
 
   return (
     <section

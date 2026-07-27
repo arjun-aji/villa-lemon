@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { API_BASE_URL } from "@/config/api";
 import {
   LayoutDashboard,
   Home,
@@ -145,6 +146,7 @@ interface AccommodationItemData {
   additionalServices: { service: LocalizedText; details: LocalizedText }[];
   mapLink?: string;
   gallery?: string[];
+  relatedAccommodations?: string[];
 }
 
 interface PackageItemData {
@@ -165,6 +167,45 @@ interface PackageItemData {
   exclusions: LocalizedText[];
   highlights: { icon: string; label: LocalizedText }[];
   whyGuestsLoveUs: { icon: string; title: LocalizedText; desc: LocalizedText }[];
+  
+  // General Info
+  travelTime?: LocalizedText;
+  entryFee?: LocalizedText;
+  optionalCharges?: LocalizedText;
+  difficulty?: LocalizedText;
+  groupSize?: LocalizedText;
+  location?: LocalizedText;
+
+  // Localized Content
+  tourOverview?: LocalizedText;
+  bestTime?: LocalizedText;
+  dressCode?: LocalizedText;
+  cta?: LocalizedText;
+
+  // Images & Media
+  gallery?: string[];
+  video?: string;
+
+  // Structural lists
+  quickFacts?: { key: LocalizedText; value: LocalizedText }[];
+  thingsToBring?: LocalizedText[];
+  nearbyAttractions?: { name: LocalizedText; distance: LocalizedText }[];
+  relatedPackages?: string[];
+  faqs?: { question: LocalizedText; answer: LocalizedText }[];
+
+  // SEO
+  metaTitle?: LocalizedText;
+  metaDescription?: LocalizedText;
+  keywords?: LocalizedText;
+  ogImage?: string;
+  canonicalUrl?: string;
+
+  // Booking Info
+  cancellation?: LocalizedText;
+  refund?: LocalizedText;
+  pickup?: LocalizedText;
+  drop?: LocalizedText;
+  notes?: LocalizedText;
 }
 
 interface YogaItemData {
@@ -183,6 +224,7 @@ interface YogaItemData {
   schedule: { time: LocalizedText; activity: LocalizedText }[];
   benefits: LocalizedText[];
   inclusions: LocalizedText[];
+  relatedYoga?: string[];
 }
 
 interface TeacherData {
@@ -218,6 +260,7 @@ export default function AdminDashboard() {
 
   // LOCALIZATION TAB
   const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
+  const [activePkgFormTab, setActivePkgFormTab] = useState<string>("general");
 
   // IMAGE UPLOADS PREVIEWS
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
@@ -225,6 +268,8 @@ export default function AdminDashboard() {
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
   const [aboutImagePreview, setAboutImagePreview] = useState<string | null>(null);
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
+  const [ogImageFile, setOgImageFile] = useState<File | null>(null);
+  const [ogImagePreview, setOgImagePreview] = useState<string | null>(null);
 
   // MODALS STATE FOR SUBGROUPS (CATEGORIES)
   const [showSubgroupModal, setShowSubgroupModal] = useState(false);
@@ -232,6 +277,9 @@ export default function AdminDashboard() {
   const [editingSubgroup, setEditingSubgroup] = useState<any | null>(null);
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
+
+  // MOBILE SIDEBAR
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // MODALS STATE FOR ITEMS
   const [showStayModal, setShowStayModal] = useState(false);
@@ -275,8 +323,8 @@ export default function AdminDashboard() {
     try {
       // 1. Fetch Accommodation Subgroups (Categories) & Items
       const [resAccCats, resStays] = await Promise.all([
-        fetch("http://localhost:5001/api/accommodations"),
-        fetch("http://localhost:5001/api/accommodations/items")
+        fetch(`${API_BASE_URL}/api/accommodations`),
+        fetch(`${API_BASE_URL}/api/accommodations/items`)
       ]);
       if (resAccCats.ok) {
         const d = await resAccCats.json();
@@ -289,8 +337,8 @@ export default function AdminDashboard() {
 
       // 2. Fetch Package Subgroups (Categories) & Items
       const [resPkgCats, resPackages] = await Promise.all([
-        fetch("http://localhost:5001/api/packages"),
-        fetch("http://localhost:5001/api/packages/items")
+        fetch(`${API_BASE_URL}/api/packages`),
+        fetch(`${API_BASE_URL}/api/packages/items`)
       ]);
       if (resPkgCats.ok) {
         const d = await resPkgCats.json();
@@ -303,8 +351,8 @@ export default function AdminDashboard() {
 
       // 3. Fetch Yoga Subgroups (Categories) & Items
       const [resYogaCats, resYoga] = await Promise.all([
-        fetch("http://localhost:5001/api/yoga/programs"),
-        fetch("http://localhost:5001/api/yoga/items")
+        fetch(`${API_BASE_URL}/api/yoga/programs`),
+        fetch(`${API_BASE_URL}/api/yoga/items`)
       ]);
       if (resYogaCats.ok) {
         const d = await resYogaCats.json();
@@ -316,14 +364,14 @@ export default function AdminDashboard() {
       }
 
       // 4. Fetch teachers
-      const resTeachers = await fetch("http://localhost:5001/api/yoga/teachers");
+      const resTeachers = await fetch(`${API_BASE_URL}/api/yoga/teachers`);
       if (resTeachers.ok) {
         const d = await resTeachers.json();
         setTeachers(d.data || []);
       }
 
       // 5. Fetch Homepage dynamic texts
-      const resHome = await fetch("http://localhost:5001/api/homepage");
+      const resHome = await fetch(`${API_BASE_URL}/api/homepage`);
       if (resHome.ok) {
         const d = await resHome.json();
         setHomepageData(d.data || null);
@@ -370,6 +418,15 @@ export default function AdminDashboard() {
       const file = e.target.files[0];
       setAboutImageFile(file);
       setAboutImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Helper handles SEO OG image preview URL setup
+  const handleOgImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setOgImageFile(file);
+      setOgImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -432,16 +489,16 @@ export default function AdminDashboard() {
       let url = "";
       if (subgroupFormType === "accommodation") {
         url = editingSubgroup 
-          ? `http://localhost:5001/api/accommodations/${editingSubgroup._id}`
-          : "http://localhost:5001/api/accommodations";
+          ? `${API_BASE_URL}/api/accommodations/${editingSubgroup._id}`
+          : `${API_BASE_URL}/api/accommodations`;
       } else if (subgroupFormType === "package") {
         url = editingSubgroup
-          ? `http://localhost:5001/api/packages/${editingSubgroup._id}`
-          : "http://localhost:5001/api/packages";
+          ? `${API_BASE_URL}/api/packages/${editingSubgroup._id}`
+          : `${API_BASE_URL}/api/packages`;
       } else if (subgroupFormType === "yoga") {
         url = editingSubgroup
-          ? `http://localhost:5001/api/yoga/programs/${editingSubgroup._id}`
-          : "http://localhost:5001/api/yoga/programs";
+          ? `${API_BASE_URL}/api/yoga/programs/${editingSubgroup._id}`
+          : `${API_BASE_URL}/api/yoga/programs`;
       }
 
       const method = editingSubgroup ? "PUT" : "POST";
@@ -470,9 +527,9 @@ export default function AdminDashboard() {
     if (!token || !confirm("Delete this category subgroup? This might affect homepage sections.")) return;
     try {
       let url = "";
-      if (formType === "accommodation") url = `http://localhost:5001/api/accommodations/${id}`;
-      else if (formType === "package") url = `http://localhost:5001/api/packages/${id}`;
-      else if (formType === "yoga") url = `http://localhost:5001/api/yoga/programs/${id}`;
+      if (formType === "accommodation") url = `${API_BASE_URL}/api/accommodations/${id}`;
+      else if (formType === "package") url = `${API_BASE_URL}/api/packages/${id}`;
+      else if (formType === "yoga") url = `${API_BASE_URL}/api/yoga/programs/${id}`;
 
       const res = await fetch(url, {
         method: "DELETE",
@@ -523,7 +580,8 @@ export default function AdminDashboard() {
       checkInOutRules: [createEmptyLocalizedText("Quiet hours after 10 PM.")],
       additionalServices: [
         { service: createEmptyLocalizedText("Laundry"), details: createEmptyLocalizedText("Paid service.") }
-      ]
+      ],
+      relatedAccommodations: ["", "", ""]
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -535,7 +593,10 @@ export default function AdminDashboard() {
 
   const handleOpenEditStay = (s: AccommodationItemData) => {
     setEditingStay(s);
-    setStayForm({ ...s });
+    setStayForm({
+      ...s,
+      relatedAccommodations: s.relatedAccommodations || ["", "", ""]
+    });
     setCoverImagePreview(s.image);
     setCoverImageFile(null);
     setAboutImagePreview(s.aboutImage);
@@ -578,6 +639,9 @@ export default function AdminDashboard() {
       formData.append("idealFor", JSON.stringify(stayForm.idealFor || []));
       formData.append("checkInOutRules", JSON.stringify(stayForm.checkInOutRules || []));
       formData.append("additionalServices", JSON.stringify(stayForm.additionalServices || []));
+      
+      const filteredRelated = (stayForm.relatedAccommodations || []).filter(Boolean);
+      formData.append("relatedAccommodations", JSON.stringify(filteredRelated));
 
       if (coverImageFile) formData.append("image", coverImageFile);
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
@@ -591,8 +655,8 @@ export default function AdminDashboard() {
       formData.append("existingGallery", JSON.stringify(stayForm.gallery || []));
 
       const url = editingStay
-        ? `http://localhost:5001/api/accommodations/items/${editingStay._id}`
-        : "http://localhost:5001/api/accommodations/items";
+        ? `${API_BASE_URL}/api/accommodations/items/${editingStay._id}`
+        : `${API_BASE_URL}/api/accommodations/items`;
       const method = editingStay ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -619,7 +683,7 @@ export default function AdminDashboard() {
   const handleDeleteStay = async (id: string) => {
     if (!token || !confirm("Delete this property? This cannot be undone.")) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/accommodations/items/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/accommodations/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -651,22 +715,71 @@ export default function AdminDashboard() {
         { timeOrDay: createEmptyLocalizedText("09:00 AM"), activity: createEmptyLocalizedText("Pick-up"), desc: createEmptyLocalizedText("Meeting at cliff helipad.") }
       ],
       highlights: [{ icon: "compass", label: createEmptyLocalizedText("Sightseeing") }],
-      whyGuestsLoveUs: [{ icon: "star", title: createEmptyLocalizedText("Best Guides"), desc: createEmptyLocalizedText("Expert storytellers.") }]
+      whyGuestsLoveUs: [{ icon: "star", title: createEmptyLocalizedText("Best Guides"), desc: createEmptyLocalizedText("Expert storytellers.") }],
+      
+      // General Info
+      travelTime: createEmptyLocalizedText("1 Hour"),
+      entryFee: createEmptyLocalizedText("None"),
+      optionalCharges: createEmptyLocalizedText("None"),
+      difficulty: createEmptyLocalizedText("Easy"),
+      groupSize: createEmptyLocalizedText("Up to 10"),
+      location: createEmptyLocalizedText("Varkala"),
+
+      // Localized Content
+      tourOverview: createEmptyLocalizedText(),
+      bestTime: createEmptyLocalizedText("October to March"),
+      dressCode: createEmptyLocalizedText("Casual"),
+      cta: createEmptyLocalizedText("Book Now"),
+
+      // Media
+      gallery: [],
+      video: "",
+
+      // Structural lists
+      quickFacts: [{ key: createEmptyLocalizedText("Duration"), value: createEmptyLocalizedText("4 Hours") }],
+      thingsToBring: [createEmptyLocalizedText("Sunscreen"), createEmptyLocalizedText("Sunglasses")],
+      nearbyAttractions: [{ name: createEmptyLocalizedText("Varkala Cliff"), distance: createEmptyLocalizedText("2 km") }],
+      relatedPackages: ["", "", ""],
+      faqs: [{ question: createEmptyLocalizedText("Is food included?"), answer: createEmptyLocalizedText("No, meals are not included.") }],
+
+      // SEO
+      metaTitle: createEmptyLocalizedText(),
+      metaDescription: createEmptyLocalizedText(),
+      keywords: createEmptyLocalizedText(),
+      canonicalUrl: "",
+
+      // Booking Info
+      cancellation: createEmptyLocalizedText("Free cancellation up to 24 hours before."),
+      refund: createEmptyLocalizedText("Full refund if cancelled in time."),
+      pickup: createEmptyLocalizedText("Hotel lobby pick-up."),
+      drop: createEmptyLocalizedText("Drop-off at hotel."),
+      notes: createEmptyLocalizedText()
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
     setAboutImagePreview(null);
     setAboutImageFile(null);
+    setOgImagePreview(null);
+    setOgImageFile(null);
+    setNewGalleryFiles([]);
+    setActivePkgFormTab("general");
     setShowPackageModal(true);
   };
 
   const handleOpenEditPackage = (p: PackageItemData) => {
     setEditingPackage(p);
-    setPackageForm({ ...p });
+    setPackageForm({
+      ...p,
+      relatedPackages: p.relatedPackages || ["", "", ""]
+    });
     setCoverImagePreview(p.image);
     setCoverImageFile(null);
     setAboutImagePreview(p.aboutImage);
     setAboutImageFile(null);
+    setOgImagePreview(p.ogImage || null);
+    setOgImageFile(null);
+    setNewGalleryFiles([]);
+    setActivePkgFormTab("general");
     setShowPackageModal(true);
   };
 
@@ -680,6 +793,8 @@ export default function AdminDashboard() {
       formData.append("packageCategory", packageForm.packageCategory || "varkalaSightseeing");
       formData.append("slug", packageForm.slug || "");
       formData.append("price", String(packageForm.price || 0));
+      formData.append("video", packageForm.video || "");
+      formData.append("canonicalUrl", packageForm.canonicalUrl || "");
 
       formData.append("title", JSON.stringify(packageForm.title));
       formData.append("pricePeriod", JSON.stringify(packageForm.pricePeriod));
@@ -688,18 +803,55 @@ export default function AdminDashboard() {
       formData.append("tagline", JSON.stringify(packageForm.tagline));
       formData.append("aboutText", JSON.stringify(packageForm.aboutText));
 
+      formData.append("travelTime", JSON.stringify(packageForm.travelTime));
+      formData.append("entryFee", JSON.stringify(packageForm.entryFee));
+      formData.append("optionalCharges", JSON.stringify(packageForm.optionalCharges));
+      formData.append("difficulty", JSON.stringify(packageForm.difficulty));
+      formData.append("groupSize", JSON.stringify(packageForm.groupSize));
+      formData.append("location", JSON.stringify(packageForm.location));
+
+      formData.append("tourOverview", JSON.stringify(packageForm.tourOverview));
+      formData.append("bestTime", JSON.stringify(packageForm.bestTime));
+      formData.append("dressCode", JSON.stringify(packageForm.dressCode));
+      formData.append("cta", JSON.stringify(packageForm.cta));
+
+      formData.append("metaTitle", JSON.stringify(packageForm.metaTitle));
+      formData.append("metaDescription", JSON.stringify(packageForm.metaDescription));
+      formData.append("keywords", JSON.stringify(packageForm.keywords));
+
+      formData.append("cancellation", JSON.stringify(packageForm.cancellation));
+      formData.append("refund", JSON.stringify(packageForm.refund));
+      formData.append("pickup", JSON.stringify(packageForm.pickup));
+      formData.append("drop", JSON.stringify(packageForm.drop));
+      formData.append("notes", JSON.stringify(packageForm.notes));
+
       formData.append("inclusions", JSON.stringify(packageForm.inclusions || []));
       formData.append("exclusions", JSON.stringify(packageForm.exclusions || []));
       formData.append("itinerary", JSON.stringify(packageForm.itinerary || []));
       formData.append("highlights", JSON.stringify(packageForm.highlights || []));
       formData.append("whyGuestsLoveUs", JSON.stringify(packageForm.whyGuestsLoveUs || []));
+      formData.append("quickFacts", JSON.stringify(packageForm.quickFacts || []));
+      formData.append("thingsToBring", JSON.stringify(packageForm.thingsToBring || []));
+      formData.append("nearbyAttractions", JSON.stringify(packageForm.nearbyAttractions || []));
+      const filteredRelated = (packageForm.relatedPackages || []).filter(Boolean);
+      formData.append("relatedPackages", JSON.stringify(filteredRelated));
+      formData.append("faqs", JSON.stringify(packageForm.faqs || []));
 
       if (coverImageFile) formData.append("image", coverImageFile);
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
+      if (ogImageFile) formData.append("ogImage", ogImageFile);
+
+      // Append gallery uploads and existing links
+      if (newGalleryFiles.length > 0) {
+        newGalleryFiles.forEach((file) => {
+          formData.append("gallery", file);
+        });
+      }
+      formData.append("existingGallery", JSON.stringify(packageForm.gallery || []));
 
       const url = editingPackage
-        ? `http://localhost:5001/api/packages/items/${editingPackage._id}`
-        : "http://localhost:5001/api/packages/items";
+        ? `${API_BASE_URL}/api/packages/items/${editingPackage._id}`
+        : `${API_BASE_URL}/api/packages/items`;
       const method = editingPackage ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -725,7 +877,7 @@ export default function AdminDashboard() {
   const handleDeletePackage = async (id: string) => {
     if (!token || !confirm("Delete this package?")) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/packages/items/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/packages/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -754,7 +906,8 @@ export default function AdminDashboard() {
       benefits: [createEmptyLocalizedText("De-stress"), createEmptyLocalizedText("Enhanced clarity")],
       schedule: [
         { time: createEmptyLocalizedText("06:30 AM"), activity: createEmptyLocalizedText("Sunrise Flow") }
-      ]
+      ],
+      relatedYoga: ["", "", ""]
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -765,7 +918,10 @@ export default function AdminDashboard() {
 
   const handleOpenEditYoga = (y: YogaItemData) => {
     setEditingYoga(y);
-    setYogaForm({ ...y });
+    setYogaForm({
+      ...y,
+      relatedYoga: y.relatedYoga || ["", "", ""]
+    });
     setCoverImagePreview(y.image);
     setCoverImageFile(null);
     setAboutImagePreview(y.aboutImage);
@@ -795,12 +951,15 @@ export default function AdminDashboard() {
       formData.append("benefits", JSON.stringify(yogaForm.benefits || []));
       formData.append("schedule", JSON.stringify(yogaForm.schedule || []));
 
+      const filteredRelated = (yogaForm.relatedYoga || []).filter(Boolean);
+      formData.append("relatedYoga", JSON.stringify(filteredRelated));
+
       if (coverImageFile) formData.append("image", coverImageFile);
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
 
       const url = editingYoga
-        ? `http://localhost:5001/api/yoga/items/${editingYoga._id}`
-        : "http://localhost:5001/api/yoga/items";
+        ? `${API_BASE_URL}/api/yoga/items/${editingYoga._id}`
+        : `${API_BASE_URL}/api/yoga/items`;
       const method = editingYoga ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -826,7 +985,7 @@ export default function AdminDashboard() {
   const handleDeleteYoga = async (id: string) => {
     if (!token || !confirm("Delete this yoga program?")) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/yoga/items/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/yoga/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -873,8 +1032,8 @@ export default function AdminDashboard() {
       if (coverImageFile) formData.append("image", coverImageFile);
 
       const url = editingTeacher
-        ? `http://localhost:5001/api/yoga/teachers/${editingTeacher._id}`
-        : "http://localhost:5001/api/yoga/teachers";
+        ? `${API_BASE_URL}/api/yoga/teachers/${editingTeacher._id}`
+        : `${API_BASE_URL}/api/yoga/teachers`;
       const method = editingTeacher ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -900,7 +1059,7 @@ export default function AdminDashboard() {
   const handleDeleteTeacher = async (id: string) => {
     if (!token || !confirm("Delete this teacher?")) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/yoga/teachers/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/yoga/teachers/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -917,7 +1076,7 @@ export default function AdminDashboard() {
     setSavingHomepage(true);
 
     try {
-      const res = await fetch("http://localhost:5001/api/homepage", {
+      const res = await fetch(`${API_BASE_URL}/api/homepage`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -942,9 +1101,19 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-[#2d3748] flex select-none font-sans overflow-x-hidden relative">
-      
+
+      {/* MOBILE OVERLAY */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR NAVIGATION */}
-      <aside className="w-[280px] bg-[#121212] text-white flex flex-col justify-between shrink-0 border-r border-white/5 relative z-20">
+      <aside className={`fixed lg:static inset-y-0 left-0 w-[280px] bg-[#121212] text-white flex flex-col justify-between shrink-0 border-r border-white/5 z-40 transition-transform duration-300 ${
+        mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      }`}>
         <div>
           <div className="p-6 flex items-center gap-3 border-b border-white/5">
             <div className="relative flex items-center justify-center w-8 h-8 border border-brand-gold/30 rounded-sm bg-black/40">
@@ -1046,9 +1215,30 @@ export default function AdminDashboard() {
       </aside>
 
       {/* MAIN CONTENT WORKSPACE */}
-      <div className="flex-grow flex flex-col min-w-0">
-        
-        <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between relative z-10 shrink-0">
+      <div className="flex-grow flex flex-col min-w-0 lg:pl-0">
+
+        {/* MOBILE TOP BAR */}
+        <div className="lg:hidden bg-[#121212] text-white px-4 py-3 flex items-center justify-between shrink-0 z-20 sticky top-0">
+          <button
+            onClick={() => setMobileSidebarOpen(true)}
+            className="p-2 rounded-sm hover:bg-white/10 text-white"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 40 40" fill="none" className="text-brand-gold">
+              <path d="M20 5L6 16V33H34V16L20 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="font-serif text-sm tracking-widest text-white uppercase font-bold">VILLA LEMON</span>
+          </div>
+          <a href="/" target="_blank" className="p-2 rounded-sm hover:bg-white/10 text-brand-gold">
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+
+        <header className="hidden lg:flex bg-white border-b border-gray-200 px-8 py-4 items-center justify-between relative z-10 shrink-0">
           <div>
             <h1 className="text-xl font-bold text-gray-800 leading-none">CMS Dashboard Workspace</h1>
             <p className="text-xs text-gray-500 mt-1.5">Manage stays details, packages itinerary days, and yoga wellness retreats.</p>
@@ -1063,10 +1253,10 @@ export default function AdminDashboard() {
           </a>
         </header>
 
-        <main className="flex-grow p-8 overflow-y-auto w-full max-w-[1600px]">
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto w-full max-w-[1600px]">
           
           {/* ANALYTICS SUMMARY BOXES */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 select-none">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8 select-none">
             <div className="bg-white border border-gray-200 p-5 rounded-md shadow-sm flex items-center justify-between cursor-pointer" onClick={() => setActiveTab("stays")}>
               <div>
                 <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Total Stays</span>
@@ -1137,22 +1327,22 @@ export default function AdminDashboard() {
               {activeTab === "stays" && (
                 <div className="space-y-10">
                   {/* CATEGORIES SECTION */}
-                  <div className="bg-white border border-gray-200 rounded-md p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
+                  <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
                       <div className="text-left">
-                        <h3 className="font-serif text-lg font-semibold text-gray-800">Accommodation Categories (Subgroups)</h3>
+                        <h3 className="font-serif text-base sm:text-lg font-semibold text-gray-800">Accommodation Categories (Subgroups)</h3>
                         <p className="text-xs text-gray-500 mt-1">Configure layout, cover photos, and starting prices for the main stays sections.</p>
                       </div>
                       <button
                         onClick={() => handleOpenAddSubgroup("accommodation")}
-                        className="flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+                        className="self-start sm:self-auto flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>New Subgroup Category</span>
+                        <span>New Subgroup</span>
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {accommodationCategories.map((cat) => {
                         const catStays = stays.filter(s => s.accommodationType === cat.type);
                         
@@ -1220,23 +1410,23 @@ export default function AdminDashboard() {
 
               {/* TAB: PACKAGES MANAGER */}
               {activeTab === "packages" && (
-                <div className="space-y-10">
-                  <div className="bg-white border border-gray-200 rounded-md p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="space-y-6 sm:space-y-10">
+                  <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
                       <div className="text-left">
-                        <h3 className="font-serif text-lg font-semibold text-gray-800">Tour Package Categories (Subgroups)</h3>
+                        <h3 className="font-serif text-base sm:text-lg font-semibold text-gray-800">Tour Package Categories (Subgroups)</h3>
                         <p className="text-xs text-gray-500 mt-1">Configure layout and descriptions for your sightseeing, houseboat, and local tours categories.</p>
                       </div>
                       <button
                         onClick={() => handleOpenAddSubgroup("package")}
-                        className="flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+                        className="self-start sm:self-auto flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>New Subgroup Category</span>
+                        <span>New Subgroup</span>
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                       {packageCategories.map((cat) => {
                         const catPkgs = packages.filter(p => p.packageCategory === cat.category);
                         
@@ -1303,23 +1493,23 @@ export default function AdminDashboard() {
 
               {/* TAB: YOGA RETREATS MANAGER */}
               {activeTab === "yoga" && (
-                <div className="space-y-10">
-                  <div className="bg-white border border-gray-200 rounded-md p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="space-y-6 sm:space-y-10">
+                  <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
                       <div className="text-left">
-                        <h3 className="font-serif text-lg font-semibold text-gray-800">Yoga Program Categories (Subgroups)</h3>
+                        <h3 className="font-serif text-base sm:text-lg font-semibold text-gray-800">Yoga Program Categories (Subgroups)</h3>
                         <p className="text-xs text-gray-500 mt-1">Configure layout, cover banners, and details for retreats, daily flow classes, and private sessions.</p>
                       </div>
                       <button
                         onClick={() => handleOpenAddSubgroup("yoga")}
-                        className="flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
+                        className="self-start sm:self-auto flex items-center gap-1 bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider text-[9px] px-3.5 py-2.5 rounded-sm transition-all duration-300 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>New Subgroup Category</span>
+                        <span>New Subgroup</span>
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {yogaCategories.map((cat) => {
                         const catYogas = yogas.filter(y => y.yogaType === cat.type);
                         
@@ -1386,25 +1576,25 @@ export default function AdminDashboard() {
 
               {/* TAB: YOGA TEACHERS */}
               {activeTab === "teachers" && (
-                <div className="bg-white border border-gray-200 rounded-md p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-6 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
                     <div className="text-left">
-                      <h3 className="font-serif text-lg font-semibold text-gray-800">Yoga Teachers Directory</h3>
+                      <h3 className="font-serif text-base sm:text-lg font-semibold text-gray-800">Yoga Teachers Directory</h3>
                       <p className="text-xs text-gray-500 mt-1">Manage profiles and bios of your certified yoga acharyas.</p>
                     </div>
                     <button
                       onClick={handleOpenAddTeacher}
-                      className="flex items-center gap-1 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] px-4 py-2.5 rounded-sm transition-all duration-300"
+                      className="self-start sm:self-auto flex items-center gap-1 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] px-4 py-2.5 rounded-sm transition-all duration-300"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Add Teacher Profile</span>
+                      <span>Add Teacher</span>
                     </button>
                   </div>
 
                   {teachers.length === 0 ? (
                     <div className="py-12 text-center text-gray-400">No teachers seeded.</div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {teachers.map((teacher) => (
                         <div key={teacher._id} className="border border-gray-200 rounded-md p-5 bg-white shadow-sm flex items-start gap-4">
                           <div className="relative w-20 h-20 rounded-full overflow-hidden border border-gray-200 bg-gray-50 shrink-0 select-none">
@@ -1448,8 +1638,8 @@ export default function AdminDashboard() {
           MODAL: SUBGROUP CATEGORY CREATOR / EDITOR
       ======================================================== */}
       {showSubgroupModal && subgroupForm.title && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
-          <div className="bg-white rounded-md max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-gray-150">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto select-text text-left">
+          <div className="bg-white rounded-none sm:rounded-md max-w-2xl w-full h-screen sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border-0 sm:border border-gray-150">
             
             <div className="p-6 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white">
               <div>
@@ -1650,8 +1840,8 @@ export default function AdminDashboard() {
           MODAL: ACCOMMODATION / STAY DETAILS FORM
       ======================================================== */}
       {showStayModal && stayForm.title && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
-          <div className="bg-white rounded-md max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-150">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto select-text text-left">
+          <div className="bg-white rounded-none sm:rounded-md max-w-4xl w-full h-screen sm:h-auto sm:max-h-[90vh] flex flex-col shadow-2xl border-0 sm:border border-gray-150">
             
             {/* Modal Header */}
             <div className="p-6 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white">
@@ -2475,6 +2665,62 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* SECTION: RELATED STAYS */}
+              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">You May Also Like (Related Stays)</h4>
+                <p className="text-[10px] text-gray-500">Select up to 3 stays to recommend at the bottom of this stay's details page.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[0, 1, 2].map((index) => {
+                    const currentSelected = stayForm.relatedAccommodations?.[index] || "";
+                    return (
+                      <div key={index} className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Recommendation #{index + 1}</label>
+                        <select
+                          value={currentSelected}
+                          onChange={(e) => {
+                            const newRelated = [...(stayForm.relatedAccommodations || [])];
+                            while (newRelated.length < 3) {
+                              newRelated.push("");
+                            }
+                            newRelated[index] = e.target.value;
+                            setStayForm({ ...stayForm, relatedAccommodations: newRelated });
+                          }}
+                        >
+                          <option value="">-- None --</option>
+                          <optgroup label="Stays / Accommodations">
+                            {stays
+                              .filter((s) => s.slug !== stayForm.slug)
+                              .map((s) => (
+                                <option key={s._id} value={s.slug}>
+                                  🏨 {s.title[activeLangTab] || s.title["en"] || s.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                          <optgroup label="Tours / Packages">
+                            {packages
+                              .filter((p) => p.slug !== stayForm.slug)
+                              .map((p) => (
+                                <option key={p._id} value={p.slug}>
+                                  🎒 {p.title[activeLangTab] || p.title["en"] || p.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                          <optgroup label="Yoga Programs">
+                            {yogas
+                              .filter((y) => y.slug !== stayForm.slug)
+                              .map((y) => (
+                                <option key={y._id} value={y.slug}>
+                                  🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="border-t border-gray-150 pt-5 flex items-center justify-end gap-3">
                 <button
@@ -2539,229 +2785,1178 @@ export default function AdminDashboard() {
               ))}
             </div>
 
+            <div className="px-6 py-2 border-b border-gray-100 bg-gray-50 flex gap-2 flex-wrap text-[10px] font-bold uppercase tracking-wider">
+              {[
+                { id: "general", label: "General Info" },
+                { id: "localized", label: "Content" },
+                { id: "media", label: "Media" },
+                { id: "highlights", label: "Highlights & Facts" },
+                { id: "checklists", label: "Checklists" },
+                { id: "itinerary", label: "Itinerary" },
+                { id: "related", label: "Related & FAQs" },
+                { id: "seo", label: "SEO" },
+                { id: "booking", label: "Booking Details" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActivePkgFormTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-sm transition-all duration-200 ${
+                    activePkgFormTab === tab.id ? "bg-[#121212] text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
             <form onSubmit={handleSavePackage} className="flex-grow overflow-y-auto p-6 space-y-6 text-xs">
               
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Package Category</label>
-                  <select
-                    value={packageForm.packageCategory}
-                    onChange={(e) => setPackageForm({ ...packageForm, packageCategory: e.target.value as any })}
-                    className="border p-2.5 rounded bg-white"
-                  >
-                    <option value="varkalaSightseeing">Varkala Sightseeing</option>
-                    <option value="dayTrips">Day Trips</option>
-                    <option value="backwaterExperiences">Backwater Experiences</option>
-                    <option value="adventureActivities">Adventure Activities</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
-                  <input
-                    type="text"
-                    value={packageForm.slug}
-                    onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
-                    className="border p-2.5 rounded"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Starting Price (₹)</label>
-                  <input
-                    type="number"
-                    value={packageForm.price}
-                    onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
-                    className="border p-2.5 rounded"
-                    required
-                  />
-                </div>
-              </div>
+              {activePkgFormTab === "general" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Package Category</label>
+                      <select
+                        value={packageForm.packageCategory}
+                        onChange={(e) => setPackageForm({ ...packageForm, packageCategory: e.target.value as any })}
+                        className="border p-2.5 rounded bg-white text-xs"
+                      >
+                        <option value="varkalaSightseeing">Varkala Sightseeing</option>
+                        <option value="dayTrips">Day Trips</option>
+                        <option value="backwaterExperiences">Backwater Experiences</option>
+                        <option value="adventureActivities">Adventure Activities</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
+                      <input
+                        type="text"
+                        value={packageForm.slug}
+                        onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
+                        className="border p-2.5 rounded text-xs"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Starting Price (₹)</label>
+                      <input
+                        type="number"
+                        value={packageForm.price}
+                        onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
+                        className="border p-2.5 rounded text-xs"
+                      />
+                    </div>
+                  </div>
 
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Localized texts ({activeLangTab.toUpperCase()})</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Package Title</label>
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Duration ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.duration?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const duration = { ...packageForm.duration, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, duration });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. 4 Hours"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Travel Time ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.travelTime?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const travelTime = { ...packageForm.travelTime, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, travelTime });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. 1 Hour each way"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Entry Fee ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.entryFee?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const entryFee = { ...packageForm.entryFee, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, entryFee });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. Included / ₹100 per person"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Optional Charges ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.optionalCharges?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const optionalCharges = { ...packageForm.optionalCharges, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, optionalCharges });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. Camera charges ₹50"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Difficulty ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.difficulty?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const difficulty = { ...packageForm.difficulty, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, difficulty });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. Easy / Moderate"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Group Size ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.groupSize?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const groupSize = { ...packageForm.groupSize, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, groupSize });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. Max 10 people"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <label className="font-bold text-gray-600 uppercase">Location ({activeLangTab.toUpperCase()})</label>
+                      <input
+                        type="text"
+                        value={packageForm.location?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const location = { ...packageForm.location, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, location });
+                        }}
+                        className="border p-2.5 rounded text-xs"
+                        placeholder="e.g. Munroe Island, Kollam"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "localized" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Localized Content ({activeLangTab.toUpperCase()})</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Package Title</label>
+                        <input
+                          type="text"
+                          value={packageForm.title?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const title = { ...packageForm.title, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, title });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Price Period Label</label>
+                        <input
+                          type="text"
+                          value={packageForm.pricePeriod?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const pricePeriod = { ...packageForm.pricePeriod, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, pricePeriod });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="font-bold text-gray-600 uppercase">Tagline</label>
+                        <input
+                          type="text"
+                          value={packageForm.tagline?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const tagline = { ...packageForm.tagline, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, tagline });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Short Description</label>
+                        <textarea
+                          rows={3}
+                          value={packageForm.shortDescription?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const shortDescription = { ...packageForm.shortDescription, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, shortDescription });
+                          }}
+                          className="border p-2.5 rounded font-sans text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">About (Full Description)</label>
+                        <textarea
+                          rows={3}
+                          value={packageForm.aboutText?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const aboutText = { ...packageForm.aboutText, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, aboutText });
+                          }}
+                          className="border p-2.5 rounded font-sans text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="font-bold text-gray-600 uppercase">Tour Overview</label>
+                        <textarea
+                          rows={3}
+                          value={packageForm.tourOverview?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const tourOverview = { ...packageForm.tourOverview, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, tourOverview });
+                          }}
+                          className="border p-2.5 rounded font-sans text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Best Time to Visit</label>
+                        <input
+                          type="text"
+                          value={packageForm.bestTime?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const bestTime = { ...packageForm.bestTime, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, bestTime });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                          placeholder="e.g. Evening sunset / Nov-Feb"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Dress Code</label>
+                        <input
+                          type="text"
+                          value={packageForm.dressCode?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const dressCode = { ...packageForm.dressCode, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, dressCode });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                          placeholder="e.g. Modest wear / Beachwear"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="font-bold text-gray-600 uppercase">CTA Button Text</label>
+                        <input
+                          type="text"
+                          value={packageForm.cta?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const cta = { ...packageForm.cta, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, cta });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                          placeholder="e.g. Book Sightseeing / Enquire"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "media" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="font-bold text-gray-600 uppercase">Cover Banner Image</label>
+                      <div className="flex items-center gap-3">
+                        {coverImagePreview && (
+                          <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
+                            <img src={coverImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                          </div>
+                        )}
+                        <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="font-semibold text-gray-500">Upload Cover Image</span>
+                          <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-bold text-gray-600 uppercase">Details Section Image</label>
+                      <div className="flex items-center gap-3">
+                        {aboutImagePreview && (
+                          <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
+                            <img src={aboutImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                          </div>
+                        )}
+                        <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="font-semibold text-gray-500">Upload Detail Image</span>
+                          <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">YouTube / Video Embed Link</label>
                     <input
                       type="text"
-                      value={packageForm.title?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const title = { ...packageForm.title, [activeLangTab]: e.target.value } as any;
-                        setPackageForm({ ...packageForm, title });
-                      }}
-                      className="border p-2.5 rounded"
-                      required
+                      value={packageForm.video || ""}
+                      onChange={(e) => setPackageForm({ ...packageForm, video: e.target.value })}
+                      className="border p-2.5 rounded text-xs bg-white"
+                      placeholder="e.g. https://www.youtube.com/watch?v=..."
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Price Period Label</label>
-                    <input
-                      type="text"
-                      value={packageForm.pricePeriod?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const pricePeriod = { ...packageForm.pricePeriod, [activeLangTab]: e.target.value } as any;
-                        setPackageForm({ ...packageForm, pricePeriod });
-                      }}
-                      className="border p-2.5 rounded"
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Duration Label</label>
-                    <input
-                      type="text"
-                      value={packageForm.duration?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const duration = { ...packageForm.duration, [activeLangTab]: e.target.value } as any;
-                        setPackageForm({ ...packageForm, duration });
-                      }}
-                      className="border p-2.5 rounded"
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Tagline</label>
-                  <input
-                    type="text"
-                    value={packageForm.tagline?.[activeLangTab] || ""}
-                    onChange={(e) => {
-                      const tagline = { ...packageForm.tagline, [activeLangTab]: e.target.value } as any;
-                      setPackageForm({ ...packageForm, tagline });
-                    }}
-                    className="border p-2.5 rounded"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Short Description</label>
-                    <textarea
-                      rows={3}
-                      value={packageForm.shortDescription?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const shortDescription = { ...packageForm.shortDescription, [activeLangTab]: e.target.value } as any;
-                        setPackageForm({ ...packageForm, shortDescription });
-                      }}
-                      className="border p-2.5 rounded font-sans"
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Full Description (About Text)</label>
-                    <textarea
-                      rows={3}
-                      value={packageForm.aboutText?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const aboutText = { ...packageForm.aboutText, [activeLangTab]: e.target.value } as any;
-                        setPackageForm({ ...packageForm, aboutText });
-                      }}
-                      className="border p-2.5 rounded font-sans"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Uploads */}
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="font-bold text-gray-600 uppercase">Cover Banner Image</label>
-                  <div className="flex items-center gap-3">
-                    {coverImagePreview && (
-                      <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                        <img src={coverImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-3">
+                    <label className="font-bold text-gray-600 uppercase block">Tour Gallery Photos</label>
+                    
+                    {/* Existing Gallery Images with delete buttons */}
+                    {packageForm.gallery && packageForm.gallery.length > 0 && (
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-3 bg-white p-3 rounded border shadow-inner">
+                        {packageForm.gallery.map((url: string, idx: number) => (
+                          <div key={idx} className="relative aspect-[4/3] rounded border overflow-hidden group bg-gray-100">
+                            <img src={url} className="w-full h-full object-cover" alt={`Gallery ${idx}`} />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const gallery = (packageForm.gallery || []).filter((_, i) => i !== idx);
+                                setPackageForm({ ...packageForm, gallery });
+                              }}
+                              className="absolute top-1 right-1 bg-red-500 hover:bg-red-700 text-white rounded-full p-1 opacity-90 transition-opacity shadow"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
-                    <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
-                      <Upload className="w-4 h-4 text-gray-400" />
-                      <span className="font-semibold text-gray-500">Upload Cover Image</span>
-                      <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" required={!editingPackage} />
-                    </label>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="font-bold text-gray-600 uppercase">Details Section Image</label>
-                  <div className="flex items-center gap-3">
-                    {aboutImagePreview && (
-                      <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                        <img src={aboutImagePreview} className="w-full h-full object-cover" alt="Preview" />
-                      </div>
-                    )}
-                    <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
-                      <Upload className="w-4 h-4 text-gray-400" />
-                      <span className="font-semibold text-gray-500">Upload Detail Image</span>
-                      <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" required={!editingPackage} />
-                    </label>
-                  </div>
-                </div>
-              </div>
 
-              {/* Itinerary editor */}
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
-                <div className="flex flex-col gap-3">
-                  {(packageForm.itinerary || []).map((step, idx) => (
-                    <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
-                      <div>
-                        <span className="font-bold text-brand-gold uppercase tracking-wider text-[10px] block">{step.timeOrDay[activeLangTab]}</span>
-                        <h5 className="font-serif font-semibold text-xs text-[#121212] mt-1">{step.activity[activeLangTab]}</h5>
-                        <p className="text-[11px] text-gray-500 font-light font-sans mt-0.5">{step.desc[activeLangTab]}</p>
+                    {/* New Upload File Zone */}
+                    <div className="flex flex-col gap-2">
+                      <label className="flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-6 text-center cursor-pointer bg-white hover:bg-gray-50">
+                        <div className="flex flex-col items-center gap-1">
+                          <Upload className="w-5 h-5 text-gray-400" />
+                          <span className="font-semibold text-gray-500">Select Gallery Photos (Multiple allowed)</span>
+                          <span className="text-[10px] text-gray-400">Add up to 10 images</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            if (files.length > 0) {
+                              setNewGalleryFiles((prev) => [...prev, ...files]);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {/* Preview of newly selected files to upload */}
+                      {newGalleryFiles.length > 0 && (
+                        <div className="bg-amber-50/50 border border-amber-200/60 rounded p-3 text-left">
+                          <span className="font-bold text-amber-800 text-[10px] uppercase block tracking-wider mb-2">New uploads (Pending save)</span>
+                          <div className="flex flex-wrap gap-2">
+                            {newGalleryFiles.map((file, idx) => (
+                              <div key={idx} className="flex items-center gap-1.5 bg-white border border-amber-200 px-2.5 py-1.5 rounded text-xs text-amber-900 shadow-sm">
+                                <span className="max-w-[150px] truncate">{file.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewGalleryFiles((prev) => prev.filter((_, i) => i !== idx));
+                                  }}
+                                  className="text-red-500 hover:text-red-700 font-bold"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "highlights" && (
+                <div className="space-y-4 animate-fade-in">
+                  {/* Highlights list editor */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Highlights Editor ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                      {(packageForm.highlights || []).map((h, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[9px] bg-gray-100 px-1.5 py-0.5 rounded">Icon: {h.icon}</span>
+                            <span className="font-medium text-xs text-[#121212]">{h.label[activeLangTab]}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const highlights = [...(packageForm.highlights || [])];
+                              highlights.splice(idx, 1);
+                              setPackageForm({ ...packageForm, highlights });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
+                      <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add New Highlight</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Icon Type</label>
+                          <select id="newHighlightIcon" className="border p-2 rounded bg-white text-xs">
+                            <option value="compass">Compass / Sightseeing</option>
+                            <option value="boat">Boat / Backwater</option>
+                            <option value="sun">Sun / Sunset</option>
+                            <option value="camera">Camera / Sightseeing</option>
+                            <option value="wave">Wave / Beach</option>
+                            <option value="walk">Walk / Trekking</option>
+                            <option value="check">Check / Inclusive</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Highlight Text</label>
+                          <input type="text" id="newHighlightLabel" placeholder="e.g. Sunset Boat Cruise" className="border p-2 rounded text-xs" />
+                        </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => {
-                          const itinerary = [...(packageForm.itinerary || [])];
-                          itinerary.splice(idx, 1);
-                          setPackageForm({ ...packageForm, itinerary });
+                          const iconIn = document.getElementById("newHighlightIcon") as HTMLSelectElement;
+                          const labelIn = document.getElementById("newHighlightLabel") as HTMLInputElement;
+                          if (iconIn && labelIn && labelIn.value.trim()) {
+                            const highlights = [...(packageForm.highlights || [])];
+                            highlights.push({
+                              icon: iconIn.value,
+                              label: createEmptyLocalizedText(labelIn.value.trim())
+                            });
+                            setPackageForm({ ...packageForm, highlights });
+                            labelIn.value = "";
+                          }
                         }}
-                        className="text-red-500 mt-1"
+                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        Add Highlight
                       </button>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end pt-2">
-                  <div>
-                    <label className="font-semibold text-gray-500 block mb-1">Time/Day Label</label>
-                    <input type="text" id="newStepTime" placeholder="e.g. 09:00 AM" className="border p-2 rounded w-full" />
+                  {/* Why Guests Love Us list editor */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Why Guests Love Us ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                      {(packageForm.whyGuestsLoveUs || []).map((w, idx) => (
+                        <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
+                          <div>
+                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[9px] bg-gray-100 px-1.5 py-0.5 rounded inline-block mb-1">Icon: {w.icon}</span>
+                            <h5 className="font-serif font-bold text-xs text-[#121212]">{w.title[activeLangTab]}</h5>
+                            <p className="text-[10px] text-gray-500 font-light mt-0.5 leading-relaxed font-sans">{w.desc[activeLangTab]}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const whyGuestsLoveUs = [...(packageForm.whyGuestsLoveUs || [])];
+                              whyGuestsLoveUs.splice(idx, 1);
+                              setPackageForm({ ...packageForm, whyGuestsLoveUs });
+                            }}
+                            className="text-red-500 shrink-0 mt-0.5"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
+                      <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add New "Why Guests Love Us" item</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Icon key</label>
+                          <select id="newPkgLoveIcon" className="border p-2 rounded bg-white text-xs">
+                            <option value="star">Star / Rating</option>
+                            <option value="coffee">Coffee / Meals</option>
+                            <option value="sunset">Sunset view</option>
+                            <option value="chat">Chat / Guide</option>
+                            <option value="shield">Shield / Safe</option>
+                            <option value="compass">Compass / Adventure</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-1 sm:col-span-2">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Title</label>
+                          <input type="text" id="newPkgLoveTitle" placeholder="e.g. Guided Experience" className="border p-2 rounded text-xs" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-500 text-[9px] uppercase">Description</label>
+                        <textarea id="newPkgLoveDesc" rows={2} placeholder="e.g. Expert guide with rich storytelling." className="border p-2 rounded text-xs font-sans" />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const iconSelect = document.getElementById("newPkgLoveIcon") as HTMLSelectElement;
+                          const titleIn = document.getElementById("newPkgLoveTitle") as HTMLInputElement;
+                          const descIn = document.getElementById("newPkgLoveDesc") as HTMLTextAreaElement;
+                          if (iconSelect && titleIn && descIn && titleIn.value.trim() && descIn.value.trim()) {
+                            const whyGuestsLoveUs = [...(packageForm.whyGuestsLoveUs || [])];
+                            whyGuestsLoveUs.push({
+                              icon: iconSelect.value,
+                              title: createEmptyLocalizedText(titleIn.value.trim()),
+                              desc: createEmptyLocalizedText(descIn.value.trim())
+                            });
+                            setPackageForm({ ...packageForm, whyGuestsLoveUs });
+                            titleIn.value = "";
+                            descIn.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                      >
+                        Add Item
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-semibold text-gray-500 block mb-1">Activity Label</label>
-                    <input type="text" id="newStepActivity" placeholder="e.g. Cliff Helipad Meetup" className="border p-2 rounded w-full" />
-                  </div>
-                  <div className="flex gap-2">
-                    <input type="text" id="newStepDesc" placeholder="e.g. Coordinator details..." className="border p-2 rounded flex-grow" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const tIn = document.getElementById("newStepTime") as HTMLInputElement;
-                        const aIn = document.getElementById("newStepActivity") as HTMLInputElement;
-                        const dIn = document.getElementById("newStepDesc") as HTMLInputElement;
-                        if (tIn && aIn && dIn && tIn.value.trim() && aIn.value.trim() && dIn.value.trim()) {
-                          const itinerary = [...(packageForm.itinerary || [])];
-                          itinerary.push({
-                            timeOrDay: createEmptyLocalizedText(tIn.value.trim()),
-                            activity: createEmptyLocalizedText(aIn.value.trim()),
-                            desc: createEmptyLocalizedText(dIn.value.trim())
-                          });
-                          setPackageForm({ ...packageForm, itinerary });
-                          tIn.value = "";
-                          aIn.value = "";
-                          dIn.value = "";
-                        }
-                      }}
-                      className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0"
-                    >
-                      Add Step
-                    </button>
+
+                  {/* Quick Facts list editor */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Quick Facts ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                      {(packageForm.quickFacts || []).map((fact, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2 shadow-sm">
+                          <span className="font-medium text-xs">
+                            <strong className="text-gray-700">{fact.key[activeLangTab]}:</strong> {fact.value[activeLangTab]}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const quickFacts = [...(packageForm.quickFacts || [])];
+                              quickFacts.splice(idx, 1);
+                              setPackageForm({ ...packageForm, quickFacts });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
+                      <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add New Quick Fact</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Fact Label / Key</label>
+                          <input type="text" id="newFactKey" placeholder="e.g. Best Time" className="border p-2 rounded text-xs" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Fact Value</label>
+                          <input type="text" id="newFactValue" placeholder="e.g. Morning flow" className="border p-2 rounded text-xs" />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const keyIn = document.getElementById("newFactKey") as HTMLInputElement;
+                          const valIn = document.getElementById("newFactValue") as HTMLInputElement;
+                          if (keyIn && valIn && keyIn.value.trim() && valIn.value.trim()) {
+                            const quickFacts = [...(packageForm.quickFacts || [])];
+                            quickFacts.push({
+                              key: createEmptyLocalizedText(keyIn.value.trim()),
+                              value: createEmptyLocalizedText(valIn.value.trim())
+                            });
+                            setPackageForm({ ...packageForm, quickFacts });
+                            keyIn.value = "";
+                            valIn.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                      >
+                        Add Fact
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {activePkgFormTab === "checklists" && (
+                <div className="space-y-4 animate-fade-in">
+                  {/* Inclusions */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-3">
+                    <label className="font-bold text-gray-600 uppercase block">Inclusions List ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(packageForm.inclusions || []).map((inc, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2">
+                          <span className="font-medium truncate text-xs text-[#121212]">{inc[activeLangTab]}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const inclusions = [...(packageForm.inclusions || [])];
+                              inclusions.splice(idx, 1);
+                              setPackageForm({ ...packageForm, inclusions });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 max-w-sm pt-2">
+                      <input
+                        type="text"
+                        id="newInclusionInput"
+                        placeholder="e.g. Life jackets / Water bottle"
+                        className="border p-2 rounded flex-grow text-xs"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const input = e.currentTarget;
+                            if (!input.value.trim()) return;
+                            const inclusions = [...(packageForm.inclusions || [])];
+                            inclusions.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, inclusions });
+                            input.value = "";
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById("newInclusionInput") as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            const inclusions = [...(packageForm.inclusions || [])];
+                            inclusions.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, inclusions });
+                            input.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-3.5 py-2 rounded font-semibold uppercase tracking-wider text-[10px]"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Exclusions */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-3">
+                    <label className="font-bold text-gray-600 uppercase block">Exclusions List ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(packageForm.exclusions || []).map((exc, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2">
+                          <span className="font-medium truncate text-xs text-[#121212]">{exc[activeLangTab]}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const exclusions = [...(packageForm.exclusions || [])];
+                              exclusions.splice(idx, 1);
+                              setPackageForm({ ...packageForm, exclusions });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 max-w-sm pt-2">
+                      <input
+                        type="text"
+                        id="newExclusionInput"
+                        placeholder="e.g. Gratitude tips"
+                        className="border p-2 rounded flex-grow text-xs"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const input = e.currentTarget;
+                            if (!input.value.trim()) return;
+                            const exclusions = [...(packageForm.exclusions || [])];
+                            exclusions.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, exclusions });
+                            input.value = "";
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById("newExclusionInput") as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            const exclusions = [...(packageForm.exclusions || [])];
+                            exclusions.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, exclusions });
+                            input.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-3.5 py-2 rounded font-semibold uppercase tracking-wider text-[10px]"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Things to bring */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-3">
+                    <label className="font-bold text-gray-600 uppercase block">Things to Bring ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(packageForm.thingsToBring || []).map((thing, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2">
+                          <span className="font-medium truncate text-xs text-[#121212]">{thing[activeLangTab]}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const thingsToBring = [...(packageForm.thingsToBring || [])];
+                              thingsToBring.splice(idx, 1);
+                              setPackageForm({ ...packageForm, thingsToBring });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 max-w-sm pt-2">
+                      <input
+                        type="text"
+                        id="newBringInput"
+                        placeholder="e.g. Camera / Hat / Sunscreen"
+                        className="border p-2 rounded flex-grow text-xs"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const input = e.currentTarget;
+                            if (!input.value.trim()) return;
+                            const thingsToBring = [...(packageForm.thingsToBring || [])];
+                            thingsToBring.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, thingsToBring });
+                            input.value = "";
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById("newBringInput") as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            const thingsToBring = [...(packageForm.thingsToBring || [])];
+                            thingsToBring.push(createEmptyLocalizedText(input.value.trim()));
+                            setPackageForm({ ...packageForm, thingsToBring });
+                            input.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-3.5 py-2 rounded font-semibold uppercase tracking-wider text-[10px]"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "itinerary" && (
+                <div className="space-y-4 animate-fade-in">
+                  {/* Itinerary editor */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
+                    <div className="flex flex-col gap-3">
+                      {(packageForm.itinerary || []).map((step, idx) => (
+                        <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
+                          <div>
+                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[10px] block">{step.timeOrDay[activeLangTab]}</span>
+                            <h5 className="font-serif font-semibold text-xs text-[#121212] mt-1">{step.activity[activeLangTab]}</h5>
+                            <p className="text-[11px] text-gray-500 font-light font-sans mt-0.5">{step.desc[activeLangTab]}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const itinerary = [...(packageForm.itinerary || [])];
+                              itinerary.splice(idx, 1);
+                              setPackageForm({ ...packageForm, itinerary });
+                            }}
+                            className="text-red-500 mt-1 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end pt-2 border-t border-dashed">
+                      <div>
+                        <label className="font-semibold text-gray-500 block mb-1">Time/Day Label</label>
+                        <input type="text" id="newStepTime" placeholder="e.g. 09:00 AM" className="border p-2 rounded w-full text-xs" />
+                      </div>
+                      <div>
+                        <label className="font-semibold text-gray-500 block mb-1">Activity Label</label>
+                        <input type="text" id="newStepActivity" placeholder="e.g. Cliff Helipad Meetup" className="border p-2 rounded w-full text-xs" />
+                      </div>
+                      <div className="flex gap-2">
+                        <input type="text" id="newStepDesc" placeholder="e.g. Coordinator details..." className="border p-2 rounded flex-grow text-xs" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tIn = document.getElementById("newStepTime") as HTMLInputElement;
+                            const aIn = document.getElementById("newStepActivity") as HTMLInputElement;
+                            const dIn = document.getElementById("newStepDesc") as HTMLInputElement;
+                            if (tIn && aIn && dIn && tIn.value.trim() && aIn.value.trim() && dIn.value.trim()) {
+                              const itinerary = [...(packageForm.itinerary || [])];
+                              itinerary.push({
+                                timeOrDay: createEmptyLocalizedText(tIn.value.trim()),
+                                activity: createEmptyLocalizedText(aIn.value.trim()),
+                                desc: createEmptyLocalizedText(dIn.value.trim())
+                              });
+                              setPackageForm({ ...packageForm, itinerary });
+                              tIn.value = "";
+                              aIn.value = "";
+                              dIn.value = "";
+                            }
+                          }}
+                          className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
+                        >
+                          Add Step
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Nearby Attractions */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Nearby Attractions ({activeLangTab.toUpperCase()})</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                      {(packageForm.nearbyAttractions || []).map((att, idx) => (
+                        <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2 shadow-sm">
+                          <span className="font-medium text-xs">
+                            <strong className="text-gray-700">{att.name[activeLangTab]}:</strong> {att.distance[activeLangTab]}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const nearbyAttractions = [...(packageForm.nearbyAttractions || [])];
+                              nearbyAttractions.splice(idx, 1);
+                              setPackageForm({ ...packageForm, nearbyAttractions });
+                            }}
+                            className="text-red-500 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
+                      <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add Nearby Attraction</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Attraction Name</label>
+                          <input type="text" id="newAttName" placeholder="e.g. Varkala Aquarium" className="border p-2 rounded text-xs" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Distance</label>
+                          <input type="text" id="newAttDistance" placeholder="e.g. 5 km" className="border p-2 rounded text-xs" />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nameIn = document.getElementById("newAttName") as HTMLInputElement;
+                          const distIn = document.getElementById("newAttDistance") as HTMLInputElement;
+                          if (nameIn && distIn && nameIn.value.trim() && distIn.value.trim()) {
+                            const nearbyAttractions = [...(packageForm.nearbyAttractions || [])];
+                            nearbyAttractions.push({
+                              name: createEmptyLocalizedText(nameIn.value.trim()),
+                              distance: createEmptyLocalizedText(distIn.value.trim())
+                            });
+                            setPackageForm({ ...packageForm, nearbyAttractions });
+                            nameIn.value = "";
+                            distIn.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                      >
+                        Add Attraction
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "related" && (
+                <div className="space-y-4 animate-fade-in">
+                  {/* Related Packages selectors */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Related Packages (You May Also Like)</label>
+                    <p className="text-[10px] text-gray-500">Select up to 3 packages to recommend at the bottom of this package's details page.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[0, 1, 2].map((index) => {
+                        const currentSelected = packageForm.relatedPackages?.[index] || "";
+                        return (
+                          <div key={index} className="flex flex-col gap-1.5 bg-white p-3 border rounded shadow-2xs">
+                            <label className="font-semibold text-gray-500 uppercase text-[10px]">Recommendation #{index + 1}</label>
+                            <select
+                              value={currentSelected}
+                              onChange={(e) => {
+                                const newRelated = [...(packageForm.relatedPackages || [])];
+                                while (newRelated.length < 3) {
+                                  newRelated.push("");
+                                }
+                                newRelated[index] = e.target.value;
+                                setPackageForm({ ...packageForm, relatedPackages: newRelated });
+                              }}
+                              className="border border-gray-200 p-2.5 rounded bg-white text-xs mt-1"
+                            >
+                              <option value="">-- None --</option>
+                              <optgroup label="Stays / Accommodations">
+                                {stays
+                                  .filter((s) => s.slug !== packageForm.slug)
+                                  .map((s) => (
+                                    <option key={s._id} value={s.slug}>
+                                      🏨 {s.title[activeLangTab] || s.title["en"] || s.slug}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                              <optgroup label="Tours / Packages">
+                                {packages
+                                  .filter((p) => p.slug !== packageForm.slug)
+                                  .map((p) => (
+                                    <option key={p._id} value={p.slug}>
+                                      🎒 {p.title[activeLangTab] || p.title["en"] || p.slug}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                              <optgroup label="Yoga Programs">
+                                {yogas
+                                  .filter((y) => y.slug !== packageForm.slug)
+                                  .map((y) => (
+                                    <option key={y._id} value={y.slug}>
+                                      🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                    </option>
+                                  ))}
+                              </optgroup>
+                            </select>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* FAQs */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <label className="font-bold text-gray-600 uppercase block">Frequently Asked Questions ({activeLangTab.toUpperCase()})</label>
+                    <div className="flex flex-col gap-3">
+                      {(packageForm.faqs || []).map((faq, idx) => (
+                        <div key={idx} className="border bg-white p-3 rounded shadow-sm space-y-1 relative">
+                          <h5 className="font-bold text-xs text-[#121212]">Q: {faq.question[activeLangTab]}</h5>
+                          <p className="text-[11px] text-gray-600 font-light font-sans">A: {faq.answer[activeLangTab]}</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const faqs = [...(packageForm.faqs || [])];
+                              faqs.splice(idx, 1);
+                              setPackageForm({ ...packageForm, faqs });
+                            }}
+                            className="absolute top-2 right-2 text-red-500"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
+                      <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add FAQ Item</span>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Question</label>
+                          <input type="text" id="newFaqQuestion" placeholder="e.g. What is the dress code?" className="border p-2 rounded text-xs" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-500 text-[9px] uppercase">Answer</label>
+                          <textarea id="newFaqAnswer" rows={2} placeholder="e.g. Dress modestly when visiting local villages." className="border p-2 rounded text-xs font-sans" />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const qIn = document.getElementById("newFaqQuestion") as HTMLInputElement;
+                          const aIn = document.getElementById("newFaqAnswer") as HTMLTextAreaElement;
+                          if (qIn && aIn && qIn.value.trim() && aIn.value.trim()) {
+                            const faqs = [...(packageForm.faqs || [])];
+                            faqs.push({
+                              question: createEmptyLocalizedText(qIn.value.trim()),
+                              answer: createEmptyLocalizedText(aIn.value.trim())
+                            });
+                            setPackageForm({ ...packageForm, faqs });
+                            qIn.value = "";
+                            aIn.value = "";
+                          }
+                        }}
+                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                      >
+                        Add FAQ
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "seo" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">SEO Meta Parameters ({activeLangTab.toUpperCase()})</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="font-bold text-gray-600 uppercase">Meta Title Tag</label>
+                        <input
+                          type="text"
+                          value={packageForm.metaTitle?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const metaTitle = { ...packageForm.metaTitle, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, metaTitle });
+                          }}
+                          className="border p-2.5 rounded text-xs"
+                          placeholder="e.g. Best Varkala Sightseeing Tour | Villa Lemon"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Meta Description</label>
+                        <textarea
+                          rows={3}
+                          value={packageForm.metaDescription?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const metaDescription = { ...packageForm.metaDescription, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, metaDescription });
+                          }}
+                          className="border p-2.5 rounded font-sans text-xs"
+                          placeholder="Brief summary of package for search engines..."
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">SEO Keywords (Comma Separated)</label>
+                        <textarea
+                          rows={3}
+                          value={packageForm.keywords?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const keywords = { ...packageForm.keywords, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, keywords });
+                          }}
+                          className="border p-2.5 rounded font-sans text-xs"
+                          placeholder="e.g. varkala, sightseeing, day trip, houseboat"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Canonical URL</label>
+                      <input
+                        type="text"
+                        value={packageForm.canonicalUrl || ""}
+                        onChange={(e) => setPackageForm({ ...packageForm, canonicalUrl: e.target.value })}
+                        className="border p-2.5 rounded text-xs bg-white"
+                        placeholder="e.g. https://villalemon.com/packages/varkala-sightseeing"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-bold text-gray-600 uppercase">Social Sharing Image (OG Image)</label>
+                      <div className="flex items-center gap-3">
+                        {ogImagePreview && (
+                          <div className="relative w-20 aspect-[12/6.3] rounded border overflow-hidden shrink-0">
+                            <img src={ogImagePreview} className="w-full h-full object-cover" alt="SEO Preview" />
+                          </div>
+                        )}
+                        <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="font-semibold text-gray-500">Upload Social Image</span>
+                          <input type="file" accept="image/*" onChange={handleOgImageChange} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activePkgFormTab === "booking" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Cancellation Rules ({activeLangTab.toUpperCase()})</label>
+                      <textarea
+                        rows={3}
+                        value={packageForm.cancellation?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const cancellation = { ...packageForm.cancellation, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, cancellation });
+                        }}
+                        className="border p-2.5 rounded font-sans text-xs"
+                        placeholder="Cancellation policy details..."
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Refund Terms ({activeLangTab.toUpperCase()})</label>
+                      <textarea
+                        rows={3}
+                        value={packageForm.refund?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const refund = { ...packageForm.refund, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, refund });
+                        }}
+                        className="border p-2.5 rounded font-sans text-xs"
+                        placeholder="Refund window and payment terms..."
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Pickup Location ({activeLangTab.toUpperCase()})</label>
+                      <textarea
+                        rows={2}
+                        value={packageForm.pickup?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const pickup = { ...packageForm.pickup, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, pickup });
+                        }}
+                        className="border p-2.5 rounded font-sans text-xs"
+                        placeholder="Pick up instructions..."
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Dropoff Details ({activeLangTab.toUpperCase()})</label>
+                      <textarea
+                        rows={2}
+                        value={packageForm.drop?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const drop = { ...packageForm.drop, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, drop });
+                        }}
+                        className="border p-2.5 rounded font-sans text-xs"
+                        placeholder="Drop off instructions..."
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <label className="font-bold text-gray-600 uppercase">Important Notes ({activeLangTab.toUpperCase()})</label>
+                      <textarea
+                        rows={3}
+                        value={packageForm.notes?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const notes = { ...packageForm.notes, [activeLangTab]: e.target.value } as any;
+                          setPackageForm({ ...packageForm, notes });
+                        }}
+                        className="border p-2.5 rounded font-sans text-xs"
+                        placeholder="Any additional notes or warnings..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="border-t border-gray-150 pt-5 flex items-center justify-end gap-3">
                 <button
@@ -3022,6 +4217,63 @@ export default function AdminDashboard() {
                   >
                     Add Schedule Block
                   </button>
+                </div>
+              </div>
+
+              {/* SECTION: RELATED YOGA PROGRAMS */}
+              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">You May Also Like (Related Yoga Programs)</h4>
+                <p className="text-[10px] text-gray-500">Select up to 3 yoga programs to recommend at the bottom of this program's details page.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[0, 1, 2].map((index) => {
+                    const currentSelected = yogaForm.relatedYoga?.[index] || "";
+                    return (
+                      <div key={index} className="flex flex-col gap-1.5 bg-white p-3 border rounded shadow-2xs">
+                        <label className="font-semibold text-gray-500 uppercase text-[10px]">Recommendation #{index + 1}</label>
+                        <select
+                          value={currentSelected}
+                          onChange={(e) => {
+                            const newRelated = [...(yogaForm.relatedYoga || [])];
+                            while (newRelated.length < 3) {
+                              newRelated.push("");
+                            }
+                            newRelated[index] = e.target.value;
+                            setYogaForm({ ...yogaForm, relatedYoga: newRelated });
+                          }}
+                          className="border border-gray-200 p-2.5 rounded bg-white text-xs mt-1"
+                        >
+                          <option value="">-- None --</option>
+                          <optgroup label="Stays / Accommodations">
+                            {stays
+                              .filter((s) => s.slug !== yogaForm.slug)
+                              .map((s) => (
+                                <option key={s._id} value={s.slug}>
+                                  🏨 {s.title[activeLangTab] || s.title["en"] || s.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                          <optgroup label="Tours / Packages">
+                            {packages
+                              .filter((p) => p.slug !== yogaForm.slug)
+                              .map((p) => (
+                                <option key={p._id} value={p.slug}>
+                                  🎒 {p.title[activeLangTab] || p.title["en"] || p.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                          <optgroup label="Yoga Programs">
+                            {yogas
+                              .filter((y) => y.slug !== yogaForm.slug)
+                              .map((y) => (
+                                <option key={y._id} value={y.slug}>
+                                  🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                </option>
+                              ))}
+                          </optgroup>
+                        </select>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
