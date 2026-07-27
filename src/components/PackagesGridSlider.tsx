@@ -90,7 +90,7 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
       {/* Scrolling container */}
       <div
         ref={containerRef}
-        className="w-full overflow-x-auto snap-x snap-mandatory flex gap-6 pb-4 no-scrollbar"
+        className="w-full flex flex-col sm:flex-row sm:overflow-x-auto sm:snap-x sm:snap-mandatory gap-6 pb-4 no-scrollbar"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {packages.map((p) => {
@@ -98,7 +98,7 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
           return (
             <div
               key={p.id}
-              className="snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             >
               {/* Photo cover */}
               <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
