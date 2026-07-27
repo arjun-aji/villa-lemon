@@ -7,7 +7,7 @@ import { getMessages } from "next-intl/server";
 import { Clock, ShieldCheck, MapPin, Compass } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
-
+import PackagesGridSlider from "@/components/PackagesGridSlider";
 import { localizeObject } from "@/utils/translator";
 
 interface PackageItemType {
@@ -144,53 +144,9 @@ export default async function PackagesCatalogPage({
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {packages.map((p) => (
-                <div
-                  key={p.id}
-                  className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-                >
-                  {/* Photo cover */}
-                  <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
-                    <Image
-                      src={p.image}
-                      alt={p.title}
-                      fill
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                    
-                    {/* Price Tag */}
-                    <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
-                      ₹{p.price.toLocaleString()} {p.pricePeriod}
-                    </div>
-                  </div>
-
-                  {/* Card content */}
-                  <div className="p-6 flex flex-col flex-grow items-start text-left">
-                    <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{p.duration}</span>
-                    </div>
-
-                    <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
-                      {p.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text">
-                      {p.shortDescription}
-                    </p>
-
-                    <Link
-                      href={`/${locale}/packages/${category}/${p.slug}`}
-                      className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] select-none"
-                    >
-                      Explore Package
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PackagesGridSlider packages={packages} locale={locale} categorySlug={category} />
           )}
+
         </section>
         </PageAutoTranslator>
       </main>
