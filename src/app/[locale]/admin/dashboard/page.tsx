@@ -256,6 +256,9 @@ export default function AdminDashboard() {
   const [stays, setStays] = useState<AccommodationItemData[]>([]);
   const [packages, setPackages] = useState<PackageItemData[]>([]);
   const [yogas, setYogas] = useState<YogaItemData[]>([]);
+  const [retreats, setRetreats] = useState<any[]>([]);
+  const [showRetreatModal, setShowRetreatModal] = useState(false);
+  const [editingRetreat, setEditingRetreat] = useState<any>(null);
   const [teachers, setTeachers] = useState<TeacherData[]>([]);
   const [homepageData, setHomepageData] = useState<HomepageData | null>(null);
 
@@ -351,9 +354,10 @@ export default function AdminDashboard() {
       }
 
       // 3. Fetch Yoga Subgroups (Categories) & Items
-      const [resYogaCats, resYoga] = await Promise.all([
+      const [resYogaCats, resYoga, resRetreats] = await Promise.all([
         fetch(`${API_BASE_URL}/api/yoga/programs`),
-        fetch(`${API_BASE_URL}/api/yoga/items`)
+        fetch(`${API_BASE_URL}/api/yoga/items`),
+        fetch(`${API_BASE_URL}/api/retreats`)
       ]);
       if (resYogaCats.ok) {
         const d = await resYogaCats.json();
@@ -362,6 +366,10 @@ export default function AdminDashboard() {
       if (resYoga.ok) {
         const d = await resYoga.json();
         setYogas(d.data || []);
+      }
+      if (resRetreats.ok) {
+        const d = await resRetreats.json();
+        setRetreats(d.data || []);
       }
 
       // 4. Fetch teachers
@@ -994,6 +1002,19 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteRetreat = async (id: string) => {
+    if (!token || !confirm("Delete this retreat program? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/retreats/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleDeleteYoga = async (id: string) => {
     if (!token || !confirm("Delete this yoga program?")) return;
     try {
@@ -1182,16 +1203,6 @@ export default function AdminDashboard() {
             >
               <Activity className="w-4 h-4 text-brand-gold" />
               <span>Yoga Programs</span>
-            </div>
-
-            <div 
-              onClick={() => setActiveTab("retreats")}
-              className={`px-3.5 py-3 rounded-sm flex items-center gap-3 cursor-pointer transition-colors ${
-                activeTab === "retreats" ? "bg-[#c5a880]/10 text-brand-gold border-l-2 border-brand-gold" : "hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Compass className="w-4 h-4 text-brand-gold" />
-              <span>Yoga Retreats</span>
             </div>
 
             <div 
@@ -1533,7 +1544,8 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {yogaCategories.map((cat) => {
-                        const catYogas = yogas.filter(y => y.yogaType === cat.type);
+                        const isRetreat = cat.type === "retreats";
+                        const catYogas = isRetreat ? retreats : yogas.filter(y => y.yogaType === cat.type);
                         
                         return (
                           <div key={cat._id} className="border border-gray-200 rounded p-4 bg-gray-50 text-left flex flex-col justify-between">
@@ -1551,22 +1563,55 @@ export default function AdminDashboard() {
                               <div className="mt-4 pt-3 border-t border-gray-200">
                                 <span className="text-[9px] font-bold uppercase text-gray-400 tracking-wider">Programs inside ({catYogas.length})</span>
                                 <div className="space-y-1.5 mt-2 max-h-36 overflow-y-auto pr-1">
-                                  {catYogas.map(item => (
-                                    <div key={item._id} className="flex items-center justify-between text-[11px] bg-white p-2 rounded border border-gray-150">
-                                      <span className="font-medium truncate mr-2">{item.title[activeLangTab]}</span>
-                                      <div className="flex gap-1.5">
-                                        <button onClick={() => handleOpenEditYoga(item)} className="text-gray-500 hover:text-brand-gold transition-colors"><Edit2 className="w-3 h-3" /></button>
-                                        <button onClick={() => handleDeleteYoga(item._id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3 h-3" /></button>
+                                  {catYogas.map(item => {
+                                    const displayTitle = isRetreat ? (item.heroTitle?.[activeLangTab] || item.heroTitle?.en || "") : item.title[activeLangTab];
+                                    return (
+                                      <div key={item._id} className="flex items-center justify-between text-[11px] bg-white p-2 rounded border border-gray-150">
+                                        <span className="font-medium truncate mr-2">{displayTitle}</span>
+                                        <div className="flex gap-1.5">
+                                          <button 
+                                            onClick={() => {
+                                              if (isRetreat) {
+                                                setEditingRetreat(item);
+                                                setShowRetreatModal(true);
+                                              } else {
+                                                handleOpenEditYoga(item);
+                                              }
+                                            }} 
+                                            className="text-gray-500 hover:text-brand-gold transition-colors cursor-pointer"
+                                          >
+                                            <Edit2 className="w-3 h-3" />
+                                          </button>
+                                          <button 
+                                            onClick={() => {
+                                              if (isRetreat) {
+                                                handleDeleteRetreat(item._id);
+                                              } else {
+                                                handleDeleteYoga(item._id);
+                                              }
+                                            }} 
+                                            className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                          >
+                                            <Trash2 className="w-3 h-3" />
+                                          </button>
+                                        </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    );
+                                  })}
                                 </div>
                               </div>
                             </div>
 
                             <div className="flex items-center gap-2 mt-5 pt-3 border-t border-gray-200 justify-between">
                               <button
-                                onClick={() => handleOpenAddYoga(cat.type)}
+                                onClick={() => {
+                                  if (isRetreat) {
+                                    setEditingRetreat(null);
+                                    setShowRetreatModal(true);
+                                  } else {
+                                    handleOpenAddYoga(cat.type);
+                                  }
+                                }}
                                 className="flex items-center gap-1 px-3 py-1.5 bg-[#121212] hover:bg-brand-gold text-white hover:text-black rounded-sm transition-colors text-[9px] font-bold uppercase tracking-wider cursor-pointer"
                               >
                                 <Plus className="w-3 h-3" />
@@ -1650,9 +1695,17 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {activeTab === "retreats" && (
-                <RetreatsTab token={token || ""} />
-              )}
+              <RetreatsTab
+                token={token || ""}
+                modalMode={true}
+                isOpen={showRetreatModal}
+                onClose={() => setShowRetreatModal(false)}
+                onSave={() => {
+                  setShowRetreatModal(false);
+                  fetchData();
+                }}
+                editingItem={editingRetreat}
+              />
 
             </div>
           )}
