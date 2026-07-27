@@ -400,33 +400,36 @@ export default function RetreatsTab({
   const setLT = (key: keyof RetreatForm) => (val: LT) => setF(key, val);
 
   // ─── Render ────────────────────────────────────────────────────────────────
-  // ─── Render ────────────────────────────────────────────────────────────────
   if (modalMode) {
     return (
       <>
         {showModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-stretch overflow-hidden">
-            <div className="bg-white w-full flex flex-col max-h-screen">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
+            <div className="bg-white rounded-md max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-150">
 
               {/* Modal header */}
-              <div className="bg-[#121212] text-white px-6 py-4 flex items-center justify-between shrink-0 text-left">
+              <div className="p-6 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white">
                 <div>
-                  <h2 className="font-serif text-lg">{editing ? "Edit Retreat" : "New Yoga Retreat"}</h2>
-                  <p className="text-[10px] text-amber-400 uppercase tracking-widest mt-0.5">17-section CMS · All localized · Cloudinary media</p>
+                  <h3 className="font-serif text-lg tracking-wide">
+                    {editing ? "Edit Yoga Retreat" : "Create Yoga Retreat"}
+                  </h3>
+                  <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-1">Configure layout, translations, content, curriculum & pricing</p>
                 </div>
-                <button onClick={closeModal} className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10">
+                <button onClick={closeModal} className="p-1 text-gray-400 hover:text-white cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Tab bar */}
-              <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex gap-1 overflow-x-auto shrink-0 scrollbar-none">
+              <div className="bg-gray-50 border-b border-gray-200 px-6 py-3 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
                 {FORM_TABS.map(tab => {
                   const Icon = tab.icon;
                   return (
                     <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${activeFormTab === tab.id ? "bg-amber-500 text-white shadow-sm" : "text-gray-500 hover:bg-gray-200 hover:text-gray-700"}`}>
-                      <Icon className="w-3 h-3" />
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer ${
+                        activeFormTab === tab.id ? "bg-brand-gold text-black shadow-sm font-bold" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
+                      }`}>
+                      <Icon className="w-3.5 h-3.5 inline-block mr-1.5" />
                       {tab.label}
                     </button>
                   );
