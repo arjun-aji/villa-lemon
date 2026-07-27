@@ -492,25 +492,6 @@ export default async function PackageDetailsPage({
               )}
             </div>
 
-            {/* HIGHLIGHTS */}
-            {pkg.highlights.length > 0 && (
-              <div className="w-full bg-[#eae6db]/15 border border-[#eae6db]/60 p-6 md:p-8 rounded-sm">
-                <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block select-none">
-                  Key Experiences
-                </span>
-                <h3 className="font-serif text-2xl font-normal text-[#121212] mb-6">
-                  Tour Highlights
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {pkg.highlights.map((hl, idx) => (
-                    <div key={idx} className="flex items-start gap-3 text-xs bg-white/70 p-3 border border-[#eae6db]/30 rounded-sm">
-                      <Compass className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
-                      <span className="font-serif font-medium text-gray-800 leading-tight">{hl.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* DESCRIPTION */}
             <div className="w-full flex flex-col items-start select-text text-left">
@@ -566,6 +547,26 @@ export default async function PackageDetailsPage({
                 <span>{pkg.cta || tPkg.whatsappUs || "WhatsApp Us"}</span>
               </a>
             </div>
+
+            {/* HIGHLIGHTS */}
+            {pkg.highlights.length > 0 && (
+              <div className="w-full bg-[#eae6db]/15 border border-[#eae6db]/60 p-6 md:p-8 rounded-sm text-left">
+                <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block select-none">
+                  Key Experiences
+                </span>
+                <h3 className="font-serif text-xl font-normal text-[#121212] mb-6">
+                  Tour Highlights
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {pkg.highlights.map((hl, idx) => (
+                    <div key={idx} className="flex items-start gap-3 text-xs bg-white/70 p-3 border border-[#eae6db]/30 rounded-sm">
+                      <Compass className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
+                      <span className="font-serif font-medium text-gray-800 leading-tight">{hl.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* EMBEDDED VIDEO */}
             {youtubeEmbedUrl && (
