@@ -482,6 +482,17 @@ export default function AdminDashboard() {
       formData.append("description", JSON.stringify(subgroupForm.description));
       formData.append("explore", JSON.stringify(subgroupForm.explore));
 
+      // Append banner feature fields for accommodation
+      if (subgroupFormType === "accommodation") {
+        const sf = subgroupForm as any;
+        for (const n of [1, 2, 3, 4]) {
+          const titleKey = `feature${n}Title`;
+          const subtitleKey = `feature${n}Subtitle`;
+          if (sf[titleKey]) formData.append(titleKey, JSON.stringify(sf[titleKey]));
+          if (sf[subtitleKey]) formData.append(subtitleKey, JSON.stringify(sf[subtitleKey]));
+        }
+      }
+
       if (coverImageFile) {
         formData.append("image", coverImageFile);
       }
@@ -1800,6 +1811,50 @@ export default function AdminDashboard() {
                   />
                 </div>
               </div>
+
+              {/* BANNER FEATURES — only for accommodation subgroups */}
+              {subgroupFormType === "accommodation" && (
+                <div className="bg-amber-50 p-4 rounded border border-amber-200 space-y-4">
+                  <h4 className="font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200 pb-1.5 text-[11px]">
+                    Banner Feature Badges ({activeLangTab.toUpperCase()}) — 4 highlighted icons below the hero image
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {([1, 2, 3, 4] as const).map((n) => (
+                      <div key={n} className="bg-white border border-amber-100 rounded p-3 space-y-2">
+                        <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Feature {n}</span>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-500 uppercase text-[10px]">Title</label>
+                          <input
+                            type="text"
+                            value={(subgroupForm as any)[`feature${n}Title`]?.[activeLangTab] || ""}
+                            onChange={(e) => {
+                              const key = `feature${n}Title`;
+                              const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
+                              setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
+                            }}
+                            placeholder={n === 1 ? "Private Pool" : n === 2 ? "Spacious Living" : n === 3 ? "Premium Amenities" : "Dedicated Service"}
+                            className="border p-2 rounded text-xs"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-500 uppercase text-[10px]">Subtitle</label>
+                          <input
+                            type="text"
+                            value={(subgroupForm as any)[`feature${n}Subtitle`]?.[activeLangTab] || ""}
+                            onChange={(e) => {
+                              const key = `feature${n}Subtitle`;
+                              const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
+                              setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
+                            }}
+                            placeholder={n === 1 ? "In most villas" : n === 2 ? "For families & groups" : n === 3 ? "Luxury redefined" : "24/7 assistance"}
+                            className="border p-2 rounded text-xs"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Cover Image Upload */}
               <div className="space-y-2">

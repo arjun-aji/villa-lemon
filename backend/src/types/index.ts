@@ -26,6 +26,14 @@ export interface IAccommodation extends Document {
   imagePublicId?: string;
   explore: ILocalizedText;
   href: string;
+  feature1Title?: ILocalizedText;
+  feature1Subtitle?: ILocalizedText;
+  feature2Title?: ILocalizedText;
+  feature2Subtitle?: ILocalizedText;
+  feature3Title?: ILocalizedText;
+  feature3Subtitle?: ILocalizedText;
+  feature4Title?: ILocalizedText;
+  feature4Subtitle?: ILocalizedText;
   createdAt: Date;
   updatedAt: Date;
 }

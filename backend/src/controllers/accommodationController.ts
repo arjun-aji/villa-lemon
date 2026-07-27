@@ -44,6 +44,14 @@ export const createAccommodation = async (req: Request, res: Response): Promise<
     const description = parseField(req.body.description);
     const price = parseField(req.body.price);
     const explore = parseField(req.body.explore);
+    const feature1Title = parseField(req.body.feature1Title);
+    const feature1Subtitle = parseField(req.body.feature1Subtitle);
+    const feature2Title = parseField(req.body.feature2Title);
+    const feature2Subtitle = parseField(req.body.feature2Subtitle);
+    const feature3Title = parseField(req.body.feature3Title);
+    const feature3Subtitle = parseField(req.body.feature3Subtitle);
+    const feature4Title = parseField(req.body.feature4Title);
+    const feature4Subtitle = parseField(req.body.feature4Subtitle);
 
     if (!req.file) {
       return res.status(400).json({
@@ -65,6 +73,14 @@ export const createAccommodation = async (req: Request, res: Response): Promise<
       imagePublicId: uploadResult.public_id,
       explore,
       href: href || "#contact",
+      feature1Title,
+      feature1Subtitle,
+      feature2Title,
+      feature2Subtitle,
+      feature3Title,
+      feature3Subtitle,
+      feature4Title,
+      feature4Subtitle,
     });
 
     await newAcc.save();
@@ -100,6 +116,14 @@ export const updateAccommodation = async (req: Request, res: Response): Promise<
     if (req.body.description) acc.description = { ...acc.description, ...parseField(req.body.description) };
     if (req.body.price) acc.price = { ...acc.price, ...parseField(req.body.price) };
     if (req.body.explore) acc.explore = { ...acc.explore, ...parseField(req.body.explore) };
+    if (req.body.feature1Title) acc.feature1Title = { ...acc.feature1Title, ...parseField(req.body.feature1Title) };
+    if (req.body.feature1Subtitle) acc.feature1Subtitle = { ...acc.feature1Subtitle, ...parseField(req.body.feature1Subtitle) };
+    if (req.body.feature2Title) acc.feature2Title = { ...acc.feature2Title, ...parseField(req.body.feature2Title) };
+    if (req.body.feature2Subtitle) acc.feature2Subtitle = { ...acc.feature2Subtitle, ...parseField(req.body.feature2Subtitle) };
+    if (req.body.feature3Title) acc.feature3Title = { ...acc.feature3Title, ...parseField(req.body.feature3Title) };
+    if (req.body.feature3Subtitle) acc.feature3Subtitle = { ...acc.feature3Subtitle, ...parseField(req.body.feature3Subtitle) };
+    if (req.body.feature4Title) acc.feature4Title = { ...acc.feature4Title, ...parseField(req.body.feature4Title) };
+    if (req.body.feature4Subtitle) acc.feature4Subtitle = { ...acc.feature4Subtitle, ...parseField(req.body.feature4Subtitle) };
 
     // If new image file is provided
     if (req.file) {

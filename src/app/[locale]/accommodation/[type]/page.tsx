@@ -112,6 +112,15 @@ export default async function AccommodationCatalogPage({
 
   const bannerImage = category?.image || (properties.length > 0 ? properties[0].image : "");
 
+  // Localize banner features from the category DB data (with auto-translate fallback)
+  const lcat = category ? await localizeObject(category, locale) as any : null;
+  const features = [
+    { title: lcat?.feature1Title || "Private Pool", subtitle: lcat?.feature1Subtitle || "In most villas", icon: "Compass" },
+    { title: lcat?.feature2Title || "Spacious Living", subtitle: lcat?.feature2Subtitle || "For families & groups", icon: "Users" },
+    { title: lcat?.feature3Title || "Premium Amenities", subtitle: lcat?.feature3Subtitle || "Luxury redefined", icon: "CheckCircle" },
+    { title: lcat?.feature4Title || "Dedicated Service", subtitle: lcat?.feature4Subtitle || "24/7 assistance", icon: "Compass" },
+  ];
+
   return (
     <>
       <Navbar />
@@ -156,34 +165,21 @@ export default async function AccommodationCatalogPage({
         {/* QUICK FEATURES BADGES BAR */}
         <section className="w-full bg-[#121212] text-white border-y border-white/10 select-none py-5 md:py-6">
           <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center md:text-left">
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-              <Compass className="w-5 h-5 text-brand-gold shrink-0" />
-              <div>
-                <h4 className="text-[10px] md:text-xs font-semibold tracking-wider uppercase text-white">Private Pool</h4>
-                <p className="text-[9px] text-white/50 mt-0.5 font-medium">In most villas</p>
+            {features.map((feat, i) => (
+              <div key={i} className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
+                {feat.icon === "Users" ? (
+                  <Users className="w-5 h-5 text-brand-gold shrink-0" />
+                ) : feat.icon === "CheckCircle" ? (
+                  <CheckCircle className="w-5 h-5 text-brand-gold shrink-0" />
+                ) : (
+                  <Compass className="w-5 h-5 text-brand-gold shrink-0" />
+                )}
+                <div>
+                  <h4 className="text-[10px] md:text-xs font-semibold tracking-wider uppercase text-white">{feat.title}</h4>
+                  <p className="text-[9px] text-white/50 mt-0.5 font-medium">{feat.subtitle}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-              <Users className="w-5 h-5 text-brand-gold shrink-0" />
-              <div>
-                <h4 className="text-[10px] md:text-xs font-semibold tracking-wider uppercase text-white">Spacious Living</h4>
-                <p className="text-[9px] text-white/50 mt-0.5 font-medium">For families & groups</p>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-              <CheckCircle className="w-5 h-5 text-brand-gold shrink-0" />
-              <div>
-                <h4 className="text-[10px] md:text-xs font-semibold tracking-wider uppercase text-white">Premium Amenities</h4>
-                <p className="text-[9px] text-white/50 mt-0.5 font-medium">Luxury redefined</p>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-              <Compass className="w-5 h-5 text-brand-gold shrink-0" />
-              <div>
-                <h4 className="text-[10px] md:text-xs font-semibold tracking-wider uppercase text-white">Dedicated Service</h4>
-                <p className="text-[9px] text-white/50 mt-0.5 font-medium">24/7 assistance</p>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
