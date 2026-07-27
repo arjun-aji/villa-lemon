@@ -1,16 +1,13 @@
 "use client";
 /**
  * RetreatsTab — Full CMS for Yoga Retreats
- * Mounted inside the admin dashboard when activeTab === "retreats"
+ * Unified with the Packages tab design layout and top-level language selector
  */
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus, Edit2, Trash2, X, Loader2, Upload, Check,
-  ChevronDown, ChevronUp, Star, Calendar, Users, MapPin,
-  Clock, BookOpen, Leaf, Heart, Award, Mountain, Sun, Moon,
-  Dumbbell, Coffee, Camera, Home, DollarSign, Settings,
-  FileText, Eye, EyeOff, ArrowUp, ArrowDown, Globe,
+  Calendar, Users, Clock, BookOpen, Leaf, Heart, Star, Mountain, Home, Coffee, Sun, DollarSign, Settings, FileText, Globe
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 
@@ -58,41 +55,43 @@ interface Retreat {
 const FORM_TABS = [
   { id: "general", label: "General Info", icon: Settings },
   { id: "content", label: "Content", icon: FileText },
-  { id: "media", label: "Media", icon: Camera },
-  { id: "highlights", label: "Highlights", icon: Star },
-  { id: "schedule", label: "Daily Schedule", icon: Clock },
-  { id: "curriculum", label: "Curriculum", icon: BookOpen },
-  { id: "excursions", label: "Excursions", icon: Mountain },
-  { id: "rooms", label: "Rooms", icon: Home },
-  { id: "meals", label: "Meals", icon: Coffee },
-  { id: "yoga", label: "Yoga Program", icon: Sun },
-  { id: "teachers", label: "Teachers", icon: Users },
-  { id: "ayurveda", label: "Ayurveda", icon: Leaf },
-  { id: "pricing", label: "Pricing", icon: DollarSign },
-  { id: "checklists", label: "Checklists", icon: Check },
-  { id: "faqs", label: "FAQs & Reviews", icon: Star },
-  { id: "booking", label: "Booking & Settings", icon: Calendar },
-  { id: "seo", label: "SEO", icon: Globe },
+  { id: "media", label: "Media", icon: CameraIcon },
+  { id: "highlights", label: "Highlights & Schedule", icon: Star },
+  { id: "itinerary", label: "Itinerary & Excursions", icon: BookOpen },
+  { id: "accommodation", label: "Rooms & Meals", icon: Home },
+  { id: "yoga", label: "Yoga & Teachers", icon: Sun },
+  { id: "ayurveda", label: "Ayurveda & Pricing", icon: Leaf },
+  { id: "checklists", label: "Checklists & FAQs", icon: Check },
+  { id: "booking", label: "Booking & SEO", icon: Calendar },
 ] as const;
 
 type FormTabId = typeof FORM_TABS[number]["id"];
+
+function CameraIcon(props: any) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
+    </svg>
+  );
+}
 
 // ─── Default form state ────────────────────────────────────────────────────────
 
 const defaultForm = () => ({
   slug: "",
-  days: 7,
-  nights: 7,
-  price: 0,
+  days: 11,
+  nights: 10,
+  price: 24999,
   minAge: 18,
   maxCapacity: 20,
-  certificate: false,
-  featured: false,
-  status: "draft" as const,
-  displayOrder: 0,
-  yogaHours: 0,
+  certificate: true,
+  featured: true,
+  status: "published" as const,
+  displayOrder: 1,
+  yogaHours: 30,
   maxParticipants: 20,
-  minParticipants: 2,
+  minParticipants: 6,
   bookingOpen: true,
   isPopular: false,
   isSoldOut: false,
@@ -108,7 +107,7 @@ const defaultForm = () => ({
   video: "",
   retreatMap: "",
   availableDates: [] as string[],
-  // Localized text fields
+  // Localized fields
   heroTitle: emptyLT(),
   heroSubtitle: emptyLT(),
   tagline: emptyLT(),
@@ -172,73 +171,60 @@ const defaultForm = () => ({
 
 type RetreatForm = ReturnType<typeof defaultForm>;
 
-// ─── Helper components ────────────────────────────────────────────────────────
+// ─── Helper inputs ────────────────────────────────────────────────────────────
 
-const LTInput = ({ value, onChange, label, multiline = false, required = false, placeholder = "" }: {
-  value: LT; onChange: (v: LT) => void; label: string;
-  multiline?: boolean; required?: boolean; placeholder?: string;
-}) => {
-  const [lang, setLang] = useState<"en" | "de" | "fr" | "ru">("en");
-  const flags: Record<string, string> = { en: "🇬🇧", de: "🇩🇪", fr: "🇫🇷", ru: "🇷🇺" };
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <label className="font-bold text-gray-600 uppercase text-[10px] tracking-wider">{label}{required && <span className="text-red-400 ml-0.5">*</span>}</label>
-        <div className="flex gap-1">
-          {(["en","de","fr","ru"] as const).map(l => (
-            <button key={l} type="button" onClick={() => setLang(l)}
-              className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase transition-colors ${
-                lang === l ? "bg-brand-gold text-black" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}>
-              {flags[l]} {l}
-            </button>
-          ))}
-        </div>
-      </div>
-      {multiline ? (
-        <textarea rows={3} placeholder={lang === "en" ? placeholder : `${placeholder} (${lang.toUpperCase()})`}
-          value={value[lang] || ""}
-          onChange={e => onChange({ ...value, [lang]: e.target.value })}
-          className="border border-gray-200 p-2.5 rounded text-sm font-sans resize-y focus:outline-none focus:border-brand-gold"
-          required={required && lang === "en"}
-        />
-      ) : (
-        <input type="text" placeholder={lang === "en" ? placeholder : `${placeholder} (${lang.toUpperCase()})`}
-          value={value[lang] || ""}
-          onChange={e => onChange({ ...value, [lang]: e.target.value })}
-          className="border border-gray-200 p-2.5 rounded text-sm focus:outline-none focus:border-brand-gold"
-          required={required && lang === "en"}
-        />
-      )}
-    </div>
-  );
-};
+const LocalInput = ({ value, onChange, label, activeLang, required = false, placeholder = "" }: {
+  value: LT; onChange: (v: LT) => void; label: string; activeLang: "en" | "de" | "fr" | "ru"; required?: boolean; placeholder?: string;
+}) => (
+  <div className="flex flex-col gap-1">
+    <label className="font-bold text-gray-600 uppercase text-[9px] tracking-wider">{label}</label>
+    <input type="text" placeholder={placeholder} value={value?.[activeLang] || ""}
+      onChange={e => onChange({ ...value, [activeLang]: e.target.value })}
+      className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white w-full"
+      required={required && activeLang === "en"} />
+  </div>
+);
 
-const SimpleListEditor = ({ items, onChange, label, placeholder }: {
-  items: LT[]; onChange: (items: LT[]) => void; label: string; placeholder?: string;
+const LocalTextarea = ({ value, onChange, label, activeLang, required = false, placeholder = "", rows = 3 }: {
+  value: LT; onChange: (v: LT) => void; label: string; activeLang: "en" | "de" | "fr" | "ru"; required?: boolean; placeholder?: string; rows?: number;
+}) => (
+  <div className="flex flex-col gap-1">
+    <label className="font-bold text-gray-600 uppercase text-[9px] tracking-wider">{label}</label>
+    <textarea rows={rows} placeholder={placeholder} value={value?.[activeLang] || ""}
+      onChange={e => onChange({ ...value, [activeLang]: e.target.value })}
+      className="border border-gray-200 p-2.5 rounded text-xs font-sans resize-y focus:outline-none focus:border-brand-gold bg-white w-full"
+      required={required && activeLang === "en"} />
+  </div>
+);
+
+const LocalListEditor = ({ items, onChange, label, activeLang, placeholder }: {
+  items: LT[]; onChange: (items: LT[]) => void; label: string; activeLang: "en" | "de" | "fr" | "ru"; placeholder?: string;
 }) => {
   const add = () => onChange([...items, emptyLT()]);
   const remove = (i: number) => onChange(items.filter((_, idx) => idx !== i));
   const update = (i: number, v: LT) => { const arr = [...items]; arr[i] = v; onChange(arr); };
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between border-b pb-1">
         <span className="font-bold text-gray-700 text-xs uppercase tracking-wider">{label}</span>
-        <button type="button" onClick={add} className="flex items-center gap-1 text-xs text-brand-gold hover:text-[#b8943e] font-bold cursor-pointer">
-          <Plus className="w-3 h-3" /> Add
+        <button type="button" onClick={add} className="flex items-center gap-1 text-[10px] text-brand-gold hover:text-[#b8943e] font-bold cursor-pointer">
+          <Plus className="w-3 h-3" /> Add Item
         </button>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {items.map((item, i) => (
-          <div key={i} className="flex gap-2 items-start">
+          <div key={i} className="flex items-center gap-2 bg-gray-50 p-2 rounded border border-gray-200 relative pr-8">
             <div className="flex-1">
-              <LTInput value={item} onChange={v => update(i, v)} label="" placeholder={placeholder || "Item"} />
+              <input type="text" placeholder={placeholder} value={item?.[activeLang] || ""}
+                onChange={e => update(i, { ...item, [activeLang]: e.target.value })}
+                className="border border-gray-200 p-1.5 rounded text-xs w-full bg-white" />
             </div>
-            <button type="button" onClick={() => remove(i)} className="mt-1 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded">
+            <button type="button" onClick={() => remove(i)} className="absolute right-2 p-1 text-red-400 hover:text-red-600 transition-colors">
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         ))}
+        {items.length === 0 && <p className="text-[10px] text-gray-400 italic">No items yet.</p>}
       </div>
     </div>
   );
@@ -268,8 +254,11 @@ export default function RetreatsTab({
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Retreat | null>(null);
   const [form, setForm] = useState<RetreatForm>(defaultForm());
+
   const [activeFormTab, setActiveFormTab] = useState<FormTabId>("general");
+  const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
   const [saving, setSaving] = useState(false);
+
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState("");
 
@@ -289,6 +278,7 @@ export default function RetreatsTab({
         }
         setHeroImageFile(null);
         setActiveFormTab("general");
+        setActiveLangTab("en");
       }
     }
   }, [modalMode, isOpen, editingItem]);
@@ -310,10 +300,16 @@ export default function RetreatsTab({
       });
       const json = await res.json();
       setRetreats(json.data || []);
-    } catch { setRetreats([]); } finally { setLoading(false); }
+    } catch {
+      setRetreats([]);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
-  useEffect(() => { fetchRetreats(); }, [fetchRetreats]);
+  useEffect(() => {
+    fetchRetreats();
+  }, [fetchRetreats]);
 
   const openCreate = () => {
     setEditing(null);
@@ -321,6 +317,7 @@ export default function RetreatsTab({
     setHeroImageFile(null);
     setHeroImagePreview("");
     setActiveFormTab("general");
+    setActiveLangTab("en");
     setShowModal(true);
   };
 
@@ -330,6 +327,7 @@ export default function RetreatsTab({
     setHeroImageFile(null);
     setHeroImagePreview(r.heroImage || "");
     setActiveFormTab("general");
+    setActiveLangTab("en");
     setShowModal(true);
   };
 
@@ -358,12 +356,18 @@ export default function RetreatsTab({
       const fd = new FormData();
       if (heroImageFile) fd.append("heroImage", heroImageFile);
 
-      // Append all simple fields
-      const boolFields = ["certificate","featured","bookingOpen","isPopular","isSoldOut","isUpcoming"];
-      const numFields = ["days","nights","price","minAge","maxCapacity","yogaHours","maxParticipants","minParticipants","displayOrder"];
-      const strFields = ["slug","status","checkIn","checkOut","emergencyContact","canonicalUrl","brochureUrl","packingListUrl","schedulePdfUrl","termsPdfUrl","video","retreatMap"];
-      const ltFields = ["heroTitle","heroSubtitle","tagline","shortDescription","fullDescription","retreatOverview","whyChoose","whoIsItFor","bestTime","cta","location","difficulty","yogaLevel","language","groupSize","accommodationType","yogaStyle","morningSession","eveningSession","meditation","pranayama","philosophy","classLanguage","suitableFor","yogaCertificate","yogaDescription","ayurvedaTitle","ayurvedaDescription","deposit","balancePayment","cancellation","refund","pickup","drop","medicalInfo","specialRequests","bookingTerms","metaTitle","metaDescription","keywords"];
-      const arrFields = ["highlights","dailySchedule","curriculum","excursions","rooms","meals","teachers","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates"];
+      // Append all fields
+      const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming"];
+      const numFields = ["days", "nights", "price", "minAge", "maxCapacity", "yogaHours", "maxParticipants", "minParticipants", "displayOrder"];
+      const strFields = ["slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap"];
+      const ltFields = [
+        "heroTitle", "heroSubtitle", "tagline", "shortDescription", "fullDescription", "retreatOverview", "whyChoose", "whoIsItFor", "bestTime", "cta",
+        "location", "difficulty", "yogaLevel", "language", "groupSize", "accommodationType", "yogaStyle", "morningSession", "eveningSession",
+        "meditation", "pranayama", "philosophy", "classLanguage", "suitableFor", "yogaCertificate", "yogaDescription", "ayurvedaTitle",
+        "ayurvedaDescription", "deposit", "balancePayment", "cancellation", "refund", "pickup", "drop", "medicalInfo", "specialRequests", "bookingTerms",
+        "metaTitle", "metaDescription", "keywords"
+      ];
+      const arrFields = ["highlights", "dailySchedule", "curriculum", "excursions", "rooms", "meals", "teachers", "ayurvedaTreatments", "pricingRows", "inclusions", "exclusions", "thingsToBring", "dressCode", "requirements", "whoShouldAvoid", "faqs", "reviews", "certificates", "availableDates"];
 
       strFields.forEach(k => fd.append(k, (form as any)[k] || ""));
       boolFields.forEach(k => fd.append(k, String((form as any)[k])));
@@ -401,757 +405,699 @@ export default function RetreatsTab({
   const setF = (key: keyof RetreatForm, val: any) => setForm(f => ({ ...f, [key]: val }));
   const setLT = (key: keyof RetreatForm) => (val: LT) => setF(key, val);
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Render Modal Content ──────────────────────────────────────────────────
+
+  const renderModalInner = () => (
+    <div className="bg-white rounded-md max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-150 my-auto text-xs">
+      
+      {/* Modal Header */}
+      <div className="px-6 py-5 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white rounded-t-md shrink-0 select-none">
+        <div>
+          <h3 className="font-serif text-base tracking-wide">
+            {editing ? "Edit Yoga Retreat" : "Create Yoga Retreat"}
+          </h3>
+          <p className="text-[9px] text-brand-gold tracking-widest uppercase mt-1">Configure retreat layout, curriculum, itinerary, & excursions</p>
+        </div>
+        <button onClick={closeModal} className="p-1.5 text-gray-400 hover:text-white cursor-pointer transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Language Switcher Tabs */}
+      <div className="px-6 py-2.5 border-b border-gray-100 bg-gray-50 flex gap-1.5 shrink-0 select-none">
+        {(["en", "de", "fr", "ru"] as const).map((lang) => (
+          <button
+            key={lang}
+            type="button"
+            onClick={() => setActiveLangTab(lang)}
+            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer ${
+              activeLangTab === lang ? "bg-brand-gold text-black shadow-sm" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {lang === "en" ? "🇬🇧 EN" : lang === "de" ? "🇩🇪 DE" : lang === "fr" ? "🇫🇷 FR" : "🇷🇺 RU"}
+          </button>
+        ))}
+      </div>
+
+      {/* Section Form Tabs */}
+      <div className="border-b border-gray-100 bg-gray-50 px-6 py-2 flex gap-1.5 overflow-x-auto shrink-0 scrollbar-none select-none">
+        {FORM_TABS.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
+              className={`flex items-center gap-1 px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-sm whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                activeFormTab === tab.id
+                  ? "bg-[#121212] text-white shadow-sm"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              }`}>
+              <Icon className="w-3 h-3" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Form Content */}
+      <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-6 space-y-6 text-xs text-left">
+        
+        {/* ── Tab: General Info ── */}
+        {activeFormTab === "general" && (
+          <div className="space-y-4 animate-fade-in">
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="font-bold text-gray-600 uppercase text-[9px]">Slug *</label>
+                <input type="text" required value={form.slug} onChange={e => setF("slug", e.target.value.toLowerCase().replace(/\s+/g, "-"))}
+                  placeholder="varkala-yoga-retreat" className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="font-bold text-gray-600 uppercase text-[9px]">Status</label>
+                <select value={form.status} onChange={e => setF("status", e.target.value as any)}
+                  className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="font-bold text-gray-600 uppercase text-[9px]">Display Order</label>
+                <input type="number" value={form.displayOrder} onChange={e => setF("displayOrder", Number(e.target.value))}
+                  className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white" />
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                ["days", "Days (Length)", 11],
+                ["nights", "Nights (Length)", 10],
+                ["price", "Starting Price (₹)", 24999],
+                ["yogaHours", "Total Yoga Hours", 30],
+                ["minAge", "Min Age Allowed", 18],
+                ["maxCapacity", "Max Capacity Limit", 20],
+                ["minParticipants", "Min Participants Needed", 6]
+              ].map(([k, l, d]) => (
+                <div key={k as string} className="flex flex-col gap-1">
+                  <label className="font-bold text-gray-600 uppercase text-[9px]">{l as string}</label>
+                  <input type="number" min="0" value={(form as any)[k as string] ?? d}
+                    onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
+                    className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white" />
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <LocalInput value={form.location} onChange={setLT("location")} label="Location Details" activeLang={activeLangTab} placeholder="Varkala, Kerala, India" />
+              <LocalInput value={form.difficulty} onChange={setLT("difficulty")} label="Difficulty Level" activeLang={activeLangTab} placeholder="Beginner Friendly" />
+              <LocalInput value={form.yogaLevel} onChange={setLT("yogaLevel")} label="Yoga Level Suitability" activeLang={activeLangTab} placeholder="Suitable for all levels" />
+              <LocalInput value={form.language} onChange={setLT("language")} label="Instruction Language" activeLang={activeLangTab} placeholder="English" />
+              <LocalInput value={form.groupSize} onChange={setLT("groupSize")} label="Group Size Label" activeLang={activeLangTab} placeholder="6–20 Participants" />
+              <LocalInput value={form.accommodationType} onChange={setLT("accommodationType")} label="Accommodation Type Overview" activeLang={activeLangTab} placeholder="Private & Shared Rooms" />
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 flex flex-wrap gap-4 select-none">
+              {[
+                ["certificate", "Certificate Provided"],
+                ["featured", "Featured Retreat"],
+                ["isPopular", "Mark as Popular"],
+                ["isSoldOut", "Sold Out"],
+                ["isUpcoming", "Upcoming"],
+                ["bookingOpen", "Booking Open"],
+              ].map(([k, l]) => (
+                <label key={k} className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={!!(form as any)[k]} onChange={e => setF(k as any, e.target.checked)}
+                    className="w-4 h-4 accent-[#c5a880] cursor-pointer" />
+                  <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">{l}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Content ── */}
+        {activeFormTab === "content" && (
+          <div className="space-y-4 animate-fade-in bg-gray-50 p-4 rounded border border-gray-100">
+            <LocalInput value={form.heroTitle} onChange={setLT("heroTitle")} label="Hero Title" activeLang={activeLangTab} placeholder="11-Day Varkala Yoga, Spiritual & Nature Retreat" required />
+            <LocalInput value={form.heroSubtitle} onChange={setLT("heroSubtitle")} label="Hero Subtitle" activeLang={activeLangTab} placeholder="Reconnect • Rejuvenate • Transform" />
+            <LocalInput value={form.tagline} onChange={setLT("tagline")} label="Tagline" activeLang={activeLangTab} placeholder="Discover the perfect harmony of yoga, nature and Kerala hospitality..." />
+            <LocalTextarea value={form.shortDescription} onChange={setLT("shortDescription")} label="Short Description Summary" activeLang={activeLangTab} placeholder="A short summary of the retreat program..." rows={3} />
+            <LocalTextarea value={form.fullDescription} onChange={setLT("fullDescription")} label="Full Details / Description" activeLang={activeLangTab} placeholder="Escape the noise of everyday life..." rows={4} />
+            <LocalTextarea value={form.retreatOverview} onChange={setLT("retreatOverview")} label="Retreat Overview Paragraph" activeLang={activeLangTab} placeholder="A detailed overview paragraph..." rows={4} />
+            <LocalTextarea value={form.whyChoose} onChange={setLT("whyChoose")} label="Why Choose This Retreat (Markdown/Bullet list)" activeLang={activeLangTab} placeholder="• Authentic Hatha & Vinyasa Yoga classes..." rows={4} />
+            <LocalTextarea value={form.whoIsItFor} onChange={setLT("whoIsItFor")} label="Who Is This Retreat For?" activeLang={activeLangTab} placeholder="This retreat is ideal for anyone looking to deep stretch..." rows={3} />
+            <LocalInput value={form.bestTime} onChange={setLT("bestTime")} label="Best Time to Join" activeLang={activeLangTab} placeholder="October to March" />
+            <LocalInput value={form.cta} onChange={setLT("cta")} label="Call To Action Button Text" activeLang={activeLangTab} placeholder="Book Your Retreat" />
+          </div>
+        )}
+
+        {/* ── Tab: Media ── */}
+        {activeFormTab === "media" && (
+          <div className="space-y-4 animate-fade-in bg-gray-50 p-4 rounded border border-gray-100">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-bold text-gray-600 uppercase text-[9px]">Hero Background Image *</label>
+              <div className="flex items-center gap-4">
+                {heroImagePreview && (
+                  <div className="w-36 aspect-video rounded border overflow-hidden shrink-0 bg-white">
+                    <img src={heroImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                  </div>
+                )}
+                <label className="flex-1 border border-dashed border-gray-300 hover:border-brand-gold rounded p-6 cursor-pointer text-center bg-white hover:bg-amber-50/20 transition-all select-none">
+                  <Upload className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Upload Image</span>
+                  <input type="file" accept="image/*" onChange={handleHeroImageChange} className="hidden" required={!editing} />
+                </label>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="font-bold text-gray-600 uppercase text-[9px]">Video Link (YouTube/Vimeo)</label>
+              <input type="url" value={form.video} onChange={e => setF("video", e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..." className="border border-gray-200 p-2.5 rounded text-xs w-full bg-white focus:outline-none" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-bold text-gray-600 uppercase text-[9px]">Google Maps Embedded Location URL</label>
+              <input type="url" value={form.retreatMap} onChange={e => setF("retreatMap", e.target.value)}
+                placeholder="https://www.google.com/maps/embed?..." className="border border-gray-200 p-2.5 rounded text-xs w-full bg-white focus:outline-none" />
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Highlights & Schedule ── */}
+        {activeFormTab === "highlights" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Highlights Repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Highlights List</span>
+                <button type="button" onClick={() => setF("highlights", [...form.highlights, { icon: "Star", title: emptyLT(), description: emptyLT() }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Highlight
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {form.highlights.map((h, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("highlights", form.highlights.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Lucide Icon Name</label>
+                      <input type="text" value={h.icon} onChange={e => { const arr = [...form.highlights]; arr[i] = { ...arr[i], icon: e.target.value }; setF("highlights", arr); }}
+                        placeholder="Sun / Leaf / Heart / Award" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                    </div>
+                    <LocalInput value={h.title} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], title: v }; setF("highlights", arr); }} label="Title" activeLang={activeLangTab} placeholder="e.g. Twice Daily Yoga" />
+                    <LocalTextarea value={h.description} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], description: v }; setF("highlights", arr); }} label="Short Description" activeLang={activeLangTab} placeholder="Traditional Hatha & Vinyasa yoga practice twice daily" rows={2} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Daily Schedule Repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Daily Timeline Schedule</span>
+                <button type="button" onClick={() => setF("dailySchedule", [...form.dailySchedule, { time: "", activity: emptyLT(), description: emptyLT(), icon: "" }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Schedule Item
+                </button>
+              </div>
+              <div className="space-y-3">
+                {form.dailySchedule.map((s, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-3 relative shadow-sm">
+                    <button type="button" onClick={() => setF("dailySchedule", form.dailySchedule.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Time Range</label>
+                      <input type="text" value={s.time} onChange={e => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], time: e.target.value }; setF("dailySchedule", arr); }}
+                        placeholder="e.g. 06:00 – 08:00" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                    </div>
+                    <div className="col-span-2 space-y-2">
+                      <LocalInput value={s.activity} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], activity: v }; setF("dailySchedule", arr); }} label="Activity / Title" activeLang={activeLangTab} placeholder="Morning Yoga & Meditation" />
+                      <LocalTextarea value={s.description} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], description: v }; setF("dailySchedule", arr); }} label="Optional Note" activeLang={activeLangTab} placeholder="Herbal tea served right after class..." rows={2} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Itinerary & Excursions ── */}
+        {activeFormTab === "itinerary" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Curriculum Days Repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Day-by-Day Curriculum Itinerary</span>
+                <button type="button" onClick={() => setF("curriculum", [...form.curriculum, { dayNumber: form.curriculum.length + 1, dayTitle: emptyLT(), description: emptyLT(), topics: [], learningOutcome: emptyLT(), images: [] }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Day Itinerary
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.curriculum.map((c, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("curriculum", form.curriculum.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Day Number</label>
+                        <input type="number" value={c.dayNumber} onChange={e => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayNumber: Number(e.target.value) }; setF("curriculum", arr); }}
+                          className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                      <div className="col-span-3">
+                        <LocalInput value={c.dayTitle} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayTitle: v }; setF("curriculum", arr); }} label="Day Heading Title" activeLang={activeLangTab} placeholder="Arrival in Varkala" />
+                      </div>
+                    </div>
+                    <LocalTextarea value={c.description} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], description: v }; setF("curriculum", arr); }} label="Description details" activeLang={activeLangTab} placeholder="Welcome drink, check-in, gentle orientation" rows={3} />
+                    <LocalInput value={c.learningOutcome} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], learningOutcome: v }; setF("curriculum", arr); }} label="Learning Outcome / Daily Focus" activeLang={activeLangTab} placeholder="Settle into the retreat environment..." />
+                    
+                    {/* Bullet Highlights under day */}
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Day Bullet Highlights (Comma separated)</label>
+                      <input type="text" value={c.topics.map(t => t[activeLangTab] || "").join(", ")}
+                        onChange={e => {
+                          const list = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                          const arr = [...form.curriculum];
+                          arr[i].topics = list.map(itemText => {
+                            const found = c.topics.find(t => t[activeLangTab] === itemText);
+                            if (found) return found;
+                            return { ...emptyLT(), [activeLangTab]: itemText };
+                          });
+                          setF("curriculum", arr);
+                        }}
+                        placeholder="Welcome Circle, Property Tour, Evening Meditation" className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Excursions Repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Included Excursions</span>
+                <button type="button" onClick={() => setF("excursions", [...form.excursions, { name: emptyLT(), duration: emptyLT(), description: emptyLT(), image: "", highlights: [], relatedTour: "", included: true }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Excursion
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.excursions.map((exc, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("excursions", form.excursions.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <LocalInput value={exc.name} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], name: v }; setF("excursions", arr); }} label="Excursion Name" activeLang={activeLangTab} placeholder="Golden Island Backwater Experience" />
+                      <LocalInput value={exc.duration} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], duration: v }; setF("excursions", arr); }} label="Duration Label" activeLang={activeLangTab} placeholder="Approximately 2 Hours" />
+                    </div>
+                    <LocalTextarea value={exc.description} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], description: v }; setF("excursions", arr); }} label="Excursion Details Description" activeLang={activeLangTab} placeholder="Boat ride through peaceful backwaters..." rows={3} />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Highlights Bullet List (Comma separated)</label>
+                        <input type="text" value={exc.highlights.map(h => h[activeLangTab] || "").join(", ")}
+                          onChange={e => {
+                            const list = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                            const arr = [...form.excursions];
+                            arr[i].highlights = list.map(itemText => {
+                              const found = exc.highlights.find(h => h[activeLangTab] === itemText);
+                              if (found) return found;
+                              return { ...emptyLT(), [activeLangTab]: itemText };
+                            });
+                            setF("excursions", arr);
+                          }}
+                          placeholder="Kerala Backwaters, Village Life, Coconut Plantations" className="border border-gray-250 p-2.5 rounded text-xs bg-white focus:outline-none w-full" />
+                      </div>
+                      <div className="flex flex-col gap-1 select-none">
+                        <label className="font-bold text-gray-600 uppercase text-[9px] mb-1">Inclusion Status</label>
+                        <label className="flex items-center gap-2 cursor-pointer mt-1">
+                          <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }}
+                            className="w-4.5 h-4.5 accent-[#c5a880]" />
+                          <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Fully Included in Package Price</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Rooms & Meals ── */}
+        {activeFormTab === "accommodation" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Rooms list repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Retreat Room Categories</span>
+                <button type="button" onClick={() => setF("rooms", [...form.rooms, { name: emptyLT(), image: "", description: emptyLT(), occupancy: 2, isPrivate: false, hasAC: true, hasBathroom: true, hasBalcony: false, hasWorkspace: false, hotWater: true, sharedPrice: 0, privatePrice: 0, features: [] }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Room Category
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.rooms.map((rm, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("rooms", form.rooms.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="col-span-2">
+                        <LocalInput value={rm.name} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], name: v }; setF("rooms", arr); }} label="Room Name Title" activeLang={activeLangTab} placeholder="Deluxe Room with Balcony" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Max Occupancy Count</label>
+                        <input type="number" min="1" value={rm.occupancy} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], occupancy: Number(e.target.value) }; setF("rooms", arr); }}
+                          className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                    </div>
+                    <LocalTextarea value={rm.description} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], description: v }; setF("rooms", arr); }} label="Room Details / Description" activeLang={activeLangTab} placeholder="Spacious room with elegant interiors..." rows={2} />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 select-none">
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          ["hasAC", "Air Conditioned"],
+                          ["hasBathroom", "Attached Private Bathroom"],
+                          ["hasBalcony", "Private Balcony"],
+                          ["hasWorkspace", "Workspace / Desk"],
+                          ["hotWater", "Hot Water Access"],
+                          ["isPrivate", "Strictly Private Room Only"]
+                        ].map(([k, l]) => (
+                          <label key={k} className="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" checked={!!(rm as any)[k]} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], [k]: e.target.checked }; setF("rooms", arr); }}
+                              className="w-3.5 h-3.5 accent-[#c5a880]" />
+                            <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">{l}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Room Features & Amenities (Comma separated list)</label>
+                        <input type="text" value={rm.features.map(f => f[activeLangTab] || "").join(", ")}
+                          onChange={e => {
+                            const list = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                            const arr = [...form.rooms];
+                            arr[i].features = list.map(itemText => {
+                              const found = rm.features.find(f => f[activeLangTab] === itemText);
+                              if (found) return found;
+                              return { ...emptyLT(), [activeLangTab]: itemText };
+                            });
+                            setF("rooms", arr);
+                          }}
+                          placeholder="Private Balcony, AC, Hot Water, Workspace" className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Meals repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Daily Dining Meal Options</span>
+                <button type="button" onClick={() => setF("meals", [...form.meals, { mealType: emptyLT(), description: emptyLT(), isVegan: true, isGlutenFree: false, isLactoseFree: false, gallery: [], menuItems: [] }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Meal Option
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.meals.map((ml, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("meals", form.meals.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <LocalInput value={ml.mealType} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], mealType: v }; setF("meals", arr); }} label="Meal Category Name" activeLang={activeLangTab} placeholder="e.g. Vegetarian Lunch / Morning Herbal Tea" />
+                    <LocalTextarea value={ml.description} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], description: v }; setF("meals", arr); }} label="Meal Description / Menu Outline" activeLang={activeLangTab} placeholder="Fresh fruits, traditional vegetarian lunch..." rows={2} />
+                    
+                    <div className="flex gap-4 select-none">
+                      {[
+                        ["isVegan", "Vegan Friendly Options"],
+                        ["isGlutenFree", "Gluten Free Available"],
+                        ["isLactoseFree", "Lactose Free Available"]
+                      ].map(([k, l]) => (
+                        <label key={k} className="flex items-center gap-1.5 cursor-pointer">
+                          <input type="checkbox" checked={!!(ml as any)[k]} onChange={e => { const arr = [...form.meals]; arr[i] = { ...arr[i], [k]: e.target.checked }; setF("meals", arr); }}
+                            className="w-3.5 h-3.5 accent-[#c5a880]" />
+                          <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">{l}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Yoga & Teachers ── */}
+        {activeFormTab === "yoga" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <LocalInput value={form.yogaStyle} onChange={setLT("yogaStyle")} label="Yoga Style Focus" activeLang={activeLangTab} placeholder="Traditional Hatha & Vinyasa Yoga" />
+              <LocalInput value={form.morningSession} onChange={setLT("morningSession")} label="Morning Sessions Time" activeLang={activeLangTab} placeholder="06:00–08:00 AM" />
+              <LocalInput value={form.eveningSession} onChange={setLT("eveningSession")} label="Evening Sessions Time" activeLang={activeLangTab} placeholder="05:30–07:00 PM" />
+              <LocalInput value={form.meditation} onChange={setLT("meditation")} label="Meditation Routine" activeLang={activeLangTab} placeholder="Daily Guided Meditation & Mindfulness" />
+              <LocalInput value={form.pranayama} onChange={setLT("pranayama")} label="Pranayama Focus" activeLang={activeLangTab} placeholder="Nadi Shodhana, Kapalabhati" />
+              <LocalInput value={form.yogaCertificate} onChange={setLT("yogaCertificate")} label="Certificate Title Label" activeLang={activeLangTab} placeholder="Villa Lemon Participation Certificate" />
+              <div className="col-span-2">
+                <LocalTextarea value={form.yogaDescription} onChange={setLT("yogaDescription")} label="General Yoga Overview Details" activeLang={activeLangTab} placeholder="Yoga is at the heart of this retreat..." rows={3} />
+              </div>
+            </div>
+
+            {/* Teachers repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Retreat Instructors / Teachers</span>
+                <button type="button" onClick={() => setF("teachers", [...form.teachers, { name: "", photo: "", experience: "", specialization: emptyLT(), bio: emptyLT(), certificates: [], instagramUrl: "", facebookUrl: "", websiteUrl: "" }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Instructor
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.teachers.map((teach, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("teachers", form.teachers.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Teacher's Full Name</label>
+                        <input type="text" value={teach.name} onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], name: e.target.value }; setF("teachers", arr); }}
+                          placeholder="Yogi Arun Sharma" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Years of Experience</label>
+                        <input type="text" value={teach.experience} onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], experience: e.target.value }; setF("teachers", arr); }}
+                          placeholder="15+ Years" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                    </div>
+                    <LocalInput value={teach.specialization} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], specialization: v }; setF("teachers", arr); }} label="Specialization Areas" activeLang={activeLangTab} placeholder="Hatha Yoga, Meditation & Pranayama" />
+                    <LocalTextarea value={teach.bio} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], bio: v }; setF("teachers", arr); }} label="Instructor Short Bio" activeLang={activeLangTab} placeholder="Arun has guided students from around the world..." rows={3} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Ayurveda & Pricing ── */}
+        {activeFormTab === "ayurveda" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Ayurveda texts & treatments */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block">Ayurvedic Wellness Settings</span>
+              <LocalInput value={form.ayurvedaTitle} onChange={setLT("ayurvedaTitle")} label="Ayurveda Section Heading" activeLang={activeLangTab} placeholder="Traditional Kerala Ayurvedic Wellness" />
+              <LocalTextarea value={form.ayurvedaDescription} onChange={setLT("ayurvedaDescription")} label="Ayurveda Concept Description" activeLang={activeLangTab} placeholder="Enhance your retreat with customized herbal therapies..." rows={3} />
+              
+              <div className="border-t border-gray-200 pt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-serif text-xs font-semibold text-gray-700">Therapies List</span>
+                  <button type="button" onClick={() => setF("ayurvedaTreatments", [...form.ayurvedaTreatments, { name: emptyLT(), description: emptyLT(), isOptional: true, extraCost: 0 }])}
+                    className="flex items-center gap-1 text-[9px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm transition-colors cursor-pointer select-none">
+                    <Plus className="w-3 h-3" /> Add Therapy
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {form.ayurvedaTreatments.map((tr, i) => (
+                    <div key={i} className="bg-white p-3 rounded border border-gray-200 relative space-y-2 shadow-xs">
+                      <button type="button" onClick={() => setF("ayurvedaTreatments", form.ayurvedaTreatments.filter((_, idx) => idx !== i))}
+                        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="col-span-2">
+                          <LocalInput value={tr.name} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], name: v }; setF("ayurvedaTreatments", arr); }} label="Treatment Title" activeLang={activeLangTab} placeholder="Abhyanga Massage" />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <label className="font-bold text-gray-600 uppercase text-[9px]">Additional Cost (₹)</label>
+                          <input type="number" min="0" value={tr.extraCost} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], extraCost: Number(e.target.value) }; setF("ayurvedaTreatments", arr); }}
+                            className="border border-gray-200 p-2 rounded text-xs bg-white" />
+                        </div>
+                      </div>
+                      <LocalTextarea value={tr.description} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], description: v }; setF("ayurvedaTreatments", arr); }} label="Description Summary" activeLang={activeLangTab} placeholder="Full body massage with warm herbal oils..." rows={2} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing rows */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Accommodation Room Rates Table</span>
+                <button type="button" onClick={() => setF("pricingRows", [...form.pricingRows, { roomCategory: emptyLT(), sharedPrice: 0, privatePrice: 0, availability: emptyLT(), upgradeCost: 0 }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add Rates Row
+                </button>
+              </div>
+              <div className="space-y-3">
+                {form.pricingRows.map((pr, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 grid grid-cols-1 sm:grid-cols-4 gap-3 relative shadow-sm">
+                    <button type="button" onClick={() => setF("pricingRows", form.pricingRows.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <div className="col-span-2">
+                      <LocalInput value={pr.roomCategory} onChange={v => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], roomCategory: v }; setF("pricingRows", arr); }} label="Room Category name" activeLang={activeLangTab} placeholder="Budget Room / Standard Room" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Shared price (₹)</label>
+                      <input type="number" min="0" value={pr.sharedPrice} onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("pricingRows", arr); }}
+                        className="border border-gray-200 p-2 rounded text-xs bg-white" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Private price (₹)</label>
+                      <input type="number" min="0" value={pr.privatePrice} onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("pricingRows", arr); }}
+                        className="border border-gray-200 p-2 rounded text-xs bg-white" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Checklists & FAQs ── */}
+        {activeFormTab === "checklists" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block border-b pb-2">Included / Excluded Details</span>
+              <LocalListEditor items={form.inclusions} onChange={list => setF("inclusions", list)} label="Retreat Includes" activeLang={activeLangTab} placeholder="e.g. Daily morning and evening yoga" />
+              <LocalListEditor items={form.exclusions} onChange={list => setF("exclusions", list)} label="Price Excludes" activeLang={activeLangTab} placeholder="e.g. Flight ticket & travel insurance" />
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block border-b pb-2">Checklist & Guidelines</span>
+              <LocalListEditor items={form.thingsToBring} onChange={list => setF("thingsToBring", list)} label="Things To Bring" activeLang={activeLangTab} placeholder="e.g. Yoga Wear / Water bottle" />
+              <LocalListEditor items={form.dressCode} onChange={list => setF("dressCode", list)} label="Dress Code Guideline" activeLang={activeLangTab} placeholder="Comfortable clothing..." />
+              <LocalListEditor items={form.requirements} onChange={list => setF("requirements", list)} label="Requirements to Join" activeLang={activeLangTab} placeholder="Basic fitness..." />
+              <LocalListEditor items={form.whoShouldAvoid} onChange={list => setF("whoShouldAvoid", list)} label="Who Should Avoid" activeLang={activeLangTab} placeholder="Guests with serious injuries..." />
+            </div>
+
+            {/* FAQs Repeater */}
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="font-serif text-sm font-semibold text-gray-800">Frequently Asked Questions</span>
+                <button type="button" onClick={() => setF("faqs", [...form.faqs, { question: emptyLT(), answer: emptyLT() }])}
+                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                  <Plus className="w-3.5 h-3.5" /> Add FAQ
+                </button>
+              </div>
+              <div className="space-y-4">
+                {form.faqs.map((f, i) => (
+                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
+                    <button type="button" onClick={() => setF("faqs", form.faqs.filter((_, idx) => idx !== i))}
+                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <LocalInput value={f.question} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], question: v }; setF("faqs", arr); }} label="Question" activeLang={activeLangTab} placeholder="Is this retreat beginner friendly?" />
+                    <LocalTextarea value={f.answer} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: v }; setF("faqs", arr); }} label="Answer Description" activeLang={activeLangTab} placeholder="Yes, Hatha sessions are beginner friendly..." rows={3} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Booking & SEO ── */}
+        {activeFormTab === "booking" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block col-span-2 border-b pb-2">Booking & Cancellations policies</span>
+              <LocalInput value={form.deposit} onChange={setLT("deposit")} label="Required Deposit Label" activeLang={activeLangTab} placeholder="e.g. 30% deposit required" />
+              <LocalInput value={form.balancePayment} onChange={setLT("balancePayment")} label="Balance Payment Terms" activeLang={activeLangTab} placeholder="Full balance due 14 days before start" />
+              <LocalTextarea value={form.cancellation} onChange={setLT("cancellation")} label="Cancellation Policy" activeLang={activeLangTab} placeholder="Free cancellation up to 14 days..." rows={2} />
+              <LocalTextarea value={form.refund} onChange={setLT("refund")} label="Refund / Terms details" activeLang={activeLangTab} placeholder="No refunds are processed within 7 days..." rows={2} />
+              <div className="grid grid-cols-2 gap-3 col-span-2">
+                <div className="flex flex-col gap-1">
+                  <label className="font-bold text-gray-600 uppercase text-[9px]">Check-In Time</label>
+                  <input type="text" value={form.checkIn} onChange={e => setF("checkIn", e.target.value)}
+                    placeholder="12:00 PM" className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="font-bold text-gray-600 uppercase text-[9px]">Check-Out Time</label>
+                  <input type="text" value={form.checkOut} onChange={e => setF("checkOut", e.target.value)}
+                    placeholder="11:00 AM" className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block border-b pb-2">SEO Optimizations</span>
+              <LocalInput value={form.metaTitle} onChange={setLT("metaTitle")} label="Meta Tag Title" activeLang={activeLangTab} placeholder="Varkala Yoga, Spiritual & Nature Retreat | Villa Lemon" />
+              <LocalTextarea value={form.metaDescription} onChange={setLT("metaDescription")} label="Meta Tag Description" activeLang={activeLangTab} placeholder="Join our immersive 11-day yoga retreat in Varkala..." rows={2} />
+              <LocalInput value={form.keywords} onChange={setLT("keywords")} label="SEO Keywords List" activeLang={activeLangTab} placeholder="yoga retreat varkala, kerala spiritual retreat" />
+            </div>
+          </div>
+        )}
+
+      </form>
+
+      {/* Modal Footer */}
+      <div className="px-6 py-4 border-t border-gray-150 bg-gray-50 flex items-center justify-between shrink-0 rounded-b-md select-none">
+        <div className="flex gap-1.5 items-center">
+          {FORM_TABS.map(tab => (
+            <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
+              className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                activeFormTab === tab.id ? "bg-brand-gold scale-125" : "bg-gray-300 hover:bg-gray-400"
+              }`}
+              title={tab.label} />
+          ))}
+        </div>
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={closeModal}
+            className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs cursor-pointer transition-colors">
+            Cancel
+          </button>
+          <button type="button" onClick={handleSubmit} disabled={saving}
+            className="px-6 py-2.5 bg-brand-gold hover:bg-[#b8943e] text-black font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            {saving ? "Saving..." : (editing ? "✓ Update Retreat" : "✓ Create Retreat")}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  );
+
+  // ─── Render View ───────────────────────────────────────────────────────────
+
   if (modalMode) {
     return (
       <>
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto select-text text-left">
-            <div className="bg-white rounded-md max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-150 my-auto">
-
-              {/* Modal header */}
-              <div className="px-6 py-5 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white rounded-t-md shrink-0">
-                <div>
-                  <h3 className="font-serif text-lg tracking-wide">
-                    {editing ? "Edit Yoga Retreat" : "Create Yoga Retreat"}
-                  </h3>
-                  <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-1">Configure program types, benefits, and schedule</p>
-                </div>
-                <button onClick={closeModal} className="p-1.5 text-gray-400 hover:text-white cursor-pointer transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Tab bar */}
-              <div className="border-b border-gray-100 bg-gray-50 px-6 py-2.5 flex gap-1.5 overflow-x-auto shrink-0 scrollbar-none">
-                {FORM_TABS.map(tab => {
-                  const Icon = tab.icon;
-                  return (
-                    <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider rounded-sm whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                        activeFormTab === tab.id
-                          ? "bg-brand-gold text-black shadow-sm"
-                          : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                      }`}>
-                      <Icon className="w-3 h-3" />
-                      <span className="hidden sm:inline">{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto text-left">
-                <div className="px-6 py-6 space-y-6">
-
-                  {/* ── Tab: General Info ── */}
-                  {activeFormTab === "general" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">General Information</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">Slug <span className="text-red-400">*</span></label>
-                          <input type="text" required value={form.slug} onChange={e => setF("slug", e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                            placeholder="varkala-yoga-spiritual-retreat"
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">Status</label>
-                          <select value={form.status} onChange={e => setF("status", e.target.value as any)}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400">
-                            <option value="draft">Draft</option>
-                            <option value="published">Published</option>
-                            <option value="archived">Archived</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-4 gap-4">
-                        {[["days","Days",7],["nights","Nights",7],["price","Starting Price (₹)",0],["displayOrder","Display Order",0]].map(([k,l,d]) => (
-                          <div key={k as string} className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                            <input type="number" min="0" value={(form as any)[k as string] || d}
-                              onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                              className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        {[["minAge","Min Age",18],["maxCapacity","Max Capacity",20],["yogaHours","Yoga Hours",0]].map(([k,l,d]) => (
-                          <div key={k as string} className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                            <input type="number" min="0" value={(form as any)[k as string] || d}
-                              onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                              className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <LTInput value={form.location} onChange={setLT("location")} label="Location" placeholder="Varkala, Kerala" />
-                        <LTInput value={form.difficulty} onChange={setLT("difficulty")} label="Difficulty" placeholder="Beginner Friendly" />
-                        <LTInput value={form.yogaLevel} onChange={setLT("yogaLevel")} label="Yoga Level" placeholder="All Levels" />
-                        <LTInput value={form.language} onChange={setLT("language")} label="Language" placeholder="English" />
-                        <LTInput value={form.groupSize} onChange={setLT("groupSize")} label="Group Size" placeholder="3-12 People" />
-                        <LTInput value={form.accommodationType} onChange={setLT("accommodationType")} label="Accommodation Type" placeholder="Budget / Standard / Deluxe" />
-                      </div>
-                      <div className="flex flex-wrap gap-5">
-                        {[
-                          ["certificate","Certificate Provided","boolean"],
-                          ["featured","Featured Retreat","boolean"],
-                          ["isPopular","Mark as Popular","boolean"],
-                          ["isSoldOut","Sold Out","boolean"],
-                          ["isUpcoming","Upcoming","boolean"],
-                          ["bookingOpen","Booking Open","boolean"],
-                        ].map(([k, l]) => (
-                          <label key={k as string} className="flex items-center gap-2 cursor-pointer select-none">
-                            <input type="checkbox" checked={!!(form as any)[k as string]}
-                              onChange={e => setF(k as keyof RetreatForm, e.target.checked)}
-                              className="w-4 h-4 accent-[#c5a880]" />
-                            <span className="text-xs font-semibold text-gray-700">{l as string}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── Tab: Content ── */}
-                  {activeFormTab === "content" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Content & Descriptions</h3>
-                      <LTInput value={form.heroTitle} onChange={setLT("heroTitle")} label="Hero Title" placeholder="Varkala Yoga, Spiritual & Nature Retreat" required multiline />
-                      <LTInput value={form.heroSubtitle} onChange={setLT("heroSubtitle")} label="Hero Subtitle" placeholder="Reconnect · Rejuvenate · Transform" />
-                      <LTInput value={form.tagline} onChange={setLT("tagline")} label="Tagline" placeholder="A transformative 8-day wellness journey..." />
-                      <LTInput value={form.shortDescription} onChange={setLT("shortDescription")} label="Short Description" placeholder="Short summary shown in cards..." multiline />
-                      <LTInput value={form.fullDescription} onChange={setLT("fullDescription")} label="Full Description" placeholder="Full about text..." multiline />
-                      <LTInput value={form.retreatOverview} onChange={setLT("retreatOverview")} label="Retreat Overview" placeholder="Retreat overview paragraph..." multiline />
-                      <LTInput value={form.whyChoose} onChange={setLT("whyChoose")} label="Why Choose This Retreat" placeholder="Why this retreat stands out..." multiline />
-                      <LTInput value={form.whoIsItFor} onChange={setLT("whoIsItFor")} label="Who Is This For" placeholder="Perfect for beginners and experienced practitioners..." multiline />
-                      <LTInput value={form.bestTime} onChange={setLT("bestTime")} label="Best Time to Join" placeholder="October to March" />
-                      <LTInput value={form.cta} onChange={setLT("cta")} label="CTA Button Text" placeholder="Book Now" />
-                    </div>
-                  )}
-
-                  {/* ── Tab: Media ── */}
-                  {activeFormTab === "media" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Media</h3>
-                      <div className="space-y-2">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Hero Image <span className="text-red-400">*</span></label>
-                        <div className="flex items-center gap-4">
-                          {heroImagePreview && (
-                            <div className="w-32 aspect-video rounded border overflow-hidden shrink-0">
-                              <img src={heroImagePreview} className="w-full h-full object-cover" alt="Preview" />
-                            </div>
-                          )}
-                          <label className="flex-1 border-2 border-dashed border-gray-300 hover:border-amber-400 rounded p-4 cursor-pointer text-center bg-white hover:bg-amber-50 transition-colors">
-                            <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
-                            <span className="text-xs text-gray-500 font-medium">Upload Hero Image</span>
-                            <input type="file" accept="image/*" onChange={handleHeroImageChange} className="hidden" required={!editing} />
-                          </label>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Video URL (YouTube/Vimeo)</label>
-                        <input type="url" value={form.video} onChange={e => setF("video", e.target.value)}
-                          placeholder="https://www.youtube.com/watch?v=..."
-                          className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Retreat Map URL</label>
-                        <input type="url" value={form.retreatMap} onChange={e => setF("retreatMap", e.target.value)}
-                          placeholder="https://maps.google.com/..."
-                          className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                      </div>
-                      <p className="text-xs text-gray-400 italic">Gallery images per category can be added after creating the retreat (edit mode).</p>
-                    </div>
-                  )}
-
-                  {/* ── Tab: Highlights ── */}
-                  {activeFormTab === "highlights" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Retreat Highlights</h3>
-                        <button type="button" onClick={() => setF("highlights", [...form.highlights, { icon: "Star", title: emptyLT(), description: emptyLT() }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Highlight
-                        </button>
-                      </div>
-                      {form.highlights.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No highlights yet. Add your first highlight above.</p>}
-                      {form.highlights.map((h, i) => (
-                        <div key={i} className="bg-amber-50 border border-amber-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("highlights", form.highlights.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600">
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Icon name (Lucide icon)</label>
-                            <input type="text" value={h.icon} placeholder="e.g. Sun, Leaf, Award, Heart"
-                              onChange={e => { const arr = [...form.highlights]; arr[i] = { ...arr[i], icon: e.target.value }; setF("highlights", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <LTInput value={h.title} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], title: v }; setF("highlights", arr); }} label="Title" placeholder="Daily Yoga" />
-                          <LTInput value={h.description} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], description: v }; setF("highlights", arr); }} label="Description" placeholder="Traditional Hatha & Vinyasa yoga practice twice daily" multiline />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Daily Schedule ── */}
-                  {activeFormTab === "schedule" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Daily Schedule</h3>
-                        <button type="button" onClick={() => setF("dailySchedule", [...form.dailySchedule, { time: "", activity: emptyLT(), description: emptyLT(), icon: "Clock" }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Time Slot
-                        </button>
-                      </div>
-                      {form.dailySchedule.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No schedule items yet.</p>}
-                      {form.dailySchedule.map((s, i) => (
-                        <div key={i} className="bg-blue-50 border border-blue-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("dailySchedule", form.dailySchedule.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600">
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Time</label>
-                              <input type="text" value={s.time} placeholder="06:00 AM"
-                                onChange={e => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], time: e.target.value }; setF("dailySchedule", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Icon (Lucide)</label>
-                              <input type="text" value={s.icon} placeholder="Sun, Coffee, Moon..."
-                                onChange={e => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], icon: e.target.value }; setF("dailySchedule", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                          <LTInput value={s.activity} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], activity: v }; setF("dailySchedule", arr); }} label="Activity" placeholder="Morning Yoga & Meditation" />
-                          <LTInput value={s.description} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], description: v }; setF("dailySchedule", arr); }} label="Description" placeholder="Traditional Hatha Yoga Practice" multiline />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Curriculum ── */}
-                  {activeFormTab === "curriculum" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Day-by-Day Curriculum</h3>
-                        <button type="button" onClick={() => setF("curriculum", [...form.curriculum, { dayNumber: form.curriculum.length + 1, dayTitle: emptyLT(), description: emptyLT(), topics: [], learningOutcome: emptyLT(), images: [] }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Day
-                        </button>
-                      </div>
-                      {form.curriculum.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No curriculum days yet.</p>}
-                      {form.curriculum.map((day, i) => (
-                        <div key={i} className="bg-green-50 border border-green-100 rounded p-4 space-y-3 relative">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-green-700 uppercase">Day {day.dayNumber}</span>
-                            <button type="button" onClick={() => setF("curriculum", form.curriculum.filter((_,idx) => idx !== i))}
-                              className="p-1 text-red-400 hover:text-red-600">
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Day Number</label>
-                            <input type="number" min="1" value={day.dayNumber}
-                              onChange={e => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayNumber: Number(e.target.value) }; setF("curriculum", arr); }}
-                              className="border p-2 rounded text-sm w-24 focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <LTInput value={day.dayTitle} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayTitle: v }; setF("curriculum", arr); }} label="Day Title" placeholder="Arrival & Welcome" />
-                          <LTInput value={day.description} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], description: v }; setF("curriculum", arr); }} label="Description" placeholder="Arrive, settle in, welcome dinner..." multiline />
-                          <LTInput value={day.learningOutcome} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], learningOutcome: v }; setF("curriculum", arr); }} label="Learning Outcome" placeholder="Foundation in breath awareness and asana" />
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-gray-500 uppercase text-[10px]">Topics / Highlights</span>
-                              <button type="button" onClick={() => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], topics: [...arr[i].topics, emptyLT()] }; setF("curriculum", arr); }}
-                                className="text-xs text-amber-600 font-bold flex items-center gap-0.5"><Plus className="w-3 h-3" /> Add</button>
-                            </div>
-                            {day.topics.map((t, ti) => (
-                              <div key={ti} className="flex gap-2 items-start">
-                                <div className="flex-1">
-                                  <LTInput value={t} onChange={v => { const arr = [...form.curriculum]; arr[i].topics[ti] = v; setF("curriculum", arr); }} label="" placeholder="Pranayama basics" />
-                                </div>
-                                <button type="button" onClick={() => { const arr = [...form.curriculum]; arr[i].topics = arr[i].topics.filter((_,ti2) => ti2 !== ti); setF("curriculum", arr); }}
-                                  className="mt-1 p-1 text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Excursions ── */}
-                  {activeFormTab === "excursions" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Excursions Included</h3>
-                        <button type="button" onClick={() => setF("excursions", [...form.excursions, { name: emptyLT(), duration: emptyLT(), description: emptyLT(), image: "", highlights: [], relatedTour: "", included: true }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Excursion
-                        </button>
-                      </div>
-                      {form.excursions.map((exc, i) => (
-                        <div key={i} className="bg-purple-50 border border-purple-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("excursions", form.excursions.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <LTInput value={exc.name} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], name: v }; setF("excursions", arr); }} label="Excursion Name" placeholder="Golden Island Experience" />
-                          <LTInput value={exc.duration} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], duration: v }; setF("excursions", arr); }} label="Duration" placeholder="2-3 Hours" />
-                          <LTInput value={exc.description} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], description: v }; setF("excursions", arr); }} label="Description" placeholder="Boat trip to Golden Island..." multiline />
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Related Tour Package Slug</label>
-                              <input type="text" value={exc.relatedTour} placeholder="golden-island-experience"
-                                onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], relatedTour: e.target.value }; setF("excursions", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex items-center gap-2 pt-5">
-                              <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-[#c5a880]" />
-                                <span className="text-xs font-semibold text-gray-700">Included in retreat price</span>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Rooms ── */}
-                  {activeFormTab === "rooms" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Accommodation Rooms</h3>
-                        <button type="button" onClick={() => setF("rooms", [...form.rooms, { name: emptyLT(), image: "", description: emptyLT(), occupancy: 1, isPrivate: false, hasAC: false, hasBathroom: true, hasBalcony: false, hasWorkspace: false, hotWater: true, sharedPrice: 0, privatePrice: 0, features: [] }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Room
-                        </button>
-                      </div>
-                      {form.rooms.map((room, i) => (
-                        <div key={i} className="bg-orange-50 border border-orange-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("rooms", form.rooms.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <LTInput value={room.name} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], name: v }; setF("rooms", arr); }} label="Room Name" placeholder="Budget Room / Standard Room / Deluxe Balcony" />
-                          <LTInput value={room.description} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], description: v }; setF("rooms", arr); }} label="Description" placeholder="Comfortable room with garden view..." multiline />
-                          <div className="grid grid-cols-3 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Occupancy</label>
-                              <input type="number" min="1" value={room.occupancy}
-                                onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], occupancy: Number(e.target.value) }; setF("rooms", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Shared Price (₹)</label>
-                              <input type="number" min="0" value={room.sharedPrice}
-                                onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("rooms", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Private Price (₹)</label>
-                              <input type="number" min="0" value={room.privatePrice}
-                                onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("rooms", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap gap-4">
-                            {[["isPrivate","Private Room"],["hasAC","Air Conditioning"],["hasBathroom","Bathroom"],["hasBalcony","Balcony"],["hasWorkspace","Workspace"],["hotWater","Hot Water"]].map(([k,l]) => (
-                              <label key={k as string} className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={!!(room as any)[k as string]}
-                                  onChange={e => { const arr = [...form.rooms]; (arr[i] as any)[k as string] = e.target.checked; setF("rooms", arr); }}
-                                  className="w-3.5 h-3.5 accent-[#c5a880]" />
-                                <span className="text-xs font-medium text-gray-700">{l as string}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Meals ── */}
-                  {activeFormTab === "meals" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Meal Plan</h3>
-                        <button type="button" onClick={() => setF("meals", [...form.meals, { mealType: emptyLT(), description: emptyLT(), isVegan: true, isGlutenFree: false, isLactoseFree: false, gallery: [], menuItems: [] }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Meal
-                        </button>
-                      </div>
-                      {form.meals.map((meal, i) => (
-                        <div key={i} className="bg-teal-50 border border-teal-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("meals", form.meals.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <LTInput value={meal.mealType} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], mealType: v }; setF("meals", arr); }} label="Meal Type" placeholder="Breakfast / Lunch / Dinner / Brunch" />
-                          <LTInput value={meal.description} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], description: v }; setF("meals", arr); }} label="Description" placeholder="Healthy vegetarian breakfast with local produce..." multiline />
-                          <div className="flex flex-wrap gap-4">
-                            {[["isVegan","Vegan"],["isGlutenFree","Gluten Free"],["isLactoseFree","Lactose Free"]].map(([k,l]) => (
-                              <label key={k as string} className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={!!(meal as any)[k as string]}
-                                  onChange={e => { const arr = [...form.meals]; (arr[i] as any)[k as string] = e.target.checked; setF("meals", arr); }}
-                                  className="w-3.5 h-3.5 accent-teal-500" />
-                                <span className="text-xs font-medium text-gray-700">{l as string}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Yoga Program ── */}
-                  {activeFormTab === "yoga" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Yoga Program Details</h3>
-                      <div className="grid grid-cols-1 gap-4">
-                        <LTInput value={form.yogaStyle} onChange={setLT("yogaStyle")} label="Yoga Style" placeholder="Traditional Hatha & Vinyasa" />
-                        <LTInput value={form.morningSession} onChange={setLT("morningSession")} label="Morning Session" placeholder="06:00–08:00 AM — Hatha Yoga & Pranayama" />
-                        <LTInput value={form.eveningSession} onChange={setLT("eveningSession")} label="Evening Session" placeholder="05:30–07:00 PM — Vinyasa Flow & Meditation" />
-                        <LTInput value={form.meditation} onChange={setLT("meditation")} label="Meditation" placeholder="Guided meditation, mindfulness practices" />
-                        <LTInput value={form.pranayama} onChange={setLT("pranayama")} label="Pranayama" placeholder="Nadi Shodhana, Kapalabhati, Anulom Vilom" />
-                        <LTInput value={form.philosophy} onChange={setLT("philosophy")} label="Yoga Philosophy" placeholder="Introduction to Patanjali Yoga Sutras" />
-                        <LTInput value={form.classLanguage} onChange={setLT("classLanguage")} label="Class Language" placeholder="English" />
-                        <LTInput value={form.suitableFor} onChange={setLT("suitableFor")} label="Suitable For" placeholder="All levels, beginners welcome" />
-                        <LTInput value={form.yogaCertificate} onChange={setLT("yogaCertificate")} label="Certificate" placeholder="Certificate of Completion provided" />
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">Total Yoga Hours</label>
-                          <input type="number" min="0" value={form.yogaHours}
-                            onChange={e => setF("yogaHours", Number(e.target.value))}
-                            className="border p-2.5 rounded text-sm w-32 focus:outline-none focus:border-amber-400" />
-                        </div>
-                        <LTInput value={form.yogaDescription} onChange={setLT("yogaDescription")} label="Yoga Program Description" multiline placeholder="Full description of the yoga program..." />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── Tab: Teachers ── */}
-                  {activeFormTab === "teachers" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Retreat Teachers</h3>
-                        <button type="button" onClick={() => setF("teachers", [...form.teachers, { name: "", photo: "", experience: "", specialization: emptyLT(), bio: emptyLT(), certificates: [], instagramUrl: "", facebookUrl: "", websiteUrl: "" }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Teacher
-                        </button>
-                      </div>
-                      {form.teachers.map((t, i) => (
-                        <div key={i} className="bg-indigo-50 border border-indigo-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("teachers", form.teachers.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Full Name</label>
-                              <input type="text" value={t.name} placeholder="Yogi Arun Sharma"
-                                onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], name: e.target.value }; setF("teachers", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Experience</label>
-                              <input type="text" value={t.experience} placeholder="15+ Years"
-                                onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], experience: e.target.value }; setF("teachers", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                          <LTInput value={t.specialization} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], specialization: v }; setF("teachers", arr); }} label="Specialization" placeholder="Ashtanga & Hatha Yoga Teacher" />
-                          <LTInput value={t.bio} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], bio: v }; setF("teachers", arr); }} label="Bio" multiline placeholder="Arun has over 15 years of teaching experience..." />
-                          <div className="grid grid-cols-3 gap-3">
-                            {[["instagramUrl","Instagram URL"],["facebookUrl","Facebook URL"],["websiteUrl","Website URL"]].map(([k,l]) => (
-                              <div key={k as string} className="flex flex-col gap-1.5">
-                                <label className="font-bold text-gray-500 uppercase text-[10px]">{l as string}</label>
-                                <input type="url" value={(t as any)[k as string]} placeholder="https://..."
-                                  onChange={e => { const arr = [...form.teachers]; (arr[i] as any)[k as string] = e.target.value; setF("teachers", arr); }}
-                                  className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                              </div>
-                            ))}
-                          </div>
-                          <p className="text-[10px] text-gray-400 italic">Teacher photo can be uploaded after saving (edit mode).</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Ayurveda ── */}
-                  {activeFormTab === "ayurveda" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Ayurvedic Wellness</h3>
-                      <LTInput value={form.ayurvedaTitle} onChange={setLT("ayurvedaTitle")} label="Section Title" placeholder="Ayurvedic Wellness Treatments" />
-                      <LTInput value={form.ayurvedaDescription} onChange={setLT("ayurvedaDescription")} label="Description" multiline placeholder="Experience traditional Kerala Ayurveda..." />
-                      <div className="flex items-center justify-between border-t pt-4">
-                        <span className="font-bold text-gray-700 text-xs uppercase tracking-wider">Treatments</span>
-                        <button type="button" onClick={() => setF("ayurvedaTreatments", [...form.ayurvedaTreatments, { name: emptyLT(), description: emptyLT(), isOptional: true, extraCost: 0 }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Treatment
-                        </button>
-                      </div>
-                      {form.ayurvedaTreatments.map((tr, i) => (
-                        <div key={i} className="bg-green-50 border border-green-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("ayurvedaTreatments", form.ayurvedaTreatments.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <LTInput value={tr.name} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], name: v }; setF("ayurvedaTreatments", arr); }} label="Treatment Name" placeholder="Abhyanga Massage" />
-                          <LTInput value={tr.description} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], description: v }; setF("ayurvedaTreatments", arr); }} label="Description" multiline placeholder="Full body warm oil massage..." />
-                          <div className="flex items-center gap-6">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-[#c5a880]" />
-                              <span className="text-xs font-medium text-gray-700">Optional (add-on)</span>
-                            </label>
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Extra Cost (₹)</label>
-                              <input type="number" min="0" value={tr.extraCost}
-                                onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], extraCost: Number(e.target.value) }; setF("ayurvedaTreatments", arr); }}
-                                className="border p-2 rounded text-sm w-28 focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Tab: Pricing ── */}
-                  {activeFormTab === "pricing" && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Room-Based Pricing</h3>
-                        <button type="button" onClick={() => setF("pricingRows", [...form.pricingRows, { roomCategory: emptyLT(), sharedPrice: 0, privatePrice: 0, availability: emptyLT(), upgradeCost: 0 }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Row
-                        </button>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead><tr className="border-b">
-                            <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Room Category</th>
-                            <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Shared (₹)</th>
-                            <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Private (₹)</th>
-                            <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Availability</th>
-                            <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider">Upgrade Cost</th>
-                            <th></th>
-                          </tr></thead>
-                          <tbody className="space-y-2">
-                            {form.pricingRows.map((row, i) => (
-                              <tr key={i} className="border-b border-gray-100">
-                                <td className="py-2 pr-4 min-w-[160px]">
-                                  <input type="text" value={row.roomCategory.en} placeholder="Budget Room"
-                                    onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], roomCategory: { ...arr[i].roomCategory, en: e.target.value } }; setF("pricingRows", arr); }}
-                                    className="border p-1.5 rounded w-full text-xs focus:outline-none focus:border-amber-400" />
-                                </td>
-                                <td className="py-2 pr-4">
-                                  <input type="number" min="0" value={row.sharedPrice}
-                                    onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                    className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                                </td>
-                                <td className="py-2 pr-4">
-                                  <input type="number" min="0" value={row.privatePrice}
-                                    onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                    className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                                </td>
-                                <td className="py-2 pr-4">
-                                  <input type="text" value={row.availability.en} placeholder="Available"
-                                    onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], availability: { ...arr[i].availability, en: e.target.value } }; setF("pricingRows", arr); }}
-                                    className="border p-1.5 rounded w-28 text-xs focus:outline-none focus:border-amber-400" />
-                                </td>
-                                <td className="py-2">
-                                  <input type="number" min="0" value={row.upgradeCost}
-                                    onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], upgradeCost: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                    className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                                </td>
-                                <td className="py-2 pl-2">
-                                  <button type="button" onClick={() => setF("pricingRows", form.pricingRows.filter((_,idx) => idx !== i))}
-                                    className="p-1 text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── Tab: Checklists ── */}
-                  {activeFormTab === "checklists" && (
-                    <div className="space-y-6">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Checklists</h3>
-                      <SimpleListEditor items={form.inclusions} onChange={v => setF("inclusions", v)} label="✅ What's Included" placeholder="Accommodation for 7 nights" />
-                      <SimpleListEditor items={form.exclusions} onChange={v => setF("exclusions", v)} label="❌ What's Excluded" placeholder="International flights" />
-                      <SimpleListEditor items={form.thingsToBring} onChange={v => setF("thingsToBring", v)} label="🎒 Things to Bring" placeholder="Comfortable yoga mat" />
-                      <SimpleListEditor items={form.dressCode} onChange={v => setF("dressCode", v)} label="👗 Dress Code" placeholder="Comfortable, breathable yoga wear" />
-                      <SimpleListEditor items={form.requirements} onChange={v => setF("requirements", v)} label="📋 Requirements" placeholder="No prior yoga experience needed" />
-                      <SimpleListEditor items={form.whoShouldAvoid} onChange={v => setF("whoShouldAvoid", v)} label="⚠️ Who Should Avoid" placeholder="Recent surgery or injury" />
-                    </div>
-                  )}
-
-                  {/* ── Tab: FAQs & Reviews ── */}
-                  {activeFormTab === "faqs" && (
-                    <div className="space-y-6">
-                      {/* FAQs */}
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between border-b pb-2">
-                          <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">FAQs</h3>
-                          <button type="button" onClick={() => setF("faqs", [...form.faqs, { question: emptyLT(), answer: emptyLT() }])}
-                            className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                            <Plus className="w-3 h-3" /> Add FAQ
-                          </button>
-                        </div>
-                        {form.faqs.map((faq, i) => (
-                          <div key={i} className="bg-yellow-50 border border-yellow-100 rounded p-4 space-y-3 relative">
-                            <button type="button" onClick={() => setF("faqs", form.faqs.filter((_,idx) => idx !== i))}
-                              className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                            <LTInput value={faq.question} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], question: v }; setF("faqs", arr); }} label="Question" placeholder="Is this suitable for beginners?" />
-                            <LTInput value={faq.answer} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: v }; setF("faqs", arr); }} label="Answer" multiline placeholder="Yes, absolutely! This retreat is designed for all levels..." />
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Reviews */}
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between border-b pb-2">
-                          <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Guest Reviews</h3>
-                          <button type="button" onClick={() => setF("reviews", [...form.reviews, { name: "", country: "", photo: "", stars: 5, review: emptyLT(), retreatJoined: "" }])}
-                            className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                            <Plus className="w-3 h-3" /> Add Review
-                          </button>
-                        </div>
-                        {form.reviews.map((rev, i) => (
-                          <div key={i} className="bg-pink-50 border border-pink-100 rounded p-4 space-y-3 relative">
-                            <button type="button" onClick={() => setF("reviews", form.reviews.filter((_,idx) => idx !== i))}
-                              className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                            <div className="grid grid-cols-3 gap-3">
-                              <div className="flex flex-col gap-1.5">
-                                <label className="font-bold text-gray-500 uppercase text-[10px]">Name</label>
-                                <input type="text" value={rev.name} placeholder="Sarah M."
-                                  onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], name: e.target.value }; setF("reviews", arr); }}
-                                  className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                <label className="font-bold text-gray-500 uppercase text-[10px]">Country</label>
-                                <input type="text" value={rev.country} placeholder="Australia"
-                                  onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], country: e.target.value }; setF("reviews", arr); }}
-                                  className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                <label className="font-bold text-gray-500 uppercase text-[10px]">Stars (1-5)</label>
-                                <input type="number" min="1" max="5" value={rev.stars}
-                                  onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], stars: Number(e.target.value) }; setF("reviews", arr); }}
-                                  className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                              </div>
-                            </div>
-                            <LTInput value={rev.review} onChange={v => { const arr = [...form.reviews]; arr[i] = { ...arr[i], review: v }; setF("reviews", arr); }} label="Review Text" multiline placeholder="It was a life-changing experience..." />
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Retreat Joined</label>
-                              <input type="text" value={rev.retreatJoined} placeholder="7-Day Yoga Retreat, Dec 2024"
-                                onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], retreatJoined: e.target.value }; setF("reviews", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── Tab: Booking & Settings ── */}
-                  {activeFormTab === "booking" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Booking Information</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <LTInput value={form.deposit} onChange={setLT("deposit")} label="Deposit Policy" placeholder="50% advance to confirm booking" />
-                        <LTInput value={form.balancePayment} onChange={setLT("balancePayment")} label="Balance Payment" placeholder="Balance payment due on arrival" />
-                        <LTInput value={form.cancellation} onChange={setLT("cancellation")} label="Cancellation Policy" placeholder="Free cancellation up to 7 days before arrival" />
-                        <LTInput value={form.refund} onChange={setLT("refund")} label="Refund Policy" placeholder="Full refund for cancellations 14+ days before arrival" />
-                        <LTInput value={form.pickup} onChange={setLT("pickup")} label="Airport Pickup" placeholder="Airport pickup included" />
-                        <LTInput value={form.drop} onChange={setLT("drop")} label="Airport Drop" placeholder="Airport drop included" />
-                      </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        {[["checkIn","Check-in Time","12:00 PM"],["checkOut","Check-out Time","11:00 AM"],["emergencyContact","Emergency Contact",""]].map(([k,l,p]) => (
-                          <div key={k as string} className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                            <input type="text" value={(form as any)[k as string] || ""} placeholder={p as string}
-                              onChange={e => setF(k as keyof RetreatForm, e.target.value)}
-                              className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        ))}
-                      </div>
-                      <LTInput value={form.medicalInfo} onChange={setLT("medicalInfo")} label="Medical Information Note" multiline placeholder="Please inform us of any medical conditions..." />
-                      <LTInput value={form.specialRequests} onChange={setLT("specialRequests")} label="Special Requests Policy" multiline placeholder="We do our best to accommodate special requests..." />
-                      <LTInput value={form.bookingTerms} onChange={setLT("bookingTerms")} label="Booking Terms" multiline placeholder="By booking, you agree to our terms and conditions..." />
-
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2 pt-4">Retreat Settings</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[["maxParticipants","Max Participants",20],["minParticipants","Min Participants",2]].map(([k,l,d]) => (
-                          <div key={k as string} className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                            <input type="number" min="1" value={(form as any)[k as string] || d}
-                              onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                              className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Available Dates (one per line)</label>
-                        <textarea rows={4} value={form.availableDates.join("\n")}
-                          onChange={e => setF("availableDates", e.target.value.split("\n").map(d => d.trim()).filter(Boolean))}
-                          placeholder="2025-01-15&#10;2025-02-01&#10;2025-03-10"
-                          className="border p-2.5 rounded text-sm font-mono focus:outline-none focus:border-amber-400" />
-                      </div>
-
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2 pt-4">Download Links</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[["brochureUrl","Brochure PDF URL"],["packingListUrl","Packing List PDF URL"],["schedulePdfUrl","Schedule PDF URL"],["termsPdfUrl","Terms PDF URL"]].map(([k,l]) => (
-                          <div key={k as string} className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                            <input type="url" value={(form as any)[k as string] || ""} placeholder="https://..."
-                              onChange={e => setF(k as keyof RetreatForm, e.target.value)}
-                              className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── Tab: SEO ── */}
-                  {activeFormTab === "seo" && (
-                    <div className="space-y-5">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">SEO & Meta</h3>
-                      <LTInput value={form.metaTitle} onChange={setLT("metaTitle")} label="Meta Title" placeholder="7-Day Yoga Retreat in Varkala | Villa Lemon" />
-                      <LTInput value={form.metaDescription} onChange={setLT("metaDescription")} label="Meta Description" multiline placeholder="Join our transformative yoga retreat in Varkala, Kerala..." />
-                      <LTInput value={form.keywords} onChange={setLT("keywords")} label="Keywords" placeholder="yoga retreat kerala, varkala yoga, spiritual retreat india" />
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Canonical URL</label>
-                        <input type="url" value={form.canonicalUrl} onChange={e => setF("canonicalUrl", e.target.value)}
-                          placeholder="https://villalemon.com/en/retreats/varkala-yoga-retreat"
-                          className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              </form>
-
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-150 bg-gray-50 flex items-center justify-between shrink-0 rounded-b-md">
-                <div className="flex gap-1.5 items-center">
-                  {FORM_TABS.map((tab) => (
-                    <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
-                        activeFormTab === tab.id ? "bg-brand-gold scale-125" : "bg-gray-300 hover:bg-gray-400"
-                      }`}
-                      title={tab.label} />
-                  ))}
-                </div>
-                <div className="flex items-center gap-3">
-                  <button type="button" onClick={closeModal}
-                    className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs cursor-pointer transition-colors">
-                    Cancel
-                  </button>
-                  <button type="button" onClick={handleSubmit} disabled={saving}
-                    className="px-6 py-2.5 bg-brand-gold hover:bg-[#b8943e] text-black font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                    {saving ? "Saving..." : (editing ? "✓ Update Retreat" : "✓ Create Retreat")}
-                  </button>
-                </div>
-              </div>
-
-            </div>
+            {renderModalInner()}
           </div>
         )}
       </>
@@ -1194,7 +1140,7 @@ export default function RetreatsTab({
                     <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${r.status === "published" ? "bg-green-500 text-white" : r.status === "archived" ? "bg-gray-400 text-white" : "bg-yellow-400 text-black"}`}>
                       {r.status}
                     </span>
-                    {r.featured && <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-500 text-white">Featured</span>}
+                    {r.featured && <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-brand-gold text-black">Featured</span>}
                     {r.isSoldOut && <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-red-500 text-white">Sold Out</span>}
                   </div>
                 </div>
@@ -1207,17 +1153,11 @@ export default function RetreatsTab({
                     {r.price > 0 && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> ₹{r.price.toLocaleString()}</span>}
                   </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                    <button onClick={() => openEdit(r)}
-                      className="flex-1 flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 hover:text-amber-900 border border-amber-200 hover:border-amber-400 rounded py-1.5 transition-colors">
+                    <button onClick={() => openEdit(r)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider border border-gray-200 hover:border-brand-gold px-2.5 py-1.5 rounded-sm text-gray-700 hover:text-brand-gold transition-colors cursor-pointer">
                       <Edit2 className="w-3 h-3" /> Edit
                     </button>
-                    <a href={`/en/retreats/${r.slug}`} target="_blank" rel="noopener noreferrer"
-                      className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded border border-gray-200 transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </a>
-                    <button onClick={() => handleDelete(r._id)}
-                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded border border-red-100 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
+                    <button onClick={() => handleDelete(r._id)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider border border-gray-200 hover:border-red-200 px-2.5 py-1.5 rounded-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
+                      <Trash2 className="w-3 h-3" /> Delete
                     </button>
                   </div>
                 </div>
@@ -1227,752 +1167,10 @@ export default function RetreatsTab({
         )}
       </div>
 
-      {/* ── Full-screen Modal ── */}
+      {/* Modal Popup wrapper for non-modal mode */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-stretch overflow-hidden">
-          <div className="bg-white w-full flex flex-col max-h-screen">
-
-            {/* Modal header */}
-            <div className="bg-[#121212] text-white px-6 py-4 flex items-center justify-between shrink-0">
-              <div>
-                <h2 className="font-serif text-lg">{editing ? "Edit Retreat" : "New Yoga Retreat"}</h2>
-                <p className="text-[10px] text-amber-400 uppercase tracking-widest mt-0.5">17-section CMS · All localized · Cloudinary media</p>
-              </div>
-              <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Tab bar */}
-            <div className="border-b border-gray-100 bg-gray-50 px-6 py-2.5 flex gap-1.5 overflow-x-auto shrink-0 scrollbar-none">
-              {FORM_TABS.map(tab => {
-                const Icon = tab.icon;
-                return (
-                  <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider rounded-sm whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                      activeFormTab === tab.id
-                        ? "bg-brand-gold text-black shadow-sm"
-                        : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                    }`}>
-                    <Icon className="w-3 h-3" />
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-              <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
-
-                {/* ── Tab: General Info ── */}
-                {activeFormTab === "general" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">General Information</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Slug <span className="text-red-400">*</span></label>
-                        <input type="text" required value={form.slug} onChange={e => setF("slug", e.target.value.toLowerCase().replace(/\s+/g, "-"))}
-                          placeholder="varkala-yoga-spiritual-retreat"
-                          className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Status</label>
-                        <select value={form.status} onChange={e => setF("status", e.target.value as any)}
-                          className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400">
-                          <option value="draft">Draft</option>
-                          <option value="published">Published</option>
-                          <option value="archived">Archived</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-4">
-                      {[["days","Days",7],["nights","Nights",7],["price","Starting Price (₹)",0],["displayOrder","Display Order",0]].map(([k,l,d]) => (
-                        <div key={k as string} className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                          <input type="number" min="0" value={(form as any)[k as string] || d}
-                            onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      {[["minAge","Min Age",18],["maxCapacity","Max Capacity",20],["yogaHours","Yoga Hours",0]].map(([k,l,d]) => (
-                        <div key={k as string} className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                          <input type="number" min="0" value={(form as any)[k as string] || d}
-                            onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <LTInput value={form.location} onChange={setLT("location")} label="Location" placeholder="Varkala, Kerala" />
-                      <LTInput value={form.difficulty} onChange={setLT("difficulty")} label="Difficulty" placeholder="Beginner Friendly" />
-                      <LTInput value={form.yogaLevel} onChange={setLT("yogaLevel")} label="Yoga Level" placeholder="All Levels" />
-                      <LTInput value={form.language} onChange={setLT("language")} label="Language" placeholder="English" />
-                      <LTInput value={form.groupSize} onChange={setLT("groupSize")} label="Group Size" placeholder="3-12 People" />
-                      <LTInput value={form.accommodationType} onChange={setLT("accommodationType")} label="Accommodation Type" placeholder="Budget / Standard / Deluxe" />
-                    </div>
-                    <div className="flex flex-wrap gap-5">
-                      {[
-                        ["certificate","Certificate Provided","boolean"],
-                        ["featured","Featured Retreat","boolean"],
-                        ["isPopular","Mark as Popular","boolean"],
-                        ["isSoldOut","Sold Out","boolean"],
-                        ["isUpcoming","Upcoming","boolean"],
-                        ["bookingOpen","Booking Open","boolean"],
-                      ].map(([k, l]) => (
-                        <label key={k as string} className="flex items-center gap-2 cursor-pointer select-none">
-                          <input type="checkbox" checked={!!(form as any)[k as string]}
-                            onChange={e => setF(k as keyof RetreatForm, e.target.checked)}
-                            className="w-4 h-4 accent-[#c5a880]" />
-                          <span className="text-xs font-semibold text-gray-700">{l as string}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Tab: Content ── */}
-                {activeFormTab === "content" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Content & Descriptions</h3>
-                    <LTInput value={form.heroTitle} onChange={setLT("heroTitle")} label="Hero Title" placeholder="Varkala Yoga, Spiritual & Nature Retreat" required multiline />
-                    <LTInput value={form.heroSubtitle} onChange={setLT("heroSubtitle")} label="Hero Subtitle" placeholder="Reconnect · Rejuvenate · Transform" />
-                    <LTInput value={form.tagline} onChange={setLT("tagline")} label="Tagline" placeholder="A transformative 8-day wellness journey..." />
-                    <LTInput value={form.shortDescription} onChange={setLT("shortDescription")} label="Short Description" placeholder="Short summary shown in cards..." multiline />
-                    <LTInput value={form.fullDescription} onChange={setLT("fullDescription")} label="Full Description" placeholder="Full about text..." multiline />
-                    <LTInput value={form.retreatOverview} onChange={setLT("retreatOverview")} label="Retreat Overview" placeholder="Retreat overview paragraph..." multiline />
-                    <LTInput value={form.whyChoose} onChange={setLT("whyChoose")} label="Why Choose This Retreat" placeholder="Why this retreat stands out..." multiline />
-                    <LTInput value={form.whoIsItFor} onChange={setLT("whoIsItFor")} label="Who Is This For" placeholder="Perfect for beginners and experienced practitioners..." multiline />
-                    <LTInput value={form.bestTime} onChange={setLT("bestTime")} label="Best Time to Join" placeholder="October to March" />
-                    <LTInput value={form.cta} onChange={setLT("cta")} label="CTA Button Text" placeholder="Book Now" />
-                  </div>
-                )}
-
-                {/* ── Tab: Media ── */}
-                {activeFormTab === "media" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Media</h3>
-                    <div className="space-y-2">
-                      <label className="font-bold text-gray-600 uppercase text-[10px]">Hero Image <span className="text-red-400">*</span></label>
-                      <div className="flex items-center gap-4">
-                        {heroImagePreview && (
-                          <div className="w-32 aspect-video rounded border overflow-hidden shrink-0">
-                            <img src={heroImagePreview} className="w-full h-full object-cover" alt="Preview" />
-                          </div>
-                        )}
-                        <label className="flex-1 border-2 border-dashed border-gray-300 hover:border-amber-400 rounded p-4 cursor-pointer text-center bg-white hover:bg-amber-50 transition-colors">
-                          <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
-                          <span className="text-xs text-gray-500 font-medium">Upload Hero Image</span>
-                          <input type="file" accept="image/*" onChange={handleHeroImageChange} className="hidden" required={!editing} />
-                        </label>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase text-[10px]">Video URL (YouTube/Vimeo)</label>
-                      <input type="url" value={form.video} onChange={e => setF("video", e.target.value)}
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase text-[10px]">Retreat Map URL</label>
-                      <input type="url" value={form.retreatMap} onChange={e => setF("retreatMap", e.target.value)}
-                        placeholder="https://maps.google.com/..."
-                        className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                    </div>
-                    <p className="text-xs text-gray-400 italic">Gallery images per category can be added after creating the retreat (edit mode).</p>
-                  </div>
-                )}
-
-                {/* ── Tab: Highlights ── */}
-                {activeFormTab === "highlights" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Retreat Highlights</h3>
-                      <button type="button" onClick={() => setF("highlights", [...form.highlights, { icon: "Star", title: emptyLT(), description: emptyLT() }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Highlight
-                      </button>
-                    </div>
-                    {form.highlights.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No highlights yet. Add your first highlight above.</p>}
-                    {form.highlights.map((h, i) => (
-                      <div key={i} className="bg-amber-50 border border-amber-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("highlights", form.highlights.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-500 uppercase text-[10px]">Icon name (Lucide icon)</label>
-                          <input type="text" value={h.icon} placeholder="e.g. Sun, Leaf, Award, Heart"
-                            onChange={e => { const arr = [...form.highlights]; arr[i] = { ...arr[i], icon: e.target.value }; setF("highlights", arr); }}
-                            className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                        <LTInput value={h.title} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], title: v }; setF("highlights", arr); }} label="Title" placeholder="Daily Yoga" />
-                        <LTInput value={h.description} onChange={v => { const arr = [...form.highlights]; arr[i] = { ...arr[i], description: v }; setF("highlights", arr); }} label="Description" placeholder="Traditional Hatha & Vinyasa yoga practice twice daily" multiline />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Daily Schedule ── */}
-                {activeFormTab === "schedule" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Daily Schedule</h3>
-                      <button type="button" onClick={() => setF("dailySchedule", [...form.dailySchedule, { time: "", activity: emptyLT(), description: emptyLT(), icon: "Clock" }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Time Slot
-                      </button>
-                    </div>
-                    {form.dailySchedule.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No schedule items yet.</p>}
-                    {form.dailySchedule.map((s, i) => (
-                      <div key={i} className="bg-blue-50 border border-blue-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("dailySchedule", form.dailySchedule.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400 hover:text-red-600">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Time</label>
-                            <input type="text" value={s.time} placeholder="06:00 AM"
-                              onChange={e => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], time: e.target.value }; setF("dailySchedule", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Icon (Lucide)</label>
-                            <input type="text" value={s.icon} placeholder="Sun, Coffee, Moon..."
-                              onChange={e => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], icon: e.target.value }; setF("dailySchedule", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        </div>
-                        <LTInput value={s.activity} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], activity: v }; setF("dailySchedule", arr); }} label="Activity" placeholder="Morning Yoga & Meditation" />
-                        <LTInput value={s.description} onChange={v => { const arr = [...form.dailySchedule]; arr[i] = { ...arr[i], description: v }; setF("dailySchedule", arr); }} label="Description" placeholder="Traditional Hatha Yoga Practice" multiline />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Curriculum ── */}
-                {activeFormTab === "curriculum" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Day-by-Day Curriculum</h3>
-                      <button type="button" onClick={() => setF("curriculum", [...form.curriculum, { dayNumber: form.curriculum.length + 1, dayTitle: emptyLT(), description: emptyLT(), topics: [], learningOutcome: emptyLT(), images: [] }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Day
-                      </button>
-                    </div>
-                    {form.curriculum.length === 0 && <p className="text-xs text-gray-400 text-center py-6">No curriculum days yet.</p>}
-                    {form.curriculum.map((day, i) => (
-                      <div key={i} className="bg-green-50 border border-green-100 rounded p-4 space-y-3 relative">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-green-700 uppercase">Day {day.dayNumber}</span>
-                          <button type="button" onClick={() => setF("curriculum", form.curriculum.filter((_,idx) => idx !== i))}
-                            className="p-1 text-red-400 hover:text-red-600">
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-500 uppercase text-[10px]">Day Number</label>
-                          <input type="number" min="1" value={day.dayNumber}
-                            onChange={e => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayNumber: Number(e.target.value) }; setF("curriculum", arr); }}
-                            className="border p-2 rounded text-sm w-24 focus:outline-none focus:border-amber-400" />
-                        </div>
-                        <LTInput value={day.dayTitle} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayTitle: v }; setF("curriculum", arr); }} label="Day Title" placeholder="Arrival & Welcome" />
-                        <LTInput value={day.description} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], description: v }; setF("curriculum", arr); }} label="Description" placeholder="Arrive, settle in, welcome dinner..." multiline />
-                        <LTInput value={day.learningOutcome} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], learningOutcome: v }; setF("curriculum", arr); }} label="Learning Outcome" placeholder="Foundation in breath awareness and asana" />
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-gray-500 uppercase text-[10px]">Topics / Highlights</span>
-                            <button type="button" onClick={() => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], topics: [...arr[i].topics, emptyLT()] }; setF("curriculum", arr); }}
-                              className="text-xs text-amber-600 font-bold flex items-center gap-0.5"><Plus className="w-3 h-3" /> Add</button>
-                          </div>
-                          {day.topics.map((t, ti) => (
-                            <div key={ti} className="flex gap-2 items-start">
-                              <div className="flex-1">
-                                <LTInput value={t} onChange={v => { const arr = [...form.curriculum]; arr[i].topics[ti] = v; setF("curriculum", arr); }} label="" placeholder="Pranayama basics" />
-                              </div>
-                              <button type="button" onClick={() => { const arr = [...form.curriculum]; arr[i].topics = arr[i].topics.filter((_,ti2) => ti2 !== ti); setF("curriculum", arr); }}
-                                className="mt-1 p-1 text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Excursions ── */}
-                {activeFormTab === "excursions" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Excursions Included</h3>
-                      <button type="button" onClick={() => setF("excursions", [...form.excursions, { name: emptyLT(), duration: emptyLT(), description: emptyLT(), image: "", highlights: [], relatedTour: "", included: true }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Excursion
-                      </button>
-                    </div>
-                    {form.excursions.map((exc, i) => (
-                      <div key={i} className="bg-purple-50 border border-purple-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("excursions", form.excursions.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                        <LTInput value={exc.name} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], name: v }; setF("excursions", arr); }} label="Excursion Name" placeholder="Golden Island Experience" />
-                        <LTInput value={exc.duration} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], duration: v }; setF("excursions", arr); }} label="Duration" placeholder="2-3 Hours" />
-                        <LTInput value={exc.description} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], description: v }; setF("excursions", arr); }} label="Description" placeholder="Boat trip to Golden Island..." multiline />
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Related Tour Package Slug</label>
-                            <input type="text" value={exc.relatedTour} placeholder="golden-island-experience"
-                              onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], relatedTour: e.target.value }; setF("excursions", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <div className="flex items-center gap-2 pt-5">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-[#c5a880]" />
-                              <span className="text-xs font-semibold text-gray-700">Included in retreat price</span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Rooms ── */}
-                {activeFormTab === "rooms" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Accommodation Rooms</h3>
-                      <button type="button" onClick={() => setF("rooms", [...form.rooms, { name: emptyLT(), image: "", description: emptyLT(), occupancy: 1, isPrivate: false, hasAC: false, hasBathroom: true, hasBalcony: false, hasWorkspace: false, hotWater: true, sharedPrice: 0, privatePrice: 0, features: [] }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Room
-                      </button>
-                    </div>
-                    {form.rooms.map((room, i) => (
-                      <div key={i} className="bg-orange-50 border border-orange-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("rooms", form.rooms.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                        <LTInput value={room.name} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], name: v }; setF("rooms", arr); }} label="Room Name" placeholder="Budget Room / Standard Room / Deluxe Balcony" />
-                        <LTInput value={room.description} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], description: v }; setF("rooms", arr); }} label="Description" placeholder="Comfortable room with garden view..." multiline />
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Occupancy</label>
-                            <input type="number" min="1" value={room.occupancy}
-                              onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], occupancy: Number(e.target.value) }; setF("rooms", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Shared Price (₹)</label>
-                            <input type="number" min="0" value={room.sharedPrice}
-                              onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("rooms", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Private Price (₹)</label>
-                            <input type="number" min="0" value={room.privatePrice}
-                              onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("rooms", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-4">
-                          {[["isPrivate","Private Room"],["hasAC","Air Conditioning"],["hasBathroom","Bathroom"],["hasBalcony","Balcony"],["hasWorkspace","Workspace"],["hotWater","Hot Water"]].map(([k,l]) => (
-                            <label key={k as string} className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={!!(room as any)[k as string]}
-                                onChange={e => { const arr = [...form.rooms]; (arr[i] as any)[k as string] = e.target.checked; setF("rooms", arr); }}
-                                className="w-3.5 h-3.5 accent-[#c5a880]" />
-                              <span className="text-xs font-medium text-gray-700">{l as string}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Meals ── */}
-                {activeFormTab === "meals" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Meal Plan</h3>
-                      <button type="button" onClick={() => setF("meals", [...form.meals, { mealType: emptyLT(), description: emptyLT(), isVegan: true, isGlutenFree: false, isLactoseFree: false, gallery: [], menuItems: [] }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Meal
-                      </button>
-                    </div>
-                    {form.meals.map((meal, i) => (
-                      <div key={i} className="bg-teal-50 border border-teal-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("meals", form.meals.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                        <LTInput value={meal.mealType} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], mealType: v }; setF("meals", arr); }} label="Meal Type" placeholder="Breakfast / Lunch / Dinner / Brunch" />
-                        <LTInput value={meal.description} onChange={v => { const arr = [...form.meals]; arr[i] = { ...arr[i], description: v }; setF("meals", arr); }} label="Description" placeholder="Healthy vegetarian breakfast with local produce..." multiline />
-                        <div className="flex flex-wrap gap-4">
-                          {[["isVegan","Vegan"],["isGlutenFree","Gluten Free"],["isLactoseFree","Lactose Free"]].map(([k,l]) => (
-                            <label key={k as string} className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={!!(meal as any)[k as string]}
-                                onChange={e => { const arr = [...form.meals]; (arr[i] as any)[k as string] = e.target.checked; setF("meals", arr); }}
-                                className="w-3.5 h-3.5 accent-teal-500" />
-                              <span className="text-xs font-medium text-gray-700">{l as string}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Yoga Program ── */}
-                {activeFormTab === "yoga" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Yoga Program Details</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                      <LTInput value={form.yogaStyle} onChange={setLT("yogaStyle")} label="Yoga Style" placeholder="Traditional Hatha & Vinyasa" />
-                      <LTInput value={form.morningSession} onChange={setLT("morningSession")} label="Morning Session" placeholder="06:00–08:00 AM — Hatha Yoga & Pranayama" />
-                      <LTInput value={form.eveningSession} onChange={setLT("eveningSession")} label="Evening Session" placeholder="05:30–07:00 PM — Vinyasa Flow & Meditation" />
-                      <LTInput value={form.meditation} onChange={setLT("meditation")} label="Meditation" placeholder="Guided meditation, mindfulness practices" />
-                      <LTInput value={form.pranayama} onChange={setLT("pranayama")} label="Pranayama" placeholder="Nadi Shodhana, Kapalabhati, Anulom Vilom" />
-                      <LTInput value={form.philosophy} onChange={setLT("philosophy")} label="Yoga Philosophy" placeholder="Introduction to Patanjali Yoga Sutras" />
-                      <LTInput value={form.classLanguage} onChange={setLT("classLanguage")} label="Class Language" placeholder="English" />
-                      <LTInput value={form.suitableFor} onChange={setLT("suitableFor")} label="Suitable For" placeholder="All levels, beginners welcome" />
-                      <LTInput value={form.yogaCertificate} onChange={setLT("yogaCertificate")} label="Certificate" placeholder="Certificate of Completion provided" />
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase text-[10px]">Total Yoga Hours</label>
-                        <input type="number" min="0" value={form.yogaHours}
-                          onChange={e => setF("yogaHours", Number(e.target.value))}
-                          className="border p-2.5 rounded text-sm w-32 focus:outline-none focus:border-amber-400" />
-                      </div>
-                      <LTInput value={form.yogaDescription} onChange={setLT("yogaDescription")} label="Yoga Program Description" multiline placeholder="Full description of the yoga program..." />
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Tab: Teachers ── */}
-                {activeFormTab === "teachers" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Retreat Teachers</h3>
-                      <button type="button" onClick={() => setF("teachers", [...form.teachers, { name: "", photo: "", experience: "", specialization: emptyLT(), bio: emptyLT(), certificates: [], instagramUrl: "", facebookUrl: "", websiteUrl: "" }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Teacher
-                      </button>
-                    </div>
-                    {form.teachers.map((t, i) => (
-                      <div key={i} className="bg-indigo-50 border border-indigo-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("teachers", form.teachers.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Full Name</label>
-                            <input type="text" value={t.name} placeholder="Yogi Arun Sharma"
-                              onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], name: e.target.value }; setF("teachers", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Experience</label>
-                            <input type="text" value={t.experience} placeholder="15+ Years"
-                              onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], experience: e.target.value }; setF("teachers", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        </div>
-                        <LTInput value={t.specialization} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], specialization: v }; setF("teachers", arr); }} label="Specialization" placeholder="Ashtanga & Hatha Yoga Teacher" />
-                        <LTInput value={t.bio} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], bio: v }; setF("teachers", arr); }} label="Bio" multiline placeholder="Arun has over 15 years of teaching experience..." />
-                        <div className="grid grid-cols-3 gap-3">
-                          {[["instagramUrl","Instagram URL"],["facebookUrl","Facebook URL"],["websiteUrl","Website URL"]].map(([k,l]) => (
-                            <div key={k as string} className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">{l as string}</label>
-                              <input type="url" value={(t as any)[k as string]} placeholder="https://..."
-                                onChange={e => { const arr = [...form.teachers]; (arr[i] as any)[k as string] = e.target.value; setF("teachers", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-[10px] text-gray-400 italic">Teacher photo can be uploaded after saving (edit mode).</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Ayurveda ── */}
-                {activeFormTab === "ayurveda" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Ayurvedic Wellness</h3>
-                    <LTInput value={form.ayurvedaTitle} onChange={setLT("ayurvedaTitle")} label="Section Title" placeholder="Ayurvedic Wellness Treatments" />
-                    <LTInput value={form.ayurvedaDescription} onChange={setLT("ayurvedaDescription")} label="Description" multiline placeholder="Experience traditional Kerala Ayurveda..." />
-                    <div className="flex items-center justify-between border-t pt-4">
-                      <span className="font-bold text-gray-700 text-xs uppercase tracking-wider">Treatments</span>
-                      <button type="button" onClick={() => setF("ayurvedaTreatments", [...form.ayurvedaTreatments, { name: emptyLT(), description: emptyLT(), isOptional: true, extraCost: 0 }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Treatment
-                      </button>
-                    </div>
-                    {form.ayurvedaTreatments.map((tr, i) => (
-                      <div key={i} className="bg-green-50 border border-green-100 rounded p-4 space-y-3 relative">
-                        <button type="button" onClick={() => setF("ayurvedaTreatments", form.ayurvedaTreatments.filter((_,idx) => idx !== i))}
-                          className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                        <LTInput value={tr.name} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], name: v }; setF("ayurvedaTreatments", arr); }} label="Treatment Name" placeholder="Abhyanga Massage" />
-                        <LTInput value={tr.description} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], description: v }; setF("ayurvedaTreatments", arr); }} label="Description" multiline placeholder="Full body warm oil massage..." />
-                        <div className="flex items-center gap-6">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-[#c5a880]" />
-                            <span className="text-xs font-medium text-gray-700">Optional (add-on)</span>
-                          </label>
-                          <div className="flex flex-col gap-1">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Extra Cost (₹)</label>
-                            <input type="number" min="0" value={tr.extraCost}
-                              onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], extraCost: Number(e.target.value) }; setF("ayurvedaTreatments", arr); }}
-                              className="border p-2 rounded text-sm w-28 focus:outline-none focus:border-amber-400" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* ── Tab: Pricing ── */}
-                {activeFormTab === "pricing" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Room-Based Pricing</h3>
-                      <button type="button" onClick={() => setF("pricingRows", [...form.pricingRows, { roomCategory: emptyLT(), sharedPrice: 0, privatePrice: 0, availability: emptyLT(), upgradeCost: 0 }])}
-                        className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                        <Plus className="w-3 h-3" /> Add Row
-                      </button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead><tr className="border-b">
-                          <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Room Category</th>
-                          <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Shared (₹)</th>
-                          <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Private (₹)</th>
-                          <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider pr-4">Availability</th>
-                          <th className="text-left py-2 font-bold text-gray-600 uppercase tracking-wider">Upgrade Cost</th>
-                          <th></th>
-                        </tr></thead>
-                        <tbody className="space-y-2">
-                          {form.pricingRows.map((row, i) => (
-                            <tr key={i} className="border-b border-gray-100">
-                              <td className="py-2 pr-4 min-w-[160px]">
-                                <input type="text" value={row.roomCategory.en} placeholder="Budget Room"
-                                  onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], roomCategory: { ...arr[i].roomCategory, en: e.target.value } }; setF("pricingRows", arr); }}
-                                  className="border p-1.5 rounded w-full text-xs focus:outline-none focus:border-amber-400" />
-                              </td>
-                              <td className="py-2 pr-4">
-                                <input type="number" min="0" value={row.sharedPrice}
-                                  onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                  className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                              </td>
-                              <td className="py-2 pr-4">
-                                <input type="number" min="0" value={row.privatePrice}
-                                  onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                  className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                              </td>
-                              <td className="py-2 pr-4">
-                                <input type="text" value={row.availability.en} placeholder="Available"
-                                  onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], availability: { ...arr[i].availability, en: e.target.value } }; setF("pricingRows", arr); }}
-                                  className="border p-1.5 rounded w-28 text-xs focus:outline-none focus:border-amber-400" />
-                              </td>
-                              <td className="py-2">
-                                <input type="number" min="0" value={row.upgradeCost}
-                                  onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], upgradeCost: Number(e.target.value) }; setF("pricingRows", arr); }}
-                                  className="border p-1.5 rounded w-24 text-xs focus:outline-none focus:border-amber-400" />
-                              </td>
-                              <td className="py-2 pl-2">
-                                <button type="button" onClick={() => setF("pricingRows", form.pricingRows.filter((_,idx) => idx !== i))}
-                                  className="p-1 text-red-400 hover:text-red-600"><X className="w-3 h-3" /></button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Tab: Checklists ── */}
-                {activeFormTab === "checklists" && (
-                  <div className="space-y-6">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Checklists</h3>
-                    <SimpleListEditor items={form.inclusions} onChange={v => setF("inclusions", v)} label="✅ What's Included" placeholder="Accommodation for 7 nights" />
-                    <SimpleListEditor items={form.exclusions} onChange={v => setF("exclusions", v)} label="❌ What's Excluded" placeholder="International flights" />
-                    <SimpleListEditor items={form.thingsToBring} onChange={v => setF("thingsToBring", v)} label="🎒 Things to Bring" placeholder="Comfortable yoga mat" />
-                    <SimpleListEditor items={form.dressCode} onChange={v => setF("dressCode", v)} label="👗 Dress Code" placeholder="Comfortable, breathable yoga wear" />
-                    <SimpleListEditor items={form.requirements} onChange={v => setF("requirements", v)} label="📋 Requirements" placeholder="No prior yoga experience needed" />
-                    <SimpleListEditor items={form.whoShouldAvoid} onChange={v => setF("whoShouldAvoid", v)} label="⚠️ Who Should Avoid" placeholder="Recent surgery or injury" />
-                  </div>
-                )}
-
-                {/* ── Tab: FAQs & Reviews ── */}
-                {activeFormTab === "faqs" && (
-                  <div className="space-y-6">
-                    {/* FAQs */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">FAQs</h3>
-                        <button type="button" onClick={() => setF("faqs", [...form.faqs, { question: emptyLT(), answer: emptyLT() }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add FAQ
-                        </button>
-                      </div>
-                      {form.faqs.map((faq, i) => (
-                        <div key={i} className="bg-yellow-50 border border-yellow-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("faqs", form.faqs.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <LTInput value={faq.question} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], question: v }; setF("faqs", arr); }} label="Question" placeholder="Is this suitable for beginners?" />
-                          <LTInput value={faq.answer} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: v }; setF("faqs", arr); }} label="Answer" multiline placeholder="Yes, absolutely! This retreat is designed for all levels..." />
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Reviews */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest">Guest Reviews</h3>
-                        <button type="button" onClick={() => setF("reviews", [...form.reviews, { name: "", country: "", photo: "", stars: 5, review: emptyLT(), retreatJoined: "" }])}
-                          className="flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800">
-                          <Plus className="w-3 h-3" /> Add Review
-                        </button>
-                      </div>
-                      {form.reviews.map((rev, i) => (
-                        <div key={i} className="bg-pink-50 border border-pink-100 rounded p-4 space-y-3 relative">
-                          <button type="button" onClick={() => setF("reviews", form.reviews.filter((_,idx) => idx !== i))}
-                            className="absolute top-2 right-2 p-1 text-red-400"><X className="w-3.5 h-3.5" /></button>
-                          <div className="grid grid-cols-3 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Name</label>
-                              <input type="text" value={rev.name} placeholder="Sarah M."
-                                onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], name: e.target.value }; setF("reviews", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Country</label>
-                              <input type="text" value={rev.country} placeholder="Australia"
-                                onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], country: e.target.value }; setF("reviews", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-500 uppercase text-[10px]">Stars (1-5)</label>
-                              <input type="number" min="1" max="5" value={rev.stars}
-                                onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], stars: Number(e.target.value) }; setF("reviews", arr); }}
-                                className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                            </div>
-                          </div>
-                          <LTInput value={rev.review} onChange={v => { const arr = [...form.reviews]; arr[i] = { ...arr[i], review: v }; setF("reviews", arr); }} label="Review Text" multiline placeholder="It was a life-changing experience..." />
-                          <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-500 uppercase text-[10px]">Retreat Joined</label>
-                            <input type="text" value={rev.retreatJoined} placeholder="7-Day Yoga Retreat, Dec 2024"
-                              onChange={e => { const arr = [...form.reviews]; arr[i] = { ...arr[i], retreatJoined: e.target.value }; setF("reviews", arr); }}
-                              className="border p-2 rounded text-sm focus:outline-none focus:border-amber-400" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Tab: Booking & Settings ── */}
-                {activeFormTab === "booking" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">Booking Information</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <LTInput value={form.deposit} onChange={setLT("deposit")} label="Deposit Policy" placeholder="50% advance to confirm booking" />
-                      <LTInput value={form.balancePayment} onChange={setLT("balancePayment")} label="Balance Payment" placeholder="Balance payment due on arrival" />
-                      <LTInput value={form.cancellation} onChange={setLT("cancellation")} label="Cancellation Policy" placeholder="Free cancellation up to 7 days before arrival" />
-                      <LTInput value={form.refund} onChange={setLT("refund")} label="Refund Policy" placeholder="Full refund for cancellations 14+ days before arrival" />
-                      <LTInput value={form.pickup} onChange={setLT("pickup")} label="Airport Pickup" placeholder="Airport pickup included" />
-                      <LTInput value={form.drop} onChange={setLT("drop")} label="Airport Drop" placeholder="Airport drop included" />
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      {[["checkIn","Check-in Time","12:00 PM"],["checkOut","Check-out Time","11:00 AM"],["emergencyContact","Emergency Contact",""]].map(([k,l,p]) => (
-                        <div key={k as string} className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                          <input type="text" value={(form as any)[k as string] || ""} placeholder={p as string}
-                            onChange={e => setF(k as keyof RetreatForm, e.target.value)}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                      ))}
-                    </div>
-                    <LTInput value={form.medicalInfo} onChange={setLT("medicalInfo")} label="Medical Information Note" multiline placeholder="Please inform us of any medical conditions..." />
-                    <LTInput value={form.specialRequests} onChange={setLT("specialRequests")} label="Special Requests Policy" multiline placeholder="We do our best to accommodate special requests..." />
-                    <LTInput value={form.bookingTerms} onChange={setLT("bookingTerms")} label="Booking Terms" multiline placeholder="By booking, you agree to our terms and conditions..." />
-
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2 pt-4">Retreat Settings</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[["maxParticipants","Max Participants",20],["minParticipants","Min Participants",2]].map(([k,l,d]) => (
-                        <div key={k as string} className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                          <input type="number" min="1" value={(form as any)[k as string] || d}
-                            onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase text-[10px]">Available Dates (one per line)</label>
-                      <textarea rows={4} value={form.availableDates.join("\n")}
-                        onChange={e => setF("availableDates", e.target.value.split("\n").map(d => d.trim()).filter(Boolean))}
-                        placeholder="2025-01-15&#10;2025-02-01&#10;2025-03-10"
-                        className="border p-2.5 rounded text-sm font-mono focus:outline-none focus:border-amber-400" />
-                    </div>
-
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2 pt-4">Download Links</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[["brochureUrl","Brochure PDF URL"],["packingListUrl","Packing List PDF URL"],["schedulePdfUrl","Schedule PDF URL"],["termsPdfUrl","Terms PDF URL"]].map(([k,l]) => (
-                        <div key={k as string} className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase text-[10px]">{l as string}</label>
-                          <input type="url" value={(form as any)[k as string] || ""} placeholder="https://..."
-                            onChange={e => setF(k as keyof RetreatForm, e.target.value)}
-                            className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Tab: SEO ── */}
-                {activeFormTab === "seo" && (
-                  <div className="space-y-5">
-                    <h3 className="font-bold text-gray-700 uppercase text-xs tracking-widest border-b pb-2">SEO & Meta</h3>
-                    <LTInput value={form.metaTitle} onChange={setLT("metaTitle")} label="Meta Title" placeholder="7-Day Yoga Retreat in Varkala | Villa Lemon" />
-                    <LTInput value={form.metaDescription} onChange={setLT("metaDescription")} label="Meta Description" multiline placeholder="Join our transformative yoga retreat in Varkala, Kerala..." />
-                    <LTInput value={form.keywords} onChange={setLT("keywords")} label="Keywords" placeholder="yoga retreat kerala, varkala yoga, spiritual retreat india" />
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase text-[10px]">Canonical URL</label>
-                      <input type="url" value={form.canonicalUrl} onChange={e => setF("canonicalUrl", e.target.value)}
-                        placeholder="https://villalemon.com/en/retreats/varkala-yoga-retreat"
-                        className="border p-2.5 rounded text-sm focus:outline-none focus:border-amber-400" />
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            </form>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-150 bg-gray-50 flex items-center justify-between shrink-0">
-              <div className="flex gap-1.5 items-center">
-                {FORM_TABS.map((tab) => (
-                  <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
-                      activeFormTab === tab.id ? "bg-brand-gold scale-125" : "bg-gray-300 hover:bg-gray-400"
-                    }`}
-                    title={tab.label} />
-                ))}
-              </div>
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setShowModal(false)}
-                  className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs cursor-pointer transition-colors">
-                  Cancel
-                </button>
-                <button type="button" onClick={handleSubmit} disabled={saving}
-                  className="px-6 py-2.5 bg-brand-gold hover:bg-[#b8943e] text-black font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  {saving ? "Saving..." : (editing ? "✓ Update Retreat" : "✓ Create Retreat")}
-                </button>
-              </div>
-            </div>
-
-          </div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto select-text text-left">
+          {renderModalInner()}
         </div>
       )}
     </>
