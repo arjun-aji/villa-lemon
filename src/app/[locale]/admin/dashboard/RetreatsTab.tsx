@@ -187,7 +187,9 @@ const LTInput = ({ value, onChange, label, multiline = false, required = false, 
         <div className="flex gap-1">
           {(["en","de","fr","ru"] as const).map(l => (
             <button key={l} type="button" onClick={() => setLang(l)}
-              className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${lang === l ? "bg-amber-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+              className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase transition-colors ${
+                lang === l ? "bg-brand-gold text-black" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}>
               {flags[l]} {l}
             </button>
           ))}
@@ -197,14 +199,14 @@ const LTInput = ({ value, onChange, label, multiline = false, required = false, 
         <textarea rows={3} placeholder={lang === "en" ? placeholder : `${placeholder} (${lang.toUpperCase()})`}
           value={value[lang] || ""}
           onChange={e => onChange({ ...value, [lang]: e.target.value })}
-          className="border border-gray-200 p-2.5 rounded text-sm font-sans resize-y focus:outline-none focus:border-amber-400"
+          className="border border-gray-200 p-2.5 rounded text-sm font-sans resize-y focus:outline-none focus:border-brand-gold"
           required={required && lang === "en"}
         />
       ) : (
         <input type="text" placeholder={lang === "en" ? placeholder : `${placeholder} (${lang.toUpperCase()})`}
           value={value[lang] || ""}
           onChange={e => onChange({ ...value, [lang]: e.target.value })}
-          className="border border-gray-200 p-2.5 rounded text-sm focus:outline-none focus:border-amber-400"
+          className="border border-gray-200 p-2.5 rounded text-sm focus:outline-none focus:border-brand-gold"
           required={required && lang === "en"}
         />
       )}
@@ -222,7 +224,7 @@ const SimpleListEditor = ({ items, onChange, label, placeholder }: {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="font-bold text-gray-700 text-xs uppercase tracking-wider">{label}</span>
-        <button type="button" onClick={add} className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800 font-bold">
+        <button type="button" onClick={add} className="flex items-center gap-1 text-xs text-brand-gold hover:text-[#b8943e] font-bold cursor-pointer">
           <Plus className="w-3 h-3" /> Add
         </button>
       </div>
@@ -404,33 +406,35 @@ export default function RetreatsTab({
     return (
       <>
         {showModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
-            <div className="bg-white rounded-md max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-150">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto select-text text-left">
+            <div className="bg-white rounded-md max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-150 my-auto">
 
               {/* Modal header */}
-              <div className="p-6 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white">
+              <div className="px-6 py-5 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white rounded-t-md shrink-0">
                 <div>
                   <h3 className="font-serif text-lg tracking-wide">
                     {editing ? "Edit Yoga Retreat" : "Create Yoga Retreat"}
                   </h3>
-                  <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-1">Configure layout, translations, content, curriculum & pricing</p>
+                  <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-1">Configure program types, benefits, and schedule</p>
                 </div>
-                <button onClick={closeModal} className="p-1 text-gray-400 hover:text-white cursor-pointer">
+                <button onClick={closeModal} className="p-1.5 text-gray-400 hover:text-white cursor-pointer transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Tab bar */}
-              <div className="bg-gray-50 border-b border-gray-200 px-6 py-3 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+              <div className="border-b border-gray-100 bg-gray-50 px-6 py-2.5 flex gap-1.5 overflow-x-auto shrink-0 scrollbar-none">
                 {FORM_TABS.map(tab => {
                   const Icon = tab.icon;
                   return (
                     <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                      className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all duration-200 cursor-pointer ${
-                        activeFormTab === tab.id ? "bg-brand-gold text-black shadow-sm font-bold" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"
+                      className={`flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider rounded-sm whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                        activeFormTab === tab.id
+                          ? "bg-brand-gold text-black shadow-sm"
+                          : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                       }`}>
-                      <Icon className="w-3.5 h-3.5 inline-block mr-1.5" />
-                      {tab.label}
+                      <Icon className="w-3 h-3" />
+                      <span className="hidden sm:inline">{tab.label}</span>
                     </button>
                   );
                 })}
@@ -438,7 +442,7 @@ export default function RetreatsTab({
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto text-left">
-                <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
+                <div className="px-6 py-6 space-y-6">
 
                   {/* ── Tab: General Info ── */}
                   {activeFormTab === "general" && (
@@ -501,7 +505,7 @@ export default function RetreatsTab({
                           <label key={k as string} className="flex items-center gap-2 cursor-pointer select-none">
                             <input type="checkbox" checked={!!(form as any)[k as string]}
                               onChange={e => setF(k as keyof RetreatForm, e.target.checked)}
-                              className="w-4 h-4 accent-amber-500" />
+                              className="w-4 h-4 accent-[#c5a880]" />
                             <span className="text-xs font-semibold text-gray-700">{l as string}</span>
                           </label>
                         ))}
@@ -705,7 +709,7 @@ export default function RetreatsTab({
                             </div>
                             <div className="flex items-center gap-2 pt-5">
                               <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-amber-500" />
+                                <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-[#c5a880]" />
                                 <span className="text-xs font-semibold text-gray-700">Included in retreat price</span>
                               </label>
                             </div>
@@ -756,7 +760,7 @@ export default function RetreatsTab({
                               <label key={k as string} className="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" checked={!!(room as any)[k as string]}
                                   onChange={e => { const arr = [...form.rooms]; (arr[i] as any)[k as string] = e.target.checked; setF("rooms", arr); }}
-                                  className="w-3.5 h-3.5 accent-amber-500" />
+                                  className="w-3.5 h-3.5 accent-[#c5a880]" />
                                 <span className="text-xs font-medium text-gray-700">{l as string}</span>
                               </label>
                             ))}
@@ -889,7 +893,7 @@ export default function RetreatsTab({
                           <LTInput value={tr.description} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], description: v }; setF("ayurvedaTreatments", arr); }} label="Description" multiline placeholder="Full body warm oil massage..." />
                           <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-amber-500" />
+                              <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-[#c5a880]" />
                               <span className="text-xs font-medium text-gray-700">Optional (add-on)</span>
                             </label>
                             <div className="flex flex-col gap-1">
@@ -1124,23 +1128,25 @@ export default function RetreatsTab({
               </form>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between shrink-0">
-                <div className="flex gap-2">
-                  {FORM_TABS.map((tab, idx) => (
+              <div className="px-6 py-4 border-t border-gray-150 bg-gray-50 flex items-center justify-between shrink-0 rounded-b-md">
+                <div className="flex gap-1.5 items-center">
+                  {FORM_TABS.map((tab) => (
                     <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                      className={`w-2 h-2 rounded-full transition-all ${activeFormTab === tab.id ? "bg-amber-500 scale-125" : "bg-gray-300 hover:bg-gray-400"}`}
+                      className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                        activeFormTab === tab.id ? "bg-brand-gold scale-125" : "bg-gray-300 hover:bg-gray-400"
+                      }`}
                       title={tab.label} />
                   ))}
                 </div>
                 <div className="flex items-center gap-3">
                   <button type="button" onClick={closeModal}
-                    className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs">
+                    className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs cursor-pointer transition-colors">
                     Cancel
                   </button>
                   <button type="button" onClick={handleSubmit} disabled={saving}
-                    className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all">
+                    className="px-6 py-2.5 bg-brand-gold hover:bg-[#b8943e] text-black font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60">
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                    {saving ? "Saving..." : (editing ? "Update Retreat" : "Create Retreat")}
+                    {saving ? "Saving..." : (editing ? "✓ Update Retreat" : "✓ Create Retreat")}
                   </button>
                 </div>
               </div>
@@ -1162,13 +1168,13 @@ export default function RetreatsTab({
             <p className="text-xs text-gray-500 mt-1">Full-featured retreat management — schedules, rooms, meals, teachers, pricing & more.</p>
           </div>
           <button onClick={openCreate}
-            className="self-start sm:self-auto flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-white font-bold uppercase tracking-wider text-[10px] px-4 py-2.5 rounded-sm transition-all">
+            className="self-start sm:self-auto flex items-center gap-1 bg-brand-gold hover:bg-[#b8943e] text-black font-bold uppercase tracking-wider text-[10px] px-4 py-2.5 rounded-sm transition-all cursor-pointer">
             <Plus className="w-4 h-4" /> New Retreat
           </button>
         </div>
 
         {loading ? (
-          <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 text-amber-500 animate-spin" /></div>
+          <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 text-brand-gold animate-spin" /></div>
         ) : retreats.length === 0 ? (
           <div className="py-16 text-center">
             <Sun className="w-12 h-12 text-amber-200 mx-auto mb-3" />
@@ -1238,14 +1244,18 @@ export default function RetreatsTab({
             </div>
 
             {/* Tab bar */}
-            <div className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex gap-1 overflow-x-auto shrink-0 scrollbar-none">
+            <div className="border-b border-gray-100 bg-gray-50 px-6 py-2.5 flex gap-1.5 overflow-x-auto shrink-0 scrollbar-none">
               {FORM_TABS.map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all ${activeFormTab === tab.id ? "bg-amber-500 text-white shadow-sm" : "text-gray-500 hover:bg-gray-200 hover:text-gray-700"}`}>
+                    className={`flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider rounded-sm whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                      activeFormTab === tab.id
+                        ? "bg-brand-gold text-black shadow-sm"
+                        : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                    }`}>
                     <Icon className="w-3 h-3" />
-                    {tab.label}
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 );
               })}
@@ -1316,7 +1326,7 @@ export default function RetreatsTab({
                         <label key={k as string} className="flex items-center gap-2 cursor-pointer select-none">
                           <input type="checkbox" checked={!!(form as any)[k as string]}
                             onChange={e => setF(k as keyof RetreatForm, e.target.checked)}
-                            className="w-4 h-4 accent-amber-500" />
+                            className="w-4 h-4 accent-[#c5a880]" />
                           <span className="text-xs font-semibold text-gray-700">{l as string}</span>
                         </label>
                       ))}
@@ -1520,7 +1530,7 @@ export default function RetreatsTab({
                           </div>
                           <div className="flex items-center gap-2 pt-5">
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-amber-500" />
+                              <input type="checkbox" checked={exc.included} onChange={e => { const arr = [...form.excursions]; arr[i] = { ...arr[i], included: e.target.checked }; setF("excursions", arr); }} className="w-4 h-4 accent-[#c5a880]" />
                               <span className="text-xs font-semibold text-gray-700">Included in retreat price</span>
                             </label>
                           </div>
@@ -1571,7 +1581,7 @@ export default function RetreatsTab({
                             <label key={k as string} className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={!!(room as any)[k as string]}
                                 onChange={e => { const arr = [...form.rooms]; (arr[i] as any)[k as string] = e.target.checked; setF("rooms", arr); }}
-                                className="w-3.5 h-3.5 accent-amber-500" />
+                                className="w-3.5 h-3.5 accent-[#c5a880]" />
                               <span className="text-xs font-medium text-gray-700">{l as string}</span>
                             </label>
                           ))}
@@ -1704,7 +1714,7 @@ export default function RetreatsTab({
                         <LTInput value={tr.description} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], description: v }; setF("ayurvedaTreatments", arr); }} label="Description" multiline placeholder="Full body warm oil massage..." />
                         <div className="flex items-center gap-6">
                           <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-amber-500" />
+                            <input type="checkbox" checked={tr.isOptional} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], isOptional: e.target.checked }; setF("ayurvedaTreatments", arr); }} className="w-3.5 h-3.5 accent-[#c5a880]" />
                             <span className="text-xs font-medium text-gray-700">Optional (add-on)</span>
                           </label>
                           <div className="flex flex-col gap-1">
@@ -1939,23 +1949,25 @@ export default function RetreatsTab({
             </form>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between shrink-0">
-              <div className="flex gap-2">
-                {FORM_TABS.map((tab, idx) => (
+            <div className="px-6 py-4 border-t border-gray-150 bg-gray-50 flex items-center justify-between shrink-0">
+              <div className="flex gap-1.5 items-center">
+                {FORM_TABS.map((tab) => (
                   <button key={tab.id} type="button" onClick={() => setActiveFormTab(tab.id)}
-                    className={`w-2 h-2 rounded-full transition-all ${activeFormTab === tab.id ? "bg-amber-500 scale-125" : "bg-gray-300 hover:bg-gray-400"}`}
+                    className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                      activeFormTab === tab.id ? "bg-brand-gold scale-125" : "bg-gray-300 hover:bg-gray-400"
+                    }`}
                     title={tab.label} />
                 ))}
               </div>
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setShowModal(false)}
-                  className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs">
+                  className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded hover:bg-gray-100 font-bold uppercase tracking-wider text-xs cursor-pointer transition-colors">
                   Cancel
                 </button>
                 <button type="button" onClick={handleSubmit} disabled={saving}
-                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all">
+                  className="px-6 py-2.5 bg-brand-gold hover:bg-[#b8943e] text-black font-bold rounded uppercase tracking-wider text-xs flex items-center gap-2 transition-all cursor-pointer disabled:opacity-60">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  {saving ? "Saving..." : (editing ? "Update Retreat" : "Create Retreat")}
+                  {saving ? "Saving..." : (editing ? "✓ Update Retreat" : "✓ Create Retreat")}
                 </button>
               </div>
             </div>
