@@ -2289,6 +2289,190 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                 </div>
+
+                {/* Highlights list editor */}
+                <div className="space-y-2 text-left pt-4 border-t">
+                  <label className="font-bold text-gray-600 uppercase block">Property Highlights (Key Features) ({activeLangTab.toUpperCase()})</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                    {(stayForm.highlights || []).map((h, idx) => (
+                      <div key={idx} className="flex items-center justify-between border bg-white p-2.5 rounded gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-brand-gold uppercase tracking-wider text-[9px] bg-gray-100 px-1.5 py-0.5 rounded">Icon: {h.icon}</span>
+                          <span className="font-medium text-xs text-[#121212]">{h.label[activeLangTab]}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const highlights = [...(stayForm.highlights || [])];
+                            highlights.splice(idx, 1);
+                            setStayForm({ ...stayForm, highlights });
+                          }}
+                          className="text-red-500 hover:text-red-700 shrink-0"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex gap-2 max-w-md pt-1">
+                    <select id="newHighlightIcon" className="border p-2 rounded bg-white text-xs w-1/3">
+                      <option value="wifi">WiFi</option>
+                      <option value="pool">Pool</option>
+                      <option value="coffee">Coffee / Breakfast</option>
+                      <option value="shield">Security</option>
+                      <option value="sunset">Sunset View</option>
+                      <option value="balcony">Balcony</option>
+                      <option value="wind">AC / Breeze</option>
+                      <option value="tv">TV</option>
+                      <option value="key">Key Access</option>
+                      <option value="compass">Compass / Guide</option>
+                    </select>
+                    <input
+                      type="text"
+                      id="newHighlightLabel"
+                      placeholder="Highlight label e.g. Free Wi-Fi"
+                      className="border p-2 rounded w-1/2"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iconSelect = document.getElementById("newHighlightIcon") as HTMLSelectElement;
+                        const labelIn = document.getElementById("newHighlightLabel") as HTMLInputElement;
+                        if (iconSelect && labelIn && labelIn.value.trim()) {
+                          const highlights = [...(stayForm.highlights || [])];
+                          highlights.push({
+                            icon: iconSelect.value,
+                            label: createEmptyLocalizedText(labelIn.value.trim())
+                          });
+                          setStayForm({ ...stayForm, highlights });
+                          labelIn.value = "";
+                        }
+                      }}
+                      className="bg-[#121212] text-white px-3.5 py-2 rounded font-bold uppercase tracking-wider text-xs"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Check In Out Rules list editor */}
+                <div className="space-y-2 text-left pt-4 border-t">
+                  <label className="font-bold text-gray-600 uppercase block">Check-In / Check-Out Rules Checklist ({activeLangTab.toUpperCase()})</label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {(stayForm.checkInOutRules || []).map((rule, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5 bg-white border px-2.5 py-1.5 rounded">
+                        <span>{rule[activeLangTab] || ""}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const checkInOutRules = [...(stayForm.checkInOutRules || [])];
+                            checkInOutRules.splice(idx, 1);
+                            setStayForm({ ...stayForm, checkInOutRules });
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex gap-2 max-w-sm">
+                    <input
+                      type="text"
+                      id="newRuleInput"
+                      placeholder="e.g. Quiet hours after 10 PM"
+                      className="border p-2 rounded flex-grow"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const input = e.currentTarget;
+                          if (!input.value.trim()) return;
+                          const checkInOutRules = [...(stayForm.checkInOutRules || [])];
+                          checkInOutRules.push(createEmptyLocalizedText(input.value.trim()));
+                          setStayForm({ ...stayForm, checkInOutRules });
+                          input.value = "";
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const input = document.getElementById("newRuleInput") as HTMLInputElement;
+                        if (input && input.value.trim()) {
+                          const checkInOutRules = [...(stayForm.checkInOutRules || [])];
+                          checkInOutRules.push(createEmptyLocalizedText(input.value.trim()));
+                          setStayForm({ ...stayForm, checkInOutRules });
+                          input.value = "";
+                        }
+                      }}
+                      className="bg-[#121212] text-white px-3.5 py-2 rounded font-semibold uppercase tracking-wider"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Additional Services list editor */}
+                <div className="space-y-2 text-left pt-4 border-t">
+                  <label className="font-bold text-gray-600 uppercase block">Additional Services List ({activeLangTab.toUpperCase()})</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                    {(stayForm.additionalServices || []).map((s, idx) => (
+                      <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
+                        <div>
+                          <h5 className="font-serif font-bold text-xs text-[#121212]">{s.service[activeLangTab]}</h5>
+                          <p className="text-[10px] text-gray-500 font-light mt-0.5 leading-relaxed font-sans">{s.details[activeLangTab]}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const additionalServices = [...(stayForm.additionalServices || [])];
+                            additionalServices.splice(idx, 1);
+                            setStayForm({ ...stayForm, additionalServices });
+                          }}
+                          className="text-red-500 shrink-0 mt-0.5"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="bg-gray-100/50 border rounded p-4 space-y-3">
+                    <span className="font-semibold text-gray-500 text-[10px] uppercase block tracking-wider">Add New Additional Service</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-500 text-[9px] uppercase">Service Name</label>
+                        <input type="text" id="newServiceName" placeholder="e.g. Airport Transfer" className="border p-2 rounded text-xs" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-500 text-[9px] uppercase">Service Details</label>
+                        <input type="text" id="newServiceDetails" placeholder="e.g. Price on request, luxury sedan transfer." className="border p-2 rounded text-xs" />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nameIn = document.getElementById("newServiceName") as HTMLInputElement;
+                        const detailsIn = document.getElementById("newServiceDetails") as HTMLInputElement;
+                        if (nameIn && detailsIn && nameIn.value.trim() && detailsIn.value.trim()) {
+                          const additionalServices = [...(stayForm.additionalServices || [])];
+                          additionalServices.push({
+                            service: createEmptyLocalizedText(nameIn.value.trim()),
+                            details: createEmptyLocalizedText(detailsIn.value.trim())
+                          });
+                          setStayForm({ ...stayForm, additionalServices });
+                          nameIn.value = "";
+                          detailsIn.value = "";
+                        }
+                      }}
+                      className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                    >
+                      Add Service
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}
