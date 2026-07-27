@@ -77,7 +77,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   const homepage = homepageRes?.data || null;
   const accommodations = accRes?.data || [];
-  const packages = pkgRes?.data || [];
+  const packages = (pkgRes?.data || []).filter((p: any) => p.category !== "varkalaPackages");
   const yoga = yogaRes?.data || [];
 
   // Localize Homepage using translator

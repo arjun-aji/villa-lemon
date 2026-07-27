@@ -19,6 +19,7 @@
     "dayTrips": "Excursions d'une Journée",
     "backwaterExperiences": "Expériences dans les Backwaters",
     "adventureActivities": "Activités d'Aventure",
+    "varkalaPackages": "Forfaits Varkala",
     "yogaRetreats": "Retraites de Yoga",
     "dailyYogaClasses": "Cours de Yoga Quotidiens",
     "privateYogaSessions": "Séances de Yoga Privées",
@@ -99,7 +100,10 @@
     "backwaterExplore": "Explorer",
     "adventureTitle": "Activités d'Aventure",
     "adventureDesc": "Des activités palpitantes pour les amateurs d'aventure.",
-    "adventureExplore": "Les Découvrir"
+    "adventureExplore": "Les Découvrir",
+    "varkalaPackagesTitle": "Forfaits Varkala",
+    "varkalaPackagesDesc": "Forfaits premium de séjour et d'excursions de plusieurs jours à Varkala.",
+    "varkalaPackagesExplore": "Explorer"
   },
   "Yoga": {
     "tagline": "Bien-être & Yoga",

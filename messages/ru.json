@@ -19,6 +19,7 @@
     "dayTrips": "Однодневные поездки",
     "backwaterExperiences": "Прогулки по затонам",
     "adventureActivities": "Активный отдых",
+    "varkalaPackages": "Туры в Варкалу",
     "yogaRetreats": "Йога-ретриты",
     "dailyYogaClasses": "Ежедневные занятия",
     "privateYogaSessions": "Индивидуальные сессии",
@@ -99,7 +100,10 @@
     "backwaterExplore": "Подробнее",
     "adventureTitle": "Активный отдых",
     "adventureDesc": "Захватывающие развлечения для любителей приключений.",
-    "adventureExplore": "Подробнее"
+    "adventureExplore": "Подробнее",
+    "varkalaPackagesTitle": "Туры в Варкалу",
+    "varkalaPackagesDesc": "Премиальные многодневные туры с проживанием в Варкале.",
+    "varkalaPackagesExplore": "Подробнее"
   },
   "Yoga": {
     "tagline": "Велнес и йога",

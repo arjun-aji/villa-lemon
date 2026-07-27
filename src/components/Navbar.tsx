@@ -36,6 +36,7 @@ const navItems: NavItem[] = [
       { name: "dayTrips", href: "/packages/day-trips" },
       { name: "backwaterExperiences", href: "/packages/backwater-experiences" },
       { name: "adventureActivities", href: "/packages/adventure-activities" },
+      { name: "varkalaPackages", href: "/packages/varkala-packages" },
     ],
   },
   {

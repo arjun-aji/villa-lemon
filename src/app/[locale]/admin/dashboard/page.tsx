@@ -152,7 +152,7 @@ interface AccommodationItemData {
 
 interface PackageItemData {
   _id: string;
-  packageCategory: "varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities";
+  packageCategory: "varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities" | "varkalaPackages";
   title: LocalizedText;
   slug: string;
   price: number;
@@ -1785,6 +1785,7 @@ export default function AdminDashboard() {
                       <option value="dayTrips">Day Trips</option>
                       <option value="backwaterExperiences">Backwater Experiences</option>
                       <option value="adventureActivities">Adventure Activities</option>
+                      <option value="varkalaPackages">Varkala Packages</option>
                     </select>
                   </div>
                 )}
@@ -2954,6 +2955,7 @@ export default function AdminDashboard() {
                         <option value="dayTrips">Day Trips</option>
                         <option value="backwaterExperiences">Backwater Experiences</option>
                         <option value="adventureActivities">Adventure Activities</option>
+                        <option value="varkalaPackages">Varkala Packages</option>
                       </select>
                     </div>
                     <div className="flex flex-col gap-1.5">

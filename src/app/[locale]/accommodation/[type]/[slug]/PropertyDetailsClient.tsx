@@ -767,7 +767,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
             {suggestions.map((item) => {
               let href = `/${locale}/accommodation/${item.type === "villa" ? "villas" : item.type === "floor" ? "floors" : "rooms"}/${item.slug}`;
               if (item.cardType === "package") {
-                const categoryUrlSegment = item.type === "varkalaSightseeing" ? "varkala-sightseeing" : item.type === "dayTrips" ? "day-trips" : item.type === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities";
+                const categoryUrlSegment = item.type === "varkalaSightseeing" ? "varkala-sightseeing" : item.type === "dayTrips" ? "day-trips" : item.type === "backwaterExperiences" ? "backwater-experiences" : item.type === "varkalaPackages" ? "varkala-packages" : "adventure-activities";
                 href = `/${locale}/packages/${categoryUrlSegment}/${item.slug}`;
               } else if (item.cardType === "yoga") {
                 href = `/${locale}/yoga/${item.type}/${item.slug}`;

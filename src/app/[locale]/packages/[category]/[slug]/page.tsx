@@ -264,7 +264,7 @@ export default async function PackageDetailsPage({
         shortDescription: foundPkg.shortDescription[locale] || foundPkg.shortDescription["en"] || "",
         tagline: foundPkg.tagline[locale] || foundPkg.tagline["en"] || "",
         slug: foundPkg.slug,
-        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities",
+        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
       });
       continue;
     }
@@ -305,7 +305,7 @@ export default async function PackageDetailsPage({
       pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
       image: foundPkg.image,
       slug: foundPkg.slug,
-      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities",
+      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
     }));
   } else if (relatedList.length < 3) {
     const alreadySlugs = relatedList.map((s) => s.slug);
@@ -321,7 +321,7 @@ export default async function PackageDetailsPage({
       pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
       image: foundPkg.image,
       slug: foundPkg.slug,
-      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities",
+      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
     }));
     relatedList = [...relatedList, ...mappedFillers];
   }

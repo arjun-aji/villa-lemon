@@ -65,7 +65,7 @@ const packageItemSchema = new Schema<IPackageItem>(
   {
     packageCategory: {
       type: String,
-      enum: ["varkalaSightseeing", "dayTrips", "backwaterExperiences", "adventureActivities"],
+      enum: ["varkalaSightseeing", "dayTrips", "backwaterExperiences", "adventureActivities", "varkalaPackages"],
       required: true,
     },
     title: { type: localizedTextSchema },

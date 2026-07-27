@@ -214,7 +214,7 @@ interface LocalizedYogaDetails {
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         slug: foundPkg.slug,
-        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : "adventure-activities",
+        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
       });
       continue;
     }

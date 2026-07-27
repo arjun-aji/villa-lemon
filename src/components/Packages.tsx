@@ -81,13 +81,30 @@ const AdventureIcon = () => (
     <path d="M16.24 7.76l-2.12 2.12a3 3 0 0 0-4.24 4.24l-2.12 2.12 4.24-4.24a3 3 0 0 0 4.24-4.24l2.12-2.12z" />
   </svg>
 );
+const TourPackagesIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-6 h-6 mb-3 text-brand-gold"
+  >
+    <rect x="3" y="8" width="18" height="12" rx="2" />
+    <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M12 8v12" />
+  </svg>
+);
 
 interface PackageItem {
   _id?: string;
   category: string;
+  image: string;
   title: string;
   description: string;
-  image: string;
   explore: string;
   href: string;
 }
@@ -106,7 +123,6 @@ export default function Packages({
   viewAll: viewAllOverride,
 }: PackagesProps) {
   const t = useTranslations("Packages");
-
   const tagline = taglineOverride || t("tagline");
   const heading = headingOverride || t("heading");
   const viewAll = viewAllOverride || t("viewAll");
@@ -122,6 +138,8 @@ export default function Packages({
             ? <DayTripsIcon />
             : item.category === "backwaterExperiences"
             ? <HouseboatIcon />
+            : item.category === "varkalaPackages"
+            ? <TourPackagesIcon />
             : <AdventureIcon />,
         title: item.title,
         desc: item.description,

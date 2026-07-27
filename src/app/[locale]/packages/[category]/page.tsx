@@ -61,6 +61,10 @@ export default async function PackagesCatalogPage({
     dbCategory = "adventureActivities";
     titleKey = "adventureTitle";
     descKey = "adventureDesc";
+  } else if (category === "varkala-packages") {
+    dbCategory = "varkalaPackages";
+    titleKey = "varkalaPackagesTitle";
+    descKey = "varkalaPackagesDesc";
   }
 
   const rawPackages = await getPackageItems(dbCategory);
