@@ -1,12 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, useReducedMotion, Variants } from "framer-motion";
 import { Calendar } from "lucide-react";
 import Navbar from "./Navbar";
 import HighlightsBar from "./HighlightsBar";
+
+const DESKTOP_IMAGES = [
+  "/assets/hero.png",
+  "/assets/heroa.png",
+  "/assets/herob.png",
+  "/assets/heroc.png",
+];
+
+const MOBILE_IMAGES = [
+  "/assets/hero1.png",
+  "/assets/hero2.png",
+  "/assets/hero3.png",
+  "/assets/hero4.png",
+];
 
 const WhatsAppIcon = () => (
   <svg
@@ -47,6 +61,14 @@ interface HeroProps {
 export default function Hero({ data, highlightsData }: HeroProps) {
   const t = useTranslations("Hero");
   const shouldReduceMotion = useReducedMotion();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % 4);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [currentIndex]);
 
   // Localized string fallbacks
   const tagline = data?.tagline || t("tagline");
@@ -90,24 +112,42 @@ export default function Hero({ data, highlightsData }: HeroProps) {
 
       {/* BACKGROUND IMAGE WITH TWILIGHT OVERLAYS */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/assets/hero.png"
-          alt={t("imageAlt")}
-          fill
-          priority
-          sizes="100vw"
-          className="hidden md:block object-cover object-center select-none"
-          quality={90}
-        />
-        <Image
-          src="/assets/hero1.png"
-          alt={t("imageAlt")}
-          fill
-          priority
-          sizes="100vw"
-          className="block md:hidden object-cover object-center select-none"
-          quality={90}
-        />
+        {DESKTOP_IMAGES.map((src, index) => (
+          <div
+            key={`desktop-${index}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out hidden md:block ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={src}
+              alt={t("imageAlt")}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover object-center select-none"
+              quality={90}
+            />
+          </div>
+        ))}
+        {MOBILE_IMAGES.map((src, index) => (
+          <div
+            key={`mobile-${index}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out block md:hidden ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={src}
+              alt={t("imageAlt")}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover object-center select-none"
+              quality={90}
+            />
+          </div>
+        ))}
         {/* Deep linear gradient for text readability and layout integration */}
         <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/95 via-brand-dark/40 to-transparent z-10 hidden md:block" />
         <div className="absolute inset-0 bg-black/35 z-10 block md:hidden" />
@@ -190,6 +230,22 @@ export default function Hero({ data, highlightsData }: HeroProps) {
             </a>
           </motion.div>
         </div>
+      </div>
+
+      {/* NAVIGATION DOTS */}
+      <div className="relative z-30 flex justify-center items-center gap-3 pb-6">
+        {[0, 1, 2, 3].map((index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+              index === currentIndex
+                ? "bg-brand-gold w-8"
+                : "bg-brand-cream/40 hover:bg-brand-cream/70"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
       </div>
 
       {/* FLOATING HIGHLIGHTS PANEL */}
