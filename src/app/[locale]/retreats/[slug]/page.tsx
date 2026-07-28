@@ -14,6 +14,7 @@ import {
 import { API_BASE_URL } from "@/config/api";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { getContactSettings } from "@/utils/contactSettings";
+import BookingButton from "@/components/BookingButton";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -241,12 +242,12 @@ export default async function RetreatDetailsPage({
                 )}
 
                 <div className="flex items-center gap-4 select-none md:ml-auto mt-4 sm:mt-0">
-                  <a
-                    href="#booking-pricing"
+                  <BookingButton
                     className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
+                    context={`Retreat: ${loc(retreat.heroTitle, locale)}`}
                   >
-                    {loc(retreat.cta) || t.bookNow || "Book Now"}
-                  </a>
+                    {loc(retreat.cta, locale) || t.bookNow || "Book Now"}
+                  </BookingButton>
                 </div>
               </div>
             </div>
