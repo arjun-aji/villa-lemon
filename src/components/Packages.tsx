@@ -130,6 +130,7 @@ export default function Packages({
   const cards = React.useMemo(() => {
     if (data && data.length > 0) {
       return data.map((item) => ({
+        category: item.category,
         img: item.image,
         icon:
           item.category === "varkalaSightseeing"
@@ -182,17 +183,19 @@ export default function Packages({
         </div>
 
         {/* PACKAGES CARDS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {cards.map((card, index) => (
             <div
               key={index}
               id={
-                index === 0
+                card.category === "varkalaSightseeing"
                   ? "varkala-sightseeing"
-                  : index === 1
+                  : card.category === "dayTrips"
                   ? "day-trips"
-                  : index === 2
+                  : card.category === "backwaterExperiences"
                   ? "backwater-experiences"
+                  : card.category === "varkalaPackages"
+                  ? "varkala-packages"
                   : "adventure-activities"
               }
               className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
