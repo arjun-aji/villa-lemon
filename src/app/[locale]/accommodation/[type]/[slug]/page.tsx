@@ -280,7 +280,7 @@ export default async function PropertyDetailsPage({
 
   return (
     <>
-      <Navbar absoluteOnly={true} />
+      <Navbar />
       <PropertyDetailsClient 
         property={property} 
         translations={tDetails} 

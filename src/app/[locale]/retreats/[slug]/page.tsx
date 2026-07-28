@@ -149,7 +149,7 @@ export default async function RetreatDetailsPage({
 
   return (
     <>
-      <Navbar absoluteOnly={true} />
+      <Navbar />
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16 font-sans">
         <PageAutoTranslator locale={locale}>
           
