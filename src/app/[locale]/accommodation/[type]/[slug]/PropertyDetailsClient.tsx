@@ -223,7 +223,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
       </section>
 
       {/* NAVIGATION TABS BAR (STICKY) */}
-      <nav className="w-full bg-[#121212] text-white border-y border-white/5 sticky top-0 z-35 shadow-md">
+      <nav className="w-full bg-[#121212] text-white border-y border-white/5 sticky top-[73px] z-35 shadow-md">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center gap-1 overflow-x-auto select-none no-scrollbar">
           {tabs.map((tab) => (
             <button
