@@ -11,6 +11,7 @@ import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
+import { getContactSettings } from "@/utils/contactSettings";
 
 interface PropertyItem {
   _id: string;
@@ -79,9 +80,10 @@ export default async function AccommodationCatalogPage({
     descKey = "roomDesc";
   }
 
-  const [rawProperties, category] = await Promise.all([
+  const [rawProperties, category, contact] = await Promise.all([
     getProperties(dbType),
     getCategory(dbType),
+    getContactSettings(),
   ]);
 
   // Localize properties for rendering
@@ -197,7 +199,7 @@ export default async function AccommodationCatalogPage({
         </section>
 
         {/* INTERACTIVE FILTERS & CARDS GRID (CLIENT SIDE CONTAINER) */}
-        <CatalogClient properties={properties} typePath={type} locale={locale} />
+        <CatalogClient properties={properties} typePath={type} locale={locale} contact={contact} />
         </PageAutoTranslator>
       </main>
     </>

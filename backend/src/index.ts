@@ -13,6 +13,7 @@ import accommodationItemRoutes from "./routes/accommodationItemRoutes";
 import packageItemRoutes from "./routes/packageItemRoutes";
 import yogaItemRoutes from "./routes/yogaItemRoutes";
 import retreatRoutes from "./routes/retreatRoutes";
+import enquiryRoutes from "./routes/enquiryRoutes";
 
 // Load environment variables
 dotenv.config();
@@ -64,6 +65,7 @@ app.use("/api/packages/items", packageItemRoutes);
 app.use("/api/yoga", yogaRoutes);
 app.use("/api/yoga/items", yogaItemRoutes);
 app.use("/api/retreats", retreatRoutes);
+app.use("/api/enquiries", enquiryRoutes);
 
 // Base health check route
 app.get("/health", (req: Request, res: Response) => {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { API_BASE_URL } from "@/config/api";
 import RetreatsTab from "./RetreatsTab";
+import EnquiriesTab from "./EnquiriesTab";
 import {
   LayoutDashboard,
   Home,
@@ -38,7 +39,8 @@ import {
   Clock,
   ListPlus,
   Sliders,
-  DollarSign
+  DollarSign,
+  Mail
 } from "lucide-react";
 
 interface LocalizedText {
@@ -81,6 +83,14 @@ interface HomepageData {
     statsGuestsLabel: LocalizedText;
     statsRatingLabel: LocalizedText;
     statsLocationLabel: LocalizedText;
+  };
+  contact?: {
+    address: string;
+    phone: string;
+    whatsapp: string;
+    email: string;
+    receptionHours: string;
+    googleMapsLink?: string;
   };
 }
 
@@ -237,7 +247,7 @@ interface TeacherData {
   image: string;
 }
 
-type TabType = "dashboard" | "stays" | "packages" | "yoga" | "retreats" | "teachers" | "homepage";
+type TabType = "dashboard" | "stays" | "packages" | "yoga" | "retreats" | "teachers" | "homepage" | "enquiries";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -262,6 +272,7 @@ export default function AdminDashboard() {
   const [editingRetreat, setEditingRetreat] = useState<any>(null);
   const [teachers, setTeachers] = useState<TeacherData[]>([]);
   const [homepageData, setHomepageData] = useState<HomepageData | null>(null);
+  const [enquiries, setEnquiries] = useState<any[]>([]);
 
   // LOCALIZATION TAB
   const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
@@ -385,6 +396,15 @@ export default function AdminDashboard() {
       if (resHome.ok) {
         const d = await resHome.json();
         setHomepageData(d.data || null);
+      }
+
+      // 6. Fetch Enquiries / Messages (Admin access only)
+      const resEnquiries = await fetch(`${API_BASE_URL}/api/enquiries`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (resEnquiries.ok) {
+        const d = await resEnquiries.json();
+        setEnquiries(d.data || []);
       }
     } catch (err) {
       console.error("Failed to load CMS data:", err);
@@ -1221,6 +1241,16 @@ export default function AdminDashboard() {
             </div>
 
             <div 
+              onClick={() => setActiveTab("enquiries")}
+              className={`px-3.5 py-3 rounded-sm flex items-center gap-3 cursor-pointer transition-colors ${
+                activeTab === "enquiries" ? "bg-[#c5a880]/10 text-brand-gold border-l-2 border-brand-gold" : "hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Mail className="w-4 h-4 text-brand-gold" />
+              <span>Enquiries & Messages</span>
+            </div>
+
+            <div 
               onClick={() => {
                 if (homepageData) setShowHomepageModal(true);
               }}
@@ -1698,6 +1728,14 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {activeTab === "enquiries" && (
+                <EnquiriesTab 
+                  enquiries={enquiries}
+                  token={token}
+                  onRefresh={fetchData}
+                />
               )}
 
               <RetreatsTab
@@ -4669,6 +4707,111 @@ export default function AdminDashboard() {
                       className="border p-2.5 rounded"
                       required={activeLangTab === "en"}
                     />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t border-gray-100 pt-5 mt-5 text-left">
+                <h4 className="font-serif text-sm font-semibold border-b pb-2 text-brand-gold uppercase tracking-wider">Contact Information (Global)</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Phone Number</label>
+                    <input
+                      type="text"
+                      value={homepageData.contact?.phone || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "" };
+                        copy.contact.phone = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">WhatsApp Number</label>
+                    <input
+                      type="text"
+                      value={homepageData.contact?.whatsapp || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "" };
+                        copy.contact.whatsapp = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Email Address</label>
+                    <input
+                      type="email"
+                      value={homepageData.contact?.email || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "" };
+                        copy.contact.email = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Reception Hours</label>
+                    <input
+                      type="text"
+                      value={homepageData.contact?.receptionHours || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "" };
+                        copy.contact.receptionHours = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="font-bold text-gray-600 uppercase">Physical Address</label>
+                    <textarea
+                      value={homepageData.contact?.address || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "" };
+                        copy.contact.address = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      rows={2}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="font-bold text-gray-600 uppercase">Google Maps Link (Embed or Direct URL)</label>
+                    <input
+                      type="url"
+                      value={homepageData.contact?.googleMapsLink || ""}
+                      onChange={(e) => {
+                        const copy = { ...homepageData };
+                        if (!copy.contact) copy.contact = { address: "", phone: "", whatsapp: "", email: "", receptionHours: "", googleMapsLink: "" };
+                        copy.contact.googleMapsLink = e.target.value;
+                        setHomepageData(copy);
+                      }}
+                      className="border p-2.5 rounded text-xs text-gray-800"
+                      placeholder="https://maps.google.com/?q=... or google.com/maps/embed?pb=..."
+                    />
+                    <div className="mt-1.5 space-y-1">
+                      <p className="text-[10px] text-gray-500 font-medium">📍 <strong>Directions button</strong>: paste any share link (e.g. <code className="bg-gray-100 px-1 rounded">maps.app.goo.gl/...</code> or <code className="bg-gray-100 px-1 rounded">maps.google.com/?q=...</code>)</p>
+                      <p className="text-[10px] text-gray-500 font-medium">🗺️ <strong>Map preview embed</strong>: to update the embedded map, paste the <code className="bg-gray-100 px-1 rounded">src="..."</code> URL from Google Maps → Share → Embed a map. It must start with <code className="bg-gray-100 px-1 rounded">google.com/maps/embed?pb=</code></p>
+                    </div>
                   </div>
                 </div>
               </div>

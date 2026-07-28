@@ -64,6 +64,7 @@ interface PropertyDetailsClientProps {
   translations: Record<string, string>;
   locale: string;
   typePath: string;
+  contact?: { whatsapp: string; phone: string; email: string };
   suggestions?: Array<{
     id: string;
     type: string;
@@ -98,7 +99,7 @@ const getIcon = (name: string) => {
   }
 };
 
-export default function PropertyDetailsClient({ property, translations, locale, typePath, suggestions }: PropertyDetailsClientProps) {
+export default function PropertyDetailsClient({ property, translations, locale, typePath, suggestions = [], contact }: PropertyDetailsClientProps) {
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [galleryIndex, setGalleryIndex] = useState<number>(0);
 
@@ -878,7 +879,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
 
           <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 relative z-10 select-none">
             <a
-              href="https://wa.me/919000000000"
+              href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}`}
               target="_blank"
               className="px-6 py-4.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-md flex items-center gap-2"
             >

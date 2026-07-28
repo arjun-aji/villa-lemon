@@ -55,6 +55,14 @@ const homepageSchema = new Schema<IHomepage>(
       statsRatingLabel: { type: localizedTextSchema, required: true },
       statsLocationLabel: { type: localizedTextSchema, required: true },
     },
+    contact: {
+      address: { type: String, default: "Villa Lemon, Kurakkanni, Varkala, Thiruvananthapuram, Kerala, India - 695141" },
+      phone: { type: String, default: "+91 73560 85055" },
+      whatsapp: { type: String, default: "+91 73560 85055" },
+      email: { type: String, default: "hello@villalemon.com" },
+      receptionHours: { type: String, default: "Mon - Sun, 7:00 AM - 10:00 PM" },
+      googleMapsLink: { type: String, default: "https://maps.google.com/?q=Villa+Lemon+Kurakkanni+Varkala+Kerala" }
+    }
   },
   {
     timestamps: true,

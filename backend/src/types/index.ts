@@ -123,6 +123,14 @@ export interface IHomepage extends Document {
     statsRatingLabel: ILocalizedText;
     statsLocationLabel: ILocalizedText;
   };
+  contact?: {
+    address: string;
+    phone: string;
+    whatsapp: string;
+    email: string;
+    receptionHours: string;
+    googleMapsLink?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

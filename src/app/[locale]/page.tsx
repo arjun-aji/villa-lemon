@@ -4,6 +4,7 @@ import Accommodations from "@/components/Accommodations";
 import Packages from "@/components/Packages";
 import Yoga from "@/components/Yoga";
 import About from "@/components/About";
+import Contact from "@/components/Contact";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
@@ -82,9 +83,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   // Localize Homepage using translator
   const localizedHomepage = homepage ? await localizeObject(homepage, locale) : null;
-  const heroData = localizedHomepage?.hero;
+  const heroData = {
+    ...(localizedHomepage?.hero || {}),
+    whatsapp: localizedHomepage?.contact?.whatsapp || "+91 73560 85055",
+  };
   const highlightsData = localizedHomepage?.highlights;
   const aboutData = localizedHomepage?.about;
+  const contactData = localizedHomepage?.contact;
 
   // Localize Accommodation arrays list
   const localizedAccs = await Promise.all(
@@ -142,6 +147,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Packages data={localizedPkgs} />
       <Yoga data={localizedYoga} />
       <About data={aboutData} />
+      <Contact 
+        locale={locale} 
+        staysList={localizedAccs.map(acc => ({ _id: acc._id, title: acc.title }))} 
+        contact={contactData}
+      />
     </main>
   );
 }

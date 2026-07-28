@@ -8,6 +8,7 @@ import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
+import { getContactSettings } from "@/utils/contactSettings";
 
 interface PropertyDetails {
   _id: string;
@@ -157,10 +158,11 @@ export default async function PropertyDetailsPage({
   );
 
   // Get Suggestions (You May Also Like)
-  const [allProperties, allPackages, allYoga] = await Promise.all([
+  const [allProperties, allPackages, allYoga, contact] = await Promise.all([
     getAllProperties(),
     getAllPackages(),
     getAllYoga(),
+    getContactSettings(),
   ]);
 
   let suggestionsList: any[] = [];
@@ -286,7 +288,8 @@ export default async function PropertyDetailsPage({
         translations={tDetails} 
         locale={locale} 
         typePath={type} 
-        suggestions={suggestions} 
+        suggestions={suggestions}
+        contact={contact}
       />
     </>
   );

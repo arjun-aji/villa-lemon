@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
+import { getContactSettings } from "@/utils/contactSettings";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -128,7 +129,10 @@ export default async function RetreatDetailsPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const rawRetreat = await getRetreatDetails(slug);
+  const [rawRetreat, contact] = await Promise.all([
+    getRetreatDetails(slug),
+    getContactSettings(),
+  ]);
 
   if (!rawRetreat) {
     return notFound();
@@ -637,7 +641,7 @@ export default async function RetreatDetailsPage({
                 {/* WhatsApp & Email CTA Buttons */}
                 <div className="space-y-2 mt-6 select-none">
                   <a
-                    href={`https://wa.me/917994799042?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
+                    href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
@@ -647,7 +651,7 @@ export default async function RetreatDetailsPage({
                   </a>
 
                   <a
-                    href="mailto:stay@villalemon.com?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat..."
+                    href={`mailto:${contact.email}?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat...`}
                     className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black"
                   >
                     Send Email Enquiry

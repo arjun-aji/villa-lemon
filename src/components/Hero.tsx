@@ -47,6 +47,7 @@ interface HeroProps {
     bookStay?: string;
     whatsappBooking?: string;
     imageAlt?: string;
+    whatsapp?: string;
   };
   highlightsData?: {
     premiumVillasTitle?: string;
@@ -220,7 +221,7 @@ export default function Hero({ data, highlightsData }: HeroProps) {
 
             {/* Secondary WhatsApp CTA */}
             <a
-              href="https://wa.me/155553666" // Placeholder WhatsApp link
+              href={`https://wa.me/${(data?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-center gap-2.5 px-6 md:px-7 py-3.5 border border-white/60 md:border-brand-cream/20 hover:border-brand-gold hover:bg-brand-gold text-white hover:text-[#121212] font-semibold text-xs md:text-sm tracking-widest uppercase rounded-sm transition-all duration-300 backdrop-blur-sm bg-black/25 md:bg-black/10 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 focus:ring-offset-[#121212]"

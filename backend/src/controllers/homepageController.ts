@@ -37,6 +37,7 @@ export const updateHomepage = async (req: Request, res: Response): Promise<any> 
     if (req.body.hero) homepage.hero = { ...homepage.hero, ...req.body.hero };
     if (req.body.highlights) homepage.highlights = { ...homepage.highlights, ...req.body.highlights };
     if (req.body.about) homepage.about = { ...homepage.about, ...req.body.about };
+    if (req.body.contact) homepage.contact = { ...homepage.contact, ...req.body.contact };
 
     await homepage.save();
 

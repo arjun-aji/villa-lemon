@@ -24,9 +24,10 @@ interface CatalogClientProps {
   properties: Property[];
   typePath: string;
   locale: string;
+  contact?: { whatsapp: string; phone: string; email: string };
 }
 
-export default function CatalogClient({ properties, typePath, locale }: CatalogClientProps) {
+export default function CatalogClient({ properties, typePath, locale, contact }: CatalogClientProps) {
   const [selectedBedrooms, setSelectedBedrooms] = useState<string>("all");
   const [selectedGuests, setSelectedGuests] = useState<number>(0);
   const [priceTier, setPriceTier] = useState<string>("all");
@@ -299,7 +300,7 @@ export default function CatalogClient({ properties, typePath, locale }: CatalogC
             </div>
           </div>
           <a
-            href="https://wa.me/919000000000"
+            href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}`}
             target="_blank"
             className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shrink-0 select-none shadow-sm"
           >
