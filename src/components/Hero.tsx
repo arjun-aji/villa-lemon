@@ -7,6 +7,7 @@ import { motion, useReducedMotion, Variants } from "framer-motion";
 import { Calendar } from "lucide-react";
 import Navbar from "./Navbar";
 import HighlightsBar from "./HighlightsBar";
+import BookingButton from "./BookingButton";
 
 const DESKTOP_IMAGES = [
   "/assets/hero.png",
@@ -211,13 +212,12 @@ export default function Hero({ data, highlightsData }: HeroProps) {
             className="flex flex-col items-stretch gap-3 mt-4 w-full max-w-[280px] md:flex-row md:items-center md:gap-4 md:mt-2 md:max-w-none"
           >
             {/* Primary Booking CTA */}
-            <a
-              href="#booking"
+            <BookingButton
               className="group relative flex items-center justify-center gap-2.5 px-6 md:px-7 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-white md:text-[#121212] font-semibold text-xs md:text-sm tracking-widest uppercase rounded-sm transition-all duration-300 shadow-lg hover:shadow-brand-gold/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-gold focus:ring-offset-[#121212]"
             >
               <Calendar className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
               <span>{t("bookStay")}</span>
-            </a>
+            </BookingButton>
 
             {/* Secondary WhatsApp CTA */}
             <a

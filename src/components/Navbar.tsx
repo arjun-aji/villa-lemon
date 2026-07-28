@@ -5,6 +5,7 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Globe } from "lucide-react";
+import BookingButton from "./BookingButton";
 
 interface SubItem {
   name: string;
@@ -536,13 +537,13 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
                 {/* Mobile Booking Button */}
                 <div className="pt-2">
-                  <a
-                    href="#booking"
+                  <BookingButton
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center justify-center bg-brand-gold hover:bg-brand-gold-dark text-white font-sans font-bold text-xs tracking-widest uppercase rounded-[3px] py-3.5 transition-all duration-300 shadow-md focus:outline-none focus:ring-1 focus:ring-brand-gold w-full text-center"
+                    context="Mobile Navbar Menu"
                   >
                     {t("bookNow")}
-                  </a>
+                  </BookingButton>
                 </div>
               </div>
 

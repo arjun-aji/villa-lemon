@@ -13,6 +13,8 @@ import {
 import { API_BASE_URL } from "@/config/api";
 import { T } from "@/components/AutoTranslate";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
+import BookingButton from "@/components/BookingButton";
+import { getContactSettings } from "@/utils/contactSettings";
 
 // Extract the English-first value from a localized Record or plain string
 function loc(field: Record<string, string> | string | undefined | null, locale?: string): string {
@@ -157,11 +159,12 @@ export default async function PackageDetailsPage({
     return notFound();
   }
 
-  // Fetch all packages, stays, and yoga programs for related recommendations
-  const [allProperties, allPackages, allYoga] = await Promise.all([
+  // Fetch all packages, stays, and yoga programs for related recommendations and contact info
+  const [allProperties, allPackages, allYoga, contact] = await Promise.all([
     getAllProperties(),
     getAllPackages(),
     getAllYoga(),
+    getContactSettings(),
   ]);
 
   // Fetch translations
@@ -410,12 +413,12 @@ export default async function PackageDetailsPage({
               )}
 
               <div className="flex items-center gap-4 select-none md:ml-auto">
-                <a
-                  href="#book"
+                <BookingButton
                   className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
+                  context={`Package: ${loc(pkg.title, locale)}`}
                 >
                   {pkg.cta || tPkg.bookNow || "Book Now"}
-                </a>
+                </BookingButton>
               </div>
             </div>
           </div>
@@ -544,8 +547,9 @@ export default async function PackageDetailsPage({
                 Direct booking provides the most customizable experience details. Contact us on WhatsApp to confirm timing.
               </p>
               <a
-                href={`https://wa.me/919000000000?text=Hi, I would like to book the package tour: ${encodeURIComponent(pkg.title)}`}
+                href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the package tour: ${encodeURIComponent(loc(pkg.title, locale))}`}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="w-full flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px]"
               >
                 <span>{pkg.cta || tPkg.whatsappUs || "WhatsApp Us"}</span>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import BookingButton from "@/components/BookingButton";
 import { 
   Check, 
   MapPin, 
@@ -208,14 +209,14 @@ export default function PropertyDetailsClient({ property, translations, locale, 
 
               {/* CTA Buttons */}
               <div className="flex items-center gap-3 select-none">
-                <a
-                  href="#booking"
+                <BookingButton
                   className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
+                  context={property.title}
                 >
                   {translations.bookStay || "Book Your Stay"}
-                </a>
+                </BookingButton>
                 <a
-                  href={`https://wa.me/919000000000?text=Hi, I would like to book a stay at ${encodeURIComponent(property.title)}`}
+                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book a stay at ${encodeURIComponent(property.title)}`}
                   target="_blank"
                   className="px-6 py-3.5 border border-white/20 hover:border-brand-gold text-white hover:text-brand-gold font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300"
                 >
@@ -885,12 +886,12 @@ export default function PropertyDetailsClient({ property, translations, locale, 
             >
               <span>{translations.chatOnWhatsapp || "CHAT ON WHATSAPP"}</span>
             </a>
-            <a
-              href="#contact"
+            <BookingButton
               className="px-6 py-4.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300"
+              context={property.title}
             >
               {translations.bookStay || "BOOK YOUR STAY"}
-            </a>
+            </BookingButton>
           </div>
         </div>
       </section>

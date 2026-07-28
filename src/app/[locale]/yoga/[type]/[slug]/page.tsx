@@ -8,6 +8,8 @@ import { notFound } from "next/navigation";
 import { Clock, Check, Shield, Calendar, Phone, ChevronLeft, MapPin, Smile } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
+import BookingButton from "@/components/BookingButton";
+import { getContactSettings } from "@/utils/contactSettings";
 
 import { localizeObject } from "@/utils/translator";
 
@@ -116,12 +118,13 @@ export default async function YogaDetailsPage({
 }) {
   const { locale, type, slug } = await params;
   
-  const [rawYoga, rawTeacher, allYoga, allProperties, allPackages] = await Promise.all([
+  const [rawYoga, rawTeacher, allYoga, allProperties, allPackages, contact] = await Promise.all([
     getYogaDetails(slug),
     getLeadTeacher(),
     getAllYoga(),
     getAllProperties(),
     getAllPackages(),
+    getContactSettings(),
   ]);
 
   if (!rawYoga) {
@@ -339,12 +342,12 @@ interface LocalizedYogaDetails {
               </div>
 
               <div className="flex items-center gap-4 select-none md:ml-auto">
-                <a
-                  href="#book"
+                <BookingButton
                   className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
+                  context={`Yoga Program: ${yoga.title}`}
                 >
                   {tYoga.bookNow || "Book Now"}
-                </a>
+                </BookingButton>
               </div>
             </div>
           </div>
@@ -469,8 +472,9 @@ interface LocalizedYogaDetails {
                 Consult with our Acharyas to design a personal retreat or schedule a private therapy session.
               </p>
               <a
-                href={`https://wa.me/919000000000?text=Hi, I would like to consult/book the yoga package: ${encodeURIComponent(yoga.title)}`}
+                href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to consult/book the yoga package: ${encodeURIComponent(yoga.title)}`}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="w-full flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px]"
               >
                 <span>Chat on WhatsApp</span>
