@@ -236,7 +236,7 @@ export default async function RetreatDetailsPage({
                     <Award className="w-5 h-5 text-brand-gold" />
                     <div className="text-left">
                       <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Certificate</span>
-                      <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">{t.certified || "Certified Training"}</h4>
+                      <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">{loc(retreat.yogaCertificate)}</h4>
                     </div>
                   </div>
                 )}
@@ -244,9 +244,9 @@ export default async function RetreatDetailsPage({
                 <div className="flex items-center gap-4 select-none md:ml-auto mt-4 sm:mt-0">
                   <BookingButton
                     className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
-                    context={`Retreat: ${loc(retreat.heroTitle, locale)}`}
+                    context={`Retreat: ${loc(retreat.heroTitle)}`}
                   >
-                    {loc(retreat.cta, locale) || t.bookNow || "Book Now"}
+                    {loc(retreat.cta) || t.bookNow || "Book Now"}
                   </BookingButton>
                 </div>
               </div>
