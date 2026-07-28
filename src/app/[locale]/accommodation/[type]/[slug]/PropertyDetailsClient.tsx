@@ -104,7 +104,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
 
   const tabs = [
     { id: "overview", label: translations.overview || "Overview" },
-    { id: "rooms", label: translations.rooms || "Rooms & Apartment" },
+    { id: "rooms", label: translations.rooms || (property.type === "room" ? "Room Details" : "Rooms & Apartment") },
     { id: "amenities", label: translations.amenities || "Amenities" },
     { id: "facilities", label: translations.facilities || "Facilities" },
     { id: "location", label: translations.location || "Location" },
@@ -553,7 +553,13 @@ export default function PropertyDetailsClient({ property, translations, locale, 
             {/* Right side gallery */}
             <div className="lg:col-span-5 flex flex-col gap-6 select-none w-full">
               <h3 className="font-serif text-lg font-semibold text-[#121212] mb-1">
-                {translations.roomsGallery || "Rooms & Villa Gallery"}
+                {translations.roomsGallery || (
+                  property.type === "villa"
+                    ? "Rooms & Villa Gallery"
+                    : property.type === "floor"
+                    ? "Rooms & Floor Gallery"
+                    : "Room Gallery"
+                )}
               </h3>
               {property.gallery && property.gallery.length > 0 ? (
                 <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-[#eae6db] group bg-gray-100">
@@ -691,9 +697,23 @@ export default function PropertyDetailsClient({ property, translations, locale, 
               <p className="text-sm text-gray-600 leading-relaxed font-light font-sans mb-6">
                 {property.perfectLocationText}
               </p>
-              <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-800 bg-[#eae6db]/30 px-4 py-3.5 rounded-sm select-none max-w-sm">
-                <MapPin className="w-5 h-5 text-brand-gold" />
-                <span>Located in {property.location}</span>
+              <div className="flex flex-col gap-4 items-start">
+                <div className="flex items-center gap-2.5 text-xs font-semibold text-gray-800 bg-[#eae6db]/30 px-4 py-3.5 rounded-sm select-none w-full max-w-sm">
+                  <MapPin className="w-5 h-5 text-brand-gold" />
+                  <span>Located in {property.location}</span>
+                </div>
+                
+                {property.mapLink && (
+                  <a
+                    href={property.mapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2.5 px-6 py-3.5 border border-brand-gold hover:bg-brand-gold text-brand-gold hover:text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 select-none cursor-pointer"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{translations.openInMaps || "Open in Maps"}</span>
+                  </a>
+                )}
               </div>
             </div>
 
