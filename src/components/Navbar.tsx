@@ -112,6 +112,81 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
     return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
 
+  // Synchronize active nav item with URL pathname, hash, and scroll position
+  useEffect(() => {
+    const syncFromUrl = () => {
+      if (pathname.startsWith("/accommodation")) {
+        setActiveItem("ACCOMMODATIONS");
+      } else if (pathname.startsWith("/packages")) {
+        setActiveItem("PACKAGES");
+      } else if (pathname.startsWith("/yoga") || pathname.startsWith("/retreats")) {
+        setActiveItem("YOGATOURS");
+      } else {
+        const hash = window.location.hash;
+        if (hash === "#villas") setActiveItem("ACCOMMODATIONS");
+        else if (hash === "#packages") setActiveItem("PACKAGES");
+        else if (hash === "#yogatours") setActiveItem("YOGATOURS");
+        else if (hash === "#about") setActiveItem("ABOUT");
+        else if (hash === "#gallery") setActiveItem("GALLERY");
+        else if (hash === "#contact") setActiveItem("CONTACT");
+        else setActiveItem("HOME");
+      }
+    };
+
+    syncFromUrl();
+
+    // Scroll spy on the homepage using precise section offsets
+    const isHomepage = pathname === "/" || pathname === "" || pathname === `/${locale}`;
+    let scrollAnimationFrame: number;
+
+    const handleScrollSpy = () => {
+      if (scrollAnimationFrame) {
+        window.cancelAnimationFrame(scrollAnimationFrame);
+      }
+      
+      scrollAnimationFrame = window.requestAnimationFrame(() => {
+        const sectionIds = ["home", "villas", "packages", "yogatours", "about"];
+        const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+        
+        const scrollPosition = window.scrollY + window.innerHeight / 3;
+        let activeSection = "HOME";
+        
+        for (const section of sections) {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            const id = section.id;
+            if (id === "home") activeSection = "HOME";
+            else if (id === "villas") activeSection = "ACCOMMODATIONS";
+            else if (id === "packages") activeSection = "PACKAGES";
+            else if (id === "yogatours") activeSection = "YOGATOURS";
+            else if (id === "about") activeSection = "ABOUT";
+          }
+        }
+        
+        setActiveItem(activeSection);
+      });
+    };
+
+    if (isHomepage && typeof window !== "undefined") {
+      window.addEventListener("scroll", handleScrollSpy);
+      // Run once on load/mount
+      handleScrollSpy();
+    }
+
+    window.addEventListener("hashchange", syncFromUrl);
+    return () => {
+      window.removeEventListener("hashchange", syncFromUrl);
+      if (isHomepage && typeof window !== "undefined") {
+        window.removeEventListener("scroll", handleScrollSpy);
+        if (scrollAnimationFrame) {
+          window.cancelAnimationFrame(scrollAnimationFrame);
+        }
+      }
+    };
+  }, [pathname, locale]);
+
   return (
     <header
       className={`${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${

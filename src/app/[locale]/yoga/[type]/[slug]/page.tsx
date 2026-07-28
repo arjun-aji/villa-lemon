@@ -302,9 +302,13 @@ interface LocalizedYogaDetails {
               </Link>
 
               <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
-                <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
+                <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
-                <Link href={`/${locale}/yoga/${type}`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <span>&gt;</span>
+                <Link href={`/${locale}/yoga/${type}`} className="hover:text-brand-gold transition-colors">
+                  {type === "retreats" ? "Yoga Retreats" : type === "classes" ? "Daily Yoga Classes" : type === "private" ? "Private Yoga Sessions" : "Our Teachers"}
+                </Link>
                 <span>&gt;</span>
                 <span className="text-brand-gold">{yoga.title}</span>
               </div>

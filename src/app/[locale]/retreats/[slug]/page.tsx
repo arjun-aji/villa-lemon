@@ -171,15 +171,26 @@ export default async function RetreatDetailsPage({
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full text-left">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <Link
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <Link 
                   href={`/${locale}/retreats`}
                   className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>{t.backToListing || "Back to listings"}</span>
                 </Link>
-                <span className="text-white/30 text-xs">|</span>
+
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                  <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                  <span>&gt;</span>
+                  <Link href={`/${locale}/retreats`} className="hover:text-brand-gold transition-colors">Retreats</Link>
+                  <span>&gt;</span>
+                  <span className="text-brand-gold truncate max-w-[200px]">{loc(retreat.heroTitle)}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 mb-4 select-none">
                 <span className="bg-brand-gold/15 text-brand-gold text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">
                   {retreat.days} Days / {retreat.nights} Nights
                 </span>

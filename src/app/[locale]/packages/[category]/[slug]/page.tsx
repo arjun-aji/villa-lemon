@@ -361,9 +361,13 @@ export default async function PackageDetailsPage({
               </Link>
 
               <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
-                <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
+                <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
-                <Link href={`/${locale}/packages/${category}`} className="hover:text-brand-gold transition-colors">Packages</Link>
+                <Link href={`/${locale}#packages`} className="hover:text-brand-gold transition-colors">Packages</Link>
+                <span>&gt;</span>
+                <Link href={`/${locale}/packages/${category}`} className="hover:text-brand-gold transition-colors">
+                  {category === "varkala-sightseeing" || category === "varkalaSightseeing" ? "Varkala Sightseeing" : category === "day-trips" || category === "dayTrips" ? "Day Trips" : category === "backwater-experiences" || category === "backwaterExperiences" ? "Backwater Experiences" : category === "varkala-packages" || category === "varkalaPackages" ? "Varkala Packages" : "Adventure Activities"}
+                </Link>
                 <span>&gt;</span>
                 <span className="text-brand-gold truncate max-w-[200px]">{pkg.title}</span>
               </div>

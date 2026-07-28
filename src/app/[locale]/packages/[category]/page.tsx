@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
-import { Clock, ShieldCheck, MapPin, Compass } from "lucide-react";
+import { Clock, ShieldCheck, MapPin, Compass, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 import PackagesGridSlider from "@/components/PackagesGridSlider";
@@ -117,13 +117,23 @@ export default async function PackagesCatalogPage({
           </div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase mb-3 font-semibold select-none">
-              <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
-              <span>&gt;</span>
-              <span className="hover:text-brand-gold transition-colors">Packages</span>
-              <span>&gt;</span>
-              <span className="text-brand-gold">{title}</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <Link 
+                href={`/${locale}#packages`}
+                className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Back to Packages</span>
+              </Link>
+
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                <span>&gt;</span>
+                <Link href={`/${locale}#packages`} className="hover:text-brand-gold transition-colors">Packages</Link>
+                <span>&gt;</span>
+                <span className="text-brand-gold">{title}</span>
+              </div>
             </div>
 
             <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">

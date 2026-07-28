@@ -140,9 +140,13 @@ export default function PropertyDetailsClient({ property, translations, locale, 
             </Link>
 
             <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
-              <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
+              <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
               <span>&gt;</span>
-              <Link href={`/${locale}/accommodation/${typePath}`} className="hover:text-brand-gold transition-colors">Accommodation</Link>
+              <Link href={`/${locale}#villas`} className="hover:text-brand-gold transition-colors">Accommodation</Link>
+              <span>&gt;</span>
+              <Link href={`/${locale}/accommodation/${typePath}`} className="hover:text-brand-gold transition-colors">
+                {typePath === "villas" ? "Entire Villas" : typePath === "floors" ? "Private Floors" : "Individual Rooms"}
+              </Link>
               <span>&gt;</span>
               <span className="text-brand-gold">{property.title}</span>
             </div>

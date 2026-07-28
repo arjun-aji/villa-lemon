@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
-import { Clock, CheckCircle, Users } from "lucide-react";
+import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 
@@ -122,12 +122,23 @@ export default async function YogaCatalogPage({
             </div>
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
-              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase mb-3 font-semibold select-none">
-                <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
-                <span>&gt;</span>
-                <span className="hover:text-brand-gold transition-colors">Yoga</span>
-                <span>&gt;</span>
-                <span className="text-brand-gold">{tYoga.teachersTitle || "Our Teachers"}</span>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <Link 
+                  href={`/${locale}#yogatours`}
+                  className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Back to Yoga Tours</span>
+                </Link>
+
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                  <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                  <span>&gt;</span>
+                  <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                  <span>&gt;</span>
+                  <span className="text-brand-gold">{tYoga.teachersTitle || "Our Teachers"}</span>
+                </div>
               </div>
 
               <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
@@ -226,12 +237,23 @@ export default async function YogaCatalogPage({
             </div>
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
-              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase mb-3 font-semibold select-none">
-                <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
-                <span>&gt;</span>
-                <Link href={`/${locale}/yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
-                <span>&gt;</span>
-                <span className="text-brand-gold">{title}</span>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <Link 
+                  href={`/${locale}#yogatours`}
+                  className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Back to Yoga Tours</span>
+                </Link>
+
+                {/* Breadcrumb */}
+                <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                  <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                  <span>&gt;</span>
+                  <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                  <span>&gt;</span>
+                  <span className="text-brand-gold">{title}</span>
+                </div>
               </div>
               <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
                 {title}
@@ -370,12 +392,23 @@ export default async function YogaCatalogPage({
           </div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
-            <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase mb-3 font-semibold select-none">
-              <Link href="/" className="hover:text-brand-gold transition-colors">Home</Link>
-              <span>&gt;</span>
-              <span className="hover:text-brand-gold transition-colors">Yoga</span>
-              <span>&gt;</span>
-              <span className="text-brand-gold">{title}</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <Link 
+                href={`/${locale}#yogatours`}
+                className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Back to Yoga Tours</span>
+              </Link>
+
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                <span>&gt;</span>
+                <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <span>&gt;</span>
+                <span className="text-brand-gold">{title}</span>
+              </div>
             </div>
 
             <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
