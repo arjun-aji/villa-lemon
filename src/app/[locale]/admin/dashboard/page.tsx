@@ -649,6 +649,13 @@ export default function AdminDashboard() {
   const handleSaveSubgroup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Validate banner image if creating new subgroup
+    if (!editingSubgroup && coverImageFiles.length === 0) {
+      alert("Please upload at least one banner image.");
+      return;
+    }
+
     setSavingSubgroup(true);
 
     try {
@@ -831,6 +838,19 @@ export default function AdminDashboard() {
   const handleSaveStay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Validate images if creating new stay
+    if (!editingStay) {
+      if (coverImageFiles.length === 0) {
+        alert("Please upload at least one cover image.");
+        return;
+      }
+      if (!aboutImageFile) {
+        alert("Please upload an about section image (hammock photo).");
+        return;
+      }
+    }
+
     setSavingStay(true);
 
     try {
@@ -1179,6 +1199,19 @@ export default function AdminDashboard() {
   const handleSaveYoga = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Validate images if creating new retreat
+    if (!editingYoga) {
+      if (coverImageFiles.length === 0) {
+        alert("Please upload at least one cover image.");
+        return;
+      }
+      if (!aboutImageFile) {
+        alert("Please upload an about section image.");
+        return;
+      }
+    }
+
     setSavingYoga(true);
 
     try {
@@ -1287,6 +1320,13 @@ export default function AdminDashboard() {
   const handleSaveTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Validate image if creating new teacher profile
+    if (!editingTeacher && !coverImageFile) {
+      alert("Please upload a profile photo.");
+      return;
+    }
+
     setSavingTeacher(true);
 
     try {
@@ -2337,7 +2377,7 @@ export default function AdminDashboard() {
                   <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                     <Upload className="w-4 h-4 text-gray-400" />
                     <span className="font-semibold text-gray-500">Upload Banner Image(s)</span>
-                    <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingSubgroup} />
+                    <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
                   </label>
                 </div>
               </div>
@@ -2674,7 +2714,7 @@ export default function AdminDashboard() {
                       <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                         <Upload className="w-4 h-4 text-gray-400" />
                         <span className="font-semibold text-gray-500">Upload Cover Image(s)</span>
-                        <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingStay} />
+                        <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
                       </label>
                     </div>
                   </div>
@@ -2691,7 +2731,7 @@ export default function AdminDashboard() {
                       <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                         <Upload className="w-4 h-4 text-gray-400" />
                         <span className="font-semibold text-gray-500">Upload About Image</span>
-                        <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" required={!editingStay} />
+                        <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
                       </label>
                     </div>
                   </div>
@@ -4773,7 +4813,7 @@ export default function AdminDashboard() {
                     <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                       <Upload className="w-4 h-4 text-gray-400" />
                       <span className="font-semibold text-gray-500">Upload Cover Image(s)</span>
-                      <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingYoga} />
+                      <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
                     </label>
                   </div>
                 </div>
@@ -4788,7 +4828,7 @@ export default function AdminDashboard() {
                     <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                       <Upload className="w-4 h-4 text-gray-400" />
                       <span className="font-semibold text-gray-500">Upload Detail Image</span>
-                      <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" required={!editingYoga} />
+                      <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
                     </label>
                   </div>
                 </div>
@@ -5009,7 +5049,7 @@ export default function AdminDashboard() {
                   <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                     <Upload className="w-4 h-4 text-gray-400" />
                     <span className="font-semibold text-gray-500">Upload Profile Photo</span>
-                    <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" required={!editingTeacher} />
+                    <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" />
                   </label>
                 </div>
               </div>
