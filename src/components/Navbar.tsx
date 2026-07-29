@@ -281,7 +281,9 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
           : "py-6 bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+      <div className={`max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between transition-opacity duration-300 ${
+        isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}>
         {/* LOGO */}
         <Link
           href="/"
