@@ -650,12 +650,6 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!token) return;
 
-    // Validate banner image if creating new subgroup
-    if (!editingSubgroup && coverImageFiles.length === 0) {
-      alert("Please upload at least one banner image.");
-      return;
-    }
-
     setSavingSubgroup(true);
 
     try {
@@ -838,18 +832,6 @@ export default function AdminDashboard() {
   const handleSaveStay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
-
-    // Validate images if creating new stay
-    if (!editingStay) {
-      if (coverImageFiles.length === 0) {
-        alert("Please upload at least one cover image.");
-        return;
-      }
-      if (!aboutImageFile) {
-        alert("Please upload an about section image (hammock photo).");
-        return;
-      }
-    }
 
     setSavingStay(true);
 
@@ -1200,18 +1182,6 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!token) return;
 
-    // Validate images if creating new retreat
-    if (!editingYoga) {
-      if (coverImageFiles.length === 0) {
-        alert("Please upload at least one cover image.");
-        return;
-      }
-      if (!aboutImageFile) {
-        alert("Please upload an about section image.");
-        return;
-      }
-    }
-
     setSavingYoga(true);
 
     try {
@@ -1320,12 +1290,6 @@ export default function AdminDashboard() {
   const handleSaveTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
-
-    // Validate image if creating new teacher profile
-    if (!editingTeacher && !coverImageFile) {
-      alert("Please upload a profile photo.");
-      return;
-    }
 
     setSavingTeacher(true);
 
@@ -2367,7 +2331,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleDeleteCoverImage(idx)}
-                            className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
                             title="Remove image"
                           >×</button>
                         </div>
@@ -2704,7 +2668,7 @@ export default function AdminDashboard() {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteCoverImage(idx)}
-                                className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                                className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
                                 title="Remove image"
                               >×</button>
                             </div>
@@ -3654,7 +3618,7 @@ export default function AdminDashboard() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteCoverImage(idx)}
-                                  className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                                  className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
                                   title="Remove image"
                                 >×</button>
                               </div>
@@ -4803,7 +4767,7 @@ export default function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleDeleteCoverImage(idx)}
-                              className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                              className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
                               title="Remove image"
                             >×</button>
                           </div>
