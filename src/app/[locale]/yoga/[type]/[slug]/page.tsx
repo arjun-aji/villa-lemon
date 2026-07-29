@@ -11,6 +11,7 @@ import { API_BASE_URL } from "@/config/api";
 import BookingButton from "@/components/BookingButton";
 import { getContactSettings } from "@/utils/contactSettings";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
+import AboutImageSlider from "@/components/AboutImageSlider";
 
 import { localizeObject } from "@/utils/translator";
 
@@ -23,6 +24,7 @@ interface YogaDetails {
   pricePeriod: Record<string, string>;
   image: string;
   aboutImage: string;
+  aboutImages?: string[];
   duration: Record<string, string>;
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
@@ -146,6 +148,7 @@ interface LocalizedYogaDetails {
   image: string;
   images?: string[];
   aboutImage: string;
+  aboutImages?: string[];
   duration: string;
   shortDescription: string;
   tagline: string;
@@ -167,6 +170,7 @@ interface LocalizedYogaDetails {
     image: ly.image,
     images: rawYoga.images || [],
     aboutImage: rawYoga.aboutImage || rawYoga.image,
+    aboutImages: rawYoga.aboutImages || [],
     duration: ly.duration,
     shortDescription: ly.shortDescription,
     tagline: ly.tagline,
@@ -439,11 +443,10 @@ interface LocalizedYogaDetails {
           {/* Right sidebar column */}
           <div className="lg:col-span-4 flex flex-col gap-8">
             <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-sm border border-[#eae6db] select-none">
-              <Image
-                src={yoga.aboutImage}
+              <AboutImageSlider
+                images={yoga.aboutImages}
+                defaultImage={yoga.aboutImage}
                 alt="Yoga Program Secondary Photo"
-                fill
-                className="object-cover"
               />
             </div>
 

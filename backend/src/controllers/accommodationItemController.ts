@@ -88,24 +88,20 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
-    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
 
-    if (imageFiles.length === 0 || !aboutImageFile) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Both cover image and about section image are required",
-      });
-    }
-
     // Upload to Cloudinary
-    console.log("[cloudinary]: Uploading cover image and about image to Cloudinary...");
+    console.log("[cloudinary]: Uploading cover images and about images to Cloudinary...");
     const coverPromises = imageFiles.map(file => uploadImage(file.buffer, "villas"));
     const coverUploads = await Promise.all(coverPromises);
     const coverImages = coverUploads.map(r => r.secure_url);
     const coverImagePublicIds = coverUploads.map(r => r.public_id);
 
-    const aboutUpload = await uploadImage(aboutImageFile.buffer, "about");
+    const aboutPromises = aboutImageFiles.map(file => uploadImage(file.buffer, "about"));
+    const aboutUploads = await Promise.all(aboutPromises);
+    const aboutImages = aboutUploads.map(r => r.secure_url);
+    const aboutImagePublicIds = aboutUploads.map(r => r.public_id);
 
     const galleryUrls: string[] = [];
     const galleryPublicIds: string[] = [];
@@ -126,12 +122,14 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       slug,
       price: Number(price),
       pricePeriod,
-      image: coverImages[0],
-      imagePublicId: coverImagePublicIds[0],
+      image: coverImages[0] || "",
+      imagePublicId: coverImagePublicIds[0] || "",
       images: coverImages,
       imagePublicIds: coverImagePublicIds,
-      aboutImage: aboutUpload.secure_url,
-      aboutImagePublicId: aboutUpload.public_id,
+      aboutImage: aboutImages[0] || "",
+      aboutImagePublicId: aboutImagePublicIds[0] || "",
+      aboutImages: aboutImages,
+      aboutImagePublicIds: aboutImagePublicIds,
       bedrooms: Number(bedrooms),
       bathrooms: Number(bathrooms),
       guests: Number(guests),
@@ -217,7 +215,7 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
-    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
 
     // Handle Cover Image — support existingImages to keep + new uploads to add
@@ -256,18 +254,48 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
 
       item.images = allImages;
       item.imagePublicIds = allPublicIds;
-      item.image = allImages[0] || item.image;
-      item.imagePublicId = allPublicIds[0] || item.imagePublicId;
+      item.image = allImages[0] || "";
+      item.imagePublicId = allPublicIds[0] || "";
     }
 
-    // Handle About Image replacement
-    if (aboutImageFile) {
-      if (item.aboutImagePublicId) {
-        await deleteImage(item.aboutImagePublicId).catch((err) => console.warn(`Cloudinary delete about failed: ${err.message}`));
+    // Handle About Image — support existingAboutImages to keep + new uploads to add
+    const existingAboutImagesKept: string[] = req.body.existingAboutImages ? parseField(req.body.existingAboutImages) : null;
+
+    if (existingAboutImagesKept !== null || aboutImageFiles.length > 0) {
+      const keptSet = new Set(existingAboutImagesKept ?? (item.aboutImages || []));
+      const currentImages: string[] = item.aboutImages || (item.aboutImage ? [item.aboutImage] : []);
+      const currentPublicIds: string[] = item.aboutImagePublicIds || (item.aboutImagePublicId ? [item.aboutImagePublicId] : []);
+
+      const idsToDelete = currentPublicIds.filter((pid, idx) => {
+        const url = currentImages[idx];
+        return url && !keptSet.has(url);
+      });
+      if (idsToDelete.length > 0) {
+        await Promise.all(idsToDelete.map(id => deleteImage(id).catch(() => {})));
       }
-      const aboutUpload = await uploadImage(aboutImageFile.buffer, "about");
-      item.aboutImage = aboutUpload.secure_url;
-      item.aboutImagePublicId = aboutUpload.public_id;
+
+      const keptUrls = currentImages.filter(url => keptSet.has(url));
+      const keptPublicIds = currentPublicIds.filter((_, idx) => {
+        const url = currentImages[idx];
+        return url && keptSet.has(url);
+      });
+
+      let newUrls: string[] = [];
+      let newPublicIds: string[] = [];
+      if (aboutImageFiles.length > 0) {
+        const aboutPromises = aboutImageFiles.map(file => uploadImage(file.buffer, "about"));
+        const aboutUploads = await Promise.all(aboutPromises);
+        newUrls = aboutUploads.map(r => r.secure_url);
+        newPublicIds = aboutUploads.map(r => r.public_id);
+      }
+
+      const allAboutImages = [...keptUrls, ...newUrls];
+      const allAboutPublicIds = [...keptPublicIds, ...newPublicIds];
+
+      item.aboutImages = allAboutImages;
+      item.aboutImagePublicIds = allAboutPublicIds;
+      item.aboutImage = allAboutImages[0] || "";
+      item.aboutImagePublicId = allAboutPublicIds[0] || "";
     }
 
     // Handle Gallery sync and new uploads
@@ -329,12 +357,21 @@ export const deleteAccommodationItem = async (req: Request, res: Response): Prom
       });
     }
 
-    // Delete both resources from Cloudinary
-    if (item.imagePublicId) {
-      await deleteImage(item.imagePublicId).catch((err) => console.warn(`Cover delete failed: ${err.message}`));
+    // Delete resources from Cloudinary
+    if (item.imagePublicIds && item.imagePublicIds.length > 0) {
+      await Promise.all(item.imagePublicIds.map(pid => deleteImage(pid).catch(() => {})));
+    } else if (item.imagePublicId) {
+      await deleteImage(item.imagePublicId).catch(() => {});
     }
-    if (item.aboutImagePublicId) {
-      await deleteImage(item.aboutImagePublicId).catch((err) => console.warn(`About image delete failed: ${err.message}`));
+
+    if (item.aboutImagePublicIds && item.aboutImagePublicIds.length > 0) {
+      await Promise.all(item.aboutImagePublicIds.map(pid => deleteImage(pid).catch(() => {})));
+    } else if (item.aboutImagePublicId) {
+      await deleteImage(item.aboutImagePublicId).catch(() => {});
+    }
+
+    if (item.galleryPublicIds && item.galleryPublicIds.length > 0) {
+      await Promise.all(item.galleryPublicIds.map(pid => deleteImage(pid).catch(() => {})));
     }
 
     await AccommodationItem.findByIdAndDelete(id);

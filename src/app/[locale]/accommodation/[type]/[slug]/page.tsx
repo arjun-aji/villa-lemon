@@ -19,6 +19,7 @@ interface PropertyDetails {
   pricePeriod: Record<string, string>;
   image: string;
   aboutImage: string;
+  aboutImages?: string[];
   bedrooms: number;
   bathrooms: number;
   guests: number;
@@ -128,6 +129,7 @@ export default async function PropertyDetailsPage({
   property.id = rawProperty._id;
   property.type = rawProperty.accommodationType;
   property.aboutImage = rawProperty.aboutImage || rawProperty.image;
+  property.aboutImages = rawProperty.aboutImages || [];
   property.images = rawProperty.images || [];
   property.relatedAccommodations = rawProperty.relatedAccommodations || [];
 

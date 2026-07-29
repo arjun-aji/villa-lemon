@@ -83,7 +83,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
-    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
     const ogImageFile = files.find(f => f.fieldname === "ogImage");
 
@@ -103,13 +103,15 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       imagePublicId = coverImagePublicIds[0];
     }
 
-    let aboutImageUrl = "";
-    let aboutImagePublicId = "";
-    if (aboutImageFile) {
-      console.log("[cloudinary]: Uploading package detail image to Cloudinary...");
-      const aboutUpload = await uploadImage(aboutImageFile.buffer, "packages");
-      aboutImageUrl = aboutUpload.secure_url;
-      aboutImagePublicId = aboutUpload.public_id;
+    let aboutImages: string[] = [];
+    let aboutImagePublicIds: string[] = [];
+    if (aboutImageFiles.length > 0) {
+      console.log("[cloudinary]: Uploading package detail images to Cloudinary...");
+      const aboutUploads = await Promise.all(
+        aboutImageFiles.map(file => uploadImage(file.buffer, "packages"))
+      );
+      aboutImages = aboutUploads.map(r => r.secure_url);
+      aboutImagePublicIds = aboutUploads.map(r => r.public_id);
     }
 
     // Upload Gallery Images
@@ -146,8 +148,10 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       imagePublicId: imagePublicId,
       images: coverImages,
       imagePublicIds: coverImagePublicIds,
-      aboutImage: aboutImageUrl,
-      aboutImagePublicId: aboutImagePublicId,
+      aboutImage: aboutImages[0] || "",
+      aboutImagePublicId: aboutImagePublicIds[0] || "",
+      aboutImages: aboutImages,
+      aboutImagePublicIds: aboutImagePublicIds,
       duration,
       shortDescription,
       tagline,
@@ -279,7 +283,7 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
-    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
     const ogImageFile = files.find(f => f.fieldname === "ogImage");
 
@@ -319,18 +323,48 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
 
       item.images = allImages;
       item.imagePublicIds = allPublicIds;
-      item.image = allImages[0] || item.image;
-      item.imagePublicId = allPublicIds[0] || item.imagePublicId;
+      item.image = allImages[0] || "";
+      item.imagePublicId = allPublicIds[0] || "";
     }
 
-    // Handle About Image replacement
-    if (aboutImageFile) {
-      if (item.aboutImagePublicId) {
-        await deleteImage(item.aboutImagePublicId).catch((err) => console.warn(`Cloudinary delete about failed: ${err.message}`));
+    // Handle About Image — support existingAboutImages to keep + new uploads to add
+    const existingAboutImagesKept: string[] = req.body.existingAboutImages ? parseField(req.body.existingAboutImages) : null;
+
+    if (existingAboutImagesKept !== null || aboutImageFiles.length > 0) {
+      const keptSet = new Set(existingAboutImagesKept ?? (item.aboutImages || []));
+      const currentImages: string[] = item.aboutImages || (item.aboutImage ? [item.aboutImage] : []);
+      const currentPublicIds: string[] = item.aboutImagePublicIds || (item.aboutImagePublicId ? [item.aboutImagePublicId] : []);
+
+      const idsToDelete = currentPublicIds.filter((pid, idx) => {
+        const url = currentImages[idx];
+        return url && !keptSet.has(url);
+      });
+      if (idsToDelete.length > 0) {
+        await Promise.all(idsToDelete.map(id => deleteImage(id).catch(() => {})));
       }
-      const aboutUpload = await uploadImage(aboutImageFile.buffer, "packages");
-      item.aboutImage = aboutUpload.secure_url;
-      item.aboutImagePublicId = aboutUpload.public_id;
+
+      const keptUrls = currentImages.filter(url => keptSet.has(url));
+      const keptPublicIds = currentPublicIds.filter((_, idx) => {
+        const url = currentImages[idx];
+        return url && keptSet.has(url);
+      });
+
+      let newUrls: string[] = [];
+      let newPublicIds: string[] = [];
+      if (aboutImageFiles.length > 0) {
+        const aboutPromises = aboutImageFiles.map(file => uploadImage(file.buffer, "packages"));
+        const aboutUploads = await Promise.all(aboutPromises);
+        newUrls = aboutUploads.map(r => r.secure_url);
+        newPublicIds = aboutUploads.map(r => r.public_id);
+      }
+
+      const allAboutImages = [...keptUrls, ...newUrls];
+      const allAboutPublicIds = [...keptPublicIds, ...newPublicIds];
+
+      item.aboutImages = allAboutImages;
+      item.aboutImagePublicIds = allAboutPublicIds;
+      item.aboutImage = allAboutImages[0] || "";
+      item.aboutImagePublicId = allAboutPublicIds[0] || "";
     }
 
     // Handle SEO ogImage replacement
@@ -403,21 +437,24 @@ export const deletePackageItem = async (req: Request, res: Response): Promise<an
     }
 
     // Delete from Cloudinary
-    if (item.imagePublicId) {
-      await deleteImage(item.imagePublicId).catch((err) => console.warn(`Cover delete failed: ${err.message}`));
+    if (item.imagePublicIds && item.imagePublicIds.length > 0) {
+      await Promise.all(item.imagePublicIds.map(pid => deleteImage(pid).catch(() => {})));
+    } else if (item.imagePublicId) {
+      await deleteImage(item.imagePublicId).catch(() => {});
     }
-    if (item.aboutImagePublicId) {
-      await deleteImage(item.aboutImagePublicId).catch((err) => console.warn(`About image delete failed: ${err.message}`));
+
+    if (item.aboutImagePublicIds && item.aboutImagePublicIds.length > 0) {
+      await Promise.all(item.aboutImagePublicIds.map(pid => deleteImage(pid).catch(() => {})));
+    } else if (item.aboutImagePublicId) {
+      await deleteImage(item.aboutImagePublicId).catch(() => {});
     }
+
     if (item.ogImagePublicId) {
-      await deleteImage(item.ogImagePublicId).catch((err) => console.warn(`SEO OG image delete failed: ${err.message}`));
+      await deleteImage(item.ogImagePublicId).catch(() => {});
     }
+
     if (item.galleryPublicIds && item.galleryPublicIds.length > 0) {
-      for (const pubId of item.galleryPublicIds) {
-        if (pubId) {
-          await deleteImage(pubId).catch((err) => console.warn(`Gallery image delete failed: ${err.message}`));
-        }
-      }
+      await Promise.all(item.galleryPublicIds.map(pid => deleteImage(pid).catch(() => {})));
     }
 
     await PackageItem.findByIdAndDelete(id);

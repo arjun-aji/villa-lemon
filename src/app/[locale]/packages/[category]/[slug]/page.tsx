@@ -16,6 +16,7 @@ import PageAutoTranslator from "@/components/PageAutoTranslator";
 import BookingButton from "@/components/BookingButton";
 import { getContactSettings } from "@/utils/contactSettings";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
+import AboutImageSlider from "@/components/AboutImageSlider";
 
 // Extract the English-first value from a localized Record or plain string
 function loc(field: Record<string, string> | string | undefined | null, locale?: string): string {
@@ -33,6 +34,7 @@ interface PackageDetails {
   pricePeriod: Record<string, string>;
   image: string;
   aboutImage: string;
+  aboutImages?: string[];
   duration: Record<string, string>;
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
@@ -182,6 +184,7 @@ export default async function PackageDetailsPage({
     image: rawPackage.image || "",
     images: rawPackage.images || [],
     aboutImage: rawPackage.aboutImage || rawPackage.image || "",
+    aboutImages: rawPackage.aboutImages || [],
     duration: loc(rawPackage.duration),
     shortDescription: loc(rawPackage.shortDescription),
     tagline: loc(rawPackage.tagline),
@@ -533,16 +536,11 @@ export default async function PackageDetailsPage({
           {/* Right Column: Top Sidebar (6 cols) */}
           <div className="lg:col-span-6 flex flex-col gap-8">
             <div className="relative w-full h-[300px] lg:h-[460px] rounded-sm overflow-hidden shadow-sm border border-[#eae6db] select-none">
-              {pkg.aboutImage ? (
-                <Image
-                  src={pkg.aboutImage}
-                  alt="Package Secondary Photo"
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-brand-dark/20" />
-              )}
+              <AboutImageSlider
+                images={pkg.aboutImages}
+                defaultImage={pkg.aboutImage}
+                alt="Package Secondary Photo"
+              />
             </div>
 
             {/* Direct Booking WhatsApp Card */}

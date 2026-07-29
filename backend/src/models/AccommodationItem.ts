@@ -61,6 +61,8 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, required: true },
     aboutImagePublicId: { type: String },
+    aboutImages: { type: [String], default: [] },
+    aboutImagePublicIds: { type: [String], default: [] },
     bedrooms: { type: Number, required: true },
     bathrooms: { type: Number, required: true },
     guests: { type: Number, required: true },

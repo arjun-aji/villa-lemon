@@ -35,6 +35,8 @@ const yogaItemSchema = new Schema<IYogaItem>(
     imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, required: true },
     aboutImagePublicId: { type: String },
+    aboutImages: { type: [String], default: [] },
+    aboutImagePublicIds: { type: [String], default: [] },
     duration: { type: localizedTextSchema, required: true },
     shortDescription: { type: localizedTextSchema, required: true },
     tagline: { type: localizedTextSchema, required: true },

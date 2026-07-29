@@ -145,6 +145,7 @@ interface AccommodationItemData {
   image: string;
   images?: string[];
   aboutImage: string;
+  aboutImages?: string[];
   bedrooms: number;
   bathrooms: number;
   guests: number;
@@ -179,6 +180,7 @@ interface PackageItemData {
   image: string;
   images?: string[];
   aboutImage: string;
+  aboutImages?: string[];
   duration: LocalizedText;
   shortDescription: LocalizedText;
   tagline: LocalizedText;
@@ -240,6 +242,7 @@ interface YogaItemData {
   image: string;
   images?: string[];
   aboutImage: string;
+  aboutImages?: string[];
   duration: LocalizedText;
   shortDescription: LocalizedText;
   tagline: LocalizedText;
@@ -297,6 +300,8 @@ export default function AdminDashboard() {
   const [coverImagePreviews, setCoverImagePreviews] = useState<string[]>([]);
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
   const [aboutImagePreview, setAboutImagePreview] = useState<string | null>(null);
+  const [aboutImageFiles, setAboutImageFiles] = useState<File[]>([]);
+  const [aboutImagePreviews, setAboutImagePreviews] = useState<string[]>([]);
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
   const [ogImageFile, setOgImageFile] = useState<File | null>(null);
   const [ogImagePreview, setOgImagePreview] = useState<string | null>(null);
@@ -484,10 +489,31 @@ export default function AdminDashboard() {
 
   // Helper handles about image preview URL setup
   const handleAboutImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setAboutImageFile(file);
-      setAboutImagePreview(URL.createObjectURL(file));
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      const newBlobUrls = newFiles.map(file => URL.createObjectURL(file));
+      setAboutImageFiles(prev => [...prev, ...newFiles]);
+      setAboutImagePreviews(prev => [...prev, ...newBlobUrls]);
+      // Keep legacy single-file state for backward compat
+      setAboutImageFile(newFiles[0]);
+      setAboutImagePreview(newBlobUrls[0]);
+      // Reset file input
+      e.target.value = "";
+    }
+  };
+
+  const handleDeleteAboutImage = (idx: number) => {
+    const url = aboutImagePreviews[idx];
+    const blobUrlsBefore = aboutImagePreviews.slice(0, idx).filter(u => u.startsWith("blob:"));
+    const blobIdx = url.startsWith("blob:") ? blobUrlsBefore.length : -1;
+
+    const newPreviews = aboutImagePreviews.filter((_, i) => i !== idx);
+    setAboutImagePreviews(newPreviews);
+
+    if (blobIdx >= 0) {
+      const newFiles = aboutImageFiles.filter((_, i) => i !== blobIdx);
+      setAboutImageFiles(newFiles);
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -809,6 +835,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
+    setAboutImagePreviews([]);
+    setAboutImageFiles([]);
     setNewGalleryFiles([]);
     setShowStayModal(true);
   };
@@ -825,6 +853,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(s.aboutImage);
     setAboutImageFile(null);
+    setAboutImagePreviews(s.aboutImages && s.aboutImages.length > 0 ? s.aboutImages : s.aboutImage ? [s.aboutImage] : []);
+    setAboutImageFiles([]);
     setNewGalleryFiles([]);
     setShowStayModal(true);
   };
@@ -875,7 +905,14 @@ export default function AdminDashboard() {
       coverImageFiles.forEach(file => {
         formData.append("images", file);
       });
-      if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
+
+      // Send which existing about images to keep
+      const existingAboutUrls = aboutImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingAboutImages", JSON.stringify(existingAboutUrls));
+      // Append only new about image uploads
+      aboutImageFiles.forEach(file => {
+        formData.append("aboutImage", file);
+      });
       
       // Append gallery uploads and existing links
       if (newGalleryFiles.length > 0) {
@@ -995,6 +1032,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
+    setAboutImagePreviews([]);
+    setAboutImageFiles([]);
     setOgImagePreview(null);
     setOgImageFile(null);
     setNewGalleryFiles([]);
@@ -1014,6 +1053,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(p.aboutImage);
     setAboutImageFile(null);
+    setAboutImagePreviews(p.aboutImages && p.aboutImages.length > 0 ? p.aboutImages : p.aboutImage ? [p.aboutImage] : []);
+    setAboutImageFiles([]);
     setOgImagePreview(p.ogImage || null);
     setOgImageFile(null);
     setNewGalleryFiles([]);
@@ -1083,7 +1124,14 @@ export default function AdminDashboard() {
       coverImageFiles.forEach(file => {
         formData.append("images", file);
       });
-      if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
+
+      // Send which existing about images to keep
+      const existingAboutUrls = aboutImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingAboutImages", JSON.stringify(existingAboutUrls));
+      // Append only new about image uploads
+      aboutImageFiles.forEach(file => {
+        formData.append("aboutImage", file);
+      });
       if (ogImageFile) formData.append("ogImage", ogImageFile);
 
       // Append gallery uploads and existing links
@@ -1160,6 +1208,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
+    setAboutImagePreviews([]);
+    setAboutImageFiles([]);
     setShowYogaModal(true);
   };
 
@@ -1175,6 +1225,8 @@ export default function AdminDashboard() {
     setCoverImageFiles([]);
     setAboutImagePreview(y.aboutImage);
     setAboutImageFile(null);
+    setAboutImagePreviews(y.aboutImages && y.aboutImages.length > 0 ? y.aboutImages : y.aboutImage ? [y.aboutImage] : []);
+    setAboutImageFiles([]);
     setShowYogaModal(true);
   };
 
@@ -1211,7 +1263,14 @@ export default function AdminDashboard() {
       coverImageFiles.forEach(file => {
         formData.append("images", file);
       });
-      if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
+
+      // Send which existing about images to keep
+      const existingAboutUrls = aboutImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingAboutImages", JSON.stringify(existingAboutUrls));
+      // Append only new about image uploads
+      aboutImageFiles.forEach(file => {
+        formData.append("aboutImage", file);
+      });
 
       const url = editingYoga
         ? `${API_BASE_URL}/api/yoga/items/${editingYoga._id}`
@@ -2683,19 +2742,29 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* About Photo */}
-                  <div className="space-y-2">
-                    <label className="font-bold text-gray-600 uppercase">About Section Image (Hammock Photo)</label>
-                    <div className="flex items-center gap-3">
-                      {aboutImagePreview && (
-                        <div className="relative w-24 aspect-[4/3] rounded border bg-gray-100 overflow-hidden shrink-0">
-                          <img src={aboutImagePreview} className="w-full h-full object-cover" alt="About Preview" />
+                  {/* About Photo(s) */}
+                  <div className="space-y-2 col-span-1 sm:col-span-2">
+                    <label className="font-bold text-gray-600 uppercase">About Section Image(s) (Hammock Photos - Multiple for Slideshow)</label>
+                    <div className="flex flex-col gap-3">
+                      {aboutImagePreviews && aboutImagePreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {aboutImagePreviews.map((url, idx) => (
+                            <div key={idx} className="relative w-24 aspect-[4/3] rounded border bg-gray-100 overflow-hidden shrink-0 group">
+                              <img src={url} className="w-full h-full object-cover" alt={`About Preview ${idx + 1}`} />
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteAboutImage(idx)}
+                                className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                                title="Remove image"
+                              >×</button>
+                            </div>
+                          ))}
                         </div>
                       )}
                       <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                         <Upload className="w-4 h-4 text-gray-400" />
-                        <span className="font-semibold text-gray-500">Upload About Image</span>
-                        <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
+                        <span className="font-semibold text-gray-500">Upload About Image(s)</span>
+                        <input type="file" accept="image/*" multiple onChange={handleAboutImageChange} className="hidden" />
                       </label>
                     </div>
                   </div>
@@ -3632,18 +3701,28 @@ export default function AdminDashboard() {
                         </label>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="font-bold text-gray-600 uppercase">Details Section Image</label>
-                      <div className="flex items-center gap-3">
-                        {aboutImagePreview && (
-                          <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                            <img src={aboutImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                    <div className="space-y-2 col-span-1 sm:col-span-2">
+                      <label className="font-bold text-gray-600 uppercase">Details Section Image(s) (Multiple for Slideshow)</label>
+                      <div className="flex flex-col gap-3">
+                        {aboutImagePreviews && aboutImagePreviews.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {aboutImagePreviews.map((url, idx) => (
+                              <div key={idx} className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0 group">
+                                <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteAboutImage(idx)}
+                                  className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                                  title="Remove image"
+                                >×</button>
+                              </div>
+                            ))}
                           </div>
                         )}
                         <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                           <Upload className="w-4 h-4 text-gray-400" />
-                          <span className="font-semibold text-gray-500">Upload Detail Image</span>
-                          <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
+                          <span className="font-semibold text-gray-500">Upload Detail Image(s)</span>
+                          <input type="file" accept="image/*" multiple onChange={handleAboutImageChange} className="hidden" />
                         </label>
                       </div>
                     </div>
@@ -4781,18 +4860,28 @@ export default function AdminDashboard() {
                     </label>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="font-bold text-gray-600 uppercase">Details Section Image</label>
-                  <div className="flex items-center gap-3">
-                    {aboutImagePreview && (
-                      <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                        <img src={aboutImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                <div className="space-y-2 col-span-1 sm:col-span-2">
+                  <label className="font-bold text-gray-600 uppercase">Details Section Image(s) (Multiple for Slideshow)</label>
+                  <div className="flex flex-col gap-3">
+                    {aboutImagePreviews && aboutImagePreviews.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {aboutImagePreviews.map((url, idx) => (
+                          <div key={idx} className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0 group bg-gray-50">
+                            <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAboutImage(idx)}
+                              className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                              title="Remove image"
+                            >×</button>
+                          </div>
+                        ))}
                       </div>
                     )}
                     <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                       <Upload className="w-4 h-4 text-gray-400" />
-                      <span className="font-semibold text-gray-500">Upload Detail Image</span>
-                      <input type="file" accept="image/*" onChange={handleAboutImageChange} className="hidden" />
+                      <span className="font-semibold text-gray-500">Upload Detail Image(s)</span>
+                      <input type="file" accept="image/*" multiple onChange={handleAboutImageChange} className="hidden" />
                     </label>
                   </div>
                 </div>

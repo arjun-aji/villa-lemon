@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
 import BookingButton from "@/components/BookingButton";
+import AboutImageSlider from "@/components/AboutImageSlider";
 import { 
   Check, 
   MapPin, 
@@ -39,6 +40,7 @@ interface Property {
   image: string;
   images?: string[];
   aboutImage: string;
+  aboutImages?: string[];
   bedrooms: number;
   bathrooms: number;
   guests: number;
@@ -306,13 +308,12 @@ export default function PropertyDetailsClient({ property, translations, locale, 
 
             {/* Right Photos & Distance Table Column */}
             <div className="lg:col-span-5 flex flex-col gap-8 select-none">
-              {/* About section image */}
+              {/* About section image slider */}
               <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-[#eae6db]">
-                <Image
-                  src={property.aboutImage}
+                <AboutImageSlider
+                  images={property.aboutImages}
+                  defaultImage={property.aboutImage}
                   alt="Property Detail Photo"
-                  fill
-                  className="object-cover"
                 />
               </div>
 

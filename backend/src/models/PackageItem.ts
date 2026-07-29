@@ -78,6 +78,8 @@ const packageItemSchema = new Schema<IPackageItem>(
     imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, default: "" },
     aboutImagePublicId: { type: String },
+    aboutImages: { type: [String], default: [] },
+    aboutImagePublicIds: { type: [String], default: [] },
     duration: { type: localizedTextSchema },
     shortDescription: { type: localizedTextSchema },
     tagline: { type: localizedTextSchema },
