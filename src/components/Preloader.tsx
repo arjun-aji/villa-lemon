@@ -7,6 +7,12 @@ export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const hasPreloaded = sessionStorage.getItem("villa_lemon_preloaded");
+    if (hasPreloaded) {
+      setIsLoading(false);
+      return;
+    }
+
     // Disable scroll while loading
     document.body.style.overflow = "hidden";
 
@@ -15,6 +21,7 @@ export default function Preloader() {
       setTimeout(() => {
         setIsLoading(false);
         document.body.style.overflow = "";
+        sessionStorage.setItem("villa_lemon_preloaded", "true");
       }, 1800);
     };
 

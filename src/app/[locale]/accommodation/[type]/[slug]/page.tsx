@@ -106,7 +106,14 @@ export default async function PropertyDetailsPage({
   params: Promise<{ locale: string; type: string; slug: string }>;
 }) {
   const { locale, type, slug } = await params;
-  const rawProperty = await getPropertyDetails(slug);
+
+  const [rawProperty, allProperties, allPackages, allYoga, contact] = await Promise.all([
+    getPropertyDetails(slug),
+    getAllProperties(),
+    getAllPackages(),
+    getAllYoga(),
+    getContactSettings(),
+  ]);
 
   if (!rawProperty) {
     return notFound();
@@ -158,14 +165,6 @@ export default async function PropertyDetailsPage({
       details: await localizeObject(a.details, locale),
     }))
   );
-
-  // Get Suggestions (You May Also Like)
-  const [allProperties, allPackages, allYoga, contact] = await Promise.all([
-    getAllProperties(),
-    getAllPackages(),
-    getAllYoga(),
-    getContactSettings(),
-  ]);
 
   let suggestionsList: any[] = [];
 

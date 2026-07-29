@@ -155,19 +155,18 @@ export default async function PackageDetailsPage({
   params: Promise<{ locale: string; category: string; slug: string }>;
 }) {
   const { locale, category, slug } = await params;
-  const rawPackage = await getPackageDetails(slug);
 
-  if (!rawPackage) {
-    return notFound();
-  }
-
-  // Fetch all packages, stays, and yoga programs for related recommendations and contact info
-  const [allProperties, allPackages, allYoga, contact] = await Promise.all([
+  const [rawPackage, allProperties, allPackages, allYoga, contact] = await Promise.all([
+    getPackageDetails(slug),
     getAllProperties(),
     getAllPackages(),
     getAllYoga(),
     getContactSettings(),
   ]);
+
+  if (!rawPackage) {
+    return notFound();
+  }
 
   // Fetch translations
   const messages = await getMessages({ locale });
