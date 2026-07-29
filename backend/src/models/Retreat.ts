@@ -113,6 +113,7 @@ const certSchema = new Schema({
 
 const retreatSchema = new Schema<IRetreat>({
   // General Info
+  yogaType: { type: String, default: "retreats" },
   slug: { type: String, required: true, unique: true },
   days: { type: Number, default: 7 },
   nights: { type: Number, default: 7 },

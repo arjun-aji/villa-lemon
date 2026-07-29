@@ -10,6 +10,7 @@ import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
 import BookingButton from "@/components/BookingButton";
 import { getContactSettings } from "@/utils/contactSettings";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 
 import { localizeObject } from "@/utils/translator";
 
@@ -30,6 +31,7 @@ interface YogaDetails {
   benefits: Array<Record<string, string>>;
   inclusions: Array<Record<string, string>>;
   relatedYoga?: string[];
+  images?: string[];
 }
 
 interface TeacherType {
@@ -142,6 +144,7 @@ interface LocalizedYogaDetails {
   price: number;
   pricePeriod: string;
   image: string;
+  images?: string[];
   aboutImage: string;
   duration: string;
   shortDescription: string;
@@ -162,6 +165,7 @@ interface LocalizedYogaDetails {
     price: ly.price,
     pricePeriod: ly.pricePeriod,
     image: ly.image,
+    images: rawYoga.images || [],
     aboutImage: rawYoga.aboutImage || rawYoga.image,
     duration: ly.duration,
     shortDescription: ly.shortDescription,
@@ -201,6 +205,7 @@ interface LocalizedYogaDetails {
         image: foundStay.image,
         slug: foundStay.slug,
         category: foundStay.accommodationType === "villa" ? "villas" : foundStay.accommodationType === "floor" ? "floors" : "rooms",
+        images: foundStay.images || [],
       });
       continue;
     }
@@ -218,6 +223,7 @@ interface LocalizedYogaDetails {
         image: foundPkg.image,
         slug: foundPkg.slug,
         category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        images: foundPkg.images || [],
       });
       continue;
     }
@@ -235,6 +241,7 @@ interface LocalizedYogaDetails {
         image: foundYoga.image,
         slug: foundYoga.slug,
         category: foundYoga.yogaType,
+        images: foundYoga.images || [],
       });
       continue;
     }
@@ -253,6 +260,7 @@ interface LocalizedYogaDetails {
       image: foundYoga.image,
       slug: foundYoga.slug,
       category: foundYoga.yogaType,
+      images: foundYoga.images || [],
     }));
   } else if (suggestionsList.length < 3) {
     const alreadySlugs = suggestionsList.map((s) => s.slug);
@@ -284,12 +292,11 @@ interface LocalizedYogaDetails {
         {/* BANNER COVER PHOTO */}
         <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-10">
           <div className="absolute inset-0 z-0">
-            <Image
-              src={yoga.image}
+            <ImageSlideshow
+              images={yoga.images}
+              defaultImage={yoga.image}
+              className="object-cover w-full h-full opacity-50 brightness-75 select-none"
               alt={yoga.title}
-              fill
-              className="object-cover opacity-50 brightness-75 select-none"
-              priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent z-10" />
           </div>
@@ -510,11 +517,11 @@ interface LocalizedYogaDetails {
                   >
                     <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden">
                       {y.image ? (
-                        <Image
-                          src={y.image}
+                        <ImageSlideshow
+                          images={y.images}
+                          defaultImage={y.image}
+                          className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                           alt={y.title}
-                          fill
-                          className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full bg-[#121212]/20" />

@@ -15,6 +15,7 @@ import { T } from "@/components/AutoTranslate";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import BookingButton from "@/components/BookingButton";
 import { getContactSettings } from "@/utils/contactSettings";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 
 // Extract the English-first value from a localized Record or plain string
 function loc(field: Record<string, string> | string | undefined | null, locale?: string): string {
@@ -82,6 +83,7 @@ interface PackageDetails {
   pickup?: Record<string, string>;
   drop?: Record<string, string>;
   notes?: Record<string, string>;
+  images?: string[];
 }
 
 async function getPackageDetails(slug: string): Promise<PackageDetails | null> {
@@ -179,6 +181,7 @@ export default async function PackageDetailsPage({
     price: rawPackage.price,
     pricePeriod: loc(rawPackage.pricePeriod),
     image: rawPackage.image || "",
+    images: rawPackage.images || [],
     aboutImage: rawPackage.aboutImage || rawPackage.image || "",
     duration: loc(rawPackage.duration),
     shortDescription: loc(rawPackage.shortDescription),
@@ -245,6 +248,7 @@ export default async function PackageDetailsPage({
         tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
         slug: foundStay.slug,
         category: foundStay.accommodationType === "villa" ? "villas" : foundStay.accommodationType === "floor" ? "floors" : "rooms",
+        images: foundStay.images || [],
       });
       continue;
     }
@@ -268,6 +272,7 @@ export default async function PackageDetailsPage({
         tagline: foundPkg.tagline[locale] || foundPkg.tagline["en"] || "",
         slug: foundPkg.slug,
         category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        images: foundPkg.images || [],
       });
       continue;
     }
@@ -291,6 +296,7 @@ export default async function PackageDetailsPage({
         tagline: foundYoga.tagline[locale] || foundYoga.tagline["en"] || "",
         slug: foundYoga.slug,
         category: foundYoga.yogaType,
+        images: foundYoga.images || [],
       });
       continue;
     }
@@ -309,6 +315,7 @@ export default async function PackageDetailsPage({
       image: foundPkg.image,
       slug: foundPkg.slug,
       category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+      images: foundPkg.images || [],
     }));
   } else if (relatedList.length < 3) {
     const alreadySlugs = relatedList.map((s) => s.slug);
@@ -325,6 +332,7 @@ export default async function PackageDetailsPage({
       image: foundPkg.image,
       slug: foundPkg.slug,
       category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+      images: foundPkg.images || [],
     }));
     relatedList = [...relatedList, ...mappedFillers];
   }
@@ -340,12 +348,11 @@ export default async function PackageDetailsPage({
         <section className="relative w-full min-h-[300px] md:min-h-[400px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-12">
           <div className="absolute inset-0 z-0">
             {pkg.image ? (
-              <Image
-                src={pkg.image}
+              <ImageSlideshow
+                images={pkg.images}
+                defaultImage={pkg.image}
+                className="object-cover w-full h-full opacity-50 brightness-75 select-none"
                 alt={pkg.title}
-                fill
-                className="object-cover opacity-50 brightness-75 select-none"
-                priority
               />
             ) : (
               <div className="w-full h-full bg-brand-dark/80" />
@@ -917,11 +924,11 @@ export default async function PackageDetailsPage({
                     >
                       <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden">
                         {rp.image ? (
-                          <Image
-                            src={rp.image}
+                          <ImageSlideshow
+                            images={rp.images}
+                            defaultImage={rp.image}
+                            className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                             alt={rp.title}
-                            fill
-                            className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
                           />
                         ) : (
                           <div className="w-full h-full bg-brand-dark/20" />

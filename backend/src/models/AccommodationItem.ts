@@ -57,6 +57,8 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     pricePeriod: { type: localizedTextSchema, required: true },
     image: { type: String, required: true },
     imagePublicId: { type: String },
+    images: { type: [String], default: [] },
+    imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, required: true },
     aboutImagePublicId: { type: String },
     bedrooms: { type: Number, required: true },
@@ -82,6 +84,7 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     gallery: [{ type: String }],
     galleryPublicIds: [{ type: String }],
     relatedAccommodations: [{ type: String }],
+    displayOrder: { type: Number, default: 0 },
   },
   {
     timestamps: true,

@@ -79,6 +79,7 @@ function CameraIcon(props: any) {
 // ─── Default form state ────────────────────────────────────────────────────────
 
 const defaultForm = () => ({
+  yogaType: "retreats",
   slug: "",
   days: 11,
   nights: 10,
@@ -239,6 +240,7 @@ interface RetreatsTabProps {
   onClose?: () => void;
   onSave?: () => void;
   editingItem?: any;
+  defaultYogaType?: string;
 }
 
 export default function RetreatsTab({
@@ -248,6 +250,7 @@ export default function RetreatsTab({
   onClose,
   onSave,
   editingItem,
+  defaultYogaType = "retreats",
 }: RetreatsTabProps) {
   const [retreats, setRetreats] = useState<Retreat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -275,7 +278,7 @@ export default function RetreatsTab({
           setHeroImagePreview(editingItem.heroImage || "");
         } else {
           setEditing(null);
-          setForm(defaultForm());
+          setForm({ ...defaultForm(), yogaType: defaultYogaType });
           setHeroImagePreview("");
         }
         setHeroImageFile(null);
@@ -361,7 +364,7 @@ export default function RetreatsTab({
       // Append all fields
       const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming"];
       const numFields = ["days", "nights", "price", "minAge", "maxCapacity", "yogaHours", "maxParticipants", "minParticipants", "displayOrder"];
-      const strFields = ["slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap"];
+      const strFields = ["yogaType", "slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap"];
       const ltFields = [
         "heroTitle", "heroSubtitle", "tagline", "shortDescription", "fullDescription", "retreatOverview", "whyChoose", "whoIsItFor", "bestTime", "cta",
         "location", "difficulty", "yogaLevel", "language", "groupSize", "accommodationType", "yogaStyle", "morningSession", "eveningSession",

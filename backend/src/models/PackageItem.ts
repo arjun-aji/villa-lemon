@@ -74,6 +74,8 @@ const packageItemSchema = new Schema<IPackageItem>(
     pricePeriod: { type: localizedTextSchema },
     image: { type: String, default: "" },
     imagePublicId: { type: String },
+    images: { type: [String], default: [] },
+    imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, default: "" },
     aboutImagePublicId: { type: String },
     duration: { type: localizedTextSchema },
@@ -127,6 +129,7 @@ const packageItemSchema = new Schema<IPackageItem>(
     pickup: { type: localizedTextSchema },
     drop: { type: localizedTextSchema },
     notes: { type: localizedTextSchema },
+    displayOrder: { type: Number, default: 0 },
   },
   {
     timestamps: true,

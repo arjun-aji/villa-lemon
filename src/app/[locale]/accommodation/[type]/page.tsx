@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useTranslations } from "next-intl";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import { getMessages } from "next-intl/server";
 import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Compass, CheckCircle, ChevronLeft } from "lucide-react";
 import CatalogClient from "./CatalogClient";
@@ -28,6 +29,7 @@ interface PropertyItem {
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
   highlights: Array<{ icon: string; label: Record<string, string> }>;
+  images?: string[];
 }
 
 async function getProperties(type: string): Promise<PropertyItem[]> {
@@ -103,6 +105,7 @@ export default async function AccommodationCatalogPage({
         location: lp.location,
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
+        images: lp.images,
       };
     })
   );
@@ -135,12 +138,11 @@ export default async function AccommodationCatalogPage({
           {/* Cover background image */}
           <div className="absolute inset-0 z-0">
             {bannerImage ? (
-              <Image
-                src={bannerImage}
+              <ImageSlideshow
+                images={category?.images}
+                defaultImage={bannerImage}
+                className="object-cover w-full h-full opacity-45 brightness-75 select-none"
                 alt={title}
-                fill
-                className="object-cover opacity-45 brightness-75 select-none"
-                priority
               />
             ) : (
               <div className="w-full h-full bg-[#1e1e1e]" />

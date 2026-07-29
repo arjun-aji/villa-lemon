@@ -21,7 +21,7 @@ export const getAllYogaPrograms = async (req: Request, res: Response): Promise<a
       filter.type = req.query.type;
     }
 
-    const programs = await YogaProgram.find(filter).sort({ createdAt: -1 });
+    const programs = await YogaProgram.find(filter).sort({ displayOrder: 1, createdAt: -1 });
 
     res.status(200).json({
       status: "success",
@@ -44,24 +44,34 @@ export const createYogaProgram = async (req: Request, res: Response): Promise<an
     const description = parseField(req.body.description);
     const explore = parseField(req.body.explore);
 
-    if (!req.file) {
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+
+    if (imageFiles.length === 0) {
       return res.status(400).json({
         status: "fail",
         message: "An image file is required for creating a yoga program",
       });
     }
 
-    // Upload image to Cloudinary folder 'yoga'
-    const uploadResult = await uploadImage(req.file.buffer, "yoga");
+    // Upload images to Cloudinary folder 'yoga'
+    const uploadPromises = imageFiles.map(file => uploadImage(file.buffer, "yoga"));
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const coverImages = uploadResults.map(res => res.secure_url);
+    const coverImagePublicIds = uploadResults.map(res => res.public_id);
 
     const newProgram = new YogaProgram({
       type,
       title,
       description,
-      image: uploadResult.secure_url,
-      imagePublicId: uploadResult.public_id,
+      image: coverImages[0],
+      imagePublicId: coverImagePublicIds[0],
+      images: coverImages,
+      imagePublicIds: coverImagePublicIds,
       explore,
       href: href || "#contact",
+      template: req.body.template || "default",
     });
 
     await newProgram.save();
@@ -95,19 +105,47 @@ export const updateYogaProgram = async (req: Request, res: Response): Promise<an
     if (req.body.title) program.title = { ...program.title, ...parseField(req.body.title) };
     if (req.body.description) program.description = { ...program.description, ...parseField(req.body.description) };
     if (req.body.explore) program.explore = { ...program.explore, ...parseField(req.body.explore) };
+    if (req.body.template) program.template = req.body.template;
 
-    if (req.file) {
-      // Delete old from Cloudinary
-      if (program.imagePublicId) {
-        await deleteImage(program.imagePublicId).catch(err => {
-          console.warn(`[cloudinary]: Image delete failed: ${err.message}`);
-        });
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+
+    const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
+
+    if (existingImagesKept !== null || imageFiles.length > 0) {
+      const keptSet = new Set(existingImagesKept ?? (program.images || []));
+      const currentImages: string[] = program.images || (program.image ? [program.image] : []);
+      const currentPublicIds: string[] = program.imagePublicIds || (program.imagePublicId ? [program.imagePublicId] : []);
+
+      const idsToDelete = currentPublicIds.filter((pid, idx) => {
+        const url = currentImages[idx];
+        return url && !keptSet.has(url);
+      });
+      if (idsToDelete.length > 0) {
+        await Promise.all(idsToDelete.map(id => deleteImage(id).catch(() => {})));
       }
 
-      // Upload new image
-      const uploadResult = await uploadImage(req.file.buffer, "yoga");
-      program.image = uploadResult.secure_url;
-      program.imagePublicId = uploadResult.public_id;
+      const keptUrls = currentImages.filter(url => keptSet.has(url));
+      const keptPublicIds = currentPublicIds.filter((_, idx) => {
+        const url = currentImages[idx];
+        return url && keptSet.has(url);
+      });
+
+      let newUrls: string[] = [];
+      let newPublicIds: string[] = [];
+      if (imageFiles.length > 0) {
+        const uploadResults = await Promise.all(imageFiles.map(file => uploadImage(file.buffer, "yoga")));
+        newUrls = uploadResults.map(r => r.secure_url);
+        newPublicIds = uploadResults.map(r => r.public_id);
+      }
+
+      const allImages = [...keptUrls, ...newUrls];
+      const allPublicIds = [...keptPublicIds, ...newPublicIds];
+
+      program.images = allImages;
+      program.imagePublicIds = allPublicIds;
+      program.image = allImages[0] || program.image;
+      program.imagePublicId = allPublicIds[0] || program.imagePublicId;
     }
 
     await program.save();
@@ -153,6 +191,29 @@ export const deleteYogaProgram = async (req: Request, res: Response): Promise<an
     res.status(500).json({
       status: "error",
       message: error.message || "Failed to delete yoga program",
+    });
+  }
+};
+
+export const reorderYogaPrograms = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ status: "fail", message: "ids array is required" });
+    }
+    await Promise.all(
+      ids.map((id: string, index: number) =>
+        YogaProgram.findByIdAndUpdate(id, { displayOrder: index })
+      )
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Yoga programs reordered successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Failed to reorder yoga programs",
     });
   }
 };

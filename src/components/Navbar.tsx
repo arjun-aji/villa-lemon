@@ -6,10 +6,12 @@ import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Globe } from "lucide-react";
 import BookingButton from "./BookingButton";
+import { API_BASE_URL } from "@/config/api";
 
 interface SubItem {
   name: string;
   href: string;
+  isDynamic?: boolean;
 }
 
 interface NavItem {
@@ -67,6 +69,89 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+
+  const [itemsList, setItemsList] = useState<NavItem[]>(navItems);
+
+  // Dynamically load categories for Accommodations, Packages, and Yoga
+  useEffect(() => {
+    const fetchNavbarData = async () => {
+      try {
+        const [resAcc, resPkg, resYoga] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/accommodations`),
+          fetch(`${API_BASE_URL}/api/packages`),
+          fetch(`${API_BASE_URL}/api/yoga/programs`)
+        ]);
+
+        const updatedItems = JSON.parse(JSON.stringify(navItems));
+
+        if (resAcc.ok) {
+          const accData = await resAcc.json();
+          if (accData?.data) {
+            const accChildren = accData.data.map((cat: any) => ({
+              name: cat.title[locale] || cat.title.en,
+              href: `/accommodation/${cat.type}`,
+              isDynamic: true
+            }));
+            const accIndex = updatedItems.findIndex((i: any) => i.name === "ACCOMMODATIONS");
+            if (accIndex !== -1 && accChildren.length > 0) {
+              updatedItems[accIndex].children = accChildren;
+            }
+          }
+        }
+
+        if (resPkg.ok) {
+          const pkgData = await resPkg.json();
+          if (pkgData?.data) {
+            const pkgChildren = pkgData.data.map((cat: any) => ({
+              name: cat.title[locale] || cat.title.en,
+              href: `/packages/${cat.category}`,
+              isDynamic: true
+            }));
+            const pkgIndex = updatedItems.findIndex((i: any) => i.name === "PACKAGES");
+            if (pkgIndex !== -1 && pkgChildren.length > 0) {
+              updatedItems[pkgIndex].children = pkgChildren;
+            }
+          }
+        }
+
+        if (resYoga.ok) {
+          const yogaData = await resYoga.json();
+          if (yogaData?.data) {
+            const yogaChildren = yogaData.data.map((cat: any) => {
+              let rawHref = cat.href || "";
+              let formattedHref = rawHref;
+              if (rawHref && !rawHref.startsWith("/") && !rawHref.startsWith("http")) {
+                formattedHref = "/" + rawHref;
+              }
+              return {
+                name: cat.title[locale] || cat.title.en,
+                href: formattedHref,
+                isDynamic: true
+              };
+            });
+            
+            // Append "Meet Our Teachers"
+            yogaChildren.push({
+              name: "meetOurTeachers",
+              href: "/yoga/teachers",
+              isDynamic: false
+            });
+
+            const yogaIndex = updatedItems.findIndex((i: any) => i.name === "YOGATOURS");
+            if (yogaIndex !== -1 && yogaChildren.length > 0) {
+              updatedItems[yogaIndex].children = yogaChildren;
+            }
+          }
+        }
+
+        setItemsList(updatedItems);
+      } catch (err) {
+        console.warn("[navbar fetch]: Failed to load dynamic menu items", err);
+      }
+    };
+
+    fetchNavbarData();
+  }, [locale]);
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -249,7 +334,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
         {/* DESKTOP NAV ITEMS */}
         <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
-          {navItems.map((item) => (
+          {itemsList.map((item) => (
             <div key={item.name} className="relative flex items-center gap-0.5 group/menu">
               <Link
                 href={item.href}
@@ -258,25 +343,29 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                   isScrolled
                     ? "text-brand-dark/80 hover:text-brand-dark"
                     : "text-brand-cream/80 hover:text-brand-cream"
-                } ${activeItem === item.name ? "text-brand-gold font-semibold" : ""}`}
+                }`}
               >
                 {t(item.name)}
+                {/* Underline indicators */}
                 {activeItem === item.name && (
                   <motion.div
-                    layoutId="activeNavLine"
-                    className="absolute bottom-0 left-0 w-full h-[1px] bg-brand-gold"
+                    layoutId="activeUnderline"
+                    className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-brand-gold"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
               </Link>
+
+              {/* Sub-menu trigger (down arrow) */}
               {item.children && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenDropdown(openDropdown === item.name ? null : item.name);
+                    setIsLangDropdownOpen(false);
                   }}
-                  className={`p-1 hover:text-brand-gold transition-colors duration-300 focus:outline-none ${
-                    isScrolled ? "text-brand-dark/60" : "text-brand-cream/60"
+                  className={`p-1.5 focus:outline-none transition-colors duration-300 ${
+                    isScrolled ? "text-brand-dark hover:text-brand-gold" : "text-brand-cream hover:text-brand-gold"
                   }`}
                   aria-label={`Toggle ${item.name} sub-menu`}
                 >
@@ -307,7 +396,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                         }}
                         className="w-full text-left px-4 py-2 text-[10px] font-semibold tracking-[0.15em] text-brand-cream/80 hover:text-brand-gold hover:bg-brand-gold/5 transition-colors duration-200 uppercase"
                       >
-                        {t(child.name)}
+                        {child.isDynamic ? child.name : t(child.name)}
                       </Link>
                     ))}
                   </motion.div>
@@ -479,7 +568,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
                 {/* Nav Links */}
                 <nav className="flex flex-col gap-4">
-                  {navItems.map((item) => (
+                  {itemsList.map((item) => (
                     <div key={item.name} className="flex flex-col w-full">
                       <div className="flex items-center justify-between w-full py-1">
                         <Link
@@ -502,8 +591,8 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                                 openMobileDropdown === item.name ? null : item.name
                               );
                             }}
-                            className="p-2 text-brand-dark/60 hover:text-brand-gold focus:outline-none"
-                            aria-label={`Toggle ${item.name} sub-menu`}
+                            className="p-2 focus:outline-none text-brand-dark hover:text-brand-gold"
+                            aria-label={`Toggle ${item.name} mobile sub-menu`}
                           >
                             <ChevronDown
                               className={`w-4 h-4 transition-transform duration-300 ${
@@ -526,7 +615,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                               }}
                               className="text-[10px] font-semibold tracking-[0.15em] text-brand-dark/70 hover:text-brand-gold transition-colors duration-200 uppercase py-1"
                             >
-                              {t(child.name)}
+                              {child.isDynamic ? child.name : t(child.name)}
                             </Link>
                           ))}
                         </div>

@@ -23,7 +23,6 @@ const yogaItemSchema = new Schema<IYogaItem>(
   {
     yogaType: {
       type: String,
-      enum: ["retreats", "classes", "private"],
       required: true,
     },
     title: { type: localizedTextSchema, required: true },
@@ -32,6 +31,8 @@ const yogaItemSchema = new Schema<IYogaItem>(
     pricePeriod: { type: localizedTextSchema, required: true },
     image: { type: String, required: true },
     imagePublicId: { type: String },
+    images: { type: [String], default: [] },
+    imagePublicIds: { type: [String], default: [] },
     aboutImage: { type: String, required: true },
     aboutImagePublicId: { type: String },
     duration: { type: localizedTextSchema, required: true },
@@ -42,6 +43,7 @@ const yogaItemSchema = new Schema<IYogaItem>(
     benefits: [localizedTextSchema],
     inclusions: [localizedTextSchema],
     relatedYoga: [{ type: String }],
+    displayOrder: { type: Number, default: 0 },
   },
   {
     timestamps: true,

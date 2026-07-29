@@ -5,6 +5,7 @@ import {
   createAccommodationItem,
   updateAccommodationItem,
   deleteAccommodationItem,
+  reorderAccommodationItems,
 } from "../controllers/accommodationItemController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -19,22 +20,16 @@ router.get("/:slug", getAccommodationItemBySlug);
 router.post(
   "/",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-    { name: "gallery", maxCount: 10 },
-  ]),
+  upload.any(),
   createAccommodationItem
 );
+
+router.put("/reorder", protect as any, reorderAccommodationItems);
 
 router.put(
   "/:id",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-    { name: "gallery", maxCount: 10 },
-  ]),
+  upload.any(),
   updateAccommodationItem
 );
 

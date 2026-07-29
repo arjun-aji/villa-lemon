@@ -18,6 +18,8 @@ import {
   ExternalLink,
   Bell,
   ChevronDown,
+  ArrowUp,
+  ArrowDown,
   Plus,
   Edit2,
   MoreVertical,
@@ -102,8 +104,10 @@ interface AccommodationCategoryData {
   description: LocalizedText;
   price: LocalizedText;
   image: string;
+  images?: string[];
   explore: LocalizedText;
   href: string;
+  template?: string;
 }
 
 interface PackageCategoryData {
@@ -112,18 +116,22 @@ interface PackageCategoryData {
   title: LocalizedText;
   description: LocalizedText;
   image: string;
+  images?: string[];
   explore: LocalizedText;
   href: string;
+  template?: string;
 }
 
 interface YogaCategoryData {
   _id: string;
-  type: "retreats" | "classes" | "private";
+  type: string;
   title: LocalizedText;
   description: LocalizedText;
   image: string;
+  images?: string[];
   explore: LocalizedText;
   href: string;
+  template?: string;
 }
 
 // Items inside subgroups
@@ -135,6 +143,7 @@ interface AccommodationItemData {
   price: number;
   pricePeriod: LocalizedText;
   image: string;
+  images?: string[];
   aboutImage: string;
   bedrooms: number;
   bathrooms: number;
@@ -168,6 +177,7 @@ interface PackageItemData {
   price: number;
   pricePeriod: LocalizedText;
   image: string;
+  images?: string[];
   aboutImage: string;
   duration: LocalizedText;
   shortDescription: LocalizedText;
@@ -222,12 +232,13 @@ interface PackageItemData {
 
 interface YogaItemData {
   _id: string;
-  yogaType: "retreats" | "classes" | "private";
+  yogaType: string;
   title: LocalizedText;
   slug: string;
   price: number;
   pricePeriod: LocalizedText;
   image: string;
+  images?: string[];
   aboutImage: string;
   duration: LocalizedText;
   shortDescription: LocalizedText;
@@ -270,6 +281,7 @@ export default function AdminDashboard() {
   const [retreats, setRetreats] = useState<any[]>([]);
   const [showRetreatModal, setShowRetreatModal] = useState(false);
   const [editingRetreat, setEditingRetreat] = useState<any>(null);
+  const [selectedYogaType, setSelectedYogaType] = useState<string>("retreats");
   const [teachers, setTeachers] = useState<TeacherData[]>([]);
   const [homepageData, setHomepageData] = useState<HomepageData | null>(null);
   const [enquiries, setEnquiries] = useState<any[]>([]);
@@ -281,6 +293,8 @@ export default function AdminDashboard() {
   // IMAGE UPLOADS PREVIEWS
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const [coverImageFiles, setCoverImageFiles] = useState<File[]>([]);
+  const [coverImagePreviews, setCoverImagePreviews] = useState<string[]>([]);
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
   const [aboutImagePreview, setAboutImagePreview] = useState<string | null>(null);
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
@@ -435,11 +449,37 @@ export default function AdminDashboard() {
 
   // Helper handles cover image preview URL setup
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setCoverImageFile(file);
-      setCoverImagePreview(URL.createObjectURL(file));
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      const newBlobUrls = newFiles.map(file => URL.createObjectURL(file));
+      // APPEND to existing list instead of replacing
+      setCoverImageFiles(prev => [...prev, ...newFiles]);
+      setCoverImagePreviews(prev => [...prev, ...newBlobUrls]);
+      // Keep legacy single-file state for backward compat
+      setCoverImageFile(newFiles[0]);
+      setCoverImagePreview(newBlobUrls[0]);
+      // Reset file input so the same file can be re-selected after removal
+      e.target.value = "";
     }
+  };
+
+  // Remove a specific image from the cover images list
+  const handleDeleteCoverImage = (idx: number) => {
+    const url = coverImagePreviews[idx];
+    // Count how many blob URLs precede this index to find the file index
+    const blobUrlsBefore = coverImagePreviews.slice(0, idx).filter(u => u.startsWith("blob:"));
+    const blobIdx = url.startsWith("blob:") ? blobUrlsBefore.length : -1;
+
+    const newPreviews = coverImagePreviews.filter((_, i) => i !== idx);
+    setCoverImagePreviews(newPreviews);
+
+    if (blobIdx >= 0) {
+      // Remove the corresponding new file
+      const newFiles = coverImageFiles.filter((_, i) => i !== blobIdx);
+      setCoverImageFiles(newFiles);
+      URL.revokeObjectURL(url);
+    }
+    // If it was a server URL, it won't be in coverImageFiles — it's handled by existingImages on save
   };
 
   // Helper handles about image preview URL setup
@@ -460,6 +500,116 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleReorder = async (
+    resourceType: "accommodation" | "accommodationItem" | "package" | "packageItem" | "yoga" | "yogaItem" | "retreat",
+    ids: string[]
+  ) => {
+    if (!token) return;
+    try {
+      let url = "";
+      if (resourceType === "accommodation") url = `${API_BASE_URL}/api/accommodations/reorder`;
+      else if (resourceType === "accommodationItem") url = `${API_BASE_URL}/api/accommodations/items/reorder`;
+      else if (resourceType === "package") url = `${API_BASE_URL}/api/packages/reorder`;
+      else if (resourceType === "packageItem") url = `${API_BASE_URL}/api/packages/items/reorder`;
+      else if (resourceType === "yoga") url = `${API_BASE_URL}/api/yoga/programs/reorder`;
+      else if (resourceType === "yogaItem") url = `${API_BASE_URL}/api/yoga/items/reorder`;
+      else if (resourceType === "retreat") url = `${API_BASE_URL}/api/retreats/reorder`;
+
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!res.ok) {
+        const errorJson = await res.json();
+        console.error("Failed to reorder:", errorJson.message);
+      }
+    } catch (err) {
+      console.error("Reorder request failed:", err);
+    }
+  };
+
+  const moveSubgroup = (
+    type: "accommodation" | "package" | "yoga",
+    index: number,
+    direction: "up" | "down"
+  ) => {
+    let list: any[] = [];
+    if (type === "accommodation") list = [...accommodationCategories];
+    else if (type === "package") list = [...packageCategories];
+    else if (type === "yoga") list = [...yogaCategories];
+
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === list.length - 1) return;
+
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    const temp = list[index];
+    list[index] = list[targetIndex];
+    list[targetIndex] = temp;
+
+    if (type === "accommodation") setAccommodationCategories(list);
+    else if (type === "package") setPackageCategories(list);
+    else if (type === "yoga") setYogaCategories(list);
+
+    handleReorder(type, list.map(item => item._id));
+  };
+
+  const moveProgramItem = (
+    resourceType: "accommodationItem" | "packageItem" | "yogaItem" | "retreat",
+    index: number,
+    direction: "up" | "down",
+    subgroupKey: string
+  ) => {
+    let list: any[] = [];
+    if (resourceType === "accommodationItem") {
+      list = stays.filter(item => item.accommodationType === subgroupKey);
+    } else if (resourceType === "packageItem") {
+      list = packages.filter(item => item.packageCategory === subgroupKey);
+    } else if (resourceType === "yogaItem") {
+      list = yogas.filter(item => item.yogaType === subgroupKey);
+    } else if (resourceType === "retreat") {
+      list = [...retreats];
+    }
+
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === list.length - 1) return;
+
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    const temp = list[index];
+    list[index] = list[targetIndex];
+    list[targetIndex] = temp;
+
+    let mergedList: any[] = [];
+    if (resourceType === "accommodationItem") {
+      mergedList = [
+        ...stays.filter(item => item.accommodationType !== subgroupKey),
+        ...list
+      ];
+      setStays(mergedList);
+    } else if (resourceType === "packageItem") {
+      mergedList = [
+        ...packages.filter(item => item.packageCategory !== subgroupKey),
+        ...list
+      ];
+      setPackages(mergedList);
+    } else if (resourceType === "yogaItem") {
+      mergedList = [
+        ...yogas.filter(item => item.yogaType !== subgroupKey),
+        ...list
+      ];
+      setYogas(mergedList);
+    } else if (resourceType === "retreat") {
+      mergedList = list;
+      setRetreats(mergedList);
+    }
+
+    handleReorder(resourceType, list.map(item => item._id));
+  };
+
   // ------------------------------------------------------------------
   // SUBGROUP (CATEGORY) ACTIONS
   // ------------------------------------------------------------------
@@ -475,19 +625,24 @@ export default function AdminDashboard() {
       description: createEmptyLocalizedText(),
       price: formType === "accommodation" ? createEmptyLocalizedText("From ₹15,000") : undefined,
       explore: createEmptyLocalizedText("Explore Options"),
+      template: "default",
     });
 
     setCoverImagePreview(null);
     setCoverImageFile(null);
+    setCoverImagePreviews([]);
+    setCoverImageFiles([]);
     setShowSubgroupModal(true);
   };
 
   const handleOpenEditSubgroup = (cat: any, formType: "accommodation" | "package" | "yoga") => {
     setSubgroupFormType(formType);
     setEditingSubgroup(cat);
-    setSubgroupForm({ ...cat });
+    setSubgroupForm({ template: "default", ...cat });
     setCoverImagePreview(cat.image);
     setCoverImageFile(null);
+    setCoverImagePreviews(cat.images && cat.images.length > 0 ? cat.images : [cat.image]);
+    setCoverImageFiles([]);
     setShowSubgroupModal(true);
   };
 
@@ -507,7 +662,26 @@ export default function AdminDashboard() {
         formData.append("type", subgroupForm.type || "retreats");
       }
 
-      formData.append("href", subgroupForm.href || "");
+      let hrefValue = subgroupForm.href || "";
+      if (subgroupFormType === "yoga" && !hrefValue) {
+        if (subgroupForm.type === "retreats") {
+          hrefValue = "/yoga/yoga-retreats";
+        } else if (subgroupForm.type === "classes") {
+          hrefValue = "/yoga/daily-yoga-classes";
+        } else if (subgroupForm.type === "private") {
+          hrefValue = "/yoga/private-yoga-sessions";
+        } else if (subgroupForm.type) {
+          hrefValue = `/yoga/${subgroupForm.type}`;
+        }
+      }
+      hrefValue = hrefValue.trim();
+      if (hrefValue.toLowerCase().startsWith("yoga/")) {
+        hrefValue = "/yoga/" + hrefValue.substring(5);
+      } else if (hrefValue.toLowerCase().startsWith("/yoga/")) {
+        hrefValue = "/yoga/" + hrefValue.substring(6);
+      }
+      formData.append("href", hrefValue);
+      formData.append("template", subgroupForm.template || "default");
       formData.append("title", JSON.stringify(subgroupForm.title));
       formData.append("description", JSON.stringify(subgroupForm.description));
       formData.append("explore", JSON.stringify(subgroupForm.explore));
@@ -523,9 +697,13 @@ export default function AdminDashboard() {
         }
       }
 
-      if (coverImageFile) {
-        formData.append("image", coverImageFile);
-      }
+      // Send which existing server images to keep (non-blob URLs)
+      const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingImages", JSON.stringify(existingImageUrls));
+      // Append only new file uploads
+      coverImageFiles.forEach(file => {
+        formData.append("images", file);
+      });
 
       let url = "";
       if (subgroupFormType === "accommodation") {
@@ -626,6 +804,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
+    setCoverImagePreviews([]);
+    setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
     setNewGalleryFiles([]);
@@ -640,6 +820,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(s.image);
     setCoverImageFile(null);
+    setCoverImagePreviews(s.images && s.images.length > 0 ? s.images : [s.image]);
+    setCoverImageFiles([]);
     setAboutImagePreview(s.aboutImage);
     setAboutImageFile(null);
     setNewGalleryFiles([]);
@@ -684,7 +866,13 @@ export default function AdminDashboard() {
       const filteredRelated = (stayForm.relatedAccommodations || []).filter(Boolean);
       formData.append("relatedAccommodations", JSON.stringify(filteredRelated));
 
-      if (coverImageFile) formData.append("image", coverImageFile);
+      // Send which existing server images to keep (non-blob URLs)
+      const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingImages", JSON.stringify(existingImageUrls));
+      // Append only new file uploads
+      coverImageFiles.forEach(file => {
+        formData.append("images", file);
+      });
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
       
       // Append gallery uploads and existing links
@@ -801,6 +989,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
+    setCoverImagePreviews([]);
+    setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
     setOgImagePreview(null);
@@ -818,6 +1008,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(p.image);
     setCoverImageFile(null);
+    setCoverImagePreviews(p.images && p.images.length > 0 ? p.images : [p.image]);
+    setCoverImageFiles([]);
     setAboutImagePreview(p.aboutImage);
     setAboutImageFile(null);
     setOgImagePreview(p.ogImage || null);
@@ -882,7 +1074,13 @@ export default function AdminDashboard() {
       formData.append("relatedPackages", JSON.stringify(filteredRelated));
       formData.append("faqs", JSON.stringify(packageForm.faqs || []));
 
-      if (coverImageFile) formData.append("image", coverImageFile);
+      // Send which existing server images to keep (non-blob URLs)
+      const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingImages", JSON.stringify(existingImageUrls));
+      // Append only new file uploads
+      coverImageFiles.forEach(file => {
+        formData.append("images", file);
+      });
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
       if (ogImageFile) formData.append("ogImage", ogImageFile);
 
@@ -935,7 +1133,7 @@ export default function AdminDashboard() {
   // ------------------------------------------------------------------
   // YOGA (ITEMS) ACTIONS
   // ------------------------------------------------------------------
-  const handleOpenAddYoga = (prefilledType?: "retreats" | "classes" | "private") => {
+  const handleOpenAddYoga = (prefilledType?: string) => {
     setEditingYoga(null);
     setYogaForm({
       yogaType: prefilledType || "retreats",
@@ -956,6 +1154,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
+    setCoverImagePreviews([]);
+    setCoverImageFiles([]);
     setAboutImagePreview(null);
     setAboutImageFile(null);
     setShowYogaModal(true);
@@ -969,6 +1169,8 @@ export default function AdminDashboard() {
     });
     setCoverImagePreview(y.image);
     setCoverImageFile(null);
+    setCoverImagePreviews(y.images && y.images.length > 0 ? y.images : [y.image]);
+    setCoverImageFiles([]);
     setAboutImagePreview(y.aboutImage);
     setAboutImageFile(null);
     setShowYogaModal(true);
@@ -999,7 +1201,13 @@ export default function AdminDashboard() {
       const filteredRelated = (yogaForm.relatedYoga || []).filter(Boolean);
       formData.append("relatedYoga", JSON.stringify(filteredRelated));
 
-      if (coverImageFile) formData.append("image", coverImageFile);
+      // Send which existing server images to keep (non-blob URLs)
+      const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
+      formData.append("existingImages", JSON.stringify(existingImageUrls));
+      // Append only new file uploads
+      coverImageFiles.forEach(file => {
+        formData.append("images", file);
+      });
       if (aboutImageFile) formData.append("aboutImage", aboutImageFile);
 
       const url = editingYoga
@@ -1349,9 +1557,9 @@ export default function AdminDashboard() {
 
             <div className="bg-white border border-gray-200 p-5 rounded-md shadow-sm flex items-center justify-between cursor-pointer" onClick={() => setActiveTab("yoga")}>
               <div>
-                <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Yoga Retreats</span>
-                <h3 className="text-2xl font-bold text-gray-800 mt-1">{yogas.length}</h3>
-                <span className="text-[10px] font-semibold text-indigo-500 mt-1 block">Retreats & private sessions</span>
+                <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Yoga Programs</span>
+                <h3 className="text-2xl font-bold text-gray-800 mt-1">{retreats.length + yogas.length}</h3>
+                <span className="text-[10px] font-semibold text-indigo-500 mt-1 block">Retreats & classes</span>
               </div>
               <div className="w-12 h-12 bg-indigo-50 flex items-center justify-center rounded-full text-indigo-500">
                 <Activity className="w-5 h-5" />
@@ -1411,7 +1619,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                      {accommodationCategories.map((cat) => {
+                      {accommodationCategories.map((cat, index) => {
                         const catStays = stays.filter(s => s.accommodationType === cat.type);
                         
                         return (
@@ -1430,10 +1638,26 @@ export default function AdminDashboard() {
                               <div className="mt-4 pt-3 border-t border-gray-200">
                                 <span className="text-[9px] font-bold uppercase text-gray-400 tracking-wider">Properties inside ({catStays.length})</span>
                                 <div className="space-y-1.5 mt-2 max-h-36 overflow-y-auto pr-1">
-                                  {catStays.map(item => (
+                                  {catStays.map((item, itemIdx) => (
                                     <div key={item._id} className="flex items-center justify-between text-[11px] bg-white p-2 rounded border border-gray-150">
                                       <span className="font-medium truncate mr-2">{item.title[activeLangTab]}</span>
-                                      <div className="flex gap-1.5">
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() => moveProgramItem("accommodationItem", itemIdx, "up", cat.type)}
+                                          disabled={itemIdx === 0}
+                                          className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                          title="Move Up"
+                                        >
+                                          <ArrowUp className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          onClick={() => moveProgramItem("accommodationItem", itemIdx, "down", cat.type)}
+                                          disabled={itemIdx === catStays.length - 1}
+                                          className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                          title="Move Down"
+                                        >
+                                          <ArrowDown className="w-3 h-3" />
+                                        </button>
                                         <button onClick={() => handleOpenEditStay(item)} className="text-gray-500 hover:text-brand-gold transition-colors"><Edit2 className="w-3 h-3" /></button>
                                         <button onClick={() => handleDeleteStay(item._id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3 h-3" /></button>
                                       </div>
@@ -1453,6 +1677,22 @@ export default function AdminDashboard() {
                               </button>
                               
                               <div className="flex gap-1">
+                                <button
+                                  onClick={() => moveSubgroup("accommodation", index, "up")}
+                                  disabled={index === 0}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => moveSubgroup("accommodation", index, "down")}
+                                  disabled={index === accommodationCategories.length - 1}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                   onClick={() => handleOpenEditSubgroup(cat, "accommodation")}
                                   className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors"
@@ -1495,7 +1735,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                      {packageCategories.map((cat) => {
+                      {packageCategories.map((cat, index) => {
                         const catPkgs = packages.filter(p => p.packageCategory === cat.category);
                         
                         return (
@@ -1514,10 +1754,26 @@ export default function AdminDashboard() {
                               <div className="mt-4 pt-3 border-t border-gray-200">
                                 <span className="text-[9px] font-bold uppercase text-gray-400 tracking-wider">Packages inside ({catPkgs.length})</span>
                                 <div className="space-y-1.5 mt-2 max-h-36 overflow-y-auto pr-1">
-                                  {catPkgs.map(item => (
+                                  {catPkgs.map((item, itemIdx) => (
                                     <div key={item._id} className="flex items-center justify-between text-[11px] bg-white p-2 rounded border border-gray-150">
                                       <span className="font-medium truncate mr-2">{item.title[activeLangTab]}</span>
-                                      <div className="flex gap-1.5">
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() => moveProgramItem("packageItem", itemIdx, "up", cat.category)}
+                                          disabled={itemIdx === 0}
+                                          className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                          title="Move Up"
+                                        >
+                                          <ArrowUp className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          onClick={() => moveProgramItem("packageItem", itemIdx, "down", cat.category)}
+                                          disabled={itemIdx === catPkgs.length - 1}
+                                          className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                          title="Move Down"
+                                        >
+                                          <ArrowDown className="w-3 h-3" />
+                                        </button>
                                         <button onClick={() => handleOpenEditPackage(item)} className="text-gray-500 hover:text-brand-gold transition-colors"><Edit2 className="w-3 h-3" /></button>
                                         <button onClick={() => handleDeletePackage(item._id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3 h-3" /></button>
                                       </div>
@@ -1537,6 +1793,22 @@ export default function AdminDashboard() {
                               </button>
                               
                               <div className="flex gap-1">
+                                <button
+                                  onClick={() => moveSubgroup("package", index, "up")}
+                                  disabled={index === 0}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => moveSubgroup("package", index, "down")}
+                                  disabled={index === packageCategories.length - 1}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                   onClick={() => handleOpenEditSubgroup(cat, "package")}
                                   className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors"
@@ -1578,9 +1850,11 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                      {yogaCategories.map((cat) => {
-                        const isRetreat = cat.type === "retreats";
-                        const catYogas = isRetreat ? retreats : yogas.filter(y => y.yogaType === cat.type);
+                      {yogaCategories.map((cat, index) => {
+                        const isRetreat = cat.template === "retreats" || cat.type === "retreats";
+                        const catYogas = isRetreat 
+                          ? retreats.filter(r => (r.yogaType || "retreats") === cat.type) 
+                          : yogas.filter(y => y.yogaType === cat.type);
                         
                         return (
                           <div key={cat._id} className="border border-gray-200 rounded p-4 bg-gray-50 text-left flex flex-col justify-between">
@@ -1598,12 +1872,28 @@ export default function AdminDashboard() {
                               <div className="mt-4 pt-3 border-t border-gray-200">
                                 <span className="text-[9px] font-bold uppercase text-gray-400 tracking-wider">Programs inside ({catYogas.length})</span>
                                 <div className="space-y-1.5 mt-2 max-h-36 overflow-y-auto pr-1">
-                                  {catYogas.map(item => {
+                                  {catYogas.map((item, itemIdx) => {
                                     const displayTitle = isRetreat ? (item.heroTitle?.[activeLangTab] || item.heroTitle?.en || "") : item.title[activeLangTab];
                                     return (
                                       <div key={item._id} className="flex items-center justify-between text-[11px] bg-white p-2 rounded border border-gray-150">
                                         <span className="font-medium truncate mr-2">{displayTitle}</span>
-                                        <div className="flex gap-1.5">
+                                        <div className="flex gap-1">
+                                          <button
+                                            onClick={() => moveProgramItem(isRetreat ? "retreat" : "yogaItem", itemIdx, "up", cat.type)}
+                                            disabled={itemIdx === 0}
+                                            className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                            title="Move Up"
+                                          >
+                                            <ArrowUp className="w-3 h-3" />
+                                          </button>
+                                          <button
+                                            onClick={() => moveProgramItem(isRetreat ? "retreat" : "yogaItem", itemIdx, "down", cat.type)}
+                                            disabled={itemIdx === catYogas.length - 1}
+                                            className="text-gray-500 hover:text-brand-gold transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                                            title="Move Down"
+                                          >
+                                            <ArrowDown className="w-3 h-3" />
+                                          </button>
                                           <button 
                                             onClick={() => {
                                               if (isRetreat) {
@@ -1641,6 +1931,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => {
                                   if (isRetreat) {
+                                    setSelectedYogaType(cat.type);
                                     setEditingRetreat(null);
                                     setShowRetreatModal(true);
                                   } else {
@@ -1654,6 +1945,22 @@ export default function AdminDashboard() {
                               </button>
                               
                               <div className="flex gap-1">
+                                <button
+                                  onClick={() => moveSubgroup("yoga", index, "up")}
+                                  disabled={index === 0}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => moveSubgroup("yoga", index, "down")}
+                                  disabled={index === yogaCategories.length - 1}
+                                  className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                   onClick={() => handleOpenEditSubgroup(cat, "yoga")}
                                   className="p-1.5 border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold rounded-sm transition-colors"
@@ -1748,6 +2055,7 @@ export default function AdminDashboard() {
                   fetchData();
                 }}
                 editingItem={editingRetreat}
+                defaultYogaType={selectedYogaType}
               />
 
             </div>
@@ -1801,7 +2109,6 @@ export default function AdminDashboard() {
                       value={subgroupForm.type}
                       onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
                       className="border p-2.5 rounded bg-white"
-                      disabled={!!editingSubgroup}
                     >
                       <option value="villa">Entire Villa</option>
                       <option value="floor">Private Floor</option>
@@ -1817,7 +2124,6 @@ export default function AdminDashboard() {
                       value={subgroupForm.category}
                       onChange={(e) => setSubgroupForm({ ...subgroupForm, category: e.target.value })}
                       className="border p-2.5 rounded bg-white"
-                      disabled={!!editingSubgroup}
                     >
                       <option value="varkalaSightseeing">Varkala Sightseeing</option>
                       <option value="dayTrips">Day Trips</option>
@@ -1829,18 +2135,38 @@ export default function AdminDashboard() {
                 )}
 
                 {subgroupFormType === "yoga" && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
-                    <select
-                      value={subgroupForm.type}
-                      onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
-                      className="border p-2.5 rounded bg-white"
-                      disabled={!!editingSubgroup}
-                    >
-                      <option value="retreats">Yoga Retreats</option>
-                      <option value="classes">Daily Yoga Classes</option>
-                      <option value="private">Private Yoga Sessions</option>
-                    </select>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
+                      <select
+                        value={subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private" ? subgroupForm.type : "custom"}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSubgroupForm({
+                            ...subgroupForm,
+                            type: val === "custom" ? "" : val
+                          });
+                        }}
+                        className="border p-2.5 rounded bg-white"
+                      >
+                        <option value="retreats">Yoga Retreats</option>
+                        <option value="classes">Daily Yoga Classes</option>
+                        <option value="private">Private Yoga Sessions</option>
+                        <option value="custom">Custom (Specify slug)</option>
+                      </select>
+                    </div>
+                    {!(subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private") && (
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Custom Type Slug</label>
+                        <input
+                          type="text"
+                          value={subgroupForm.type || ""}
+                          onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
+                          placeholder="e.g. yoga-tour"
+                          className="border p-2.5 rounded bg-white"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1854,6 +2180,27 @@ export default function AdminDashboard() {
                     className="border p-2.5 rounded"
                     required
                   />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-bold text-gray-600 uppercase">CMS Template Layout</label>
+                  <select
+                    value={subgroupForm.template || "default"}
+                    onChange={(e) => setSubgroupForm({ ...subgroupForm, template: e.target.value })}
+                    className="border p-2.5 rounded bg-white w-full"
+                  >
+                    {subgroupFormType === "accommodation" && (
+                      <option value="default">Default Accommodation Catalog</option>
+                    )}
+                    {subgroupFormType === "package" && (
+                      <option value="default">Default Tour Package Layout</option>
+                    )}
+                    {subgroupFormType === "yoga" && (
+                      <>
+                        <option value="default">Default Programs Grid</option>
+                        <option value="retreats">Yoga Retreat Template (Lists retreat entries)</option>
+                      </>
+                    )}
+                  </select>
                 </div>
               </div>
 
@@ -1970,17 +2317,27 @@ export default function AdminDashboard() {
 
               {/* Cover Image Upload */}
               <div className="space-y-2">
-                <label className="font-bold text-gray-600 uppercase">Cover Banner Image</label>
-                <div className="flex items-center gap-3">
-                  {coverImagePreview && (
-                    <div className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0">
-                      <img src={coverImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
+                <div className="flex flex-col gap-3">
+                  {coverImagePreviews && coverImagePreviews.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {coverImagePreviews.map((url, idx) => (
+                        <div key={idx} className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0 bg-gray-50 group">
+                          <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCoverImage(idx)}
+                            className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                            title="Remove image"
+                          >×</button>
+                        </div>
+                      ))}
                     </div>
                   )}
                   <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                     <Upload className="w-4 h-4 text-gray-400" />
-                    <span className="font-semibold text-gray-500">Upload Banner Image</span>
-                    <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" required={!editingSubgroup} />
+                    <span className="font-semibold text-gray-500">Upload Banner Image(s)</span>
+                    <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingSubgroup} />
                   </label>
                 </div>
               </div>
@@ -2296,18 +2653,28 @@ export default function AdminDashboard() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Cover Photo */}
-                  <div className="space-y-2">
-                    <label className="font-bold text-gray-600 uppercase">Main Cover Image Banner</label>
-                    <div className="flex items-center gap-3">
-                      {coverImagePreview && (
-                        <div className="relative w-24 aspect-[4/3] rounded border bg-gray-100 overflow-hidden shrink-0">
-                          <img src={coverImagePreview} className="w-full h-full object-cover" alt="Cover Preview" />
+                  <div className="space-y-2 col-span-1 sm:col-span-2">
+                    <label className="font-bold text-gray-600 uppercase">Main Cover Image Banner(s) (Upload multiple for slideshow)</label>
+                    <div className="flex flex-col gap-3">
+                      {coverImagePreviews && coverImagePreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {coverImagePreviews.map((url, idx) => (
+                            <div key={idx} className="relative w-24 aspect-[4/3] rounded border bg-gray-100 overflow-hidden shrink-0 group">
+                              <img src={url} className="w-full h-full object-cover" alt={`Cover Preview ${idx + 1}`} />
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCoverImage(idx)}
+                                className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                                title="Remove image"
+                              >×</button>
+                            </div>
+                          ))}
                         </div>
                       )}
                       <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                         <Upload className="w-4 h-4 text-gray-400" />
-                        <span className="font-semibold text-gray-500">Upload Cover Image</span>
-                        <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" required={!editingStay} />
+                        <span className="font-semibold text-gray-500">Upload Cover Image(s)</span>
+                        <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingStay} />
                       </label>
                     </div>
                   </div>
@@ -3236,18 +3603,28 @@ export default function AdminDashboard() {
               {activePkgFormTab === "media" && (
                 <div className="space-y-4 animate-fade-in">
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="font-bold text-gray-600 uppercase">Cover Banner Image</label>
-                      <div className="flex items-center gap-3">
-                        {coverImagePreview && (
-                          <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                            <img src={coverImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                    <div className="space-y-2 col-span-1 sm:col-span-2">
+                      <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
+                      <div className="flex flex-col gap-3">
+                        {coverImagePreviews && coverImagePreviews.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {coverImagePreviews.map((url, idx) => (
+                              <div key={idx} className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0 group">
+                                <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCoverImage(idx)}
+                                  className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                                  title="Remove image"
+                                >×</button>
+                              </div>
+                            ))}
                           </div>
                         )}
                         <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                           <Upload className="w-4 h-4 text-gray-400" />
-                          <span className="font-semibold text-gray-500">Upload Cover Image</span>
-                          <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" />
+                          <span className="font-semibold text-gray-500">Upload Cover Image(s)</span>
+                          <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
                         </label>
                       </div>
                     </div>
@@ -4256,9 +4633,11 @@ export default function AdminDashboard() {
                     onChange={(e) => setYogaForm({ ...yogaForm, yogaType: e.target.value as any })}
                     className="border p-2.5 rounded bg-white"
                   >
-                    <option value="retreats">Yoga Retreats</option>
-                    <option value="classes">Daily Yoga Classes</option>
-                    <option value="private">Private Yoga Sessions</option>
+                    {yogaCategories.map((cat) => (
+                      <option key={cat.type} value={cat.type}>
+                        {cat.title[activeLangTab] || cat.title.en}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -4373,18 +4752,28 @@ export default function AdminDashboard() {
 
               {/* Image Uploads */}
               <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="font-bold text-gray-600 uppercase">Cover Banner Image</label>
-                  <div className="flex items-center gap-3">
-                    {coverImagePreview && (
-                      <div className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0">
-                        <img src={coverImagePreview} className="w-full h-full object-cover" alt="Preview" />
+                <div className="space-y-2 col-span-1 sm:col-span-2">
+                  <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
+                  <div className="flex flex-col gap-3">
+                    {coverImagePreviews && coverImagePreviews.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {coverImagePreviews.map((url, idx) => (
+                          <div key={idx} className="relative w-20 aspect-[4/3] rounded border overflow-hidden shrink-0 group">
+                            <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCoverImage(idx)}
+                              className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none"
+                              title="Remove image"
+                            >×</button>
+                          </div>
+                        ))}
                       </div>
                     )}
                     <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
                       <Upload className="w-4 h-4 text-gray-400" />
-                      <span className="font-semibold text-gray-500">Upload Cover Image</span>
-                      <input type="file" accept="image/*" onChange={handleCoverImageChange} className="hidden" required={!editingYoga} />
+                      <span className="font-semibold text-gray-500">Upload Cover Image(s)</span>
+                      <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" required={!editingYoga} />
                     </label>
                   </div>
                 </div>

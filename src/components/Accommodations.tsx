@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 
 const VillaIcon = () => (
   <svg
@@ -74,6 +75,7 @@ interface AccommodationItem {
   description: string;
   price: string;
   image: string;
+  images?: string[];
   explore: string;
   href: string;
 }
@@ -101,6 +103,7 @@ export default function Accommodations({
     if (data && data.length > 0) {
       return data.map((item) => ({
         img: item.image,
+        imgs: item.images,
         price: item.price,
         icon: item.type === "villa" ? <VillaIcon /> : item.type === "floor" ? <FloorIcon /> : <RoomIcon />,
         title: item.title,
@@ -152,14 +155,12 @@ export default function Accommodations({
               className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
             >
               {/* IMAGE CONTAINER */}
-              <div className="relative w-full h-40 sm:h-48 md:h-auto md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
-                <Image
-                  src={card.img}
+              <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
+                <ImageSlideshow
+                  images={card.imgs}
+                  defaultImage={card.img}
+                  className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                   alt={card.title}
-                  fill
-                  sizes="(max-w-768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                  quality={85}
                 />
                 {/* Dark Vignette Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />

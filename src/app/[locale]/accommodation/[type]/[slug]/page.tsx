@@ -41,6 +41,7 @@ interface PropertyDetails {
   mapLink?: string;
   gallery?: string[];
   relatedAccommodations?: string[];
+  images?: string[];
 }
 
 async function getPropertyDetails(slug: string): Promise<PropertyDetails | null> {
@@ -120,6 +121,7 @@ export default async function PropertyDetailsPage({
   property.id = rawProperty._id;
   property.type = rawProperty.accommodationType;
   property.aboutImage = rawProperty.aboutImage || rawProperty.image;
+  property.images = rawProperty.images || [];
   property.relatedAccommodations = rawProperty.relatedAccommodations || [];
 
   property.highlights = await Promise.all(
@@ -186,6 +188,7 @@ export default async function PropertyDetailsPage({
         shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
         tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
         slug: foundStay.slug,
+        images: foundStay.images || [],
       });
       continue;
     }
@@ -208,6 +211,7 @@ export default async function PropertyDetailsPage({
         shortDescription: foundPkg.shortDescription[locale] || foundPkg.shortDescription["en"] || "",
         tagline: foundPkg.tagline[locale] || foundPkg.tagline["en"] || "",
         slug: foundPkg.slug,
+        images: foundPkg.images || [],
       });
       continue;
     }
@@ -230,6 +234,7 @@ export default async function PropertyDetailsPage({
         shortDescription: foundYoga.shortDescription[locale] || foundYoga.shortDescription["en"] || "",
         tagline: foundYoga.tagline[locale] || foundYoga.tagline["en"] || "",
         slug: foundYoga.slug,
+        images: foundYoga.images || [],
       });
       continue;
     }
@@ -253,6 +258,7 @@ export default async function PropertyDetailsPage({
       shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
       tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
       slug: foundStay.slug,
+      images: foundStay.images || [],
     }));
   } else if (suggestionsList.length < 3) {
     const alreadySlugs = suggestionsList.map((s) => s.slug);
@@ -274,6 +280,7 @@ export default async function PropertyDetailsPage({
       shortDescription: foundStay.shortDescription[locale] || foundStay.shortDescription["en"] || "",
       tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
       slug: foundStay.slug,
+      images: foundStay.images || [],
     }));
     suggestionsList = [...suggestionsList, ...mappedFillers];
   }

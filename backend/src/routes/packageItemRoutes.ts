@@ -5,6 +5,7 @@ import {
   createPackageItem,
   updatePackageItem,
   deletePackageItem,
+  reorderPackageItems,
 } from "../controllers/packageItemController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -19,24 +20,16 @@ router.get("/:slug", getPackageItemBySlug);
 router.post(
   "/",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-    { name: "gallery", maxCount: 10 },
-    { name: "ogImage", maxCount: 1 },
-  ]),
+  upload.any(),
   createPackageItem
 );
+
+router.put("/reorder", protect as any, reorderPackageItems);
 
 router.put(
   "/:id",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-    { name: "gallery", maxCount: 10 },
-    { name: "ogImage", maxCount: 1 },
-  ]),
+  upload.any(),
   updatePackageItem
 );
 

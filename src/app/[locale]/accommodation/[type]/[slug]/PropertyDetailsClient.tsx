@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import BookingButton from "@/components/BookingButton";
 import { 
   Check, 
@@ -36,6 +37,7 @@ interface Property {
   price: number;
   pricePeriod: string;
   image: string;
+  images?: string[];
   aboutImage: string;
   bedrooms: number;
   bathrooms: number;
@@ -73,6 +75,7 @@ interface PropertyDetailsClientProps {
     price: number;
     pricePeriod: string;
     image: string;
+    images?: string[];
     bedrooms: number;
     bathrooms: number;
     guests: number;
@@ -120,12 +123,11 @@ export default function PropertyDetailsClient({ property, translations, locale, 
       <section className="relative w-full min-h-[300px] md:min-h-[360px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-10">
         {/* Cover Background */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src={property.image}
+          <ImageSlideshow
+            images={property.images}
+            defaultImage={property.image}
+            className="object-cover w-full h-full opacity-50 brightness-75 select-none"
             alt={property.title}
-            fill
-            className="object-cover opacity-50 brightness-75 select-none"
-            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent z-10" />
         </div>
@@ -807,13 +809,13 @@ export default function PropertyDetailsClient({ property, translations, locale, 
                 >
                   {/* Image */}
                   <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden">
-                    <Image
-                      src={item.image}
+                    <ImageSlideshow
+                      images={item.images}
+                      defaultImage={item.image}
+                      className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent z-10 pointer-events-none" />
                     
                     {/* Price Tag */}
                     <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">

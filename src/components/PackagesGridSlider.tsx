@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { ImageSlideshow } from "./ImageSlideshow";
 
 interface PackageItem {
   id: string;
@@ -11,6 +12,7 @@ interface PackageItem {
   price: number;
   pricePeriod: string;
   image: string;
+  images?: string[];
   duration: string;
   shortDescription: string;
   tagline: string;
@@ -102,12 +104,11 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
             >
               {/* Photo cover */}
               <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
-                <Image
-                  src={p.image}
+                <ImageSlideshow
+                  images={p.images}
+                  defaultImage={p.image}
+                  className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                   alt={p.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 

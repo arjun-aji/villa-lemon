@@ -20,7 +20,7 @@ export const getAllPackages = async (req: Request, res: Response): Promise<any> 
       filter.category = req.query.category;
     }
 
-    const packages = await Package.find(filter).sort({ createdAt: -1 });
+    const packages = await Package.find(filter).sort({ displayOrder: 1, createdAt: -1 });
 
     res.status(200).json({
       status: "success",
@@ -43,7 +43,10 @@ export const createPackage = async (req: Request, res: Response): Promise<any> =
     const description = parseField(req.body.description);
     const explore = parseField(req.body.explore);
 
-    if (!req.file) {
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+
+    if (imageFiles.length === 0) {
       return res.status(400).json({
         status: "fail",
         message: "An image file is required for creating a package",
@@ -51,16 +54,23 @@ export const createPackage = async (req: Request, res: Response): Promise<any> =
     }
 
     // Upload to Cloudinary folder 'packages'
-    const uploadResult = await uploadImage(req.file.buffer, "packages");
+    const uploadPromises = imageFiles.map(file => uploadImage(file.buffer, "packages"));
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const coverImages = uploadResults.map(res => res.secure_url);
+    const coverImagePublicIds = uploadResults.map(res => res.public_id);
 
     const newPackage = new Package({
       category,
       title,
       description,
-      image: uploadResult.secure_url,
-      imagePublicId: uploadResult.public_id,
+      image: coverImages[0],
+      imagePublicId: coverImagePublicIds[0],
+      images: coverImages,
+      imagePublicIds: coverImagePublicIds,
       explore,
       href: href || "#contact",
+      template: req.body.template || "default",
     });
 
     await newPackage.save();
@@ -94,19 +104,47 @@ export const updatePackage = async (req: Request, res: Response): Promise<any> =
     if (req.body.title) pkg.title = { ...pkg.title, ...parseField(req.body.title) };
     if (req.body.description) pkg.description = { ...pkg.description, ...parseField(req.body.description) };
     if (req.body.explore) pkg.explore = { ...pkg.explore, ...parseField(req.body.explore) };
+    if (req.body.template) pkg.template = req.body.template;
 
-    if (req.file) {
-      // Delete old from Cloudinary
-      if (pkg.imagePublicId) {
-        await deleteImage(pkg.imagePublicId).catch(err => {
-          console.warn(`[cloudinary]: Image delete failed: ${err.message}`);
-        });
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+
+    const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
+
+    if (existingImagesKept !== null || imageFiles.length > 0) {
+      const keptSet = new Set(existingImagesKept ?? (pkg.images || []));
+      const currentImages: string[] = pkg.images || (pkg.image ? [pkg.image] : []);
+      const currentPublicIds: string[] = pkg.imagePublicIds || (pkg.imagePublicId ? [pkg.imagePublicId] : []);
+
+      const idsToDelete = currentPublicIds.filter((pid, idx) => {
+        const url = currentImages[idx];
+        return url && !keptSet.has(url);
+      });
+      if (idsToDelete.length > 0) {
+        await Promise.all(idsToDelete.map(id => deleteImage(id).catch(() => {})));
       }
 
-      // Upload new image
-      const uploadResult = await uploadImage(req.file.buffer, "packages");
-      pkg.image = uploadResult.secure_url;
-      pkg.imagePublicId = uploadResult.public_id;
+      const keptUrls = currentImages.filter(url => keptSet.has(url));
+      const keptPublicIds = currentPublicIds.filter((_, idx) => {
+        const url = currentImages[idx];
+        return url && keptSet.has(url);
+      });
+
+      let newUrls: string[] = [];
+      let newPublicIds: string[] = [];
+      if (imageFiles.length > 0) {
+        const uploadResults = await Promise.all(imageFiles.map(file => uploadImage(file.buffer, "packages")));
+        newUrls = uploadResults.map(r => r.secure_url);
+        newPublicIds = uploadResults.map(r => r.public_id);
+      }
+
+      const allImages = [...keptUrls, ...newUrls];
+      const allPublicIds = [...keptPublicIds, ...newPublicIds];
+
+      pkg.images = allImages;
+      pkg.imagePublicIds = allPublicIds;
+      pkg.image = allImages[0] || pkg.image;
+      pkg.imagePublicId = allPublicIds[0] || pkg.imagePublicId;
     }
 
     await pkg.save();
@@ -152,6 +190,29 @@ export const deletePackage = async (req: Request, res: Response): Promise<any> =
     res.status(500).json({
       status: "error",
       message: error.message || "Failed to delete package",
+    });
+  }
+};
+
+export const reorderPackages = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ status: "fail", message: "ids array is required" });
+    }
+    await Promise.all(
+      ids.map((id: string, index: number) =>
+        Package.findByIdAndUpdate(id, { displayOrder: index })
+      )
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Packages reordered successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Failed to reorder packages",
     });
   }
 };

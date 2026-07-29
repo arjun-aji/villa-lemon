@@ -102,6 +102,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         description: li.description,
         price: li.price,
         image: li.image,
+        images: li.images,
         explore: li.explore,
         href: li.href,
       };
@@ -118,6 +119,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         title: li.title,
         description: li.description,
         image: li.image,
+        images: li.images,
         explore: li.explore,
         href: li.href,
       };
@@ -134,6 +136,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         title: li.title,
         description: li.description,
         image: li.image,
+        images: li.images,
         explore: li.explore,
         href: li.href,
       };

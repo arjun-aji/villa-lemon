@@ -5,6 +5,7 @@ import {
   createYogaItem,
   updateYogaItem,
   deleteYogaItem,
+  reorderYogaItems,
 } from "../controllers/yogaItemController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -19,20 +20,16 @@ router.get("/:slug", getYogaItemBySlug);
 router.post(
   "/",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-  ]),
+  upload.any(),
   createYogaItem
 );
+
+router.put("/reorder", protect as any, reorderYogaItems);
 
 router.put(
   "/:id",
   protect as any,
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "aboutImage", maxCount: 1 },
-  ]),
+  upload.any(),
   updateYogaItem
 );
 

@@ -8,6 +8,7 @@ import {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  reorderYogaPrograms,
 } from "../controllers/yogaController";
 import { protect } from "../middleware/auth";
 import { upload } from "../middleware/upload";
@@ -16,8 +17,9 @@ const router = Router();
 
 // Program routes
 router.get("/programs", getAllYogaPrograms);
-router.post("/programs", protect as any, upload.single("image"), createYogaProgram);
-router.put("/programs/:id", protect as any, upload.single("image"), updateYogaProgram);
+router.post("/programs", protect as any, upload.any(), createYogaProgram);
+router.put("/programs/reorder", protect as any, reorderYogaPrograms);
+router.put("/programs/:id", protect as any, upload.any(), updateYogaProgram);
 router.delete("/programs/:id", protect as any, deleteYogaProgram);
 
 // Teacher routes

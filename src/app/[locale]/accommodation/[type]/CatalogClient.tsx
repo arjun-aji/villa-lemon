@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Check, Shield, Calendar, Phone } from "lucide-react";
 
 interface Property {
@@ -18,6 +19,7 @@ interface Property {
   location: string;
   shortDescription: string;
   tagline: string;
+  images?: string[];
 }
 
 interface CatalogClientProps {
@@ -178,12 +180,11 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
             >
               {/* Cover Image Wrapper */}
               <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden select-none">
-                <Image
-                  src={p.image}
+                <ImageSlideshow
+                  images={p.images}
+                  defaultImage={p.image}
+                  className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                   alt={p.title}
-                  fill
-                  sizes="(max-w-768px) 100vw, 25vw"
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                 />
                 
                 {/* Dark vignettes */}

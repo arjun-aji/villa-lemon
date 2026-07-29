@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
@@ -82,6 +83,25 @@ export default async function YogaCatalogPage({
 
   const messages = await getMessages({ locale });
   const tYoga = messages.Yoga as any;
+
+  // Load yoga program categories
+  let yogaCategories = [];
+  try {
+    const resCats = await fetch(`${API_BASE_URL}/api/yoga/programs`, { cache: "no-store" });
+    if (resCats.ok) {
+      const catsJson = await resCats.json();
+      yogaCategories = catsJson.data || [];
+    }
+  } catch (err) {
+    console.warn("Failed to fetch yoga categories in catalog page:", err);
+  }
+
+  // Try to find the matching category by matching its href suffix or type (case-insensitive)
+  const programCategory = yogaCategories.find((cat: any) => {
+    const hrefParts = (cat.href || "").split("/");
+    const slug = hrefParts[hrefParts.length - 1];
+    return slug.toLowerCase() === type.toLowerCase() || (cat.type && cat.type.toLowerCase() === type.toLowerCase());
+  });
 
   if (type === "teachers") {
     // TEACHERS DIRECTORY LAYOUT
@@ -191,10 +211,15 @@ export default async function YogaCatalogPage({
     );
   }
 
+  const isRetreatsTemplate = (programCategory && programCategory.template === "retreats") || type === "yoga-retreats";
+
   // ── YOGA RETREATS — pulls from /api/retreats ──────────────────────────────
-  if (type === "yoga-retreats") {
+  if (isRetreatsTemplate) {
     const rawRetreats = await getRetreats();
-    const retreats = rawRetreats.map((r: any) => ({
+    const targetType = programCategory ? programCategory.type : "retreats";
+    const filteredRetreats = rawRetreats.filter((r: any) => (r.yogaType || "retreats") === targetType);
+
+    const retreats = filteredRetreats.map((r: any) => ({
       id: r._id,
       slug: r.slug,
       heroImage: r.heroImage || "",
@@ -222,13 +247,12 @@ export default async function YogaCatalogPage({
           {/* HEADER */}
           <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
             <div className="absolute inset-0 z-0">
-              {retreats.length > 0 && retreats[0].heroImage ? (
-                <Image
-                  src={retreats[0].heroImage}
+              {programCategory?.image || (retreats.length > 0 && retreats[0].heroImage) ? (
+                <ImageSlideshow
+                  images={programCategory?.images}
+                  defaultImage={programCategory?.image || (retreats.length > 0 ? retreats[0].heroImage : "")}
+                  className="object-cover w-full h-full opacity-45 brightness-75 select-none"
                   alt={title}
-                  fill
-                  className="object-cover opacity-45 brightness-75 select-none"
-                  priority
                 />
               ) : (
                 <div className="w-full h-full bg-[#1e1e1e]" />
@@ -332,19 +356,30 @@ export default async function YogaCatalogPage({
     );
   }
 
-  // PROGRAM CATALOG LAYOUT (daily-yoga-classes / private-yoga-sessions)
-  let dbType = "retreats";
-  let titleKey = "retreatsTitle";
-  let descKey = "retreatsDesc";
+  // PROGRAM CATALOG LAYOUT (daily-yoga-classes / private-yoga-sessions / custom subgroups)
+  let dbType = type;
+  let title = "";
+  let programDescription = "";
 
-  if (type === "daily-yoga-classes") {
-    dbType = "classes";
-    titleKey = "classesTitle";
-    descKey = "classesDesc";
-  } else if (type === "private-yoga-sessions") {
-    dbType = "private";
-    titleKey = "privateTitle";
-    descKey = "privateDesc";
+  if (programCategory) {
+    dbType = programCategory.type;
+    title = programCategory.title[locale] || programCategory.title.en || "";
+    programDescription = programCategory.description[locale] || programCategory.description.en || "";
+  } else {
+    // Fallbacks
+    if (type === "daily-yoga-classes") {
+      dbType = "classes";
+      title = tYoga.classesTitle || "Daily Yoga Classes";
+      programDescription = tYoga.classesDesc || "";
+    } else if (type === "private-yoga-sessions") {
+      dbType = "private";
+      title = tYoga.privateTitle || "Private Yoga Sessions";
+      programDescription = tYoga.privateDesc || "";
+    } else {
+      dbType = type;
+      title = type;
+      programDescription = "";
+    }
   }
 
   const rawPrograms = await getYogaItems(dbType);
@@ -359,15 +394,13 @@ export default async function YogaCatalogPage({
         price: lp.price,
         pricePeriod: lp.pricePeriod,
         image: lp.image,
+        images: lp.images,
         duration: lp.duration,
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
       };
     })
   );
-
-  const title = tYoga[titleKey] || "Yoga Program";
-  const programDescription = tYoga[descKey] || "";
 
   return (
     <>
@@ -377,13 +410,12 @@ export default async function YogaCatalogPage({
         {/* HEADER SECTION */}
         <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
           <div className="absolute inset-0 z-0">
-            {programs.length > 0 ? (
-              <Image
-                src={programs[0].image}
+            {programCategory?.image || (programs.length > 0 && programs[0].image) ? (
+              <ImageSlideshow
+                images={programCategory?.images}
+                defaultImage={programCategory?.image || (programs.length > 0 ? programs[0].image : "")}
+                className="object-cover w-full h-full opacity-45 brightness-75 select-none"
                 alt={title}
-                fill
-                className="object-cover opacity-45 brightness-75 select-none"
-                priority
               />
             ) : (
               <div className="w-full h-full bg-[#1e1e1e]" />
@@ -437,11 +469,11 @@ export default async function YogaCatalogPage({
                   className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
                 >
                   <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
-                    <Image
-                      src={p.image}
+                    <ImageSlideshow
+                      images={p.images}
+                      defaultImage={p.image}
+                      className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       alt={p.title}
-                      fill
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                     

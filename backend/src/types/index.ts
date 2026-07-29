@@ -24,6 +24,8 @@ export interface IAccommodation extends Document {
   price: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   explore: ILocalizedText;
   href: string;
   feature1Title?: ILocalizedText;
@@ -34,6 +36,8 @@ export interface IAccommodation extends Document {
   feature3Subtitle?: ILocalizedText;
   feature4Title?: ILocalizedText;
   feature4Subtitle?: ILocalizedText;
+  displayOrder?: number;
+  template?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,20 +48,28 @@ export interface IPackage extends Document {
   description: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   explore: ILocalizedText;
   href: string;
+  displayOrder?: number;
+  template?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IYogaProgram extends Document {
-  type: "retreats" | "classes" | "private" | "teachers";
+  type: string;
   title: ILocalizedText;
   description: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   explore: ILocalizedText;
   href: string;
+  displayOrder?: number;
+  template?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -143,6 +155,8 @@ export interface IAccommodationItem extends Document {
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
   bedrooms: number;
@@ -168,6 +182,7 @@ export interface IAccommodationItem extends Document {
   gallery?: string[];
   galleryPublicIds?: string[];
   relatedAccommodations?: string[];
+  displayOrder?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -180,6 +195,8 @@ export interface IPackageItem extends Document {
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
   duration: ILocalizedText;
@@ -233,19 +250,21 @@ export interface IPackageItem extends Document {
   pickup?: ILocalizedText;
   drop?: ILocalizedText;
   notes?: ILocalizedText;
-
+  displayOrder?: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IYogaItem extends Document {
-  yogaType: "retreats" | "classes" | "private";
+  yogaType: string;
   title: ILocalizedText;
   slug: string;
   price: number;
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
+  images?: string[];
+  imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
   duration: ILocalizedText;
@@ -256,6 +275,7 @@ export interface IYogaItem extends Document {
   benefits: ILocalizedText[];
   inclusions: ILocalizedText[];
   relatedYoga?: string[];
+  displayOrder?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -371,6 +391,7 @@ export interface IRetreatCertificate {
 
 export interface IRetreat extends Document {
   // General Info
+  yogaType?: string;
   slug: string;
   days: number;
   nights: number;

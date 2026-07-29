@@ -97,6 +97,7 @@ export const createRetreat = async (req: Request, res: Response): Promise<any> =
 
     const retreat = new Retreat({
       // General Info
+      yogaType: req.body.yogaType || "retreats",
       slug: req.body.slug,
       days: Number(req.body.days || 7),
       nights: Number(req.body.nights || 7),
@@ -280,7 +281,7 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
     const updateNum = (key: string) => { if (req.body[key] !== undefined) (retreat as any)[key] = Number(req.body[key]); };
     const updateBool = (key: string, val: string) => { if (req.body[key] !== undefined) (retreat as any)[key] = req.body[key] === val; };
 
-    ["slug","video","retreatMap","brochurePdf","checkIn","checkOut","emergencyContact","canonicalUrl","brochureUrl","packingListUrl","schedulePdfUrl","termsPdfUrl","status"].forEach(update);
+    ["yogaType","slug","video","retreatMap","brochurePdf","checkIn","checkOut","emergencyContact","canonicalUrl","brochureUrl","packingListUrl","schedulePdfUrl","termsPdfUrl","status"].forEach(update);
     ["heroTitle","heroSubtitle","tagline","shortDescription","fullDescription","retreatOverview","whyChoose","whoIsItFor","bestTime","cta","location","difficulty","yogaLevel","language","groupSize","accommodationType","yogaStyle","morningSession","eveningSession","meditation","pranayama","philosophy","classLanguage","suitableFor","yogaCertificate","yogaDescription","ayurvedaTitle","ayurvedaDescription","deposit","balancePayment","cancellation","refund","pickup","drop","medicalInfo","specialRequests","bookingTerms","metaTitle","metaDescription","keywords"].forEach(update);
     ["days","nights","price","minAge","maxCapacity","yogaHours","maxParticipants","minParticipants","displayOrder"].forEach(updateNum);
     updateBool("certificate", "true");
@@ -328,5 +329,28 @@ export const uploadRetreatImage = async (req: Request, res: Response): Promise<a
     res.status(200).json({ status: "success", secure_url: up.secure_url, public_id: up.public_id });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+export const reorderRetreats = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ status: "fail", message: "ids array is required" });
+    }
+    await Promise.all(
+      ids.map((id: string, index: number) =>
+        Retreat.findByIdAndUpdate(id, { displayOrder: index })
+      )
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Retreats reordered successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Failed to reorder retreats",
+    });
   }
 };

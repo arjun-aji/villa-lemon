@@ -7,6 +7,7 @@ import { getMessages } from "next-intl/server";
 import { Clock, ShieldCheck, MapPin, Compass, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import PackagesGridSlider from "@/components/PackagesGridSlider";
 import { localizeObject } from "@/utils/translator";
 
@@ -18,6 +19,7 @@ interface PackageItemType {
   price: number;
   pricePeriod: Record<string, string>;
   image: string;
+  images?: string[];
   duration: Record<string, string>;
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
@@ -34,6 +36,19 @@ async function getPackageItems(category: string): Promise<PackageItemType[]> {
   } catch (err) {
     console.warn(`[packages catalog fetch]: Failed for category ${category}`, err);
     return [];
+  }
+}
+async function getCategory(category: string): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/packages?category=${category}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data?.[0] || null;
+  } catch (err) {
+    console.warn(`[packages catalog]: Failed to fetch category for type ${category}`, err);
+    return null;
   }
 }
 
@@ -67,7 +82,10 @@ export default async function PackagesCatalogPage({
     descKey = "varkalaPackagesDesc";
   }
 
-  const rawPackages = await getPackageItems(dbCategory);
+  const [rawPackages, categoryData] = await Promise.all([
+    getPackageItems(dbCategory),
+    getCategory(dbCategory),
+  ]);
 
   // Localize packages
   const packages = await Promise.all(
@@ -80,6 +98,7 @@ export default async function PackagesCatalogPage({
         price: lp.price,
         pricePeriod: lp.pricePeriod,
         image: lp.image,
+        images: lp.images,
         duration: lp.duration,
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
@@ -103,12 +122,11 @@ export default async function PackagesCatalogPage({
           {/* Cover background */}
           <div className="absolute inset-0 z-0">
             {packages.length > 0 ? (
-              <Image
-                src={packages[0].image}
+              <ImageSlideshow
+                images={categoryData?.images}
+                defaultImage={packages[0].image}
+                className="object-cover w-full h-full opacity-45 brightness-75 select-none"
                 alt={title}
-                fill
-                className="object-cover opacity-45 brightness-75 select-none"
-                priority
               />
             ) : (
               <div className="w-full h-full bg-[#1e1e1e]" />

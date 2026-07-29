@@ -23,7 +23,7 @@ export const getAllAccommodationItems = async (req: Request, res: Response): Pro
       filter.slug = req.query.slug;
     }
 
-    const items = await AccommodationItem.find(filter).sort({ createdAt: -1 });
+    const items = await AccommodationItem.find(filter).sort({ displayOrder: 1, createdAt: -1 });
 
     res.status(200).json({
       status: "success",
@@ -86,12 +86,12 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
     const additionalServices = parseField(req.body.additionalServices);
     const relatedAccommodations = parseField(req.body.relatedAccommodations) || [];
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const imageFile = files?.image?.[0];
-    const aboutImageFile = files?.aboutImage?.[0];
-    const galleryFiles = files?.gallery || [];
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const galleryFiles = files.filter(f => f.fieldname === "gallery");
 
-    if (!imageFile || !aboutImageFile) {
+    if (imageFiles.length === 0 || !aboutImageFile) {
       return res.status(400).json({
         status: "fail",
         message: "Both cover image and about section image are required",
@@ -100,7 +100,11 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
 
     // Upload to Cloudinary
     console.log("[cloudinary]: Uploading cover image and about image to Cloudinary...");
-    const coverUpload = await uploadImage(imageFile.buffer, "villas");
+    const coverPromises = imageFiles.map(file => uploadImage(file.buffer, "villas"));
+    const coverUploads = await Promise.all(coverPromises);
+    const coverImages = coverUploads.map(r => r.secure_url);
+    const coverImagePublicIds = coverUploads.map(r => r.public_id);
+
     const aboutUpload = await uploadImage(aboutImageFile.buffer, "about");
 
     const galleryUrls: string[] = [];
@@ -122,8 +126,10 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       slug,
       price: Number(price),
       pricePeriod,
-      image: coverUpload.secure_url,
-      imagePublicId: coverUpload.public_id,
+      image: coverImages[0],
+      imagePublicId: coverImagePublicIds[0],
+      images: coverImages,
+      imagePublicIds: coverImagePublicIds,
       aboutImage: aboutUpload.secure_url,
       aboutImagePublicId: aboutUpload.public_id,
       bedrooms: Number(bedrooms),
@@ -209,19 +215,49 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     if (req.body.additionalServices) item.additionalServices = parseField(req.body.additionalServices);
     if (req.body.relatedAccommodations) item.relatedAccommodations = parseField(req.body.relatedAccommodations);
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const imageFile = files?.image?.[0];
-    const aboutImageFile = files?.aboutImage?.[0];
-    const galleryFiles = files?.gallery || [];
+    const files = req.files as Express.Multer.File[] || [];
+    const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
+    const aboutImageFile = files.find(f => f.fieldname === "aboutImage");
+    const galleryFiles = files.filter(f => f.fieldname === "gallery");
 
-    // Handle Cover Image replacement
-    if (imageFile) {
-      if (item.imagePublicId) {
-        await deleteImage(item.imagePublicId).catch((err) => console.warn(`Cloudinary delete cover failed: ${err.message}`));
+    // Handle Cover Image — support existingImages to keep + new uploads to add
+    const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
+
+    if (existingImagesKept !== null || imageFiles.length > 0) {
+      const keptSet = new Set(existingImagesKept ?? (item.images || []));
+      const currentImages: string[] = item.images || (item.image ? [item.image] : []);
+      const currentPublicIds: string[] = item.imagePublicIds || (item.imagePublicId ? [item.imagePublicId] : []);
+
+      const idsToDelete = currentPublicIds.filter((pid, idx) => {
+        const url = currentImages[idx];
+        return url && !keptSet.has(url);
+      });
+      if (idsToDelete.length > 0) {
+        await Promise.all(idsToDelete.map(id => deleteImage(id).catch(() => {})));
       }
-      const coverUpload = await uploadImage(imageFile.buffer, "villas");
-      item.image = coverUpload.secure_url;
-      item.imagePublicId = coverUpload.public_id;
+
+      const keptUrls = currentImages.filter(url => keptSet.has(url));
+      const keptPublicIds = currentPublicIds.filter((_, idx) => {
+        const url = currentImages[idx];
+        return url && keptSet.has(url);
+      });
+
+      let newUrls: string[] = [];
+      let newPublicIds: string[] = [];
+      if (imageFiles.length > 0) {
+        const coverPromises = imageFiles.map(file => uploadImage(file.buffer, "villas"));
+        const coverUploads = await Promise.all(coverPromises);
+        newUrls = coverUploads.map(r => r.secure_url);
+        newPublicIds = coverUploads.map(r => r.public_id);
+      }
+
+      const allImages = [...keptUrls, ...newUrls];
+      const allPublicIds = [...keptPublicIds, ...newPublicIds];
+
+      item.images = allImages;
+      item.imagePublicIds = allPublicIds;
+      item.image = allImages[0] || item.image;
+      item.imagePublicId = allPublicIds[0] || item.imagePublicId;
     }
 
     // Handle About Image replacement
@@ -311,6 +347,29 @@ export const deleteAccommodationItem = async (req: Request, res: Response): Prom
     res.status(500).json({
       status: "error",
       message: error.message || "Failed to delete accommodation item",
+    });
+  }
+};
+
+export const reorderAccommodationItems = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ status: "fail", message: "ids array is required" });
+    }
+    await Promise.all(
+      ids.map((id: string, index: number) =>
+        AccommodationItem.findByIdAndUpdate(id, { displayOrder: index })
+      )
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Accommodation items reordered successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Failed to reorder accommodation items",
     });
   }
 };

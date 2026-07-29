@@ -21,8 +21,12 @@ const packageSchema = new Schema<IPackage>(
     description: { type: localizedTextSchema, required: true },
     image: { type: String, required: true },
     imagePublicId: { type: String },
+    images: { type: [String], default: [] },
+    imagePublicIds: { type: [String], default: [] },
     explore: { type: localizedTextSchema, required: true },
     href: { type: String, required: true },
+    displayOrder: { type: Number, default: 0 },
+    template: { type: String, default: "default" },
   },
   {
     timestamps: true,
