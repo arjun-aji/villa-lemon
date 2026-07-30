@@ -188,6 +188,18 @@ export interface IAccommodationItem extends Document {
   displayOrder?: number;
   badgeText?: ILocalizedText;
   hideRate?: boolean;
+  
+  // SEO
+  metaTitle?: ILocalizedText;
+  metaDescription?: ILocalizedText;
+  keywords?: ILocalizedText;
+  ogImage?: string;
+  ogImagePublicId?: string;
+  canonicalUrl?: string;
+
+  // Important Notes
+  notes?: ILocalizedText;
+
   createdAt: Date;
   updatedAt: Date;
 }

@@ -62,6 +62,7 @@ interface Property {
   additionalServices: Array<{ service: string; details: string }>;
   mapLink: string;
   gallery: string[];
+  notes?: string;
 }
 
 interface PropertyDetailsClientProps {
@@ -785,6 +786,15 @@ export default function PropertyDetailsClient({ property, translations, locale, 
                 </li>
               ))}
             </ul>
+
+            {property.notes && (
+              <div className="mt-8 border-t border-[#eae6db] pt-8 select-text">
+                <h3 className="font-serif text-base font-semibold text-[#121212] mb-3">Important Notes</h3>
+                <p className="text-xs text-gray-600 font-light leading-relaxed whitespace-pre-line bg-[#fcfbfa] border border-[#eae6db] p-5 rounded-md">
+                  {property.notes}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

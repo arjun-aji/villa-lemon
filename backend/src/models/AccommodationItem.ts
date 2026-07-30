@@ -100,6 +100,17 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     displayOrder: { type: Number, default: 0 },
     badgeText: { type: optionalLocalizedTextSchema, default: () => ({ en: "", de: "", fr: "", ru: "" }) },
     hideRate: { type: Boolean, default: false },
+
+    // SEO
+    metaTitle: { type: optionalLocalizedTextSchema },
+    metaDescription: { type: optionalLocalizedTextSchema },
+    keywords: { type: optionalLocalizedTextSchema },
+    ogImage: { type: String, default: "" },
+    ogImagePublicId: { type: String, default: "" },
+    canonicalUrl: { type: String, default: "" },
+
+    // Important Notes
+    notes: { type: optionalLocalizedTextSchema },
   },
   {
     timestamps: true,

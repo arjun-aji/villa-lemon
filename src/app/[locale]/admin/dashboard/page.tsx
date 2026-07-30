@@ -170,6 +170,12 @@ interface AccommodationItemData {
   relatedAccommodations?: string[];
   badgeText?: LocalizedText;
   hideRate?: boolean;
+  metaTitle?: LocalizedText;
+  metaDescription?: LocalizedText;
+  keywords?: LocalizedText;
+  ogImage?: string;
+  canonicalUrl?: string;
+  notes?: LocalizedText;
 }
 
 interface PackageItemData {
@@ -836,7 +842,12 @@ export default function AdminDashboard() {
       ],
       relatedAccommodations: ["", "", ""],
       badgeText: createEmptyLocalizedText(),
-      hideRate: false
+      hideRate: false,
+      metaTitle: createEmptyLocalizedText(),
+      metaDescription: createEmptyLocalizedText(),
+      keywords: createEmptyLocalizedText(),
+      canonicalUrl: "",
+      notes: createEmptyLocalizedText(),
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -847,6 +858,8 @@ export default function AdminDashboard() {
     setAboutImagePreviews([]);
     setAboutImageFiles([]);
     setNewGalleryFiles([]);
+    setOgImagePreview(null);
+    setOgImageFile(null);
     setShowStayModal(true);
   };
 
@@ -856,7 +869,12 @@ export default function AdminDashboard() {
       ...s,
       relatedAccommodations: s.relatedAccommodations || ["", "", ""],
       badgeText: s.badgeText || createEmptyLocalizedText(),
-      hideRate: s.hideRate || false
+      hideRate: s.hideRate || false,
+      metaTitle: s.metaTitle || createEmptyLocalizedText(),
+      metaDescription: s.metaDescription || createEmptyLocalizedText(),
+      keywords: s.keywords || createEmptyLocalizedText(),
+      canonicalUrl: s.canonicalUrl || "",
+      notes: s.notes || createEmptyLocalizedText(),
     });
     setCoverImagePreview(s.image);
     setCoverImageFile(null);
@@ -867,6 +885,8 @@ export default function AdminDashboard() {
     setAboutImagePreviews(s.aboutImages && s.aboutImages.length > 0 ? s.aboutImages : s.aboutImage ? [s.aboutImage] : []);
     setAboutImageFiles([]);
     setNewGalleryFiles([]);
+    setOgImagePreview(s.ogImage || null);
+    setOgImageFile(null);
     setShowStayModal(true);
   };
 
@@ -910,6 +930,12 @@ export default function AdminDashboard() {
       formData.append("relatedAccommodations", JSON.stringify(filteredRelated));
       formData.append("badgeText", JSON.stringify(stayForm.badgeText || createEmptyLocalizedText()));
       formData.append("hideRate", String(stayForm.hideRate || false));
+      formData.append("metaTitle", JSON.stringify(stayForm.metaTitle || createEmptyLocalizedText()));
+      formData.append("metaDescription", JSON.stringify(stayForm.metaDescription || createEmptyLocalizedText()));
+      formData.append("keywords", JSON.stringify(stayForm.keywords || createEmptyLocalizedText()));
+      formData.append("canonicalUrl", stayForm.canonicalUrl || "");
+      formData.append("notes", JSON.stringify(stayForm.notes || createEmptyLocalizedText()));
+      if (ogImageFile) formData.append("ogImage", ogImageFile);
 
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
@@ -2767,6 +2793,19 @@ export default function AdminDashboard() {
                       required={activeLangTab === "en"}
                     />
                   </div>
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="font-bold text-gray-600 uppercase">Important Notes ({activeLangTab.toUpperCase()})</label>
+                    <textarea
+                      rows={3}
+                      value={stayForm.notes?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const notes = { ...stayForm.notes, [activeLangTab]: e.target.value } as any;
+                        setStayForm({ ...stayForm, notes });
+                      }}
+                      placeholder="e.g. Reservation rules, warning about pets, cancellation policy summary..."
+                      className="border border-gray-200 p-2.5 rounded font-sans"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -3385,6 +3424,100 @@ export default function AdminDashboard() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* SECTION: SEO METADATA */}
+              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">5. SEO & Social Metadata ({activeLangTab.toUpperCase()})</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Meta Title Tag</label>
+                    <input
+                      type="text"
+                      value={stayForm.metaTitle?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const metaTitle = { ...stayForm.metaTitle, [activeLangTab]: e.target.value } as any;
+                        setStayForm({ ...stayForm, metaTitle });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                      placeholder="e.g. Luxury 3 Bedroom Beach Villa in Varkala | Villa Lemon"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Canonical URL link</label>
+                    <input
+                      type="text"
+                      value={stayForm.canonicalUrl || ""}
+                      onChange={(e) => setStayForm({ ...stayForm, canonicalUrl: e.target.value })}
+                      className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                      placeholder="e.g. https://villalemon.com/accommodation/villas/lemon-grove-villa"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Meta Description tag</label>
+                    <textarea
+                      rows={3}
+                      value={stayForm.metaDescription?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const metaDescription = { ...stayForm.metaDescription, [activeLangTab]: e.target.value } as any;
+                        setStayForm({ ...stayForm, metaDescription });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded font-sans text-xs bg-white"
+                      placeholder="Describe the villa details for search engines..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">SEO Keywords tag</label>
+                    <textarea
+                      rows={3}
+                      value={stayForm.keywords?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const keywords = { ...stayForm.keywords, [activeLangTab]: e.target.value } as any;
+                        setStayForm({ ...stayForm, keywords });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded font-sans text-xs bg-white"
+                      placeholder="e.g. luxury villa, private pool varkala, beach rental"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="font-bold text-gray-600 uppercase">Social Sharing Image (OG Image)</label>
+                    <div className="flex items-center gap-3">
+                      {ogImagePreview && (
+                        <div className="w-24 h-16 rounded border overflow-hidden shrink-0 bg-gray-150 relative group">
+                          <img src={ogImagePreview} className="w-full h-full object-cover" alt="OG Preview" />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOgImagePreview(null);
+                              setOgImageFile(null);
+                            }}
+                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      <label className="flex-grow border border-dashed border-gray-300 hover:border-brand-gold rounded p-4 cursor-pointer text-center bg-white hover:bg-amber-50/20 transition-all select-none">
+                        <div className="flex flex-col items-center justify-center gap-1 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                          <Upload className="w-4 h-4 text-gray-400 mb-1" />
+                          <span>Upload Custom OG Image</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setOgImageFile(file);
+                              setOgImagePreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
 

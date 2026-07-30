@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import React from "react";
+import { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -43,6 +44,12 @@ interface PropertyDetails {
   gallery?: string[];
   relatedAccommodations?: string[];
   images?: string[];
+  metaTitle?: Record<string, string>;
+  metaDescription?: Record<string, string>;
+  keywords?: Record<string, string>;
+  ogImage?: string;
+  canonicalUrl?: string;
+  notes?: Record<string, string>;
 }
 
 async function getPropertyDetails(slug: string): Promise<PropertyDetails | null> {
@@ -307,4 +314,44 @@ export default async function PropertyDetailsPage({
       />
     </>
   );
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string; type: string }> }): Promise<Metadata> {
+  const { locale, slug, type } = await params;
+  const property = await getPropertyDetails(slug);
+  if (!property) return {};
+
+  const title = property.metaTitle?.[locale] || property.metaTitle?.en || property.title?.[locale] || property.title?.en || "Villa Lemon Stay";
+  const description = property.metaDescription?.[locale] || property.metaDescription?.en || property.shortDescription?.[locale] || property.shortDescription?.en || "";
+  const keywords = property.keywords?.[locale] || property.keywords?.en || "";
+  const canonical = property.canonicalUrl || `https://villalemon.com/${locale}/accommodation/${type}/${slug}`;
+  const ogImageUrl = property.ogImage || property.image || "/assets/hero.png";
+
+  return {
+    title,
+    description,
+    keywords,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  };
 }

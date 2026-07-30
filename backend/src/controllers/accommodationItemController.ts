@@ -78,6 +78,15 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
     const badgeText = parseField(req.body.badgeText);
     const hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
 
+    // SEO
+    const metaTitle = parseField(req.body.metaTitle);
+    const metaDescription = parseField(req.body.metaDescription);
+    const keywords = parseField(req.body.keywords);
+    const canonicalUrl = req.body.canonicalUrl || "";
+
+    // Notes
+    const notes = parseField(req.body.notes);
+
     // Arrays/Objects
     const highlights = parseField(req.body.highlights);
     const whyGuestsLoveUs = parseField(req.body.whyGuestsLoveUs);
@@ -92,6 +101,7 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
     const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
+    const ogImageFile = files.find(f => f.fieldname === "ogImage");
 
     // Upload to Cloudinary
     console.log("[cloudinary]: Uploading cover images and about images to Cloudinary...");
@@ -116,6 +126,15 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
         galleryUrls.push(up.secure_url);
         galleryPublicIds.push(up.public_id);
       });
+    }
+
+    let ogImageUrl = "";
+    let ogImagePublicId = "";
+    if (ogImageFile) {
+      console.log("[cloudinary]: Uploading custom OG Image to Cloudinary...");
+      const ogRes = await uploadImage(ogImageFile.buffer, "seo");
+      ogImageUrl = ogRes.secure_url;
+      ogImagePublicId = ogRes.public_id;
     }
 
     const newItem = new AccommodationItem({
@@ -157,6 +176,13 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       relatedAccommodations,
       badgeText,
       hideRate,
+      metaTitle,
+      metaDescription,
+      keywords,
+      ogImage: ogImageUrl,
+      ogImagePublicId: ogImagePublicId,
+      canonicalUrl,
+      notes,
     });
 
     await newItem.save();
@@ -211,6 +237,12 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
       item.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
     }
 
+    if (req.body.metaTitle) item.metaTitle = { ...item.metaTitle, ...parseField(req.body.metaTitle) };
+    if (req.body.metaDescription) item.metaDescription = { ...item.metaDescription, ...parseField(req.body.metaDescription) };
+    if (req.body.keywords) item.keywords = { ...item.keywords, ...parseField(req.body.keywords) };
+    if (req.body.canonicalUrl !== undefined) item.canonicalUrl = req.body.canonicalUrl;
+    if (req.body.notes) item.notes = { ...item.notes, ...parseField(req.body.notes) };
+
     // Lists
     if (req.body.highlights) item.highlights = parseField(req.body.highlights);
     if (req.body.whyGuestsLoveUs) item.whyGuestsLoveUs = parseField(req.body.whyGuestsLoveUs);
@@ -225,6 +257,7 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
     const aboutImageFiles = files.filter(f => f.fieldname === "aboutImage");
     const galleryFiles = files.filter(f => f.fieldname === "gallery");
+    const ogImageFile = files.find(f => f.fieldname === "ogImage");
 
     // Handle Cover Image — support existingImages to keep + new uploads to add
     const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
@@ -338,6 +371,16 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
 
     item.gallery = gallery;
     item.galleryPublicIds = galleryPublicIds;
+
+    if (ogImageFile) {
+      if (item.ogImagePublicId) {
+        await deleteImage(item.ogImagePublicId).catch(() => {});
+      }
+      console.log("[cloudinary]: Uploading custom OG Image to Cloudinary...");
+      const ogRes = await uploadImage(ogImageFile.buffer, "seo");
+      item.ogImage = ogRes.secure_url;
+      item.ogImagePublicId = ogRes.public_id;
+    }
 
     await item.save();
 
