@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Globe, ChevronLeft } from "lucide-react";
@@ -346,37 +347,14 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             className="flex items-center gap-3 group focus:outline-none focus:ring-1 focus:ring-brand-gold rounded-sm"
             onClick={() => setActiveItem("HOME")}
           >
-            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-[#121212]/40 transition-colors duration-300 group-hover:border-brand-gold">
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 40 40"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-brand-gold transition-transform duration-500 group-hover:scale-105"
-              >
-                <path
-                  d="M20 5L6 16V33H34V16L20 5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M20 12C20 12 15 18 15 22C15 24.7614 17.2386 27 20 27C22.7614 27 25 24.7614 25 22C25 18 20 12 20 12Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M20 12V27"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-white transition-colors duration-300 group-hover:border-brand-gold shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Villa Lemon Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
             <div className="flex flex-col select-none">
               <span className={`font-serif text-lg md:text-xl font-medium tracking-[0.15em] group-hover:text-brand-gold transition-colors duration-300 leading-none ${

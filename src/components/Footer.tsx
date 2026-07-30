@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "next-intl";
 import { Phone, Mail, MapPin, ArrowUp } from "lucide-react";
 
@@ -31,9 +32,20 @@ export default function Footer({ contact }: FooterProps) {
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-10 md:py-12 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-left">
         {/* Brand Column */}
         <div className="flex flex-col space-y-3">
-          <span className="font-serif text-xl tracking-[0.1em] text-brand-gold select-none">
-            VILLA LEMON
-          </span>
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-white shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Villa Lemon Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+            </div>
+            <span className="font-serif text-xl tracking-[0.1em] text-brand-gold select-none">
+              VILLA LEMON
+            </span>
+          </div>
           <p className="text-[10px] tracking-wider text-brand-gold/70 font-semibold uppercase leading-none">
             Stay • Relax • Rejuvenate
           </p>
