@@ -190,6 +190,8 @@ export default async function PropertyDetailsPage({
         tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
         slug: foundStay.slug,
         images: foundStay.images || [],
+        badgeText: foundStay.badgeText?.[locale] || foundStay.badgeText?.["en"] || "",
+        hideRate: foundStay.hideRate || false,
       });
       continue;
     }
@@ -260,6 +262,8 @@ export default async function PropertyDetailsPage({
       tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
       slug: foundStay.slug,
       images: foundStay.images || [],
+      badgeText: foundStay.badgeText?.[locale] || foundStay.badgeText?.["en"] || "",
+      hideRate: foundStay.hideRate || false,
     }));
   } else if (suggestionsList.length < 3) {
     const alreadySlugs = suggestionsList.map((s) => s.slug);
@@ -282,6 +286,8 @@ export default async function PropertyDetailsPage({
       tagline: foundStay.tagline[locale] || foundStay.tagline["en"] || "",
       slug: foundStay.slug,
       images: foundStay.images || [],
+      badgeText: foundStay.badgeText?.[locale] || foundStay.badgeText?.["en"] || "",
+      hideRate: foundStay.hideRate || false,
     }));
     suggestionsList = [...suggestionsList, ...mappedFillers];
   }

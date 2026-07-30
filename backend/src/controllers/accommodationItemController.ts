@@ -75,6 +75,8 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
     const aboutText2 = parseField(req.body.aboutText2);
     const perfectLocationText = parseField(req.body.perfectLocationText);
     const groupAccommodationText = parseField(req.body.groupAccommodationText);
+    const badgeText = parseField(req.body.badgeText);
+    const hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
 
     // Arrays/Objects
     const highlights = parseField(req.body.highlights);
@@ -153,6 +155,8 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       gallery: galleryUrls,
       galleryPublicIds: galleryPublicIds,
       relatedAccommodations,
+      badgeText,
+      hideRate,
     });
 
     await newItem.save();
@@ -202,6 +206,10 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     if (req.body.aboutText2) item.aboutText2 = { ...item.aboutText2, ...parseField(req.body.aboutText2) };
     if (req.body.perfectLocationText) item.perfectLocationText = { ...item.perfectLocationText, ...parseField(req.body.perfectLocationText) };
     if (req.body.groupAccommodationText) item.groupAccommodationText = { ...item.groupAccommodationText, ...parseField(req.body.groupAccommodationText) };
+    if (req.body.badgeText) item.badgeText = { ...item.badgeText, ...parseField(req.body.badgeText) };
+    if (req.body.hideRate !== undefined) {
+      item.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
+    }
 
     // Lists
     if (req.body.highlights) item.highlights = parseField(req.body.highlights);

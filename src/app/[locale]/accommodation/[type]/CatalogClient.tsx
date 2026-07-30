@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
-import { Heart, Users, Bed, Bath, ArrowUpDown, ChevronDown, Check, Shield, Calendar, Phone } from "lucide-react";
+import { Star, Users, Bed, Bath, ArrowUpDown, ChevronDown, Check, Shield, Calendar, Phone } from "lucide-react";
 
 interface Property {
   id: string;
@@ -20,6 +20,8 @@ interface Property {
   shortDescription: string;
   tagline: string;
   images?: string[];
+  badgeText?: string;
+  hideRate?: boolean;
 }
 
 interface CatalogClientProps {
@@ -191,24 +193,19 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
                 <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
                 
                 {/* Price tag */}
-                <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
-                  From ₹{p.price.toLocaleString()} {p.pricePeriod}
-                </div>
+                {!p.hideRate && (
+                  <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
+                    From ₹{p.price.toLocaleString()} {p.pricePeriod}
+                  </div>
+                )}
 
-                {/* Favorite heart icon */}
-                <button
-                  onClick={(e) => toggleFavorite(p.id, e)}
-                  className="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white backdrop-blur-md rounded-full shadow-sm cursor-pointer transition-colors z-20 group/heart"
-                  aria-label="Add to favorites"
-                >
-                  <Heart
-                    className={`w-4 h-4 transition-colors ${
-                      favorites[p.id]
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-600 group-hover/heart:text-red-500"
-                    }`}
-                  />
-                </button>
+                {/* Grid badge (Star + Text) */}
+                {p.badgeText && (
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-[#051c0e] border-2 border-[#FFD700] text-[#FFD700] px-4 py-2 rounded-full text-[11px] font-extrabold tracking-widest uppercase select-none z-20 shadow-lg">
+                    <Star className="w-4 h-4 fill-[#FFD700] text-[#FFD700] shrink-0" />
+                    <span>{p.badgeText}</span>
+                  </div>
+                )}
               </div>
 
               {/* Card Details */}

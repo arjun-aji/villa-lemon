@@ -64,19 +64,19 @@ export default async function PackagesCatalogPage({
   let titleKey = "varkalaTitle";
   let descKey = "varkalaDesc";
 
-  if (category === "day-trips") {
+  if (category === "day-trips" || category === "dayTrips") {
     dbCategory = "dayTrips";
     titleKey = "daytripsTitle";
     descKey = "daytripsDesc";
-  } else if (category === "backwater-experiences") {
+  } else if (category === "backwater-experiences" || category === "backwaterExperiences") {
     dbCategory = "backwaterExperiences";
     titleKey = "backwaterTitle";
     descKey = "backwaterDesc";
-  } else if (category === "adventure-activities") {
+  } else if (category === "adventure-activities" || category === "adventureActivities") {
     dbCategory = "adventureActivities";
     titleKey = "adventureTitle";
     descKey = "adventureDesc";
-  } else if (category === "varkala-packages") {
+  } else if (category === "varkala-packages" || category === "varkalaPackages") {
     dbCategory = "varkalaPackages";
     titleKey = "varkalaPackagesTitle";
     descKey = "varkalaPackagesDesc";

@@ -315,7 +315,7 @@ interface LocalizedYogaDetails {
                 <span>{tYoga.back || "Back to listing"}</span>
               </Link>
 
-              <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+              <div className="hidden md:flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                 <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
                 <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
@@ -352,7 +352,17 @@ interface LocalizedYogaDetails {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 select-none md:ml-auto">
+              <div className="flex flex-wrap items-center gap-3 select-none md:ml-auto mt-4 sm:mt-0">
+                <a
+                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the yoga program: ${encodeURIComponent(yoga.title)}`}
+                  target="_blank"
+                  className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-md flex items-center gap-1.5"
+                >
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white shrink-0">
+                    <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.21 2 5.87L3 22l4.3-1c1.6.9 3.4 1.3 5.7 1.3 5.5 0 10-4.48 10-10S17.524 2 12.004 2zm5.7 14.1c-.2.6-1.2 1.1-1.7 1.2-.5.1-1 .2-3.1-.6-2.5-1-4-3.6-4.1-3.8-.1-.2-.8-1-1-2.1v-.1c0-.6.3-.9.4-1 .2-.2.4-.2.5-.2h.4c.1 0 .3-.1.5.3.2.5.7 1.6.7 1.8 0 .1.1.3 0 .4-.1.2-.2.3-.3.4-.1.1-.3.3-.4.4-.1.1-.3.2-.1.5.2.4.9 1.5 2 2.4.9.8 1.7 1.1 2 1.3.3.1.5.1.7-.1.2-.3.9-1.1 1.1-1.4.2-.3.4-.3.7-.2.3.1 1.9.9 2.2 1.1.3.2.5.3.6.4.1.3.1 1.2-.1 1.7z" />
+                  </svg>
+                  <span>WhatsApp Booking</span>
+                </a>
                 <BookingButton
                   className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
                   context={`Yoga Program: ${yoga.title}`}

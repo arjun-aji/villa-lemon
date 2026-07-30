@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Globe } from "lucide-react";
+import { Menu, X, ChevronDown, Globe, ChevronLeft } from "lucide-react";
 import BookingButton from "./BookingButton";
 import { API_BASE_URL } from "@/config/api";
 
@@ -71,25 +71,35 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
   const pathname = usePathname();
 
   const [itemsList, setItemsList] = useState<NavItem[]>(navItems);
+  const [whatsappNumber, setWhatsappNumber] = useState("+91 73560 85055");
 
   // Dynamically load categories for Accommodations, Packages, and Yoga
   useEffect(() => {
     const fetchNavbarData = async () => {
       try {
-        const [resAcc, resPkg, resYoga] = await Promise.all([
+        const [resAcc, resPkg, resYoga, resContact] = await Promise.all([
           fetch(`${API_BASE_URL}/api/accommodations`),
           fetch(`${API_BASE_URL}/api/packages`),
-          fetch(`${API_BASE_URL}/api/yoga/programs`)
+          fetch(`${API_BASE_URL}/api/yoga/programs`),
+          fetch(`${API_BASE_URL}/api/homepage`)
         ]);
 
         const updatedItems = JSON.parse(JSON.stringify(navItems));
+
+        if (resContact.ok) {
+          const contactData = await resContact.json();
+          const whatsapp = contactData?.data?.contact?.whatsapp;
+          if (whatsapp) {
+            setWhatsappNumber(whatsapp);
+          }
+        }
 
         if (resAcc.ok) {
           const accData = await resAcc.json();
           if (accData?.data) {
             const accChildren = accData.data.map((cat: any) => ({
               name: cat.title[locale] || cat.title.en,
-              href: `/accommodation/${cat.type}`,
+              href: cat.href || `/accommodation/${cat.type}`,
               isDynamic: true
             }));
             const accIndex = updatedItems.findIndex((i: any) => i.name === "ACCOMMODATIONS");
@@ -104,7 +114,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
           if (pkgData?.data) {
             const pkgChildren = pkgData.data.map((cat: any) => ({
               name: cat.title[locale] || cat.title.en,
-              href: `/packages/${cat.category}`,
+              href: cat.href || `/packages/${cat.category}`,
               isDynamic: true
             }));
             const pkgIndex = updatedItems.findIndex((i: any) => i.name === "PACKAGES");
@@ -162,6 +172,16 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
   const currentLang = locale.toUpperCase();
 
+  const getNavbarItemHref = (itemHref: string, itemName: string) => {
+    const isHomePage = pathname === "/";
+    if (isHomePage) return itemHref;
+
+    if (itemHref.startsWith("/#")) {
+      return `/?goto=${itemHref.substring(2)}`;
+    }
+    return itemHref;
+  };
+
   // Monitor scroll for transition effects
   useEffect(() => {
     const handleScroll = () => {
@@ -200,6 +220,10 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
   // Synchronize active nav item with URL pathname, hash, and scroll position
   useEffect(() => {
+    let timer1: NodeJS.Timeout;
+    let timer2: NodeJS.Timeout;
+    let timer3: NodeJS.Timeout;
+
     const syncFromUrl = () => {
       if (pathname.startsWith("/accommodation")) {
         setActiveItem("ACCOMMODATIONS");
@@ -220,6 +244,34 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
     };
 
     syncFromUrl();
+
+    // Scroll to hash or goto query parameter on page load/navigation
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const goto = searchParams.get("goto");
+      const targetHash = window.location.hash || (goto ? `#${goto}` : "");
+
+      if (targetHash) {
+        const scrollToHash = () => {
+          const id = targetHash.startsWith("#") ? targetHash.substring(1) : targetHash;
+          const element = document.getElementById(id);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+            
+            // Clean up the URL query param, replace it with clean hash
+            if (goto) {
+              const newUrl = window.location.pathname + "#" + goto;
+              window.history.replaceState(null, "", newUrl);
+            }
+          }
+        };
+
+        scrollToHash();
+        timer1 = setTimeout(scrollToHash, 300);
+        timer2 = setTimeout(scrollToHash, 800);
+        timer3 = setTimeout(scrollToHash, 1500);
+      }
+    }
 
     // Scroll spy on the homepage using precise section offsets
     const isHomepage = pathname === "/" || pathname === "" || pathname === `/${locale}`;
@@ -263,6 +315,9 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
 
     window.addEventListener("hashchange", syncFromUrl);
     return () => {
+      if (timer1) clearTimeout(timer1);
+      if (timer2) clearTimeout(timer2);
+      if (timer3) clearTimeout(timer3);
       window.removeEventListener("hashchange", syncFromUrl);
       if (isHomepage && typeof window !== "undefined") {
         window.removeEventListener("scroll", handleScrollSpy);
@@ -340,7 +395,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             {itemsList.map((item) => (
               <div key={item.name} className="relative flex items-center gap-0.5 group/menu">
                 <Link
-                  href={item.href}
+                  href={getNavbarItemHref(item.href, item.name)}
                   onClick={() => setActiveItem(item.name)}
                   className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${
                     isScrolled
@@ -576,7 +631,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                     <div key={item.name} className="flex flex-col w-full">
                       <div className="flex items-center justify-between w-full py-1">
                         <Link
-                          href={item.href}
+                          href={getNavbarItemHref(item.href, item.name)}
                           onClick={() => {
                             setActiveItem(item.name);
                             setIsMobileMenuOpen(false);
@@ -629,7 +684,17 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                 </nav>
 
                 {/* Mobile Booking Button */}
-                <div className="pt-2">
+                <div className="pt-2 flex flex-col gap-2.5">
+                  <a
+                    href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}?text=Hi, I would like to book a stay/program at Villa Lemon`}
+                    target="_blank"
+                    className="flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-xs tracking-widest uppercase rounded-[3px] py-3.5 transition-all duration-300 shadow-md focus:outline-none w-full text-center gap-2 cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white shrink-0">
+                      <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.21 2 5.87L3 22l4.3-1c1.6.9 3.4 1.3 5.7 1.3 5.5 0 10-4.48 10-10S17.524 2 12.004 2zm5.7 14.1c-.2.6-1.2 1.1-1.7 1.2-.5.1-1 .2-3.1-.6-2.5-1-4-3.6-4.1-3.8-.1-.2-.8-1-1-2.1v-.1c0-.6.3-.9.4-1 .2-.2.4-.2.5-.2h.4c.1 0 .3-.1.5.3.2.5.7 1.6.7 1.8 0 .1.1.3 0 .4-.1.2-.2.3-.3.4-.1.1-.3.3-.4.4-.1.1-.3.2-.1.5.2.4.9 1.5 2 2.4.9.8 1.7 1.1 2 1.3.3.1.5.1.7-.1.2-.3.9-1.1 1.1-1.4.2-.3.4-.3.7-.2.3.1 1.9.9 2.2 1.1.3.2.5.3.6.4.1.3.1 1.2-.1 1.7z" />
+                    </svg>
+                    <span>{t("whatsappBooking") || "WhatsApp Booking"}</span>
+                  </a>
                   <BookingButton
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center justify-center bg-brand-gold hover:bg-brand-gold-dark text-white font-sans font-bold text-xs tracking-widest uppercase rounded-[3px] py-3.5 transition-all duration-300 shadow-md focus:outline-none focus:ring-1 focus:ring-brand-gold w-full text-center"
@@ -678,6 +743,18 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
           </>
         )}
       </AnimatePresence>
+
+      {/* Floating Back Button (rendered only on subpages) */}
+      {pathname !== "/" && (
+        <button
+          onClick={() => router.back()}
+          className="fixed bottom-6 left-6 z-50 flex items-center gap-2 bg-[#121212]/85 hover:bg-[#121212] border border-white/10 hover:border-brand-gold/40 backdrop-blur-md px-4 py-2.5 rounded-full text-brand-cream hover:text-brand-gold text-[10px] font-bold tracking-widest uppercase shadow-2xl transition-all duration-300 active:scale-95 cursor-pointer select-none"
+          aria-label="Go back to previous page"
+        >
+          <ChevronLeft className="w-4 h-4 text-brand-gold" />
+          <span>{t("back") || "Back"}</span>
+        </button>
+      )}
     </>
   );
 }

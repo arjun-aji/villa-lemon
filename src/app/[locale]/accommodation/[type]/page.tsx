@@ -30,6 +30,8 @@ interface PropertyItem {
   tagline: Record<string, string>;
   highlights: Array<{ icon: string; label: Record<string, string> }>;
   images?: string[];
+  badgeText?: Record<string, string>;
+  hideRate?: boolean;
 }
 
 async function getProperties(type: string): Promise<PropertyItem[]> {
@@ -72,11 +74,11 @@ export default async function AccommodationCatalogPage({
   let titleKey = "villaTitle";
   let descKey = "villaDesc";
   
-  if (type === "floors") {
+  if (type === "floors" || type === "floor") {
     dbType = "floor";
     titleKey = "floorTitle";
     descKey = "floorDesc";
-  } else if (type === "rooms") {
+  } else if (type === "rooms" || type === "room") {
     dbType = "room";
     titleKey = "roomTitle";
     descKey = "roomDesc";
@@ -106,6 +108,8 @@ export default async function AccommodationCatalogPage({
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
         images: lp.images,
+        badgeText: lp.badgeText || "",
+        hideRate: lp.hideRate || false,
       };
     })
   );

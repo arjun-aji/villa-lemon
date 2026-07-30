@@ -5,6 +5,7 @@ import Packages from "@/components/Packages";
 import Yoga from "@/components/Yoga";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
 import { API_BASE_URL } from "@/config/api";
 
 import { localizeObject } from "@/utils/translator";
@@ -155,6 +156,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         staysList={localizedAccs.map(acc => ({ _id: acc._id, title: acc.title }))} 
         contact={contactData}
       />
+      <Footer contact={contactData} />
     </main>
   );
 }

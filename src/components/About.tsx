@@ -113,7 +113,7 @@ const HouseIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-7 h-7 text-brand-gold mb-3"
+    className="w-5 h-5 sm:w-7 sm:h-7 text-brand-gold mb-1.5 sm:mb-3"
   >
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     <polyline points="9 22 9 12 15 12 15 22" />
@@ -130,7 +130,7 @@ const GuestsIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-7 h-7 text-brand-gold mb-3"
+    className="w-5 h-5 sm:w-7 sm:h-7 text-brand-gold mb-1.5 sm:mb-3"
   >
     <path d="M17 21v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2" />
     <circle cx="8.5" cy="7" r="4" />
@@ -149,7 +149,7 @@ const RatingIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-7 h-7 text-brand-gold mb-3"
+    className="w-5 h-5 sm:w-7 sm:h-7 text-brand-gold mb-1.5 sm:mb-3"
   >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
@@ -165,7 +165,7 @@ const LocationIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-7 h-7 text-brand-gold mb-3"
+    className="w-5 h-5 sm:w-7 sm:h-7 text-brand-gold mb-1.5 sm:mb-3"
   >
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
@@ -485,9 +485,9 @@ export default function About({ data }: AboutProps) {
       </div>
 
       {/* PART 4: STATS ROW */}
-      <div className="w-full bg-brand-cream py-16 md:py-24 text-brand-dark">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-0">
+      <div className="w-full bg-brand-cream py-10 sm:py-16 md:py-24 text-brand-dark border-t border-[#eae6db]/25">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 w-full">
+          <div className="grid grid-cols-4 gap-2 sm:gap-6 lg:gap-0">
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
@@ -496,24 +496,24 @@ export default function About({ data }: AboutProps) {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-80px" }}
                 variants={fadeInUp}
-                className="flex flex-col items-center text-center px-4 xl:px-8 relative"
+                className="flex flex-col items-center text-center px-1 sm:px-4 xl:px-8 relative"
               >
                 {/* Outlined Icon */}
                 {stat.icon}
                 
                 {/* Statistic Number */}
-                <h4 className="text-4xl sm:text-5xl md:text-5.5xl lg:text-6xl font-serif font-normal text-brand-dark mb-1 tracking-tight leading-none">
+                <h4 className="text-xl sm:text-3xl md:text-5.5xl lg:text-6xl font-serif font-normal text-brand-dark mb-0.5 sm:mb-1 tracking-tight leading-none">
                   {stat.val}
                 </h4>
                 
                 {/* Label */}
-                <p className="text-xs sm:text-sm text-brand-dark/75 font-sans font-light tracking-wide mt-2">
+                <p className="text-[9px] sm:text-xs md:text-sm text-brand-dark/75 font-sans font-light tracking-wide mt-1 sm:mt-2">
                   {stat.label}
                 </p>
 
                 {/* Vertical Divider line for desktop */}
                 {index < 3 && (
-                  <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-16 bg-[#eae6db]/80" />
+                  <div className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-10 sm:h-16 bg-[#eae6db]/80" />
                 )}
               </motion.div>
             ))}

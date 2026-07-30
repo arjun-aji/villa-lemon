@@ -11,6 +11,17 @@ const localizedTextSchema = new Schema(
   { _id: false }
 );
 
+const optionalLocalizedTextSchema = new Schema(
+  {
+    en: { type: String, default: "" },
+    de: { type: String, default: "" },
+    fr: { type: String, default: "" },
+    ru: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
+
 const highlightSchema = new Schema(
   {
     icon: { type: String, required: true },
@@ -87,6 +98,8 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     galleryPublicIds: [{ type: String }],
     relatedAccommodations: [{ type: String }],
     displayOrder: { type: Number, default: 0 },
+    badgeText: { type: optionalLocalizedTextSchema, default: () => ({ en: "", de: "", fr: "", ru: "" }) },
+    hideRate: { type: Boolean, default: false },
   },
   {
     timestamps: true,

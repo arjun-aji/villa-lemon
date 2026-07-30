@@ -25,7 +25,7 @@ import {
   Info,
   ChevronLeft,
   ChevronRight,
-  Heart,
+  Star,
   Home,
   Trees,
   ImageIcon
@@ -86,6 +86,8 @@ interface PropertyDetailsClientProps {
     tagline: string;
     slug: string;
     cardType: string;
+    badgeText?: string;
+    hideRate?: boolean;
   }>;
 }
 
@@ -145,7 +147,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
               <span>{translations.back || "Back to listing"}</span>
             </Link>
 
-            <div className="flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+            <div className="hidden md:flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
               <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
               <span>&gt;</span>
               <Link href={`/${locale}#villas`} className="hover:text-brand-gold transition-colors">Accommodation</Link>
@@ -170,10 +172,10 @@ export default function PropertyDetailsClient({ property, translations, locale, 
           </p>
 
           {/* Highlights Row and Buttons */}
-          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between border-t border-white/10 pt-8 animate-fade-in-up delay-300">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between border-t border-white/10 pt-8 animate-fade-in-up delay-300">
             {/* Highlights list */}
-            <div className="flex flex-wrap items-center gap-6 select-none">
-              {property.highlights.map((h, i) => (
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 md:gap-x-8 select-none w-full max-w-xl">
+              {property.highlights.slice(0, 4).map((h, i) => (
                 <div key={i} className="flex items-center gap-2.5">
                   <div className="w-10 h-10 border border-brand-gold/30 rounded-sm bg-black/40 flex items-center justify-center text-brand-gold shrink-0">
                     {getIcon(h.icon)}
@@ -212,20 +214,23 @@ export default function PropertyDetailsClient({ property, translations, locale, 
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex items-center gap-3 select-none">
+              <div className="flex flex-wrap items-center gap-3 select-none">
+                <a
+                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book a stay at ${encodeURIComponent(property.title)}`}
+                  target="_blank"
+                  className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-md flex items-center gap-1.5"
+                >
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white shrink-0">
+                    <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.21 2 5.87L3 22l4.3-1c1.6.9 3.4 1.3 5.7 1.3 5.5 0 10-4.48 10-10S17.524 2 12.004 2zm5.7 14.1c-.2.6-1.2 1.1-1.7 1.2-.5.1-1 .2-3.1-.6-2.5-1-4-3.6-4.1-3.8-.1-.2-.8-1-1-2.1v-.1c0-.6.3-.9.4-1 .2-.2.4-.2.5-.2h.4c.1 0 .3-.1.5.3.2.5.7 1.6.7 1.8 0 .1.1.3 0 .4-.1.2-.2.3-.3.4-.1.1-.3.3-.4.4-.1.1-.3.2-.1.5.2.4.9 1.5 2 2.4.9.8 1.7 1.1 2 1.3.3.1.5.1.7-.1.2-.3.9-1.1 1.1-1.4.2-.3.4-.3.7-.2.3.1 1.9.9 2.2 1.1.3.2.5.3.6.4.1.3.1 1.2-.1 1.7z" />
+                  </svg>
+                  <span>WhatsApp Booking</span>
+                </a>
                 <BookingButton
                   className="px-6 py-3.5 bg-brand-gold hover:bg-brand-gold-dark text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shadow-sm"
                   context={property.title}
                 >
                   {translations.bookStay || "Book Your Stay"}
                 </BookingButton>
-                <a
-                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book a stay at ${encodeURIComponent(property.title)}`}
-                  target="_blank"
-                  className="px-6 py-3.5 border border-white/20 hover:border-brand-gold text-white hover:text-brand-gold font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300"
-                >
-                  {translations.whatsappUs || "WhatsApp Us"}
-                </a>
               </div>
             </div>
           </div>
@@ -819,9 +824,19 @@ export default function PropertyDetailsClient({ property, translations, locale, 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent z-10 pointer-events-none" />
                     
                     {/* Price Tag */}
-                    <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
-                      From ₹{item.price.toLocaleString()} {item.pricePeriod}
-                    </div>
+                    {!item.hideRate && (
+                      <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
+                        From ₹{item.price.toLocaleString()} {item.pricePeriod}
+                      </div>
+                    )}
+
+                    {/* Grid badge (Star + Text) */}
+                    {item.badgeText && (
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-[#051c0e] border-2 border-[#FFD700] text-[#FFD700] px-4 py-2 rounded-full text-[11px] font-extrabold tracking-widest uppercase select-none z-20 shadow-lg">
+                        <Star className="w-4 h-4 fill-[#FFD700] text-[#FFD700] shrink-0" />
+                        <span>{item.badgeText}</span>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Details */}

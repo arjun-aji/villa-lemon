@@ -168,6 +168,8 @@ interface AccommodationItemData {
   mapLink?: string;
   gallery?: string[];
   relatedAccommodations?: string[];
+  badgeText?: LocalizedText;
+  hideRate?: boolean;
 }
 
 interface PackageItemData {
@@ -827,7 +829,9 @@ export default function AdminDashboard() {
       additionalServices: [
         { service: createEmptyLocalizedText("Laundry"), details: createEmptyLocalizedText("Paid service.") }
       ],
-      relatedAccommodations: ["", "", ""]
+      relatedAccommodations: ["", "", ""],
+      badgeText: createEmptyLocalizedText(),
+      hideRate: false
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -845,7 +849,9 @@ export default function AdminDashboard() {
     setEditingStay(s);
     setStayForm({
       ...s,
-      relatedAccommodations: s.relatedAccommodations || ["", "", ""]
+      relatedAccommodations: s.relatedAccommodations || ["", "", ""],
+      badgeText: s.badgeText || createEmptyLocalizedText(),
+      hideRate: s.hideRate || false
     });
     setCoverImagePreview(s.image);
     setCoverImageFile(null);
@@ -897,6 +903,8 @@ export default function AdminDashboard() {
       
       const filteredRelated = (stayForm.relatedAccommodations || []).filter(Boolean);
       formData.append("relatedAccommodations", JSON.stringify(filteredRelated));
+      formData.append("badgeText", JSON.stringify(stayForm.badgeText || createEmptyLocalizedText()));
+      formData.append("hideRate", String(stayForm.hideRate || false));
 
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
@@ -2567,6 +2575,18 @@ export default function AdminDashboard() {
                     className="border border-gray-200 p-2.5 rounded w-full"
                   />
                 </div>
+                <div className="flex items-center gap-2 mt-4 select-none">
+                  <input
+                    type="checkbox"
+                    id="hideRate"
+                    checked={stayForm.hideRate || false}
+                    onChange={(e) => setStayForm({ ...stayForm, hideRate: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                  />
+                  <label htmlFor="hideRate" className="font-bold text-gray-700 uppercase cursor-pointer">
+                    Hide Price / Rate from Listing Grid
+                  </label>
+                </div>
               </div>
 
               {/* SECTION: TRANSLATED CORE FIELDS */}
@@ -2575,7 +2595,7 @@ export default function AdminDashboard() {
                   2. Localized Text Fields ({activeLangTab.toUpperCase()})
                 </h4>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="font-bold text-gray-600 uppercase">Property Title</label>
                     <input
@@ -2630,6 +2650,19 @@ export default function AdminDashboard() {
                       placeholder="Unrivaled ocean breezes surrounding private pool sanctuary..."
                       className="border border-gray-200 p-2.5 rounded"
                       required={activeLangTab === "en"}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Grid Badge Text (Optional)</label>
+                    <input
+                      type="text"
+                      value={stayForm.badgeText?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const badgeText = { ...stayForm.badgeText, [activeLangTab]: e.target.value } as any;
+                        setStayForm({ ...stayForm, badgeText });
+                      }}
+                      placeholder="e.g. Featured, Gold, Guided (empty to hide)"
+                      className="border border-gray-200 p-2.5 rounded"
                     />
                   </div>
                 </div>

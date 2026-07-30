@@ -159,6 +159,8 @@ export interface IAccommodationItem extends Document {
   imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
+  aboutImages?: string[];
+  aboutImagePublicIds?: string[];
   bedrooms: number;
   bathrooms: number;
   guests: number;
@@ -183,6 +185,8 @@ export interface IAccommodationItem extends Document {
   galleryPublicIds?: string[];
   relatedAccommodations?: string[];
   displayOrder?: number;
+  badgeText?: ILocalizedText;
+  hideRate?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -199,6 +203,8 @@ export interface IPackageItem extends Document {
   imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
+  aboutImages?: string[];
+  aboutImagePublicIds?: string[];
   duration: ILocalizedText;
   shortDescription: ILocalizedText;
   tagline: ILocalizedText;
@@ -267,6 +273,8 @@ export interface IYogaItem extends Document {
   imagePublicIds?: string[];
   aboutImage: string;
   aboutImagePublicId?: string;
+  aboutImages?: string[];
+  aboutImagePublicIds?: string[];
   duration: ILocalizedText;
   shortDescription: ILocalizedText;
   tagline: ILocalizedText;
