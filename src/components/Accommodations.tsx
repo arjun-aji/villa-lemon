@@ -78,6 +78,7 @@ interface AccommodationItem {
   images?: string[];
   explore: string;
   href: string;
+  hideRate?: boolean;
 }
 
 interface AccommodationsProps {
@@ -110,6 +111,7 @@ export default function Accommodations({
         desc: item.description,
         explore: item.explore,
         href: item.href || "#contact",
+        hideRate: item.hideRate,
       }));
     }
 
@@ -165,9 +167,11 @@ export default function Accommodations({
                 {/* Dark Vignette Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
                 {/* Price Overlay tag */}
-                <div className="absolute bottom-4 right-4 bg-brand-dark/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
-                  {card.price}
-                </div>
+                {!card.hideRate && (
+                  <div className="absolute bottom-4 right-4 bg-brand-dark/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
+                    {card.price}
+                  </div>
+                )}
               </div>
 
               {/* CARD DETAILS */}

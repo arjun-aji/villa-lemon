@@ -656,6 +656,7 @@ export default function AdminDashboard() {
       price: formType === "accommodation" ? createEmptyLocalizedText("From ₹15,000") : undefined,
       explore: createEmptyLocalizedText("Explore Options"),
       template: "default",
+      hideRate: false,
     });
 
     setCoverImagePreview(null);
@@ -687,6 +688,7 @@ export default function AdminDashboard() {
       if (subgroupFormType === "accommodation") {
         formData.append("type", subgroupForm.type || "villa");
         formData.append("price", JSON.stringify(subgroupForm.price));
+        formData.append("hideRate", String(subgroupForm.hideRate || false));
       } else if (subgroupFormType === "package") {
         formData.append("category", subgroupForm.category || "varkalaSightseeing");
       } else if (subgroupFormType === "yoga") {
@@ -2280,6 +2282,21 @@ export default function AdminDashboard() {
                   </select>
                 </div>
               </div>
+
+              {subgroupFormType === "accommodation" && (
+                <div className="flex items-center gap-2 select-none my-2 pl-1">
+                  <input
+                    type="checkbox"
+                    id="subgroupHideRate"
+                    checked={subgroupForm.hideRate || false}
+                    onChange={(e) => setSubgroupForm({ ...subgroupForm, hideRate: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                  />
+                  <label htmlFor="subgroupHideRate" className="font-bold text-gray-700 uppercase cursor-pointer select-none">
+                    Hide Price / Rate from Listing Grid
+                  </label>
+                </div>
+              )}
 
               {/* TRANSLATED FIELDS */}
               <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">

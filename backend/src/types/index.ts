@@ -38,6 +38,7 @@ export interface IAccommodation extends Document {
   feature4Subtitle?: ILocalizedText;
   displayOrder?: number;
   template?: string;
+  hideRate?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

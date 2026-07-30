@@ -37,6 +37,7 @@ const accommodationSchema = new Schema<IAccommodation>(
     feature4Subtitle: { type: localizedTextSchema, default: () => ({ en: "24/7 assistance", de: "", fr: "", ru: "" }) },
     displayOrder: { type: Number, default: 0 },
     template: { type: String, default: "default" },
+    hideRate: { type: Boolean, default: false },
   },
   {
     timestamps: true,

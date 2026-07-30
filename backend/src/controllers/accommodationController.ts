@@ -91,6 +91,7 @@ export const createAccommodation = async (req: Request, res: Response): Promise<
       feature4Title,
       feature4Subtitle,
       template: req.body.template || "default",
+      hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
     });
 
     await newAcc.save();
@@ -135,6 +136,9 @@ export const updateAccommodation = async (req: Request, res: Response): Promise<
     if (req.body.feature3Subtitle) acc.feature3Subtitle = { ...acc.feature3Subtitle, ...parseField(req.body.feature3Subtitle) };
     if (req.body.feature4Title) acc.feature4Title = { ...acc.feature4Title, ...parseField(req.body.feature4Title) };
     if (req.body.feature4Subtitle) acc.feature4Subtitle = { ...acc.feature4Subtitle, ...parseField(req.body.feature4Subtitle) };
+    if (req.body.hideRate !== undefined) {
+      acc.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
+    }
 
     // Handle cover images — support existingImages to keep + new uploads to add
     const files = req.files as Express.Multer.File[] || [];
@@ -145,9 +149,9 @@ export const updateAccommodation = async (req: Request, res: Response): Promise<
 
     if (existingImagesKept !== null || imageFiles.length > 0) {
       // Determine which old images were removed and delete those from Cloudinary
-      const keptSet = new Set(existingImagesKept ?? (acc.images || []));
-      const currentImages: string[] = acc.images || (acc.image ? [acc.image] : []);
-      const currentPublicIds: string[] = acc.imagePublicIds || (acc.imagePublicId ? [acc.imagePublicId] : []);
+      const keptSet = new Set(existingImagesKept ?? ((acc.images && acc.images.length > 0) ? acc.images : (acc.image ? [acc.image] : [])));
+      const currentImages: string[] = (acc.images && acc.images.length > 0) ? acc.images : (acc.image ? [acc.image] : []);
+      const currentPublicIds: string[] = (acc.imagePublicIds && acc.imagePublicIds.length > 0) ? acc.imagePublicIds : (acc.imagePublicId ? [acc.imagePublicId] : []);
 
       const idsToDelete = currentPublicIds.filter((pid, idx) => {
         const url = currentImages[idx];

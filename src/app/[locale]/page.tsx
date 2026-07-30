@@ -106,6 +106,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         images: li.images,
         explore: li.explore,
         href: li.href,
+        hideRate: li.hideRate || false,
       };
     })
   );
