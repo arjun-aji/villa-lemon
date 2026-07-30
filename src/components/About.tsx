@@ -41,7 +41,7 @@ const LeafIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-gold"
+    className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold"
   >
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.8a7 7 0 0 1-9 8.2z" />
     <path d="M19 2L11 10" />
@@ -58,7 +58,7 @@ const VillaFrontIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-gold"
+    className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold"
   >
     <path d="M3 22h18M6 22V11m12 11V11M10 22V15h4v7" />
     <path d="M4 11h16L12 4 4 11z" />
@@ -76,7 +76,7 @@ const ClocheIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-gold"
+    className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold"
   >
     <path d="M2 19h20M12 4a1 1 0 0 1 1 1v1a6 6 0 0 1 6 6v3H5v-3a6 6 0 0 1 6-6V5a1 1 0 0 1 1-1z" />
   </svg>
@@ -92,7 +92,7 @@ const FamilyIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="w-6 h-6 text-brand-gold"
+    className="w-5 h-5 sm:w-6 sm:h-6 text-brand-gold"
   >
     <path d="M17 21v-2a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v2" />
     <circle cx="8.5" cy="7" r="4" />
@@ -391,8 +391,8 @@ export default function About({ data }: AboutProps) {
 
       {/* PART 2: FEATURES ROW */}
       <div className="w-full bg-brand-cream pb-20 md:pb-28 text-brand-dark border-t border-[#eae6db]/30">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pt-16 md:pt-20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-0">
+        <div className="max-w-7xl mx-auto px-2 md:px-12 w-full pt-16 md:pt-20">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-6 lg:gap-0">
             {features.map((feat, index) => (
               <motion.div
                 key={index}
@@ -401,20 +401,20 @@ export default function About({ data }: AboutProps) {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-80px" }}
                 variants={fadeInUp}
-                className="flex flex-col items-center text-center px-4 xl:px-8 relative"
+                className="flex flex-col items-center text-center px-1 sm:px-4 xl:px-8 relative"
               >
                 {/* Icon Circle */}
-                <div className="w-16 h-16 rounded-full border border-brand-gold/30 flex items-center justify-center bg-brand-cream-soft/50 mb-5 transition-colors duration-300 hover:border-brand-gold hover:bg-brand-cream-soft select-none">
+                <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full border border-brand-gold/30 flex items-center justify-center bg-brand-cream-soft/50 mb-2.5 sm:mb-5 transition-colors duration-300 hover:border-brand-gold hover:bg-brand-cream-soft select-none">
                   {feat.icon}
                 </div>
                 
                 {/* Heading */}
-                <h3 className="text-lg font-serif font-normal text-brand-dark mb-2.5 tracking-wide">
+                <h3 className="text-[10px] sm:text-base lg:text-lg font-serif font-normal text-brand-dark mb-1.5 sm:mb-2.5 tracking-wide">
                   {feat.title}
                 </h3>
                 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-brand-dark/70 font-sans font-light leading-relaxed max-w-[240px]">
+                <p className="text-[8.5px] sm:text-xs md:text-sm text-brand-dark/70 font-sans font-light leading-relaxed max-w-[240px]">
                   {feat.desc}
                 </p>
 

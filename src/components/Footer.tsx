@@ -33,9 +33,9 @@ export default function Footer({ contact }: FooterProps) {
         {/* Brand Column */}
         <div className="flex flex-col space-y-3">
           <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-white shrink-0">
+            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-[#121212]/40 shrink-0">
               <Image
-                src="/logo.png"
+                src="/assets/logo1.png"
                 alt="Villa Lemon Logo"
                 width={32}
                 height={32}

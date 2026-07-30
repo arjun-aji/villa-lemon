@@ -284,7 +284,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
       }
       
       scrollAnimationFrame = window.requestAnimationFrame(() => {
-        const sectionIds = ["home", "villas", "packages", "yogatours", "about"];
+        const sectionIds = ["home", "villas", "packages", "yogatours", "about", "contact"];
         const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
         
         const scrollPosition = window.scrollY + window.innerHeight / 3;
@@ -301,10 +301,28 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             else if (id === "packages") activeSection = "PACKAGES";
             else if (id === "yogatours") activeSection = "YOGATOURS";
             else if (id === "about") activeSection = "ABOUT";
+            else if (id === "contact") activeSection = "CONTACT";
           }
         }
         
         setActiveItem(activeSection);
+
+        // Update URL hash silently to match active section
+        if (typeof window !== "undefined") {
+          const currentHash = window.location.hash;
+          let targetHash = "";
+          if (activeSection === "ACCOMMODATIONS") targetHash = "#villas";
+          else if (activeSection === "PACKAGES") targetHash = "#packages";
+          else if (activeSection === "YOGATOURS") targetHash = "#yogatours";
+          else if (activeSection === "ABOUT") targetHash = "#about";
+          else if (activeSection === "CONTACT") targetHash = "#contact";
+          else if (activeSection === "HOME") targetHash = "";
+          
+          if (currentHash !== targetHash) {
+            const newUrl = window.location.pathname + targetHash;
+            window.history.replaceState(null, "", newUrl);
+          }
+        }
       });
     };
 
@@ -347,9 +365,9 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             className="flex items-center gap-3 group focus:outline-none focus:ring-1 focus:ring-brand-gold rounded-sm"
             onClick={() => setActiveItem("HOME")}
           >
-            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-white transition-colors duration-300 group-hover:border-brand-gold shrink-0">
+            <div className="relative flex items-center justify-center w-10 h-10 border border-brand-gold/30 rounded-sm overflow-hidden bg-[#121212]/40 transition-colors duration-300 group-hover:border-brand-gold shrink-0">
               <Image
-                src="/logo.png"
+                src="/assets/logo1.png"
                 alt="Villa Lemon Logo"
                 width={32}
                 height={32}
@@ -369,7 +387,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
           </Link>
 
           {/* DESKTOP NAV ITEMS */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 mx-4">
             {itemsList.map((item) => (
               <div key={item.name} className="relative flex items-center gap-0.5 group/menu">
                 <Link

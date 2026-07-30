@@ -62,7 +62,7 @@ export default function Preloader() {
           >
             <div className="relative w-48 h-48 flex items-center justify-center">
               <img
-                src="/logo.png"
+                src="/assets/logo1.png"
                 alt="Villa Lemon Logo"
                 className="w-full h-full object-contain"
               />
