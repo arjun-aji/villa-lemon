@@ -46,6 +46,7 @@ const yogaItemSchema = new Schema<IYogaItem>(
     inclusions: [localizedTextSchema],
     relatedYoga: [{ type: String }],
     displayOrder: { type: Number, default: 0 },
+    hideRate: { type: Boolean, default: false },
   },
   {
     timestamps: true,

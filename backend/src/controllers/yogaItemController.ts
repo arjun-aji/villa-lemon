@@ -117,6 +117,7 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
       benefits,
       inclusions,
       relatedYoga,
+      hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
     });
 
     await newItem.save();
@@ -163,6 +164,9 @@ export const updateYogaItem = async (req: Request, res: Response): Promise<any> 
     if (req.body.benefits) item.benefits = parseField(req.body.benefits);
     if (req.body.inclusions) item.inclusions = parseField(req.body.inclusions);
     if (req.body.relatedYoga) item.relatedYoga = parseField(req.body.relatedYoga);
+    if (req.body.hideRate !== undefined) {
+      item.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
+    }
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");

@@ -257,6 +257,7 @@ export interface IPackageItem extends Document {
   drop?: ILocalizedText;
   notes?: ILocalizedText;
   displayOrder?: number;
+  hideRate?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -284,6 +285,7 @@ export interface IYogaItem extends Document {
   inclusions: ILocalizedText[];
   relatedYoga?: string[];
   displayOrder?: number;
+  hideRate?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

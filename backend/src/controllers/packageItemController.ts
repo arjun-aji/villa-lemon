@@ -203,6 +203,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       pickup: parseField(req.body.pickup),
       drop: parseField(req.body.drop),
       notes: parseField(req.body.notes),
+      hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
     });
 
     await newItem.save();
@@ -267,6 +268,9 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
     if (req.body.pickup) item.pickup = parseField(req.body.pickup);
     if (req.body.drop) item.drop = parseField(req.body.drop);
     if (req.body.notes) item.notes = parseField(req.body.notes);
+    if (req.body.hideRate !== undefined) {
+      item.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
+    }
 
     // Lists
     if (req.body.itinerary) item.itinerary = parseField(req.body.itinerary);

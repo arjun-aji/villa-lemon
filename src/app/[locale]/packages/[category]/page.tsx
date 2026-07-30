@@ -23,6 +23,7 @@ interface PackageItemType {
   duration: Record<string, string>;
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
+  hideRate?: boolean;
 }
 
 async function getPackageItems(category: string): Promise<PackageItemType[]> {
@@ -102,6 +103,7 @@ export default async function PackagesCatalogPage({
         duration: lp.duration,
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
+        hideRate: lp.hideRate || false,
       };
     })
   );

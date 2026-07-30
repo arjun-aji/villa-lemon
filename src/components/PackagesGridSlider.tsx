@@ -16,6 +16,7 @@ interface PackageItem {
   duration: string;
   shortDescription: string;
   tagline: string;
+  hideRate?: boolean;
 }
 
 interface Props {
@@ -113,9 +114,11 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
                 {/* Price Tag */}
+                {!p.hideRate && (
                 <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
                   ₹{p.price.toLocaleString()} {p.pricePeriod}
                 </div>
+                )}
               </div>
 
               {/* Card content */}

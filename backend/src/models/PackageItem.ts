@@ -132,6 +132,7 @@ const packageItemSchema = new Schema<IPackageItem>(
     drop: { type: localizedTextSchema },
     notes: { type: localizedTextSchema },
     displayOrder: { type: Number, default: 0 },
+    hideRate: { type: Boolean, default: false },
   },
   {
     timestamps: true,

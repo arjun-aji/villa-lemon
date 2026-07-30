@@ -232,6 +232,7 @@ interface PackageItemData {
   pickup?: LocalizedText;
   drop?: LocalizedText;
   notes?: LocalizedText;
+  hideRate?: boolean;
 }
 
 interface YogaItemData {
@@ -253,6 +254,7 @@ interface YogaItemData {
   benefits: LocalizedText[];
   inclusions: LocalizedText[];
   relatedYoga?: string[];
+  hideRate?: boolean;
 }
 
 interface TeacherData {
@@ -1032,7 +1034,8 @@ export default function AdminDashboard() {
       refund: createEmptyLocalizedText("Full refund if cancelled in time."),
       pickup: createEmptyLocalizedText("Hotel lobby pick-up."),
       drop: createEmptyLocalizedText("Drop-off at hotel."),
-      notes: createEmptyLocalizedText()
+      notes: createEmptyLocalizedText(),
+      hideRate: false,
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -1124,6 +1127,7 @@ export default function AdminDashboard() {
       const filteredRelated = (packageForm.relatedPackages || []).filter(Boolean);
       formData.append("relatedPackages", JSON.stringify(filteredRelated));
       formData.append("faqs", JSON.stringify(packageForm.faqs || []));
+      formData.append("hideRate", String(packageForm.hideRate || false));
 
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
@@ -1208,7 +1212,8 @@ export default function AdminDashboard() {
       schedule: [
         { time: createEmptyLocalizedText("06:30 AM"), activity: createEmptyLocalizedText("Sunrise Flow") }
       ],
-      relatedYoga: ["", "", ""]
+      relatedYoga: ["", "", ""],
+      hideRate: false,
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -1263,6 +1268,7 @@ export default function AdminDashboard() {
 
       const filteredRelated = (yogaForm.relatedYoga || []).filter(Boolean);
       formData.append("relatedYoga", JSON.stringify(filteredRelated));
+      formData.append("hideRate", String(yogaForm.hideRate || false));
 
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
@@ -3489,6 +3495,19 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
+                  <div className="flex items-center gap-2 select-none">
+                     <input
+                       type="checkbox"
+                       id="pkgHideRate"
+                       checked={packageForm.hideRate || false}
+                       onChange={(e) => setPackageForm({ ...packageForm, hideRate: e.target.checked })}
+                       className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                     />
+                     <label htmlFor="pkgHideRate" className="font-bold text-gray-700 uppercase cursor-pointer">
+                       Hide Price / Rate from Listing Grid
+                     </label>
+                   </div>
+
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="font-bold text-gray-600 uppercase">Duration ({activeLangTab.toUpperCase()})</label>
@@ -4776,6 +4795,19 @@ export default function AdminDashboard() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-2 select-none">
+                <input
+                  type="checkbox"
+                  id="yogaHideRate"
+                  checked={yogaForm.hideRate || false}
+                  onChange={(e) => setYogaForm({ ...yogaForm, hideRate: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                />
+                <label htmlFor="yogaHideRate" className="font-bold text-gray-700 uppercase cursor-pointer">
+                  Hide Price / Rate from Listing Grid
+                </label>
               </div>
 
               <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">

@@ -22,6 +22,7 @@ interface YogaItemType {
   duration: Record<string, string>;
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
+  hideRate?: boolean;
 }
 
 interface TeacherType {
@@ -398,6 +399,7 @@ export default async function YogaCatalogPage({
         duration: lp.duration,
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
+        hideRate: lp.hideRate || false,
       };
     })
   );
@@ -477,9 +479,11 @@ export default async function YogaCatalogPage({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                     
+                    {!p.hideRate && (
                     <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
                       ₹{p.price.toLocaleString()} {p.pricePeriod}
                     </div>
+                    )}
                   </div>
 
                   <div className="p-6 flex flex-col flex-grow items-start text-left">
