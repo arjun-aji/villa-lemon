@@ -114,6 +114,7 @@ export const createRetreat = async (req: Request, res: Response): Promise<any> =
       status: req.body.status || "draft",
       featured: req.body.featured === "true",
       displayOrder: Number(req.body.displayOrder || 0),
+      hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
 
       // Content
       heroTitle: pf(req.body.heroTitle),
@@ -290,6 +291,7 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
     updateBool("isPopular", "true");
     updateBool("isSoldOut", "true");
     updateBool("isUpcoming", "true");
+    updateBool("hideRate", "true");
 
     ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates"].forEach((k) => {
       if (req.body[k] !== undefined) (retreat as any)[k] = pf(req.body[k]);

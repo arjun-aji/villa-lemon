@@ -107,6 +107,7 @@ const defaultForm = () => ({
   termsPdfUrl: "",
   video: "",
   retreatMap: "",
+  hideRate: false,
   availableDates: [] as string[],
   // Localized fields
   heroTitle: emptyLT(),
@@ -154,7 +155,7 @@ const defaultForm = () => ({
   dailySchedule: [] as { time: string; activity: LT; description: LT; icon: string }[],
   curriculum: [] as { dayNumber: number; dayTitle: LT; description: LT; topics: LT[]; learningOutcome: LT; images: string[] }[],
   excursions: [] as { name: LT; duration: LT; description: LT; image: string; highlights: LT[]; relatedTour: string; included: boolean }[],
-  rooms: [] as { name: LT; image: string; description: LT; occupancy: number; isPrivate: boolean; hasAC: boolean; hasBathroom: boolean; hasBalcony: boolean; hasWorkspace: boolean; hotWater: boolean; sharedPrice: number; privatePrice: number; features: LT[] }[],
+  rooms: [] as { name: LT; image: string; description: LT; occupancy: number; isPrivate: boolean; hasAC: boolean; hasBathroom: boolean; hasBalcony: boolean; hasWorkspace: boolean; hotWater: boolean; sharedPrice: number; privatePrice: number; features: LT[]; hideRate: boolean }[],
   meals: [] as { mealType: LT; description: LT; isVegan: boolean; isGlutenFree: boolean; isLactoseFree: boolean; gallery: string[]; menuItems: LT[] }[],
   teachers: [] as { name: string; photo: string; experience: string; specialization: LT; bio: LT; certificates: LT[]; instagramUrl: string; facebookUrl: string; websiteUrl: string }[],
   ayurvedaTreatments: [] as { name: LT; description: LT; isOptional: boolean; extraCost: number }[],
@@ -266,6 +267,22 @@ export default function RetreatsTab({
 
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState("");
+  const [teachersList, setTeachersList] = useState<any[]>([]);
+
+  // Fetch teachers list
+  const fetchTeachers = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/yoga/teachers`);
+      const json = await res.json();
+      setTeachersList(json.data || []);
+    } catch (err) {
+      console.warn("Failed to fetch teachers", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
 
   // Sync state if modalMode is enabled
   useEffect(() => {
@@ -362,7 +379,7 @@ export default function RetreatsTab({
       if (heroImageFile) fd.append("heroImage", heroImageFile);
 
       // Append all fields
-      const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming"];
+      const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming", "hideRate"];
       const numFields = ["days", "nights", "price", "minAge", "maxCapacity", "yogaHours", "maxParticipants", "minParticipants", "displayOrder"];
       const strFields = ["yogaType", "slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap"];
       const ltFields = [
@@ -507,6 +524,19 @@ export default function RetreatsTab({
                     className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white" />
                 </div>
               ))}
+            </div>
+
+            <div className="flex items-center gap-2 select-none bg-gray-50 p-4 rounded border border-gray-100 pl-5">
+              <input
+                type="checkbox"
+                id="retreatHideRate"
+                checked={form.hideRate || false}
+                onChange={(e) => setF("hideRate", e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+              />
+              <label htmlFor="retreatHideRate" className="font-bold text-gray-700 uppercase cursor-pointer select-none text-[10px] tracking-wider">
+                Hide Price / Rate from Listing Grid
+              </label>
             </div>
 
             <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -827,7 +857,7 @@ export default function RetreatsTab({
             <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
                 <span className="font-serif text-sm font-semibold text-gray-800">Retreat Room Categories</span>
-                <button type="button" onClick={() => setF("rooms", [...form.rooms, { name: emptyLT(), image: "", description: emptyLT(), occupancy: 2, isPrivate: false, hasAC: true, hasBathroom: true, hasBalcony: false, hasWorkspace: false, hotWater: true, sharedPrice: 0, privatePrice: 0, features: [] }])}
+                <button type="button" onClick={() => setF("rooms", [...form.rooms, { name: emptyLT(), image: "", description: emptyLT(), occupancy: 2, isPrivate: false, hasAC: true, hasBathroom: true, hasBalcony: false, hasWorkspace: false, hotWater: true, sharedPrice: 0, privatePrice: 0, features: [], hideRate: false }])}
                   className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
                   <Plus className="w-3.5 h-3.5" /> Add Room Category
                 </button>
@@ -850,6 +880,24 @@ export default function RetreatsTab({
                       </div>
                     </div>
                     <LocalTextarea value={rm.description} onChange={v => { const arr = [...form.rooms]; arr[i] = { ...arr[i], description: v }; setF("rooms", arr); }} label="Room Details / Description" activeLang={activeLangTab} placeholder="Spacious room with elegant interiors..." rows={2} />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Shared Occupancy Price (₹)</label>
+                        <input type="number" min="0" value={rm.sharedPrice || 0} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("rooms", arr); }}
+                          className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Private Occupancy Price (₹)</label>
+                        <input type="number" min="0" value={rm.privatePrice || 0} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("rooms", arr); }}
+                          className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                      </div>
+                      <div className="flex items-center gap-1.5 cursor-pointer select-none pt-4">
+                        <input type="checkbox" id={`roomHidePrice-${i}`} checked={!!rm.hideRate} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], hideRate: e.target.checked }; setF("rooms", arr); }}
+                          className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold accent-brand-gold" />
+                        <label htmlFor={`roomHidePrice-${i}`} className="text-[10px] font-bold text-gray-700 uppercase tracking-wider cursor-pointer">Hide Price / Rate</label>
+                      </div>
+                    </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                       <div className="flex flex-col gap-1">
@@ -1008,39 +1056,81 @@ export default function RetreatsTab({
               </div>
             </div>
 
-            {/* Teachers repeater */}
+            {/* Teachers dropdown selector */}
             <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
                 <span className="font-serif text-sm font-semibold text-gray-800">Retreat Instructors / Teachers</span>
-                <button type="button" onClick={() => setF("teachers", [...form.teachers, { name: "", photo: "", experience: "", specialization: emptyLT(), bio: emptyLT(), certificates: [], instagramUrl: "", facebookUrl: "", websiteUrl: "" }])}
-                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
-                  <Plus className="w-3.5 h-3.5" /> Add Instructor
-                </button>
               </div>
-              <div className="space-y-4">
-                {form.teachers.map((teach, i) => (
-                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
-                    <button type="button" onClick={() => setF("teachers", form.teachers.filter((_, idx) => idx !== i))}
-                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1">
-                        <label className="font-bold text-gray-600 uppercase text-[9px]">Teacher's Full Name</label>
-                        <input type="text" value={teach.name} onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], name: e.target.value }; setF("teachers", arr); }}
-                          placeholder="Yogi Arun Sharma" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+              <div className="relative">
+                <label className="font-bold text-gray-600 uppercase text-[9px] block mb-1">Select Instructors (Select Multiple)</label>
+                <div className="border border-gray-200 p-2.5 rounded bg-white text-xs max-h-48 overflow-y-auto space-y-2 focus:outline-none focus:border-brand-gold">
+                  {teachersList.length === 0 ? (
+                    <span className="text-gray-400 italic">No teachers found in database. Create them in Teachers tab first.</span>
+                  ) : (
+                    teachersList.map((t) => {
+                      const isSelected = form.teachers.some(teacher => teacher.name === t.name);
+                      return (
+                        <label key={t._id} className="flex items-center gap-2.5 cursor-pointer p-1.5 hover:bg-gray-50 rounded select-none">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                const newTeacher = {
+                                  name: t.name,
+                                  photo: t.image || "",
+                                  photoPublicId: t.imagePublicId || "",
+                                  experience: "Certified Instructor",
+                                  specialization: t.role || emptyLT(),
+                                  bio: t.bio || emptyLT(),
+                                  certificates: [],
+                                  instagramUrl: "",
+                                  facebookUrl: "",
+                                  websiteUrl: "",
+                                };
+                                setF("teachers", [...form.teachers, newTeacher]);
+                              } else {
+                                setF("teachers", form.teachers.filter(teacher => teacher.name !== t.name));
+                              }
+                            }}
+                            className="w-4 h-4 rounded text-brand-gold accent-brand-gold focus:ring-brand-gold"
+                          />
+                          <span className="font-semibold text-gray-700">{t.name}</span>
+                          <span className="text-[10px] text-gray-400">({t.role?.en || ""})</span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Show selected teachers avatars/names */}
+              {form.teachers.length > 0 && (
+                <div className="pt-2 border-t border-gray-150">
+                  <span className="font-bold text-gray-500 uppercase text-[9px] block mb-2">Assigned Instructors:</span>
+                  <div className="flex flex-wrap gap-3">
+                    {form.teachers.map((teach, i) => (
+                      <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-xs">
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                          {teach.photo ? (
+                            <img src={teach.photo} alt={teach.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center font-bold text-gray-400 text-[10px]">{teach.name[0]}</div>
+                          )}
+                        </div>
+                        <span className="text-xs font-semibold text-gray-800">{teach.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setF("teachers", form.teachers.filter(t => t.name !== teach.name))}
+                          className="text-gray-400 hover:text-red-500 font-bold shrink-0 ml-1 cursor-pointer select-none"
+                        >
+                          ✕
+                        </button>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="font-bold text-gray-600 uppercase text-[9px]">Years of Experience</label>
-                        <input type="text" value={teach.experience} onChange={e => { const arr = [...form.teachers]; arr[i] = { ...arr[i], experience: e.target.value }; setF("teachers", arr); }}
-                          placeholder="15+ Years" className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
-                      </div>
-                    </div>
-                    <LocalInput value={teach.specialization} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], specialization: v }; setF("teachers", arr); }} label="Specialization Areas" activeLang={activeLangTab} placeholder="Hatha Yoga, Meditation & Pranayama" />
-                    <LocalTextarea value={teach.bio} onChange={v => { const arr = [...form.teachers]; arr[i] = { ...arr[i], bio: v }; setF("teachers", arr); }} label="Instructor Short Bio" activeLang={activeLangTab} placeholder="Arun has guided students from around the world..." rows={3} />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}

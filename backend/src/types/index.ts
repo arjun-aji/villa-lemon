@@ -340,6 +340,7 @@ export interface IRetreatRoom {
   sharedPrice: number;
   privatePrice: number;
   features: ILocalizedText[];
+  hideRate?: boolean;
 }
 
 export interface IRetreatMeal {
@@ -419,6 +420,7 @@ export interface IRetreat extends Document {
   status: "draft" | "published" | "archived";
   featured: boolean;
   displayOrder: number;
+  hideRate?: boolean;
 
   // Content
   heroTitle: ILocalizedText;

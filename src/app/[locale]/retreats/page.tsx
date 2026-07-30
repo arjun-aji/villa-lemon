@@ -26,6 +26,7 @@ interface RetreatSummary {
   featured: boolean;
   isPopular: boolean;
   isSoldOut: boolean;
+  hideRate?: boolean;
 }
 
 async function getRetreats(): Promise<RetreatSummary[]> {
@@ -208,12 +209,16 @@ export default async function RetreatsCatalogPage({
 
                         {/* Price & Action */}
                         <div className="w-full flex items-center justify-between border-t border-gray-100 pt-4 mt-5">
-                          <div>
-                            <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Starting From</span>
-                            <span className="text-sm font-bold text-gray-800 mt-1 block">
-                              {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
-                            </span>
-                          </div>
+                          {!retreat.hideRate ? (
+                            <div>
+                              <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Starting From</span>
+                              <span className="text-sm font-bold text-gray-800 mt-1 block">
+                                {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
+                              </span>
+                            </div>
+                          ) : (
+                            <div />
+                          )}
 
                           <Link
                             href={`/${locale}/retreats/${retreat.slug}`}

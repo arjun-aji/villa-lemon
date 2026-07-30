@@ -35,6 +35,7 @@ interface RetreatDetail {
   accommodationType: Record<string, string>;
   status: string;
   featured: boolean;
+  hideRate?: boolean;
 
   // Content
   heroTitle: Record<string, string>;
@@ -59,7 +60,7 @@ interface RetreatDetail {
   dailySchedule?: Array<{ time: string; activity: Record<string, string>; description: Record<string, string>; icon?: string }>;
   curriculum?: Array<{ dayNumber: number; dayTitle: Record<string, string>; description: Record<string, string>; topics?: Record<string, string>[]; learningOutcome?: Record<string, string>; images?: string[] }>;
   excursions?: Array<{ name: Record<string, string>; duration: Record<string, string>; description: Record<string, string>; image: string; highlights?: Record<string, string>[]; relatedTour?: string; included?: boolean }>;
-  rooms?: Array<{ name: Record<string, string>; image: string; description: Record<string, string>; occupancy: number; isPrivate: boolean; hasAC: boolean; hasBathroom: boolean; hasBalcony: boolean; hasWorkspace: boolean; hotWater: boolean; sharedPrice: number; privatePrice: number; features?: Record<string, string>[] }>;
+  rooms?: Array<{ name: Record<string, string>; image: string; description: Record<string, string>; occupancy: number; isPrivate: boolean; hasAC: boolean; hasBathroom: boolean; hasBalcony: boolean; hasWorkspace: boolean; hotWater: boolean; sharedPrice: number; privatePrice: number; features?: Record<string, string>[]; hideRate?: boolean }>;
   meals?: Array<{ mealType: Record<string, string>; description: Record<string, string>; isVegan: boolean; isGlutenFree: boolean; isLactoseFree: boolean; gallery?: string[]; menuItems?: Record<string, string>[] }>;
   teachers?: Array<{ name: string; photo: string; experience: string; specialization: Record<string, string>; bio: Record<string, string>; certificates?: Record<string, string>[]; instagramUrl?: string; facebookUrl?: string; websiteUrl?: string }>;
   ayurvedaTitle?: Record<string, string>;
@@ -448,20 +449,22 @@ export default async function RetreatDetailsPage({
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gray-50/50 p-5 border-t border-gray-100 flex items-center justify-between text-xs">
-                          {room.sharedPrice > 0 && (
-                            <div>
-                              <span className="text-[9px] text-gray-400 uppercase font-bold block">Shared Price</span>
-                              <span className="font-bold text-gray-800 mt-0.5 block">₹{room.sharedPrice.toLocaleString()}</span>
-                            </div>
-                          )}
-                          {room.privatePrice > 0 && (
-                            <div className="text-right">
-                              <span className="text-[9px] text-gray-400 uppercase font-bold block">Private Price</span>
-                              <span className="font-bold text-gray-800 mt-0.5 block">₹{room.privatePrice.toLocaleString()}</span>
-                            </div>
-                          )}
-                        </div>
+                         {!room.hideRate && (room.sharedPrice > 0 || room.privatePrice > 0) && (
+                          <div className="bg-gray-50/50 p-5 border-t border-gray-100 flex items-center justify-between text-xs w-full">
+                            {room.sharedPrice > 0 && (
+                              <div>
+                                <span className="text-[9px] text-gray-400 uppercase font-bold block">Shared Price</span>
+                                <span className="font-bold text-gray-800 mt-0.5 block">₹{room.sharedPrice.toLocaleString()}</span>
+                              </div>
+                            )}
+                            {room.privatePrice > 0 && (
+                              <div className="text-right ml-auto">
+                                <span className="text-[9px] text-gray-400 uppercase font-bold block">Private Price</span>
+                                <span className="font-bold text-gray-800 mt-0.5 block">₹{room.privatePrice.toLocaleString()}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -621,12 +624,14 @@ export default async function RetreatDetailsPage({
                 <span className="text-[8px] font-bold bg-brand-gold/15 text-brand-gold uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm mb-3 inline-block">
                   Booking Enquiry
                 </span>
-                <div className="flex items-baseline gap-1.5 mb-4">
-                  <span className="text-xs text-gray-400 font-semibold uppercase">Starting From</span>
-                  <span className="text-2xl font-bold text-gray-800">
-                    {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
-                  </span>
-                </div>
+                 {!retreat.hideRate && (
+                  <div className="flex items-baseline gap-1.5 mb-4">
+                    <span className="text-xs text-gray-400 font-semibold uppercase">Starting From</span>
+                    <span className="text-2xl font-bold text-gray-800">
+                      {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
+                    </span>
+                  </div>
+                )}
 
                 <div className="border-t border-b border-gray-100 py-4 my-4 space-y-3 text-xs">
                   <div className="flex justify-between">

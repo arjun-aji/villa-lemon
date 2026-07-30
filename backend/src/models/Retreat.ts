@@ -51,6 +51,7 @@ const roomSchema = new Schema({
   sharedPrice: { type: Number, default: 0 },
   privatePrice: { type: Number, default: 0 },
   features: [L],
+  hideRate: { type: Boolean, default: false },
 }, { _id: false });
 
 const mealSchema = new Schema({
@@ -130,7 +131,8 @@ const retreatSchema = new Schema<IRetreat>({
   status: { type: String, enum: ["draft", "published", "archived"], default: "draft" },
   featured: { type: Boolean, default: false },
   displayOrder: { type: Number, default: 0 },
-
+  hideRate: { type: Boolean, default: false },
+  
   // Content
   heroTitle: { type: LReq, required: true },
   heroSubtitle: { type: L },
