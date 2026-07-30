@@ -11,6 +11,16 @@ const localizedTextSchema = new Schema(
   { _id: false }
 );
 
+const optionalLocalizedTextSchema = new Schema(
+  {
+    en: { type: String, default: "" },
+    de: { type: String, default: "" },
+    fr: { type: String, default: "" },
+    ru: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const highlightSchema = new Schema(
   {
     icon: { type: String, required: true },
@@ -133,6 +143,7 @@ const packageItemSchema = new Schema<IPackageItem>(
     notes: { type: localizedTextSchema },
     displayOrder: { type: Number, default: 0 },
     hideRate: { type: Boolean, default: false },
+    badgeText: { type: optionalLocalizedTextSchema, default: () => ({ en: "", de: "", fr: "", ru: "" }) },
   },
   {
     timestamps: true,

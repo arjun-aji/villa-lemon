@@ -204,6 +204,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       drop: parseField(req.body.drop),
       notes: parseField(req.body.notes),
       hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
+      badgeText: parseField(req.body.badgeText),
     });
 
     await newItem.save();
@@ -270,6 +271,9 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
     if (req.body.notes) item.notes = parseField(req.body.notes);
     if (req.body.hideRate !== undefined) {
       item.hideRate = req.body.hideRate === "true" || req.body.hideRate === true;
+    }
+    if (req.body.badgeText !== undefined) {
+      item.badgeText = { ...item.badgeText, ...parseField(req.body.badgeText) };
     }
 
     // Lists

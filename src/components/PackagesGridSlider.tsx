@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { ImageSlideshow } from "./ImageSlideshow";
 
 interface PackageItem {
@@ -17,6 +17,7 @@ interface PackageItem {
   shortDescription: string;
   tagline: string;
   hideRate?: boolean;
+  badgeText?: string;
 }
 
 interface Props {
@@ -118,6 +119,14 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
                 <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
                   ₹{p.price.toLocaleString()} {p.pricePeriod}
                 </div>
+                )}
+
+                {/* Grid badge (Star + Text) */}
+                {p.badgeText && (
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-[#051c0e] border-2 border-[#FFD700] text-[#FFD700] px-3.5 py-1.5 rounded-full text-[10px] font-extrabold tracking-widest uppercase select-none z-20 shadow-lg leading-none">
+                    <Star className="w-3.5 h-3.5 fill-[#FFD700] text-[#FFD700] shrink-0" />
+                    <span>{p.badgeText}</span>
+                  </div>
                 )}
               </div>
 

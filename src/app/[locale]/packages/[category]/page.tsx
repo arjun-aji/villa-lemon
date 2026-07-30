@@ -24,6 +24,7 @@ interface PackageItemType {
   shortDescription: Record<string, string>;
   tagline: Record<string, string>;
   hideRate?: boolean;
+  badgeText?: Record<string, string>;
 }
 
 async function getPackageItems(category: string): Promise<PackageItemType[]> {
@@ -104,6 +105,7 @@ export default async function PackagesCatalogPage({
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
         hideRate: lp.hideRate || false,
+        badgeText: lp.badgeText,
       };
     })
   );

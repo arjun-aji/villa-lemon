@@ -233,6 +233,7 @@ interface PackageItemData {
   drop?: LocalizedText;
   notes?: LocalizedText;
   hideRate?: boolean;
+  badgeText?: LocalizedText;
 }
 
 interface YogaItemData {
@@ -1038,6 +1039,7 @@ export default function AdminDashboard() {
       drop: createEmptyLocalizedText("Drop-off at hotel."),
       notes: createEmptyLocalizedText(),
       hideRate: false,
+      badgeText: createEmptyLocalizedText(),
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -1058,7 +1060,8 @@ export default function AdminDashboard() {
     setEditingPackage(p);
     setPackageForm({
       ...p,
-      relatedPackages: p.relatedPackages || ["", "", ""]
+      relatedPackages: p.relatedPackages || ["", "", ""],
+      badgeText: p.badgeText || createEmptyLocalizedText(),
     });
     setCoverImagePreview(p.image);
     setCoverImageFile(null);
@@ -1130,6 +1133,7 @@ export default function AdminDashboard() {
       formData.append("relatedPackages", JSON.stringify(filteredRelated));
       formData.append("faqs", JSON.stringify(packageForm.faqs || []));
       formData.append("hideRate", String(packageForm.hideRate || false));
+      formData.append("badgeText", JSON.stringify(packageForm.badgeText || createEmptyLocalizedText()));
 
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
@@ -3650,7 +3654,7 @@ export default function AdminDashboard() {
                           className="border p-2.5 rounded text-xs"
                         />
                       </div>
-                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                      <div className="flex flex-col gap-1.5">
                         <label className="font-bold text-gray-600 uppercase">Tagline</label>
                         <input
                           type="text"
@@ -3659,6 +3663,19 @@ export default function AdminDashboard() {
                             const tagline = { ...packageForm.tagline, [activeLangTab]: e.target.value } as any;
                             setPackageForm({ ...packageForm, tagline });
                           }}
+                          className="border p-2.5 rounded text-xs"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Grid Badge Text (Optional)</label>
+                        <input
+                          type="text"
+                          value={packageForm.badgeText?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const badgeText = { ...packageForm.badgeText, [activeLangTab]: e.target.value } as any;
+                            setPackageForm({ ...packageForm, badgeText });
+                          }}
+                          placeholder="e.g. Popular, Premium, Star (empty to hide)"
                           className="border p-2.5 rounded text-xs"
                         />
                       </div>

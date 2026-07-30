@@ -259,6 +259,7 @@ export interface IPackageItem extends Document {
   notes?: ILocalizedText;
   displayOrder?: number;
   hideRate?: boolean;
+  badgeText?: ILocalizedText;
   createdAt: Date;
   updatedAt: Date;
 }
