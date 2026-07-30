@@ -230,9 +230,9 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
 
     if (existingImagesKept !== null || imageFiles.length > 0) {
-      const keptSet = new Set(existingImagesKept ?? (item.images || []));
-      const currentImages: string[] = item.images || (item.image ? [item.image] : []);
-      const currentPublicIds: string[] = item.imagePublicIds || (item.imagePublicId ? [item.imagePublicId] : []);
+      const keptSet = new Set(existingImagesKept ?? ((item.images && item.images.length > 0) ? item.images : (item.image ? [item.image] : [])));
+      const currentImages: string[] = (item.images && item.images.length > 0) ? item.images : (item.image ? [item.image] : []);
+      const currentPublicIds: string[] = (item.imagePublicIds && item.imagePublicIds.length > 0) ? item.imagePublicIds : (item.imagePublicId ? [item.imagePublicId] : []);
 
       const idsToDelete = currentPublicIds.filter((pid, idx) => {
         const url = currentImages[idx];
@@ -270,9 +270,9 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     const existingAboutImagesKept: string[] = req.body.existingAboutImages ? parseField(req.body.existingAboutImages) : null;
 
     if (existingAboutImagesKept !== null || aboutImageFiles.length > 0) {
-      const keptSet = new Set(existingAboutImagesKept ?? (item.aboutImages || []));
-      const currentImages: string[] = item.aboutImages || (item.aboutImage ? [item.aboutImage] : []);
-      const currentPublicIds: string[] = item.aboutImagePublicIds || (item.aboutImagePublicId ? [item.aboutImagePublicId] : []);
+      const keptSet = new Set(existingAboutImagesKept ?? ((item.aboutImages && item.aboutImages.length > 0) ? item.aboutImages : (item.aboutImage ? [item.aboutImage] : [])));
+      const currentImages: string[] = (item.aboutImages && item.aboutImages.length > 0) ? item.aboutImages : (item.aboutImage ? [item.aboutImage] : []);
+      const currentPublicIds: string[] = (item.aboutImagePublicIds && item.aboutImagePublicIds.length > 0) ? item.aboutImagePublicIds : (item.aboutImagePublicId ? [item.aboutImagePublicId] : []);
 
       const idsToDelete = currentPublicIds.filter((pid, idx) => {
         const url = currentImages[idx];
