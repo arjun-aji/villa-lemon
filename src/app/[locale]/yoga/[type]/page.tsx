@@ -235,6 +235,7 @@ export default async function YogaCatalogPage({
       location: (r.location?.[locale] || r.location?.en || "Varkala, Kerala"),
       featured: r.featured,
       status: r.status,
+      hideRate: r.hideRate || false,
     }));
 
     const title = tYoga.retreatsTitle || "Yoga Retreats";
@@ -312,9 +313,11 @@ export default async function YogaCatalogPage({
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                      <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
-                        ₹{r.price.toLocaleString()} · {r.days} Days
-                      </div>
+                      {!r.hideRate && (
+                        <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
+                          ₹{r.price.toLocaleString()} · {r.days} Days
+                        </div>
+                      )}
                       {r.featured && (
                         <div className="absolute top-3 right-3 bg-brand-gold text-black text-[9px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
                           Featured
