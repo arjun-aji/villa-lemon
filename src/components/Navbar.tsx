@@ -54,7 +54,7 @@ const navItems: NavItem[] = [
     ],
   },
   { name: "ABOUT", href: "/#about" },
-  { name: "GALLERY", href: "/#gallery" },
+  { name: "GALLERY", href: "/gallery" },
   { name: "CONTACT", href: "/#contact" },
 ];
 

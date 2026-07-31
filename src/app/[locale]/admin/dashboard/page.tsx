@@ -42,7 +42,8 @@ import {
   ListPlus,
   Sliders,
   DollarSign,
-  Mail
+  Mail,
+  Camera
 } from "lucide-react";
 
 interface LocalizedText {
@@ -272,7 +273,7 @@ interface TeacherData {
   image: string;
 }
 
-type TabType = "dashboard" | "stays" | "packages" | "yoga" | "retreats" | "teachers" | "homepage" | "enquiries";
+type TabType = "dashboard" | "stays" | "packages" | "yoga" | "retreats" | "teachers" | "homepage" | "enquiries" | "gallery";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -299,6 +300,12 @@ export default function AdminDashboard() {
   const [teachers, setTeachers] = useState<TeacherData[]>([]);
   const [homepageData, setHomepageData] = useState<HomepageData | null>(null);
   const [enquiries, setEnquiries] = useState<any[]>([]);
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [galleryForm, setGalleryForm] = useState<any>({ category: "villa-accommodation", caption: { en: "", de: "", fr: "", ru: "" }, displayOrder: 0 });
+  const [galleryFile, setGalleryFile] = useState<File | null>(null);
+  const [galleryFilePreview, setGalleryFilePreview] = useState<string | null>(null);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   // LOCALIZATION TAB
   const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
@@ -435,6 +442,13 @@ export default function AdminDashboard() {
       if (resEnquiries.ok) {
         const d = await resEnquiries.json();
         setEnquiries(d.data || []);
+      }
+
+      // 7. Fetch Gallery items
+      const resGallery = await fetch(`${API_BASE_URL}/api/gallery`);
+      if (resGallery.ok) {
+        const d = await resGallery.json();
+        setGalleryItems(d.data || []);
       }
     } catch (err) {
       console.error("Failed to load CMS data:", err);
@@ -1445,6 +1459,65 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteGalleryItem = async (id: string) => {
+    if (!token || !confirm("Are you sure you want to delete this gallery item?")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/gallery/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchData();
+      } else {
+        alert("Failed to delete gallery item.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCreateGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    if (!galleryFile) {
+      alert("Please choose an image file to upload.");
+      return;
+    }
+    setIsUploadingGallery(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", galleryFile);
+      formData.append("category", galleryForm.category);
+      formData.append("caption", JSON.stringify(galleryForm.caption));
+      formData.append("displayOrder", String(galleryForm.displayOrder || 0));
+
+      const res = await fetch(`${API_BASE_URL}/api/gallery`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        setShowGalleryModal(false);
+        setGalleryFile(null);
+        setGalleryFilePreview(null);
+        setGalleryForm({ category: "villa-accommodation", caption: { en: "", de: "", fr: "", ru: "" }, displayOrder: 0 });
+        fetchData();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to upload gallery image.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload gallery image.");
+    } finally {
+      setIsUploadingGallery(false);
+    }
+  };
+
   // Save homepage static text edits
   const handleSaveHomepage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1556,6 +1629,16 @@ export default function AdminDashboard() {
             >
               <Smile className="w-4 h-4 text-brand-gold" />
               <span>Yoga Teachers</span>
+            </div>
+
+            <div 
+              onClick={() => setActiveTab("gallery")}
+              className={`px-3.5 py-3 rounded-sm flex items-center gap-3 cursor-pointer transition-colors ${
+                activeTab === "gallery" ? "bg-[#c5a880]/10 text-brand-gold border-l-2 border-brand-gold" : "hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Camera className="w-4 h-4 text-brand-gold" />
+              <span>Gallery</span>
             </div>
 
             <div 
@@ -2153,6 +2236,73 @@ export default function AdminDashboard() {
                   token={token}
                   onRefresh={fetchData}
                 />
+              )}
+
+              {activeTab === "gallery" && (
+                <div className="bg-white p-6 rounded-md shadow-xs border border-gray-200">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-150">
+                    <div className="text-left">
+                      <h2 className="text-xl font-serif font-normal text-brand-dark">Gallery Management</h2>
+                      <p className="text-xs text-gray-500 mt-1">Add, update, and manage global photo gallery items across different categories.</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setGalleryFile(null);
+                        setGalleryFilePreview(null);
+                        setGalleryForm({ category: "villa-accommodation", caption: { en: "", de: "", fr: "", ru: "" }, displayOrder: 0 });
+                        setShowGalleryModal(true);
+                      }}
+                      className="px-4 py-2 bg-brand-dark hover:bg-brand-dark-soft text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Image</span>
+                    </button>
+                  </div>
+
+                  {/* GALLERY ITEMS GRID LIST */}
+                  {galleryItems.length === 0 ? (
+                    <div className="py-20 text-center text-gray-400 bg-gray-50 border border-dashed border-gray-300 rounded-sm">
+                      <Camera className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm font-medium">No gallery items uploaded yet.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {galleryItems.map((item) => (
+                        <div key={item._id} className="group relative border border-gray-200 rounded-md overflow-hidden bg-gray-50 flex flex-col shadow-xs">
+                          {/* Image */}
+                          <div className="relative aspect-[4/3] w-full bg-gray-200">
+                            <img
+                              src={item.image}
+                              alt={item.caption?.en || ""}
+                              className="object-cover w-full h-full"
+                            />
+                            {/* Delete button overlay */}
+                            <button
+                              onClick={() => handleDeleteGalleryItem(item._id)}
+                              className="absolute top-2.5 right-2.5 p-1.5 bg-white/90 hover:bg-red-500 hover:text-white border border-gray-200 text-gray-500 rounded-sm shadow-xs transition-colors cursor-pointer"
+                              title="Delete Item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                            {/* Category badge */}
+                            <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-[#0f2c1b] text-white text-[8px] font-bold uppercase tracking-wider rounded-xs">
+                              {item.category.replace("-", " & ")}
+                            </span>
+                          </div>
+                          {/* Details */}
+                          <div className="p-3.5 flex flex-col flex-grow bg-white text-left">
+                            <span className="text-[9px] font-bold text-brand-gold uppercase tracking-wider">
+                              Order: {item.displayOrder || 0}
+                            </span>
+                            <p className="text-xs text-gray-700 font-light mt-1.5 leading-relaxed line-clamp-2">
+                              {item.caption?.en || <em className="text-gray-400">No caption</em>}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
               <RetreatsTab
@@ -5585,6 +5735,156 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: ADD GALLERY ITEM
+      ======================================================== */}
+      {showGalleryModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
+          <div className="bg-white rounded-md max-w-lg w-full flex flex-col shadow-2xl border border-gray-150">
+            
+            <div className="p-5 border-b border-gray-150 flex items-center justify-between bg-brand-dark text-white">
+              <div>
+                <h3 className="font-serif text-base tracking-wide text-left">Upload Gallery Image</h3>
+                <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-0.5 text-left">Add a new image to the global gallery catalog</p>
+              </div>
+              <button onClick={() => setShowGalleryModal(false)} className="p-1 text-gray-400 hover:text-white cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateGalleryItem} className="p-6 space-y-4 text-xs">
+              {/* Image upload field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="font-bold text-gray-600 uppercase text-left">Gallery Image File</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-brand-gold p-4 rounded-md cursor-pointer flex-grow bg-gray-50 hover:bg-gray-100/50 transition-colors">
+                    <Upload className="w-4 h-4 text-gray-400" />
+                    <span className="text-xs text-gray-500 font-medium">{galleryFile ? galleryFile.name : "Choose Gallery File..."}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setGalleryFile(file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setGalleryFilePreview(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                  {galleryFilePreview && (
+                    <div className="w-16 h-16 rounded border border-gray-200 overflow-hidden shrink-0 select-none bg-gray-50">
+                      <img src={galleryFilePreview} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Category dropdown */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="font-bold text-gray-600 uppercase">Gallery Category</label>
+                <select
+                  value={galleryForm.category}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value })}
+                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
+                  required
+                >
+                  <option value="villa-accommodation">Villa & Accommodation</option>
+                  <option value="yoga-wellness">Yoga & Wellness</option>
+                  <option value="experiences-tours">Experiences & Tours</option>
+                  <option value="food-dining">Food & Dining</option>
+                  <option value="nature-surroundings">Nature & Surroundings</option>
+                  <option value="events-culture">Events & Culture</option>
+                </select>
+              </div>
+
+              {/* Display order */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="font-bold text-gray-600 uppercase">Display Order</label>
+                <input
+                  type="number"
+                  value={galleryForm.displayOrder}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, displayOrder: parseInt(e.target.value, 10) })}
+                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
+                  min="0"
+                  required
+                />
+              </div>
+
+              {/* Localized Captions */}
+              <div className="space-y-3 pt-2 border-t text-left">
+                <span className="font-bold text-gray-500 uppercase block mb-1">Image Captions</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">English Caption</label>
+                    <input
+                      type="text"
+                      value={galleryForm.caption.en}
+                      onChange={(e) => setGalleryForm({ ...galleryForm, caption: { ...galleryForm.caption, en: e.target.value } })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="e.g. Beautiful garden path..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">German Caption</label>
+                    <input
+                      type="text"
+                      value={galleryForm.caption.de}
+                      onChange={(e) => setGalleryForm({ ...galleryForm, caption: { ...galleryForm.caption, de: e.target.value } })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="deutsches Bildunterschrift"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">French Caption</label>
+                    <input
+                      type="text"
+                      value={galleryForm.caption.fr}
+                      onChange={(e) => setGalleryForm({ ...galleryForm, caption: { ...galleryForm.caption, fr: e.target.value } })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="légende en français"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">Russian Caption</label>
+                    <input
+                      type="text"
+                      value={galleryForm.caption.ru}
+                      onChange={(e) => setGalleryForm({ ...galleryForm, caption: { ...galleryForm.caption, ru: e.target.value } })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="подпись на русском"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="border-t border-gray-150 pt-4 flex items-center justify-end gap-3 select-none">
+                <button
+                  type="button"
+                  onClick={() => setShowGalleryModal(false)}
+                  className="px-4 py-2 border border-gray-200 text-gray-700 rounded-sm hover:bg-gray-100 font-bold uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUploadingGallery}
+                  className="px-5 py-2 bg-brand-dark hover:bg-brand-dark-soft text-white font-bold rounded-sm uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isUploadingGallery ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Upload Image</span>}
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -173,5 +173,21 @@
     "bookNow": "Забронировать",
     "back": "Назад",
     "teachers": "Наши преподаватели"
+  },
+  "Gallery": {
+    "title": "Галерея",
+    "subtitle": "Мгновения, места и впечатления",
+    "description": "Откройте для себя красоту, покой и впечатления, которые делают виллу Lemon идеальным местом для отдыха в Варкале, Керала.",
+    "shareTitle": "Поделитесь моментами на вилле Lemon",
+    "shareSub": "Отмечайте нас в Instagram @villalemon.varkala и используйте хэштег #VillaLemon, чтобы попасть в нашу галерею.",
+    "followInsta": "Подписаться в Instagram",
+    "allPhotos": "Все фотографии",
+    "villaAccommodation": "Вилла и номера",
+    "yogaWellness": "Йога и здоровье",
+    "experiencesTours": "Развлечения и экскурсии",
+    "foodDining": "Ресторан и питание",
+    "natureSurroundings": "Природа и окрестности",
+    "eventsCulture": "События и культура",
+    "photosLabel": "Фото"
   }
 }
