@@ -204,7 +204,7 @@ export default function Yoga({
                 <h3 className="text-lg font-serif font-normal text-brand-dark mb-1.5 tracking-wide leading-snug">
                   {card.title}
                 </h3>
-                <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-5 flex-grow">
+                <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-5 flex-grow line-clamp-2">
                   {card.desc}
                 </p>
                 <a
