@@ -180,7 +180,7 @@ interface AccommodationItemData {
 
 interface PackageItemData {
   _id: string;
-  packageCategory: "varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities" | "varkalaPackages";
+  packageCategory: ("varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities" | "varkalaPackages")[];
   title: LocalizedText;
   slug: string;
   price: number;
@@ -605,7 +605,7 @@ export default function AdminDashboard() {
     if (resourceType === "accommodationItem") {
       list = stays.filter(item => item.accommodationType === subgroupKey);
     } else if (resourceType === "packageItem") {
-      list = packages.filter(item => item.packageCategory === subgroupKey);
+      list = packages.filter(item => Array.isArray(item.packageCategory) ? item.packageCategory.includes(subgroupKey as any) : item.packageCategory === subgroupKey);
     } else if (resourceType === "yogaItem") {
       list = yogas.filter(item => item.yogaType === subgroupKey);
     } else if (resourceType === "retreat") {
@@ -629,7 +629,7 @@ export default function AdminDashboard() {
       setStays(mergedList);
     } else if (resourceType === "packageItem") {
       mergedList = [
-        ...packages.filter(item => item.packageCategory !== subgroupKey),
+        ...packages.filter(item => Array.isArray(item.packageCategory) ? !item.packageCategory.includes(subgroupKey as any) : item.packageCategory !== subgroupKey),
         ...list
       ];
       setPackages(mergedList);
@@ -1007,7 +1007,7 @@ export default function AdminDashboard() {
   const handleOpenAddPackage = (prefilledCategory?: string) => {
     setEditingPackage(null);
     setPackageForm({
-      packageCategory: (prefilledCategory as any) || "varkalaSightseeing",
+      packageCategory: prefilledCategory ? [prefilledCategory as any] : ["varkalaSightseeing"],
       slug: "",
       price: 2500,
       title: createEmptyLocalizedText(),
@@ -1086,6 +1086,7 @@ export default function AdminDashboard() {
     setEditingPackage(p);
     setPackageForm({
       ...p,
+      packageCategory: Array.isArray(p.packageCategory) ? p.packageCategory : p.packageCategory ? [p.packageCategory] : ["varkalaSightseeing"],
       relatedPackages: p.relatedPackages || ["", "", ""],
       badgeText: p.badgeText || createEmptyLocalizedText(),
     });
@@ -1111,7 +1112,7 @@ export default function AdminDashboard() {
 
     try {
       const formData = new FormData();
-      formData.append("packageCategory", packageForm.packageCategory || "varkalaSightseeing");
+      formData.append("packageCategory", JSON.stringify(packageForm.packageCategory || ["varkalaSightseeing"]));
       formData.append("slug", packageForm.slug || "");
       formData.append("price", String(packageForm.price || 0));
       formData.append("video", packageForm.video || "");
@@ -1845,7 +1846,7 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                       {packageCategories.map((cat, index) => {
-                        const catPkgs = packages.filter(p => p.packageCategory === cat.category);
+                        const catPkgs = packages.filter(p => Array.isArray(p.packageCategory) ? p.packageCategory.includes(cat.category as any) : p.packageCategory === cat.category);
                         
                         return (
                           <div key={cat._id} className="border border-gray-200 rounded p-4 bg-gray-50 text-left flex flex-col justify-between">
@@ -3614,38 +3615,79 @@ export default function AdminDashboard() {
               
               {activePkgFormTab === "general" && (
                 <div className="space-y-4 animate-fade-in">
-                  <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase">Package Category</label>
-                      <select
-                        value={packageForm.packageCategory}
-                        onChange={(e) => setPackageForm({ ...packageForm, packageCategory: e.target.value as any })}
-                        className="border p-2.5 rounded bg-white text-xs"
-                      >
-                        <option value="varkalaSightseeing">Varkala Sightseeing</option>
-                        <option value="dayTrips">Day Trips</option>
-                        <option value="backwaterExperiences">Backwater Experiences</option>
-                        <option value="adventureActivities">Adventure Activities</option>
-                        <option value="varkalaPackages">Varkala Packages</option>
-                      </select>
+                      <label className="font-bold text-gray-600 uppercase">Package Categories (Select one or more)</label>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-1">
+                        {[
+                          { value: "varkalaSightseeing", label: "Varkala Sightseeing" },
+                          { value: "dayTrips", label: "Day Trips" },
+                          { value: "backwaterExperiences", label: "Backwater Experiences" },
+                          { value: "adventureActivities", label: "Adventure Activities" },
+                          { value: "varkalaPackages", label: "Varkala Packages" },
+                        ].map((cat) => {
+                          const isChecked = Array.isArray(packageForm.packageCategory)
+                            ? packageForm.packageCategory.includes(cat.value as any)
+                            : packageForm.packageCategory === cat.value;
+                          return (
+                            <label
+                              key={cat.value}
+                              className={`flex items-center gap-2 p-2 border rounded cursor-pointer transition-colors duration-200 select-none text-[11px] ${
+                                isChecked
+                                  ? "border-brand-gold bg-brand-cream-soft text-[#121212] font-semibold"
+                                  : "border-gray-250 bg-white hover:bg-gray-50 text-gray-700"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) => {
+                                  let currentCats = Array.isArray(packageForm.packageCategory)
+                                    ? [...packageForm.packageCategory]
+                                    : packageForm.packageCategory
+                                    ? [packageForm.packageCategory]
+                                    : [];
+                                  if (e.target.checked) {
+                                    if (!currentCats.includes(cat.value as any)) {
+                                      currentCats.push(cat.value as any);
+                                    }
+                                  } else {
+                                    currentCats = currentCats.filter((val) => val !== cat.value);
+                                  }
+                                  // Always ensure at least one is selected
+                                  if (currentCats.length === 0) {
+                                    currentCats = ["varkalaSightseeing" as any];
+                                  }
+                                  setPackageForm({ ...packageForm, packageCategory: currentCats });
+                                }}
+                                className="w-3.5 h-3.5 accent-brand-gold cursor-pointer"
+                              />
+                              <span>{cat.label}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
-                      <input
-                        type="text"
-                        value={packageForm.slug}
-                        onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
-                        className="border p-2.5 rounded text-xs"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase">Starting Price (₹)</label>
-                      <input
-                        type="number"
-                        value={packageForm.price}
-                        onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
-                        className="border p-2.5 rounded text-xs"
-                      />
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
+                        <input
+                          type="text"
+                          value={packageForm.slug}
+                          onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
+                          className="border p-2.5 rounded text-xs bg-white"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Starting Price (₹)</label>
+                        <input
+                          type="number"
+                          value={packageForm.price}
+                          onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
+                          className="border p-2.5 rounded text-xs bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 

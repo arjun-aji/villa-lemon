@@ -64,7 +64,9 @@ export const getPackageItemBySlug = async (req: Request, res: Response): Promise
 
 export const createPackageItem = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { packageCategory, slug, price } = req.body;
+    const { slug, price } = req.body;
+    const parsedCat = parseField(req.body.packageCategory);
+    const packageCategory = Array.isArray(parsedCat) ? parsedCat : parsedCat ? [parsedCat] : [];
 
     const title = parseField(req.body.title);
     const pricePeriod = parseField(req.body.pricePeriod);
@@ -233,8 +235,10 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
       });
     }
 
-    // Simple fields
-    if (req.body.packageCategory) item.packageCategory = req.body.packageCategory;
+    if (req.body.packageCategory) {
+      const parsedCat = parseField(req.body.packageCategory);
+      item.packageCategory = Array.isArray(parsedCat) ? parsedCat : parsedCat ? [parsedCat] : [];
+    }
     if (req.body.slug) item.slug = req.body.slug;
     if (req.body.price) item.price = Number(req.body.price);
     if (req.body.video !== undefined) item.video = req.body.video;

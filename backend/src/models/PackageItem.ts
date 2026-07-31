@@ -74,9 +74,10 @@ const faqSchema = new Schema(
 const packageItemSchema = new Schema<IPackageItem>(
   {
     packageCategory: {
-      type: String,
+      type: [String],
       enum: ["varkalaSightseeing", "dayTrips", "backwaterExperiences", "adventureActivities", "varkalaPackages"],
       required: true,
+      default: [],
     },
     title: { type: localizedTextSchema },
     slug: { type: String, required: true, unique: true },

@@ -13,7 +13,7 @@ import { localizeObject } from "@/utils/translator";
 
 interface PackageItemType {
   _id: string;
-  packageCategory: string;
+  packageCategory: string | string[];
   title: Record<string, string>;
   slug: string;
   price: number;

@@ -205,7 +205,7 @@ export interface IAccommodationItem extends Document {
 }
 
 export interface IPackageItem extends Document {
-  packageCategory: "varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities" | "varkalaPackages";
+  packageCategory: ("varkalaSightseeing" | "dayTrips" | "backwaterExperiences" | "adventureActivities" | "varkalaPackages")[];
   title: ILocalizedText;
   slug: string;
   price: number;

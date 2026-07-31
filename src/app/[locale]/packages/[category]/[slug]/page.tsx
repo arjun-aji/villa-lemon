@@ -25,9 +25,15 @@ function loc(field: Record<string, string> | string | undefined | null, locale?:
   return field[locale ?? "en"] || field["en"] || Object.values(field)[0] || "";
 }
 
+function getPrimaryCat(cat: string | string[] | undefined | null): string {
+  if (!cat) return "varkalaSightseeing";
+  if (Array.isArray(cat)) return cat[0] || "varkalaSightseeing";
+  return cat;
+}
+
 interface PackageDetails {
   _id: string;
-  packageCategory: string;
+  packageCategory: string | string[];
   title: Record<string, string>;
   slug: string;
   price: number;
@@ -177,7 +183,7 @@ export default async function PackageDetailsPage({
   // Extract English-first values — client <T> components will auto-translate
   const pkg = {
     id: rawPackage._id,
-    category: rawPackage.packageCategory,
+    category: getPrimaryCat(rawPackage.packageCategory),
     title: loc(rawPackage.title),
     price: rawPackage.price,
     pricePeriod: loc(rawPackage.pricePeriod),
@@ -258,10 +264,11 @@ export default async function PackageDetailsPage({
     // 2. Check packages
     const foundPkg = allPackages.find((p) => p.slug === rSlug);
     if (foundPkg) {
+      const primaryCat = getPrimaryCat(foundPkg.packageCategory);
       relatedList.push({
         id: foundPkg._id,
         cardType: "package",
-        type: foundPkg.packageCategory,
+        type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
@@ -273,7 +280,7 @@ export default async function PackageDetailsPage({
         shortDescription: foundPkg.shortDescription[locale] || foundPkg.shortDescription["en"] || "",
         tagline: foundPkg.tagline[locale] || foundPkg.tagline["en"] || "",
         slug: foundPkg.slug,
-        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        category: primaryCat === "varkalaSightseeing" ? "varkala-sightseeing" : primaryCat === "dayTrips" ? "day-trips" : primaryCat === "backwaterExperiences" ? "backwater-experiences" : primaryCat === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
         images: foundPkg.images || [],
       });
       continue;
@@ -307,35 +314,41 @@ export default async function PackageDetailsPage({
   // Fallback to other packages under same category or other packages if empty
   if (relatedList.length === 0) {
     const defaultPkgs = allPackages.filter((p) => p._id.toString() !== rawPackage._id.toString()).slice(0, 3);
-    relatedList = defaultPkgs.map((foundPkg) => ({
-      id: foundPkg._id,
-      cardType: "package",
-      type: foundPkg.packageCategory,
-      title: foundPkg.title[locale] || foundPkg.title["en"] || "",
-      price: foundPkg.price,
-      pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
-      image: foundPkg.image,
-      slug: foundPkg.slug,
-      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
-      images: foundPkg.images || [],
-    }));
+    relatedList = defaultPkgs.map((foundPkg) => {
+      const primaryCat = getPrimaryCat(foundPkg.packageCategory);
+      return {
+        id: foundPkg._id,
+        cardType: "package",
+        type: primaryCat,
+        title: foundPkg.title[locale] || foundPkg.title["en"] || "",
+        price: foundPkg.price,
+        pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
+        image: foundPkg.image,
+        slug: foundPkg.slug,
+        category: primaryCat === "varkalaSightseeing" ? "varkala-sightseeing" : primaryCat === "dayTrips" ? "day-trips" : primaryCat === "backwaterExperiences" ? "backwater-experiences" : primaryCat === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        images: foundPkg.images || [],
+      };
+    });
   } else if (relatedList.length < 3) {
     const alreadySlugs = relatedList.map((s) => s.slug);
     const fillers = allPackages.filter((p) => 
       p._id.toString() !== rawPackage._id.toString() && !alreadySlugs.includes(p.slug)
     ).slice(0, 3 - relatedList.length);
-    const mappedFillers = fillers.map((foundPkg) => ({
-      id: foundPkg._id,
-      cardType: "package",
-      type: foundPkg.packageCategory,
-      title: foundPkg.title[locale] || foundPkg.title["en"] || "",
-      price: foundPkg.price,
-      pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
-      image: foundPkg.image,
-      slug: foundPkg.slug,
-      category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
-      images: foundPkg.images || [],
-    }));
+    const mappedFillers = fillers.map((foundPkg) => {
+      const primaryCat = getPrimaryCat(foundPkg.packageCategory);
+      return {
+        id: foundPkg._id,
+        cardType: "package",
+        type: primaryCat,
+        title: foundPkg.title[locale] || foundPkg.title["en"] || "",
+        price: foundPkg.price,
+        pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
+        image: foundPkg.image,
+        slug: foundPkg.slug,
+        category: primaryCat === "varkalaSightseeing" ? "varkala-sightseeing" : primaryCat === "dayTrips" ? "day-trips" : primaryCat === "backwaterExperiences" ? "backwater-experiences" : primaryCat === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        images: foundPkg.images || [],
+      };
+    });
     relatedList = [...relatedList, ...mappedFillers];
   }
 

@@ -209,7 +209,7 @@ export default async function PropertyDetailsPage({
       suggestionsList.push({
         id: foundPkg._id,
         cardType: "package",
-        type: foundPkg.packageCategory,
+        type: Array.isArray(foundPkg.packageCategory) ? foundPkg.packageCategory[0] : foundPkg.packageCategory,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",

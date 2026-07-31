@@ -217,16 +217,17 @@ interface LocalizedYogaDetails {
     // 2. Check packages
     const foundPkg = allPackages.find((p) => p.slug === rSlug);
     if (foundPkg) {
+      const primaryCat = Array.isArray(foundPkg.packageCategory) ? foundPkg.packageCategory[0] : foundPkg.packageCategory;
       suggestionsList.push({
         id: foundPkg._id,
         cardType: "package",
-        type: foundPkg.packageCategory,
+        type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         slug: foundPkg.slug,
-        category: foundPkg.packageCategory === "varkalaSightseeing" ? "varkala-sightseeing" : foundPkg.packageCategory === "dayTrips" ? "day-trips" : foundPkg.packageCategory === "backwaterExperiences" ? "backwater-experiences" : foundPkg.packageCategory === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
+        category: primaryCat === "varkalaSightseeing" ? "varkala-sightseeing" : primaryCat === "dayTrips" ? "day-trips" : primaryCat === "backwaterExperiences" ? "backwater-experiences" : primaryCat === "varkalaPackages" ? "varkala-packages" : "adventure-activities",
         images: foundPkg.images || [],
       });
       continue;
