@@ -81,6 +81,45 @@ export const createGalleryItem = async (req: Request, res: Response): Promise<an
   }
 };
 
+// PATCH /api/gallery/:id  (edit caption, category, displayOrder; optionally replace image)
+export const updateGalleryItem = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const item = await GalleryItem.findById(id);
+
+    if (!item) {
+      return res.status(404).json({ status: "fail", message: "Gallery item not found" });
+    }
+
+    const { category, displayOrder } = req.body;
+    const caption = req.body.caption ? parseField(req.body.caption) : undefined;
+
+    if (category) item.category = category;
+    if (caption) item.caption = caption;
+    if (displayOrder !== undefined) item.displayOrder = parseInt(displayOrder, 10);
+
+    // If a new image file was uploaded, replace it in Cloudinary
+    if (req.file) {
+      if (item.imagePublicId) {
+        console.log(`[cloudinary]: Replacing gallery image ${item.imagePublicId}...`);
+        await deleteImage(item.imagePublicId);
+      }
+      const uploadResult = await uploadImage(req.file.buffer, "gallery");
+      item.image = uploadResult.secure_url;
+      item.imagePublicId = uploadResult.public_id;
+    }
+
+    await item.save();
+
+    res.status(200).json({ status: "success", data: item });
+  } catch (error: any) {
+    res.status(500).json({
+      status: "error",
+      message: error.message || "Failed to update gallery item",
+    });
+  }
+};
+
 // DELETE /api/gallery/:id
 export const deleteGalleryItem = async (req: Request, res: Response): Promise<any> => {
   try {

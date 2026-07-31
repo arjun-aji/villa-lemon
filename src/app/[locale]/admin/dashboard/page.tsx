@@ -306,6 +306,12 @@ export default function AdminDashboard() {
   const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [galleryFilePreview, setGalleryFilePreview] = useState<string | null>(null);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  // Edit gallery item state
+  const [editingGalleryItem, setEditingGalleryItem] = useState<any | null>(null);
+  const [showEditGalleryModal, setShowEditGalleryModal] = useState(false);
+  const [editGalleryFile, setEditGalleryFile] = useState<File | null>(null);
+  const [editGalleryFilePreview, setEditGalleryFilePreview] = useState<string | null>(null);
+  const [isUpdatingGallery, setIsUpdatingGallery] = useState(false);
 
   // LOCALIZATION TAB
   const [activeLangTab, setActiveLangTab] = useState<"en" | "de" | "fr" | "ru">("en");
@@ -1518,6 +1524,96 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !editingGalleryItem) return;
+    setIsUpdatingGallery(true);
+
+    try {
+      const formData = new FormData();
+      if (editGalleryFile) {
+        formData.append("image", editGalleryFile);
+      }
+      formData.append("category", editingGalleryItem.category);
+      formData.append("caption", JSON.stringify(editingGalleryItem.caption));
+      formData.append("displayOrder", String(editingGalleryItem.displayOrder || 0));
+
+      const res = await fetch(`${API_BASE_URL}/api/gallery/${editingGalleryItem._id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (res.ok) {
+        setShowEditGalleryModal(false);
+        setEditingGalleryItem(null);
+        setEditGalleryFile(null);
+        setEditGalleryFilePreview(null);
+        fetchData();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || "Failed to update gallery item.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update gallery item.");
+    } finally {
+      setIsUpdatingGallery(false);
+    }
+  };
+
+  const handleMoveGalleryItem = async (currentItem: any, direction: "up" | "down") => {
+    if (!token) return;
+    const idx = galleryItems.findIndex(item => item._id === currentItem._id);
+    if (idx === -1) return;
+
+    let targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= galleryItems.length) return;
+
+    const targetItem = galleryItems[targetIdx];
+
+    let curOrder = currentItem.displayOrder !== undefined ? currentItem.displayOrder : idx;
+    let targetOrder = targetItem.displayOrder !== undefined ? targetItem.displayOrder : targetIdx;
+
+    if (curOrder === targetOrder) {
+      if (direction === "up") {
+        curOrder = targetOrder - 1;
+      } else {
+        curOrder = targetOrder + 1;
+      }
+    } else {
+      const temp = curOrder;
+      curOrder = targetOrder;
+      targetOrder = temp;
+    }
+
+    try {
+      await fetch(`${API_BASE_URL}/api/gallery/${currentItem._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ displayOrder: curOrder })
+      });
+
+      await fetch(`${API_BASE_URL}/api/gallery/${targetItem._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ displayOrder: targetOrder })
+      });
+
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Save homepage static text edits
   const handleSaveHomepage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2276,24 +2372,69 @@ export default function AdminDashboard() {
                               alt={item.caption?.en || ""}
                               className="object-cover w-full h-full"
                             />
-                            {/* Delete button overlay */}
-                            <button
-                              onClick={() => handleDeleteGalleryItem(item._id)}
-                              className="absolute top-2.5 right-2.5 p-1.5 bg-white/90 hover:bg-red-500 hover:text-white border border-gray-200 text-gray-500 rounded-sm shadow-xs transition-colors cursor-pointer"
-                              title="Delete Item"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* Actions Overlay */}
+                            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 bg-white/90 p-1 rounded-sm border border-gray-200 shadow-xs">
+                              {/* Edit Button */}
+                              <button
+                                onClick={() => {
+                                  setEditingGalleryItem({
+                                    _id: item._id,
+                                    category: item.category,
+                                    caption: {
+                                      en: item.caption?.en || "",
+                                      de: item.caption?.de || "",
+                                      fr: item.caption?.fr || "",
+                                      ru: item.caption?.ru || ""
+                                    },
+                                    displayOrder: item.displayOrder || 0
+                                  });
+                                  setEditGalleryFile(null);
+                                  setEditGalleryFilePreview(item.image);
+                                  setShowEditGalleryModal(true);
+                                }}
+                                className="p-1 hover:bg-brand-gold/20 text-gray-600 hover:text-brand-dark rounded-xs transition-colors cursor-pointer"
+                                title="Edit Item"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              {/* Delete button */}
+                              <button
+                                onClick={() => handleDeleteGalleryItem(item._id)}
+                                className="p-1 hover:bg-red-500 hover:text-white border border-transparent text-gray-500 rounded-xs transition-colors cursor-pointer"
+                                title="Delete Item"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                             {/* Category badge */}
-                            <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-[#0f2c1b] text-white text-[8px] font-bold uppercase tracking-wider rounded-xs">
+                            <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-[#0f2c1b]/95 text-white text-[8px] font-bold uppercase tracking-wider rounded-xs">
                               {item.category.replace("-", " & ")}
                             </span>
                           </div>
                           {/* Details */}
                           <div className="p-3.5 flex flex-col flex-grow bg-white text-left">
-                            <span className="text-[9px] font-bold text-brand-gold uppercase tracking-wider">
-                              Order: {item.displayOrder || 0}
-                            </span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] font-bold text-brand-gold uppercase tracking-wider">
+                                Order: {item.displayOrder || 0}
+                              </span>
+                              {/* Up/Down ordering buttons */}
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleMoveGalleryItem(item, "up")}
+                                  className="p-1 hover:bg-gray-100 text-gray-500 hover:text-brand-dark rounded-xs transition-colors cursor-pointer"
+                                  title="Move Up"
+                                >
+                                  <ArrowUp className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleMoveGalleryItem(item, "down")}
+                                  className="p-1 hover:bg-gray-100 text-gray-500 hover:text-brand-dark rounded-xs transition-colors cursor-pointer"
+                                  title="Move Down"
+                                >
+                                  <ArrowDown className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
                             <p className="text-xs text-gray-700 font-light mt-1.5 leading-relaxed line-clamp-2">
                               {item.caption?.en || <em className="text-gray-400">No caption</em>}
                             </p>
@@ -5883,6 +6024,181 @@ export default function AdminDashboard() {
                   className="px-5 py-2 bg-brand-dark hover:bg-brand-dark-soft text-white font-bold rounded-sm uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                 >
                   {isUploadingGallery ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Upload Image</span>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: EDIT GALLERY ITEM
+      ======================================================== */}
+      {showEditGalleryModal && editingGalleryItem && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto select-text text-left">
+          <div className="bg-white rounded-md max-w-lg w-full flex flex-col shadow-2xl border border-gray-150">
+            
+            <div className="p-5 border-b border-gray-150 flex items-center justify-between bg-brand-dark text-white animate-fade-in">
+              <div>
+                <h3 className="font-serif text-base tracking-wide text-left">Edit Gallery Image</h3>
+                <p className="text-[10px] text-brand-gold tracking-widest uppercase mt-0.5 text-left">Modify details or replace image</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEditGalleryModal(false);
+                  setEditingGalleryItem(null);
+                  setEditGalleryFile(null);
+                  setEditGalleryFilePreview(null);
+                }}
+                className="p-1 text-gray-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateGalleryItem} className="p-6 space-y-4 text-xs">
+              {/* Image upload field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="font-bold text-gray-600 uppercase text-left">Replace Gallery Image (Optional)</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-brand-gold p-4 rounded-md cursor-pointer flex-grow bg-gray-50 hover:bg-gray-100/50 transition-colors">
+                    <Upload className="w-4 h-4 text-gray-400" />
+                    <span className="text-xs text-gray-500 font-medium">{editGalleryFile ? editGalleryFile.name : "Choose New File..."}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setEditGalleryFile(file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setEditGalleryFilePreview(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                  {editGalleryFilePreview && (
+                    <div className="w-16 h-16 rounded border border-gray-200 overflow-hidden shrink-0 select-none bg-gray-50">
+                      <img src={editGalleryFilePreview} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Category dropdown */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="font-bold text-gray-600 uppercase">Gallery Category</label>
+                <select
+                  value={editingGalleryItem.category}
+                  onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, category: e.target.value })}
+                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
+                  required
+                >
+                  <option value="villa-accommodation">Villa & Accommodation</option>
+                  <option value="yoga-wellness">Yoga & Wellness</option>
+                  <option value="experiences-tours">Experiences & Tours</option>
+                  <option value="food-dining">Food & Dining</option>
+                  <option value="nature-surroundings">Nature & Surroundings</option>
+                  <option value="events-culture">Events & Culture</option>
+                </select>
+              </div>
+
+              {/* Display order */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="font-bold text-gray-600 uppercase">Display Order</label>
+                <input
+                  type="number"
+                  value={editingGalleryItem.displayOrder}
+                  onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, displayOrder: parseInt(e.target.value, 10) })}
+                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
+                  min="0"
+                  required
+                />
+              </div>
+
+              {/* Localized Captions */}
+              <div className="space-y-3 pt-2 border-t text-left">
+                <span className="font-bold text-gray-500 uppercase block mb-1">Image Captions</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">English Caption</label>
+                    <input
+                      type="text"
+                      value={editingGalleryItem.caption.en || ""}
+                      onChange={(e) => setEditingGalleryItem({
+                        ...editingGalleryItem,
+                        caption: { ...editingGalleryItem.caption, en: e.target.value }
+                      })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="e.g. Beautiful garden path..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">German Caption</label>
+                    <input
+                      type="text"
+                      value={editingGalleryItem.caption.de || ""}
+                      onChange={(e) => setEditingGalleryItem({
+                        ...editingGalleryItem,
+                        caption: { ...editingGalleryItem.caption, de: e.target.value }
+                      })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="deutsches Bildunterschrift"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">French Caption</label>
+                    <input
+                      type="text"
+                      value={editingGalleryItem.caption.fr || ""}
+                      onChange={(e) => setEditingGalleryItem({
+                        ...editingGalleryItem,
+                        caption: { ...editingGalleryItem.caption, fr: e.target.value }
+                      })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="légende en français"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="font-bold text-gray-600 uppercase text-[9px]">Russian Caption</label>
+                    <input
+                      type="text"
+                      value={editingGalleryItem.caption.ru || ""}
+                      onChange={(e) => setEditingGalleryItem({
+                        ...editingGalleryItem,
+                        caption: { ...editingGalleryItem.caption, ru: e.target.value }
+                      })}
+                      className="border p-2 rounded text-xs"
+                      placeholder="подпись на русском"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="border-t border-gray-150 pt-4 flex items-center justify-end gap-3 select-none">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditGalleryModal(false);
+                    setEditingGalleryItem(null);
+                    setEditGalleryFile(null);
+                    setEditGalleryFilePreview(null);
+                  }}
+                  className="px-4 py-2 border border-gray-200 text-gray-700 rounded-sm hover:bg-gray-100 font-bold uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingGallery}
+                  className="px-5 py-2 bg-brand-dark hover:bg-brand-dark-soft text-white font-bold rounded-sm uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isUpdatingGallery ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Save Changes</span>}
                 </button>
               </div>
             </form>
