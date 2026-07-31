@@ -292,7 +292,7 @@ export default function Navbar({
       }
       
       scrollAnimationFrame = window.requestAnimationFrame(() => {
-        const sectionIds = ["home", "villas", "packages", "yogatours", "about", "contact"];
+        const sectionIds = ["home", "villas", "packages", "yogatours", "about", "gallery", "contact"];
         const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
         
         const scrollPosition = window.scrollY + window.innerHeight / 3;
@@ -309,6 +309,7 @@ export default function Navbar({
             else if (id === "packages") activeSection = "PACKAGES";
             else if (id === "yogatours") activeSection = "YOGATOURS";
             else if (id === "about") activeSection = "ABOUT";
+            else if (id === "gallery") activeSection = "GALLERY";
             else if (id === "contact") activeSection = "CONTACT";
           }
         }
@@ -323,6 +324,7 @@ export default function Navbar({
           else if (activeSection === "PACKAGES") targetHash = "#packages";
           else if (activeSection === "YOGATOURS") targetHash = "#yogatours";
           else if (activeSection === "ABOUT") targetHash = "#about";
+          else if (activeSection === "GALLERY") targetHash = "#gallery";
           else if (activeSection === "CONTACT") targetHash = "#contact";
           else if (activeSection === "HOME") targetHash = "";
           
