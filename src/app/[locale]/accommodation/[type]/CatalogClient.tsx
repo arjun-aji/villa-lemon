@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
-import { Star, Users, Bed, Bath, ArrowUpDown, ChevronDown, Check, Shield, Calendar, Phone } from "lucide-react";
+import { Star, Users, Bed, Bath, ArrowUpDown, ChevronDown, Check, Shield, Calendar, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Property {
   id: string;
@@ -81,6 +81,43 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
         return 0; // Default/Popular
       });
   }, [properties, selectedBedrooms, selectedGuests, priceTier, sortBy]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      checkScroll();
+      window.addEventListener("resize", checkScroll);
+    }
+    return () => {
+      if (el) el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [filteredProperties]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (containerRef.current) {
+      const { clientWidth } = containerRef.current;
+      const cardWidth = clientWidth / 5;
+      const scrollAmount = direction === "left" ? -cardWidth * 2 : cardWidth * 2;
+      containerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-10">
@@ -174,79 +211,108 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredProperties.map((p) => (
-            <div
-              key={p.id}
-              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-            >
-              {/* Cover Image Wrapper */}
-              <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden select-none">
-                <ImageSlideshow
-                  images={p.images}
-                  defaultImage={p.image}
-                  className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                  alt={p.title}
-                />
-                
-                {/* Dark vignettes */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                
-                {/* Price tag */}
-                {!p.hideRate && (
-                  <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
-                    From ₹{p.price.toLocaleString()} {p.pricePeriod}
-                  </div>
-                )}
+        <div className="relative w-full">
+          {/* Navigation Buttons (Desktop only, overlayed on the sides) */}
+          {filteredProperties.length >= 4 && (
+            <>
+              <button
+                onClick={() => scroll("left")}
+                disabled={!canScrollLeft}
+                className="hidden lg:flex absolute -left-6 top-1/2 -translate-y-1/2 z-35 w-12 h-12 bg-white/95 hover:bg-white text-gray-800 disabled:opacity-0 disabled:pointer-events-none rounded-full shadow-lg border border-gray-150 items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#121212]" />
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                disabled={!canScrollRight}
+                className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 z-35 w-12 h-12 bg-white/95 hover:bg-white text-gray-800 disabled:opacity-0 disabled:pointer-events-none rounded-full shadow-lg border border-gray-150 items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight className="w-6 h-6 text-[#121212]" />
+              </button>
+            </>
+          )}
 
-                {/* Grid badge (Star + Text) */}
-                {p.badgeText && (
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-[#051c0e] border-2 border-[#FFD700] text-[#FFD700] px-4 py-2 rounded-full text-[11px] font-extrabold tracking-widest uppercase select-none z-20 shadow-lg">
-                    <Star className="w-4 h-4 fill-[#FFD700] text-[#FFD700] shrink-0" />
-                    <span>{p.badgeText}</span>
-                  </div>
-                )}
-              </div>
+          {/* Scrolling container */}
+          <div
+            ref={containerRef}
+            className="w-full flex flex-col sm:flex-row sm:overflow-x-auto sm:snap-x sm:snap-mandatory gap-6 pb-6 no-scrollbar"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {filteredProperties.map((p) => (
+              <div
+                key={p.id}
+                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-19.2px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+                {/* Cover Image Wrapper */}
+                <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden select-none">
+                  <ImageSlideshow
+                    images={p.images}
+                    defaultImage={p.image}
+                    className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                    alt={p.title}
+                  />
+                  
+                  {/* Dark vignettes */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                  
+                  {/* Price tag */}
+                  {!p.hideRate && (
+                    <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
+                      From ₹{p.price.toLocaleString()} {p.pricePeriod}
+                    </div>
+                  )}
 
-              {/* Card Details */}
-              <div className="p-5 flex flex-col flex-grow items-start">
-                <span className="text-[9px] font-bold text-brand-gold uppercase tracking-widest mb-1.5 select-none leading-none">
-                  {p.location}
-                </span>
-                
-                <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
-                  {p.title}
-                </h3>
-
-                {/* Specs tags bar */}
-                <div className="flex items-center gap-3.5 text-gray-500 text-[10px] font-semibold uppercase tracking-wider mb-4 select-none flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <Bed className="w-3.5 h-3.5 text-brand-gold/70" />
-                    <span>{p.bedrooms} Bed</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Bath className="w-3.5 h-3.5 text-brand-gold/70" />
-                    <span>{p.bathrooms} Bath</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-brand-gold/70" />
-                    <span>{p.guests} Guests</span>
-                  </div>
+                  {/* Grid badge (Star + Text) */}
+                  {p.badgeText && (
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-[#051c0e] border-2 border-[#FFD700] text-[#FFD700] px-4 py-2 rounded-full text-[11px] font-extrabold tracking-widest uppercase select-none z-20 shadow-lg">
+                      <Star className="w-4 h-4 fill-[#FFD700] text-[#FFD700] shrink-0" />
+                      <span>{p.badgeText}</span>
+                    </div>
+                  )}
                 </div>
 
-                <p className="text-[11.5px] text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow">
-                  {p.shortDescription}
-                </p>
+                {/* Card Details */}
+                <div className="p-5 flex flex-col flex-grow items-start">
+                  <span className="text-[9px] font-bold text-brand-gold uppercase tracking-widest mb-1.5 select-none leading-none">
+                    {p.location}
+                  </span>
+                  
+                  <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
+                    {p.title}
+                  </h3>
 
-                <Link
-                  href={`/${locale}/accommodation/${typePath}/${p.slug}`}
-                  className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-300 select-none text-[10px]"
-                >
-                  View Details
-                </Link>
+                  {/* Specs tags bar */}
+                  <div className="flex items-center gap-3.5 text-gray-500 text-[10px] font-semibold uppercase tracking-wider mb-4 select-none flex-wrap">
+                    <div className="flex items-center gap-1">
+                      <Bed className="w-3.5 h-3.5 text-brand-gold/70" />
+                      <span>{p.bedrooms} Bed</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Bath className="w-3.5 h-3.5 text-brand-gold/70" />
+                      <span>{p.bathrooms} Bath</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5 text-brand-gold/70" />
+                      <span>{p.guests} Guests</span>
+                    </div>
+                  </div>
+
+                  <p className="text-[11.5px] text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow">
+                    {p.shortDescription}
+                  </p>
+
+                  <Link
+                    href={`/${locale}/accommodation/${typePath}/${p.slug}`}
+                    className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-300 select-none text-[10px]"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 

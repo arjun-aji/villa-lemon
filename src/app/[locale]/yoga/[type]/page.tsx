@@ -8,7 +8,7 @@ import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
-
+import YogaGridSlider from "@/components/YogaGridSlider";
 import { localizeObject } from "@/utils/translator";
 
 interface YogaItemType {
@@ -222,20 +222,20 @@ export default async function YogaCatalogPage({
 
     const retreats = filteredRetreats.map((r: any) => ({
       id: r._id,
-      slug: r.slug,
-      heroImage: r.heroImage || "",
       title: (r.heroTitle?.[locale] || r.heroTitle?.en || "Yoga Retreat"),
-      tagline: (r.tagline?.[locale] || r.tagline?.en || ""),
-      shortDescription: (r.shortDescription?.[locale] || r.shortDescription?.en || ""),
+      slug: r.slug,
+      image: r.heroImage || "",
+      images: r.images || [],
       price: r.price || 0,
-      days: r.days || 7,
-      nights: r.nights || 6,
+      pricePeriod: `· ${r.days} Days`,
+      duration: `${r.days} Days`,
+      shortDescription: (r.shortDescription?.[locale] || r.shortDescription?.en || ""),
+      featured: r.featured,
+      hideRate: r.hideRate || false,
+      detailUrl: `/${locale}/retreats/${r.slug}`,
       yogaLevel: (r.yogaLevel?.[locale] || r.yogaLevel?.en || ""),
       groupSize: (r.groupSize?.[locale] || r.groupSize?.en || ""),
       location: (r.location?.[locale] || r.location?.en || "Varkala, Kerala"),
-      featured: r.featured,
-      status: r.status,
-      hideRate: r.hideRate || false,
     }));
 
     const title = tYoga.retreatsTitle || "Yoga Retreats";
@@ -296,62 +296,7 @@ export default async function YogaCatalogPage({
                 <Link href="/#yoga" className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">Back to yoga</Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {retreats.map((r: any) => (
-                  <div key={r.id} className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-                    <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
-                      {r.heroImage ? (
-                        <Image
-                          src={r.heroImage}
-                          alt={r.title}
-                          fill
-                          className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#1a1a2e] to-[#2d1b69] flex items-center justify-center">
-                          <span className="text-white/40 text-3xl font-serif">☽</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                      {!r.hideRate && (
-                        <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
-                          ₹{r.price.toLocaleString()} · {r.days} Days
-                        </div>
-                      )}
-                      {r.featured && (
-                        <div className="absolute top-3 right-3 bg-brand-gold text-black text-[9px] font-bold uppercase px-2 py-0.5 rounded-full tracking-wider">
-                          Featured
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-6 flex flex-col flex-grow items-start text-left">
-                      {r.location && (
-                        <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none">
-                          <Users className="w-3.5 h-3.5" />
-                          <span>{r.location}</span>
-                        </div>
-                      )}
-                      <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
-                        {r.title}
-                      </h3>
-                      <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text">
-                        {r.shortDescription}
-                      </p>
-                      <div className="flex items-center gap-3 mb-4 text-[10px] text-gray-400 font-medium w-full">
-                        {r.yogaLevel && <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5 text-brand-gold" />{r.yogaLevel}</span>}
-                        {r.groupSize && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{r.groupSize}</span>}
-                      </div>
-                      <Link
-                        href={`/${locale}/retreats/${r.slug}`}
-                        className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] select-none"
-                      >
-                        Explore Retreat
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <YogaGridSlider items={retreats} locale={locale} />
             )}
           </section>
           </PageAutoTranslator>
@@ -403,6 +348,7 @@ export default async function YogaCatalogPage({
         shortDescription: lp.shortDescription,
         tagline: lp.tagline,
         hideRate: lp.hideRate || false,
+        detailUrl: `/${locale}/yoga/${type}/${lp.slug}`,
       };
     })
   );
@@ -467,51 +413,7 @@ export default async function YogaCatalogPage({
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {programs.map((p) => (
-                <div
-                  key={p.id}
-                  className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-                >
-                  <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
-                    <ImageSlideshow
-                      images={p.images}
-                      defaultImage={p.image}
-                      className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                      alt={p.title}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                    
-                    {!p.hideRate && (
-                    <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
-                      ₹{p.price.toLocaleString()} {p.pricePeriod}
-                    </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow items-start text-left">
-                    <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{p.duration}</span>
-                    </div>
-
-                    <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
-                      {p.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text">
-                      {p.shortDescription}
-                    </p>
-
-                    <Link
-                      href={`/${locale}/yoga/${type}/${p.slug}`}
-                      className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] select-none"
-                    >
-                      Explore Retreat
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <YogaGridSlider items={programs} locale={locale} />
           )}
         </section>
         </PageAutoTranslator>
