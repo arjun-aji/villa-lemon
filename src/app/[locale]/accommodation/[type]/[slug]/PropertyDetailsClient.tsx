@@ -296,6 +296,18 @@ export default function PropertyDetailsClient({ property, translations, locale, 
                 </div>
               </div>
 
+              {/* Important Notes */}
+              {property.notes && (
+                <div className="w-full mt-12 pt-10 border-t border-[#eae6db] select-text">
+                  <h3 className="font-serif text-xl font-normal mb-6 text-[#121212]">
+                    {translations.importantNotes || "Important Notes"}
+                  </h3>
+                  <p className="text-xs text-gray-600 font-light leading-relaxed whitespace-pre-line bg-[#fcfbfa] border border-[#eae6db] p-5 rounded-md">
+                    {property.notes}
+                  </p>
+                </div>
+              )}
+
               {/* Live Location Map Button */}
               {property.mapLink && (
                 <div className="w-full mt-10 pt-8 border-t border-[#eae6db]">
