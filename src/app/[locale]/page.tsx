@@ -7,7 +7,7 @@ import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { API_BASE_URL } from "@/config/api";
-
+import { getMessages } from "next-intl/server";
 import { localizeObject } from "@/utils/translator";
 
 // Fetch Homepage data from Backend
@@ -128,6 +128,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     })
   );
 
+  // Fetch translation messages
+  const messages = await getMessages({ locale });
+  const tYoga = messages.Yoga as any;
+
   // Localize Yoga program arrays list
   const localizedYoga = await Promise.all(
     yoga.map(async (item: any) => {
@@ -144,6 +148,20 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       };
     })
   );
+
+  // Append "Meet Our Teachers" card to the grid
+  const hasTeachersCard = localizedYoga.some((y: any) => y.type === "teachers" || y.href?.includes("/teachers"));
+  if (!hasTeachersCard) {
+    localizedYoga.push({
+      type: "teachers",
+      title: tYoga.teachersTitle || "Meet Our Teachers",
+      description: tYoga.teachersDesc || "Our certified Acharyas guide travelers from all over the world toward mindful recovery.",
+      image: "https://res.cloudinary.com/d6qmn2vu/image/upload/v1785124904/villa-lemon/yoga/mdklggrrhf6qcmqmeizb.jpg",
+      images: [],
+      explore: tYoga.teachersExplore || "Meet Them",
+      href: `/${locale}/yoga/teachers`,
+    });
+  }
 
   return (
     <main className="w-full flex flex-col">
