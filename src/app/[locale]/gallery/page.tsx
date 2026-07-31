@@ -75,7 +75,6 @@ export default async function GalleryPage({
         <PageAutoTranslator locale={locale}>
           <GalleryClient 
             items={items} 
-            locale={locale} 
             translations={{
               title: t.title || "Gallery",
               subtitle: t.subtitle || "Moments, Places & Experiences",

@@ -42,11 +42,10 @@ export interface GalleryItemType {
 
 interface GalleryClientProps {
   items: GalleryItemType[];
-  locale: string;
   translations: Record<string, string>;
 }
 
-export default function GalleryClient({ items, translations }: Omit<GalleryClientProps, "locale">) {
+export default function GalleryClient({ items, translations }: GalleryClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   
