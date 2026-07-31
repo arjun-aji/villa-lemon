@@ -62,7 +62,7 @@ export default async function GalleryPage({
 
   return (
     <>
-      <Navbar />
+      <Navbar forceSolid={true} />
       <main className="w-full bg-[#fbf9f6] text-brand-dark min-h-screen">
         <PageAutoTranslator locale={locale}>
           <GalleryClient 

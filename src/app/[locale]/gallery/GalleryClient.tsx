@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 import { 
   Camera, 
   Home, 
@@ -52,6 +53,16 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
   const sliderRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Slideshow images derived from gallery items
+  const slideshowImages = useMemo(() => {
+    if (items && items.length > 0) {
+      return items.map(item => item.image);
+    }
+    return [
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"
+    ];
+  }, [items]);
 
   // Categories list definition matching mockup icons & identifiers
   const categories = useMemo(() => [
@@ -172,12 +183,11 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
         {/* Softly blended oval image wrapper */}
         <div className="lg:col-span-6 flex justify-center lg:justify-end select-none">
           <div className="relative w-full max-w-[500px] aspect-[14/10] overflow-hidden rounded-[80px_20px_80px_20px] md:rounded-[120px_30px_120px_30px] border border-brand-gold/10 shadow-lg">
-            <Image
-              src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"
-              alt="Villa Lemon Garden Inspiration"
-              fill
+            <ImageSlideshow
+              images={slideshowImages}
+              defaultImage={slideshowImages[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"}
               className="object-cover scale-[1.02] hover:scale-[1.05] transition-transform duration-700 ease-out"
-              priority
+              alt="Villa Lemon Gallery Slideshow"
             />
             {/* Edge soft fade vignettes */}
             <div className="absolute inset-0 bg-radial-gradient from-transparent to-[#fbf9f6]/20 pointer-events-none" />

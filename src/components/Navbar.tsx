@@ -65,7 +65,13 @@ const languages = [
   { code: "RU", name: "Русский" },
 ];
 
-export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolean }) {
+export default function Navbar({ 
+  absoluteOnly = false, 
+  forceSolid = false 
+}: { 
+  absoluteOnly?: boolean;
+  forceSolid?: boolean;
+}) {
   const t = useTranslations("Navbar");
   const locale = useLocale();
   const router = useRouter();
@@ -351,8 +357,8 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
     <>
       <header
         className={`${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${
-          isScrolled
-            ? "py-4 border-b border-brand-gold/10 bg-brand-cream/50 backdrop-blur-md shadow-sm"
+          (isScrolled || forceSolid)
+            ? "py-4 border-b border-brand-gold/10 bg-[#fbf9f6]/95 backdrop-blur-md shadow-sm"
             : "py-6 bg-transparent"
         }`}
       >
@@ -376,7 +382,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             </div>
             <div className="flex flex-col select-none">
               <span className={`font-serif text-lg md:text-xl font-medium tracking-[0.15em] group-hover:text-brand-gold transition-colors duration-300 leading-none ${
-                isScrolled ? "text-brand-dark" : "text-brand-cream"
+                (isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
               }`}>
                 VILLA LEMON
               </span>
@@ -394,7 +400,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                   href={getNavbarItemHref(item.href, item.name)}
                   onClick={() => setActiveItem(item.name)}
                   className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${
-                    isScrolled
+                    (isScrolled || forceSolid)
                       ? "text-brand-dark/80 hover:text-brand-dark"
                       : "text-brand-cream/80 hover:text-brand-cream"
                   }`}
@@ -419,7 +425,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                       setIsLangDropdownOpen(false);
                     }}
                     className={`p-1.5 focus:outline-none transition-colors duration-300 ${
-                      isScrolled ? "text-brand-dark hover:text-brand-gold" : "text-brand-cream hover:text-brand-gold"
+                      (isScrolled || forceSolid) ? "text-brand-dark hover:text-brand-gold" : "text-brand-cream hover:text-brand-gold"
                     }`}
                     aria-label={`Toggle ${item.name} sub-menu`}
                   >
@@ -470,7 +476,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                   setIsLangDropdownOpen(!isLangDropdownOpen);
                 }}
                 className={`flex items-center gap-1.5 text-xs font-semibold tracking-widest focus:outline-none border px-3 py-1.5 rounded-sm transition-all duration-300 ${
-                  isScrolled
+                  (isScrolled || forceSolid)
                     ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
                     : "text-brand-cream/80 hover:text-brand-cream border-brand-cream/20 hover:border-brand-gold/50 bg-[#121212]/20"
                 }`}
@@ -524,7 +530,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
                   setIsLangDropdownOpen(!isLangDropdownOpen);
                 }}
                 className={`flex items-center gap-1.5 text-[10px] font-semibold tracking-widest focus:outline-none border px-2 py-1.5 rounded-sm transition-all duration-300 ${
-                  isScrolled
+                  (isScrolled || forceSolid)
                     ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
                     : "text-brand-cream/80 hover:text-brand-cream border-brand-cream/20 hover:border-brand-gold/50 bg-[#121212]/20"
                 }`}
@@ -570,7 +576,7 @@ export default function Navbar({ absoluteOnly = false }: { absoluteOnly?: boolea
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`p-2 hover:text-brand-gold focus:outline-none rounded-sm transition-colors duration-300 ${
-                isScrolled ? "text-brand-dark" : "text-brand-cream"
+                (isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
               }`}
               aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
               aria-expanded={isMobileMenuOpen}
