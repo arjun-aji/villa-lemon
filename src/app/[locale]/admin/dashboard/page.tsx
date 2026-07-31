@@ -3711,12 +3711,19 @@ export default function AdminDashboard() {
                                 </option>
                               ))}
                           </optgroup>
-                          <optgroup label="Yoga Programs">
+                          <optgroup label="Yoga Programs & Retreats">
                             {yogas
                               .filter((y) => y.slug !== stayForm.slug)
                               .map((y) => (
                                 <option key={y._id} value={y.slug}>
-                                  🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                  🧘 [Class] {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                </option>
+                              ))}
+                            {retreats
+                              .filter((r) => r.slug !== stayForm.slug)
+                              .map((r) => (
+                                <option key={r._id} value={r.slug}>
+                                  🧘 [Retreat] {r.heroTitle?.[activeLangTab] || r.heroTitle?.["en"] || r.slug}
                                 </option>
                               ))}
                           </optgroup>
@@ -4989,12 +4996,19 @@ export default function AdminDashboard() {
                                     </option>
                                   ))}
                               </optgroup>
-                              <optgroup label="Yoga Programs">
+                              <optgroup label="Yoga Programs & Retreats">
                                 {yogas
                                   .filter((y) => y.slug !== packageForm.slug)
                                   .map((y) => (
                                     <option key={y._id} value={y.slug}>
-                                      🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                      🧘 [Class] {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                    </option>
+                                  ))}
+                                {retreats
+                                  .filter((r) => r.slug !== packageForm.slug)
+                                  .map((r) => (
+                                    <option key={r._id} value={r.slug}>
+                                      🧘 [Retreat] {r.heroTitle?.[activeLangTab] || r.heroTitle?.["en"] || r.slug}
                                     </option>
                                   ))}
                               </optgroup>
@@ -5552,12 +5566,19 @@ export default function AdminDashboard() {
                                 </option>
                               ))}
                           </optgroup>
-                          <optgroup label="Yoga Programs">
+                          <optgroup label="Yoga Programs & Retreats">
                             {yogas
                               .filter((y) => y.slug !== yogaForm.slug)
                               .map((y) => (
                                 <option key={y._id} value={y.slug}>
-                                  🧘 {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                  🧘 [Class] {y.title[activeLangTab] || y.title["en"] || y.slug}
+                                </option>
+                              ))}
+                            {retreats
+                              .filter((r) => r.slug !== yogaForm.slug)
+                              .map((r) => (
+                                <option key={r._id} value={r.slug}>
+                                  🧘 [Retreat] {r.heroTitle?.[activeLangTab] || r.heroTitle?.["en"] || r.slug}
                                 </option>
                               ))}
                           </optgroup>
