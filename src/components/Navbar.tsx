@@ -238,6 +238,8 @@ export default function Navbar({
         setActiveItem("PACKAGES");
       } else if (pathname.startsWith("/yoga") || pathname.startsWith("/retreats")) {
         setActiveItem("YOGATOURS");
+      } else if (pathname.startsWith("/gallery")) {
+        setActiveItem("GALLERY");
       } else {
         const hash = window.location.hash;
         if (hash === "#villas") setActiveItem("ACCOMMODATIONS");
