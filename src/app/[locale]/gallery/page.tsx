@@ -44,10 +44,18 @@ export default async function GalleryPage({
     getMessages({ locale }),
   ]);
 
+  interface LocalizedGalleryItem {
+    _id: string;
+    image: string;
+    category: string;
+    caption: string;
+    displayOrder: number;
+  }
+
   // Localize items
   const items = await Promise.all(
     rawItems.map(async (item) => {
-      const li = await localizeObject(item, locale) as any;
+      const li = (await localizeObject(item, locale)) as unknown as LocalizedGalleryItem;
       return {
         id: li._id,
         image: li.image,
@@ -58,7 +66,7 @@ export default async function GalleryPage({
     })
   );
 
-  const t = (messages.Gallery || {}) as any;
+  const t = (messages.Gallery || {}) as Record<string, string>;
 
   return (
     <>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
 import { 
@@ -46,7 +46,7 @@ interface GalleryClientProps {
   translations: Record<string, string>;
 }
 
-export default function GalleryClient({ items, locale, translations }: GalleryClientProps) {
+export default function GalleryClient({ items, translations }: Omit<GalleryClientProps, "locale">) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   
@@ -129,11 +129,11 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
     setLightboxIndex(index);
   };
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxIndex(null);
-  };
+  }, []);
 
-  const navigateLightbox = (direction: "prev" | "next") => {
+  const navigateLightbox = useCallback((direction: "prev" | "next") => {
     if (lightboxIndex === null) return;
     let nextIndex = direction === "prev" ? lightboxIndex - 1 : lightboxIndex + 1;
     if (nextIndex < 0) {
@@ -142,7 +142,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
       nextIndex = 0;
     }
     setLightboxIndex(nextIndex);
-  };
+  }, [lightboxIndex, filteredItems]);
 
   // Listen for escape and arrow keys when lightbox is active
   useEffect(() => {
@@ -154,7 +154,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxIndex, filteredItems]);
+  }, [lightboxIndex, closeLightbox, navigateLightbox]);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -300,7 +300,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
             className="w-full flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {items.map((item, idx) => (
+            {items.map((item) => (
               <div
                 key={`thumb-${item.id}`}
                 onClick={() => {

@@ -4,10 +4,20 @@ import React from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Camera } from "lucide-react";
+
+interface HomeGalleryItem {
+  _id: string;
+  image: string;
+  caption?: {
+    en?: string;
+    de?: string;
+    fr?: string;
+    ru?: string;
+  };
+}
 
 interface HomeGalleryProps {
-  data?: any[];
+  data?: HomeGalleryItem[];
 }
 
 export default function HomeGallery({ data = [] }: HomeGalleryProps) {
