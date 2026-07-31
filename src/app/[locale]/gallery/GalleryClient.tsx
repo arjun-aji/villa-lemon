@@ -185,7 +185,7 @@ export default function GalleryClient({ items, translations }: GalleryClientProp
             <ImageSlideshow
               images={slideshowImages}
               defaultImage={slideshowImages[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"}
-              className="object-cover scale-[1.02] hover:scale-[1.05] transition-transform duration-700 ease-out"
+              className="w-full h-full object-cover scale-[1.02] hover:scale-[1.05] transition-transform duration-700 ease-out"
               alt="Villa Lemon Gallery Slideshow"
             />
             {/* Edge soft fade vignettes */}
