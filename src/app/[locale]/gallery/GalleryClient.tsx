@@ -344,7 +344,7 @@ export default function GalleryClient({ items, translations }: GalleryClientProp
             </div>
           </div>
           <a
-            href="https://www.instagram.com/villalemon.varkala"
+            href="https://www.instagram.com/villa_lemon_homestay_varkala?igsh=MTZjaXZndng5bmptbA=="
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3.5 bg-[#0f2c1b] hover:bg-[#07160d] text-white font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 shrink-0 select-none shadow-sm flex items-center gap-2"

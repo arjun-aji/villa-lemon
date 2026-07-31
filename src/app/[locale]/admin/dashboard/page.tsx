@@ -20,6 +20,8 @@ import {
   ChevronDown,
   ArrowUp,
   ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   Plus,
   Edit2,
   MoreVertical,
@@ -1496,7 +1498,7 @@ export default function AdminDashboard() {
       formData.append("image", galleryFile);
       formData.append("category", galleryForm.category);
       formData.append("caption", JSON.stringify(galleryForm.caption));
-      formData.append("displayOrder", String(galleryForm.displayOrder || 0));
+      formData.append("displayOrder", String(galleryItems.length));
 
       const res = await fetch(`${API_BASE_URL}/api/gallery`, {
         method: "POST",
@@ -1564,21 +1566,27 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleMoveGalleryItem = async (currentItem: any, direction: "up" | "down") => {
+  const handleMoveGalleryItem = async (currentItem: any, direction: "left" | "right") => {
     if (!token) return;
     const idx = galleryItems.findIndex(item => item._id === currentItem._id);
     if (idx === -1) return;
 
-    let targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    let targetIdx = direction === "left" ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= galleryItems.length) return;
 
     const targetItem = galleryItems[targetIdx];
+
+    // Optimistically update UI instantly
+    const updatedItems = [...galleryItems];
+    updatedItems[idx] = targetItem;
+    updatedItems[targetIdx] = currentItem;
+    setGalleryItems(updatedItems);
 
     let curOrder = currentItem.displayOrder !== undefined ? currentItem.displayOrder : idx;
     let targetOrder = targetItem.displayOrder !== undefined ? targetItem.displayOrder : targetIdx;
 
     if (curOrder === targetOrder) {
-      if (direction === "up") {
+      if (direction === "left") {
         curOrder = targetOrder - 1;
       } else {
         curOrder = targetOrder + 1;
@@ -1590,27 +1598,27 @@ export default function AdminDashboard() {
     }
 
     try {
-      await fetch(`${API_BASE_URL}/api/gallery/${currentItem._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ displayOrder: curOrder })
-      });
-
-      await fetch(`${API_BASE_URL}/api/gallery/${targetItem._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ displayOrder: targetOrder })
-      });
-
-      fetchData();
+      await Promise.all([
+        fetch(`${API_BASE_URL}/api/gallery/${currentItem._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ displayOrder: curOrder })
+        }),
+        fetch(`${API_BASE_URL}/api/gallery/${targetItem._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ displayOrder: targetOrder })
+        })
+      ]);
     } catch (err) {
       console.error(err);
+      fetchData(); // Fallback to database sync if fetch fails
     }
   };
 
@@ -2417,21 +2425,21 @@ export default function AdminDashboard() {
                               <span className="text-[9px] font-bold text-brand-gold uppercase tracking-wider">
                                 Order: {item.displayOrder || 0}
                               </span>
-                              {/* Up/Down ordering buttons */}
+                              {/* Left/Right ordering buttons */}
                               <div className="flex items-center gap-1">
                                 <button
-                                  onClick={() => handleMoveGalleryItem(item, "up")}
+                                  onClick={() => handleMoveGalleryItem(item, "left")}
                                   className="p-1 hover:bg-gray-100 text-gray-500 hover:text-brand-dark rounded-xs transition-colors cursor-pointer"
-                                  title="Move Up"
+                                  title="Move Left"
                                 >
-                                  <ArrowUp className="w-3 h-3" />
+                                  <ArrowLeft className="w-3 h-3" />
                                 </button>
                                 <button
-                                  onClick={() => handleMoveGalleryItem(item, "down")}
+                                  onClick={() => handleMoveGalleryItem(item, "right")}
                                   className="p-1 hover:bg-gray-100 text-gray-500 hover:text-brand-dark rounded-xs transition-colors cursor-pointer"
-                                  title="Move Down"
+                                  title="Move Right"
                                 >
-                                  <ArrowDown className="w-3 h-3" />
+                                  <ArrowRight className="w-3 h-3" />
                                 </button>
                               </div>
                             </div>
@@ -5949,19 +5957,6 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              {/* Display order */}
-              <div className="flex flex-col gap-1.5 text-left">
-                <label className="font-bold text-gray-600 uppercase">Display Order</label>
-                <input
-                  type="number"
-                  value={galleryForm.displayOrder}
-                  onChange={(e) => setGalleryForm({ ...galleryForm, displayOrder: parseInt(e.target.value, 10) })}
-                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
-                  min="0"
-                  required
-                />
-              </div>
-
               {/* Localized Captions */}
               <div className="space-y-3 pt-2 border-t text-left">
                 <span className="font-bold text-gray-500 uppercase block mb-1">Image Captions</span>
@@ -6105,19 +6100,6 @@ export default function AdminDashboard() {
                   <option value="nature-surroundings">Nature & Surroundings</option>
                   <option value="events-culture">Events & Culture</option>
                 </select>
-              </div>
-
-              {/* Display order */}
-              <div className="flex flex-col gap-1.5 text-left">
-                <label className="font-bold text-gray-600 uppercase">Display Order</label>
-                <input
-                  type="number"
-                  value={editingGalleryItem.displayOrder}
-                  onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, displayOrder: parseInt(e.target.value, 10) })}
-                  className="border p-2 rounded focus:ring-1 focus:ring-brand-gold text-xs"
-                  min="0"
-                  required
-                />
               </div>
 
               {/* Localized Captions */}
