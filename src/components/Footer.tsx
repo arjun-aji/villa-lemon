@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Phone, Mail, MapPin, ArrowUp } from "lucide-react";
 
 interface FooterProps {
@@ -17,6 +17,7 @@ interface FooterProps {
 
 export default function Footer({ contact }: FooterProps) {
   const locale = useLocale();
+  const t = useTranslations("Footer");
 
   const phoneVal = contact?.phone || "+91 73560 85055";
   const emailVal = contact?.email || "villalemonhomestay@gmail.com";
@@ -47,32 +48,32 @@ export default function Footer({ contact }: FooterProps) {
             </span>
           </div>
           <p className="text-[10px] tracking-wider text-brand-gold/70 font-semibold uppercase leading-none">
-            Stay • Relax • Rejuvenate
+            {t("stayRelax")}
           </p>
           <p className="text-xs text-white/50 leading-relaxed font-light select-text max-w-sm pt-1">
-            An elegant wellness homestay nestled in Varkala, Kerala. We provide premium stays, personalized tour programs, and dedicated yoga retreats for a wholesome rejuvenating experience.
+            {t("description")}
           </p>
         </div>
 
         {/* Site Navigation Links - Arranged in a 3x2 Grid */}
         <div className="flex flex-col space-y-4">
           <h4 className="text-xs font-bold text-white uppercase tracking-[0.2em] border-b border-white/10 pb-2 select-none">
-            Quick Navigation
+            {t("quickLinks")}
           </h4>
           <nav className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs text-white/60">
-            <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors w-fit">HOME</Link>
-            <Link href={`/${locale}#about`} className="hover:text-brand-gold transition-colors w-fit">ABOUT</Link>
-            <Link href={`/${locale}#villas`} className="hover:text-brand-gold transition-colors w-fit">ACCOMMODATIONS</Link>
-            <Link href={`/${locale}#packages`} className="hover:text-brand-gold transition-colors w-fit">PACKAGES</Link>
-            <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors w-fit">YOGA TOURS</Link>
-            <Link href={`/${locale}#contact`} className="hover:text-brand-gold transition-colors w-fit">CONTACT</Link>
+            <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors w-fit">{t("home")}</Link>
+            <Link href={`/${locale}#about`} className="hover:text-brand-gold transition-colors w-fit">{t("about")}</Link>
+            <Link href={`/${locale}#villas`} className="hover:text-brand-gold transition-colors w-fit">{t("stays")}</Link>
+            <Link href={`/${locale}#packages`} className="hover:text-brand-gold transition-colors w-fit">{t("packages")}</Link>
+            <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors w-fit">{t("yogaTours")}</Link>
+            <Link href={`/${locale}#contact`} className="hover:text-brand-gold transition-colors w-fit">{t("contact")}</Link>
           </nav>
         </div>
 
         {/* Contact Info Column */}
         <div className="flex flex-col space-y-4 select-text">
           <h4 className="text-xs font-bold text-white uppercase tracking-[0.2em] border-b border-white/10 pb-2 select-none">
-            Contact Information
+            {t("contactUs")}
           </h4>
           <div className="flex flex-col space-y-3 text-xs text-white/60">
             <div className="flex items-start gap-2.5">
@@ -99,7 +100,7 @@ export default function Footer({ contact }: FooterProps) {
       <div className="w-full bg-[#070707] py-4 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[10px] text-white/40 tracking-wider font-light select-none">
-            &copy; {new Date().getFullYear()} VILLA LEMON. All rights reserved.
+            {t("copyright")}
           </p>
 
           <button

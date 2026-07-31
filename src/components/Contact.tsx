@@ -7,6 +7,7 @@ import {
   Calendar, Users, Info, Loader2, ArrowRight
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
+import { useTranslations } from "next-intl";
 
 interface ContactProps {
   locale: string;
@@ -22,6 +23,7 @@ interface ContactProps {
 }
 
 export default function Contact({ locale, staysList, contact }: ContactProps) {
+  const t = useTranslations("Contact");
   const displayAddress = contact?.address || "Villa Lemon, Kurakkanni, Varkala, Thiruvananthapuram, Kerala, India - 695141";
   const displayPhone = contact?.phone || "+91 73560 85055";
   const displayWhatsapp = contact?.whatsapp || "+91 73560 85055";
@@ -63,16 +65,15 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Interest options
   const interests = [
-    { id: "Villa Accommodation", label: "Villa Accommodation" },
-    { id: "Yoga Retreat", label: "Yoga Retreat" },
-    { id: "Sightseeing Tours", label: "Sightseeing Tours" },
-    { id: "Ayurveda", label: "Ayurveda" },
-    { id: "Airport Transfer", label: "Airport Transfer" },
-    { id: "Group Booking", label: "Group Booking" },
-    { id: "Customized Package", label: "Customized Package" },
-    { id: "Wedding / Events", label: "Wedding / Events" },
+    { id: "Villa Accommodation", label: t("villaAccommodation") },
+    { id: "Yoga Retreat", label: t("yogaRetreat") },
+    { id: "Sightseeing Tours", label: t("sightseeingTours") },
+    { id: "Ayurveda", label: t("ayurveda") },
+    { id: "Airport Transfer", label: t("airportTransfer") },
+    { id: "Group Booking", label: t("groupBooking") },
+    { id: "Customized Package", label: t("customizedPackage") },
+    { id: "Wedding / Events", label: t("weddingEvents") },
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -102,7 +103,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
 
     // Validate consent
     if (!formData.agree) {
-      setError("Please agree to the Privacy Policy and Terms.");
+      setError(t("agreeError"));
       setLoading(false);
       return;
     }
@@ -160,7 +161,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
         agree: false,
       });
     } catch (err: any) {
-      setError(err.message || "Failed to submit enquiry. Please check your connection.");
+      setError(err.message || t("submitError"));
     } finally {
       setLoading(false);
     }
@@ -173,13 +174,13 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
         {/* Header Title Grid */}
         <div className="text-left mb-16 select-text">
           <span className="text-[10px] md:text-xs font-bold text-brand-gold uppercase tracking-[0.25em] mb-3 block select-none">
-            Get In Touch
+            {t("tagline")}
           </span>
           <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[#121212] tracking-wide leading-tight mb-4">
-            Plan Your Perfect Stay in Varkala
+            {t("title")}
           </h2>
           <p className="max-w-2xl text-xs sm:text-sm text-gray-500 font-light leading-relaxed font-sans">
-            Whether you're planning a relaxing stay, a yoga retreat, or a sightseeing adventure, our team is here to help you create unforgettable memories.
+            {t("description")}
           </p>
         </div>
 
@@ -194,7 +195,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
               <div className="absolute right-0 top-0 w-24 h-24 rounded-full bg-brand-gold/5 blur-xl pointer-events-none" />
               
               <h3 className="font-serif text-lg font-bold text-[#121212] mb-6 flex items-center gap-2">
-                <span>Get in Touch</span>
+                <span>{t("tagline")}</span>
                 <span className="w-8 h-[1px] bg-brand-gold mt-1.5" />
               </h3>
 
@@ -202,7 +203,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5">
                   <MapPin className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">Address</h5>
+                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("location")}</h5>
                     <p className="leading-relaxed font-light font-sans whitespace-pre-wrap">
                       {displayAddress}
                     </p>
@@ -212,7 +213,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Phone className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">Phone</h5>
+                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("phone")}</h5>
                     <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="hover:text-brand-gold transition-colors font-medium font-sans">{displayPhone}</a>
                   </div>
                 </div>
@@ -230,7 +231,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Mail className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">Email</h5>
+                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("email")}</h5>
                     <a href={`mailto:${displayEmail}`} className="hover:text-brand-gold transition-colors font-medium font-sans">{displayEmail}</a>
                   </div>
                 </div>
@@ -238,7 +239,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Clock className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">Reception Hours</h5>
+                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("hours")}</h5>
                     <p className="font-medium font-sans whitespace-pre-wrap">{displayReceptionHours}</p>
                   </div>
                 </div>
@@ -318,7 +319,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
           {/* Right Column: Enquiry Form */}
           <div className="lg:col-span-8 bg-white border border-[#eae6db] rounded-md p-6 sm:p-10 shadow-sm">
             <h3 className="font-serif text-xl sm:text-2xl font-normal text-[#121212] mb-1 select-none text-left">
-              Send an Enquiry / Book an Appointment
+              {t("sendMessage")}
             </h3>
             <div className="w-16 h-[2px] bg-brand-gold mb-8 select-none" />
 
@@ -327,15 +328,15 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-6">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="font-serif text-xl font-bold text-[#121212] mb-3">Enquiry Submitted Successfully!</h4>
+                <h4 className="font-serif text-xl font-bold text-[#121212] mb-3">{t("successTitle")}</h4>
                 <p className="text-xs text-gray-500 font-sans leading-relaxed max-w-md mx-auto mb-8">
-                  Thank you for reaching out. We have logged your request and a copy has been sent to our desk. Our Varkala team will get back to you shortly.
+                  {t("successMessage")}
                 </p>
                 <button
                   onClick={() => setSuccess(false)}
-                  className="px-6 py-3.5 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300"
+                  className="px-6 py-3.5 border border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-black font-bold uppercase tracking-wider text-[10px] rounded-sm transition-all duration-300 cursor-pointer"
                 >
-                  Send Another Enquiry
+                  {t("sendMessage")}
                 </button>
               </div>
             ) : (
@@ -351,7 +352,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 {/* Form fields layout grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">First Name *</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("firstName")} *</label>
                     <input 
                       type="text" 
                       name="firstName" 
@@ -364,7 +365,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Last Name</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("lastName")}</label>
                     <input 
                       type="text" 
                       name="lastName" 
@@ -376,7 +377,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Email Address *</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("emailAddress")} *</label>
                     <input 
                       type="email" 
                       name="email" 
@@ -389,7 +390,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Mobile Number *</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("phoneNumber")} *</label>
                     <input 
                       type="tel" 
                       name="phone" 
@@ -402,7 +403,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">WhatsApp Number (Optional)</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("whatsappNumber")}</label>
                     <input 
                       type="tel" 
                       name="whatsappNumber" 
@@ -414,7 +415,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Country</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("country")}</label>
                     <input 
                       type="text" 
                       name="country" 
@@ -426,7 +427,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Planning to Visit</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("planningDate")}</label>
                     <div className="relative">
                       <input 
                         type="date" 
@@ -446,12 +447,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                         onChange={(e) => handleCheckboxChange("flexibleDates", e.target.checked)} 
                         className="accent-brand-gold w-4 h-4"
                       />
-                      <span>Yes, my dates are flexible</span>
+                      <span>{t("flexibleDates")}</span>
                     </label>
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Adults</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("adults")}</label>
                     <select 
                       name="adults" 
                       value={formData.adults} 
@@ -465,7 +466,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Children</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("children")}</label>
                     <select 
                       name="children" 
                       value={formData.children} 
@@ -479,14 +480,14 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Duration of Stay</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("duration")}</label>
                     <select 
                       name="duration" 
                       value={formData.duration} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
                     >
-                      <option value="">Select duration</option>
+                      <option value="">{t("selectOption")}</option>
                       <option value="1-3 nights">1 - 3 Nights</option>
                       <option value="4-7 nights">4 - 7 Nights</option>
                       <option value="1-2 weeks">1 - 2 Weeks</option>
@@ -495,24 +496,24 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Preferred Contact Method</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("contactMethod")}</label>
                     <select 
                       name="preferredContact" 
                       value={formData.preferredContact} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
                     >
-                      <option value="">Select option</option>
-                      <option value="Email">Email Address</option>
-                      <option value="WhatsApp">WhatsApp Chat</option>
-                      <option value="Phone Call">Direct Phone Call</option>
+                      <option value="">{t("selectMethod")}</option>
+                      <option value="Email">{t("emailLabel")}</option>
+                      <option value="WhatsApp">{t("whatsapp")}</option>
+                      <option value="Phone Call">{t("phoneCall")}</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Checkboxes list: Interest Areas */}
                 <div className="border-t border-gray-100 pt-6">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-4 block select-none">I'm Interested In (Select all that apply)</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-4 block select-none">{t("interestedIn")}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 select-none">
                     {interests.map(interest => (
                       <label key={interest.id} className="flex items-center gap-2 text-xs text-gray-600 font-medium cursor-pointer">
@@ -531,14 +532,14 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 {/* Dropdowns: Accommodation Selector */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-gray-100 pt-6 select-none">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Preferred Accommodation (Optional)</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("preferredAccommodation")}</label>
                     <select 
                       name="preferredAccommodation" 
                       value={formData.preferredAccommodation} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
                     >
-                      <option value="">No Preference</option>
+                      <option value="">{t("noneNotSure")}</option>
                       {staysList.map(stay => (
                         <option key={stay._id} value={stay.title}>{stay.title}</option>
                       ))}
@@ -546,33 +547,33 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">How did you find us?</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("howFound")}</label>
                     <select 
                       name="howFound" 
                       value={formData.howFound} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
                     >
-                      <option value="">Select option</option>
-                      <option value="Google Search">Google Search</option>
-                      <option value="Instagram">Instagram Page</option>
-                      <option value="Facebook">Facebook Page</option>
-                      <option value="Recommendation">Friend / Family</option>
-                      <option value="Other">Other</option>
+                      <option value="">{t("selectOption")}</option>
+                      <option value="Google Search">{t("googleSearch")}</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Recommendation">{t("friendReferral")}</option>
+                      <option value="Other">{t("other")}</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Message Textarea */}
                 <div className="border-t border-gray-100 pt-6">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Message *</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("message")} *</label>
                   <textarea 
                     name="message" 
                     value={formData.message} 
                     onChange={handleInputChange} 
                     required 
                     rows={4}
-                    placeholder="Tell us about your trip, special requests, dietary requirements, airport arrival, questions etc."
+                    placeholder=""
                     className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
                   />
                 </div>
@@ -587,7 +588,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                       required
                       className="accent-brand-gold w-4 h-4 shrink-0"
                     />
-                    <span>I agree to the <span className="underline hover:text-brand-gold transition-colors">Privacy Policy</span> and <span className="underline hover:text-brand-gold transition-colors">Terms & Conditions</span>.</span>
+                    <span>{t("agreeCheckbox")}</span>
                   </label>
 
                   <button 
@@ -598,11 +599,11 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                     {loading ? (
                       <>
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Sending...</span>
+                        <span>{t("sending")}</span>
                       </>
                     ) : (
                       <>
-                        <span>Send Enquiry</span>
+                        <span>{t("sendMessage")}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </>
                     )}
