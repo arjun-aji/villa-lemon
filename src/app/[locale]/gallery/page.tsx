@@ -7,7 +7,7 @@ import { API_BASE_URL } from "@/config/api";
 import { getContactSettings } from "@/utils/contactSettings";
 import { getMessages } from "next-intl/server";
 import { localizeObject } from "@/utils/translator";
-import GalleryClient from "./GalleryClient";
+import GalleryClient from "@/app/[locale]/gallery/GalleryClient";
 
 interface RawGalleryItem {
   _id: string;
@@ -73,8 +73,8 @@ export default async function GalleryPage({
       <Navbar forceSolid={true} />
       <main className="w-full bg-[#fbf9f6] text-brand-dark min-h-screen">
         <PageAutoTranslator locale={locale}>
-          <GalleryClient 
-            items={items} 
+          <GalleryClient
+            items={items}
             translations={{
               title: t.title || "Gallery",
               subtitle: t.subtitle || "Moments, Places & Experiences",
@@ -98,3 +98,5 @@ export default async function GalleryPage({
     </>
   );
 }
+// Force typescript cache reload
+
