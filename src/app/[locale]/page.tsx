@@ -4,6 +4,7 @@ import Accommodations from "@/components/Accommodations";
 import Packages from "@/components/Packages";
 import Yoga from "@/components/Yoga";
 import About from "@/components/About";
+import HomeGallery from "@/components/HomeGallery";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { API_BASE_URL } from "@/config/api";
@@ -66,21 +67,37 @@ async function getYogaPrograms() {
   }
 }
 
+// Fetch Gallery Items
+async function getGalleryItems() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gallery`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn("[landing]: Gallery API offline, using fallbacks.");
+    return null;
+  }
+}
+
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
 
   // Resolve API data in parallel
-  const [homepageRes, accRes, pkgRes, yogaRes] = await Promise.all([
+  const [homepageRes, accRes, pkgRes, yogaRes, galleryRes] = await Promise.all([
     getHomepageData(),
     getAccommodations(),
     getPackages(),
     getYogaPrograms(),
+    getGalleryItems(),
   ]);
 
   const homepage = homepageRes?.data || null;
   const accommodations = accRes?.data || [];
   const packages = pkgRes?.data || [];
   const yoga = yogaRes?.data || [];
+  const gallery = galleryRes?.data || [];
 
   // Localize Homepage using translator
   const localizedHomepage = homepage ? await localizeObject(homepage, locale) : null;
@@ -163,6 +180,20 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     });
   }
 
+  // Localize Gallery items list
+  const localizedGallery = await Promise.all(
+    gallery.map(async (item: any) => {
+      const li = await localizeObject(item, locale);
+      return {
+        _id: li._id,
+        image: li.image,
+        category: li.category,
+        caption: li.caption,
+        displayOrder: li.displayOrder,
+      };
+    })
+  );
+
   return (
     <main className="w-full flex flex-col">
       <Hero data={heroData} highlightsData={highlightsData} />
@@ -170,6 +201,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Packages data={localizedPkgs} />
       <Yoga data={localizedYoga} />
       <About data={aboutData} />
+      <HomeGallery data={localizedGallery} />
       <Contact 
         locale={locale} 
         staysList={localizedAccs.map(acc => ({ _id: acc._id, title: acc.title }))} 

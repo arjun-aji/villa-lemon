@@ -160,7 +160,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
     <div className="w-full flex flex-col items-center">
       
       {/* 1. HERO HEADER SECTION */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full pt-32 pb-16 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center text-left">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full pt-28 pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center text-left">
         {/* Text Area */}
         <div className="lg:col-span-6 flex flex-col items-start">
           <h1 className="font-serif text-5xl sm:text-6.5xl font-normal text-[#0f2c1b] tracking-wide mb-3">
@@ -182,7 +182,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
 
         {/* Softly blended oval image wrapper */}
         <div className="lg:col-span-6 flex justify-center lg:justify-end select-none">
-          <div className="relative w-full max-w-[500px] aspect-[14/10] overflow-hidden rounded-[80px_20px_80px_20px] md:rounded-[120px_30px_120px_30px] border border-brand-gold/10 shadow-lg">
+          <div className="relative w-full max-w-[420px] aspect-[14/10] overflow-hidden rounded-[80px_20px_80px_20px] md:rounded-[120px_30px_120px_30px] border border-brand-gold/10 shadow-lg">
             <ImageSlideshow
               images={slideshowImages}
               defaultImage={slideshowImages[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80"}
@@ -196,7 +196,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
       </section>
 
       {/* 2. CATEGORY TABS SELECTOR */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mb-10 overflow-x-auto select-none no-scrollbar flex items-center justify-start lg:justify-center gap-3">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mb-6 overflow-x-auto select-none no-scrollbar flex items-center justify-start lg:justify-center gap-3">
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -221,7 +221,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
             <p className="text-sm font-medium">No photos found in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 animate-fade-in">
             {filteredItems.map((item, idx) => {
               // Find matching category object labels for display tag
               const catObj = categories.find(c => c.id === item.category);
@@ -271,7 +271,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
 
       {/* 4. RESPONSIVE THUMBNAILS CAROUSEL / SLIDER */}
       {items.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-16 select-none relative">
+        <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-10 select-none relative">
           <div className="flex items-center justify-between mb-6 select-none">
             <h3 className="font-serif text-lg font-normal text-brand-dark tracking-wide">
               {translations.allPhotos}
@@ -329,7 +329,7 @@ export default function GalleryClient({ items, locale, translations }: GalleryCl
       )}
 
       {/* 5. FOOTER INSTAGRAM BANNER */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-20 mb-10 select-none">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-12 mb-6 select-none">
         <div className="w-full bg-[#fbf9f5] border border-[#eae6db] p-8 md:p-10 rounded-md shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
             <div className="w-12 h-12 bg-[#0f2c1b]/10 flex items-center justify-center rounded-full text-[#0f2c1b]">
