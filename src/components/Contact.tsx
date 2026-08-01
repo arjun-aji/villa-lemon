@@ -256,49 +256,49 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
             </div>
 
             {/* Quick Contact Buttons row */}
-            <div className="grid grid-cols-4 gap-3 text-center text-[9px] font-bold uppercase tracking-wider text-gray-700">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center text-[9px] font-bold uppercase tracking-wider text-gray-700">
               <a 
                 href={`https://wa.me/${getCleanNumber(displayWhatsapp)}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1.5 p-3 border border-[#eae6db] hover:border-emerald-500 bg-white rounded-md transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-0 sm:gap-1.5 p-2 sm:p-3 border border-[#eae6db] hover:border-emerald-500 bg-white rounded-md transition-colors group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0">
                   <MessageSquare className="w-4 h-4" />
                 </div>
-                <span>WhatsApp</span>
+                <span className="hidden sm:block mt-1">WhatsApp</span>
               </a>
 
               <a 
                 href={`tel:${displayPhone.replace(/\s+/g, "")}`} 
-                className="flex flex-col items-center gap-1.5 p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-0 sm:gap-1.5 p-2 sm:p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors">
+                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <Phone className="w-4 h-4" />
                 </div>
-                <span>Call Now</span>
+                <span className="hidden sm:block mt-1">Call Now</span>
               </a>
 
               <a 
                 href={`mailto:${displayEmail}`} 
-                className="flex flex-col items-center gap-1.5 p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-0 sm:gap-1.5 p-2 sm:p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors">
+                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <Mail className="w-4 h-4" />
                 </div>
-                <span>Email Us</span>
+                <span className="hidden sm:block mt-1">Email Us</span>
               </a>
 
               <a 
                 href={displayGoogleMapsLink} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1.5 p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-0 sm:gap-1.5 p-2 sm:p-3 border border-[#eae6db] hover:border-brand-gold bg-white rounded-md transition-colors group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors">
+                <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <MapPin className="w-4 h-4" />
                 </div>
-                <span>Directions</span>
+                <span className="hidden sm:block mt-1">Directions</span>
               </a>
             </div>
 
