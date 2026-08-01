@@ -143,14 +143,14 @@ body {
   white-space: nowrap !important;
 }
 
-/* Restore original compact font sizes inside the main header navbar to maintain height and styling */
-.main-header .text-\[7px\] { font-size: 7px !important; }
-.main-header .text-\[8px\] { font-size: 8px !important; }
-.main-header .text-\[9px\] { font-size: 9px !important; }
-.main-header .text-\[10px\] { font-size: 10px !important; }
-.main-header .text-\[11px\] { font-size: 11px !important; }
-.main-header .text-xs { font-size: 12px !important; }
-.main-header .xl\:text-xs { font-size: 12px !important; }
-.main-header .text-sm { font-size: 14px !important; }
+/* Restore original compact font sizes inside the main header navbar and mobile menu drawer to maintain layout & height */
+.main-header .text-\[7px\], .mobile-nav-drawer .text-\[7px\] { font-size: 7px !important; }
+.main-header .text-\[8px\], .mobile-nav-drawer .text-\[8px\] { font-size: 8px !important; }
+.main-header .text-\[9px\], .mobile-nav-drawer .text-\[9px\] { font-size: 9px !important; }
+.main-header .text-\[10px\], .mobile-nav-drawer .text-\[10px\] { font-size: 10px !important; }
+.main-header .text-\[11px\], .mobile-nav-drawer .text-\[11px\] { font-size: 11px !important; }
+.main-header .text-xs, .mobile-nav-drawer .text-xs { font-size: 12px !important; }
+.main-header .xl\:text-xs, .mobile-nav-drawer .xl\:text-xs { font-size: 12px !important; }
+.main-header .text-sm, .mobile-nav-drawer .text-sm { font-size: 14px !important; }
 
 

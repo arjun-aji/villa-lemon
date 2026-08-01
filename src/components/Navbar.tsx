@@ -614,7 +614,7 @@ export default function Navbar({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.35, ease: "easeOut" }}
-              className="fixed right-0 top-0 bottom-0 w-[280px] bg-white/50 backdrop-blur-md border-l border-brand-gold/20 z-[60] p-8 flex flex-col justify-between lg:hidden shadow-2xl overflow-y-auto"
+              className="mobile-nav-drawer fixed right-0 top-0 bottom-0 w-[280px] bg-white/50 backdrop-blur-md border-l border-brand-gold/20 z-[60] p-8 flex flex-col justify-between lg:hidden shadow-2xl overflow-y-auto"
             >
               <div className="flex flex-col gap-8">
                 {/* Header inside drawer */}
