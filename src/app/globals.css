@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+:root {
+  /* Fluid Typographic Scale - Mobile Defaults */
+  --text-xs: 15px;
+  --text-sm: 16px;
+  --text-base: 17px;
+  --text-lg: 19px;
+  --text-xl: 21px;
+  --text-2xl: 24px;
+  --text-3xl: 28px;
+  --text-4xl: 32px;
+  --text-5xl: 38px;
+  --text-6xl: 46px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    /* Fluid Typographic Scale - Desktop Adjustments */
+    --text-xs: 15px;
+    --text-sm: 16px;
+    --text-base: 18px;
+    --text-lg: 20px;
+    --text-xl: 23px;
+    --text-2xl: 26px;
+    --text-3xl: 30px;
+    --text-4xl: 36px;
+    --text-5xl: 46px;
+    --text-6xl: 56px;
+  }
+}
+
 @theme {
   --font-sans: var(--font-sans), sans-serif;
   --font-serif: var(--font-serif), serif;
@@ -13,6 +43,18 @@
   
   --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fade-in 0.5s ease-out forwards;
+
+  /* Redefine text size utilities */
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+  --text-5xl: var(--text-5xl);
+  --text-6xl: var(--text-6xl);
 }
 
 @keyframes fade-in-up {
@@ -76,6 +118,22 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Explicitly override tiny hardcoded arbitrary font sizes to meet 15px-16px readability standard */
+.text-\[8px\],
+.text-\[8\.5px\],
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\],
+.text-\[11\.5px\],
+.text-\[12px\] {
+  font-size: 15px !important;
+}
+
+.text-\[13px\],
+.text-\[14px\] {
+  font-size: 16px !important;
 }
 
 
