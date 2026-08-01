@@ -266,7 +266,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors shrink-0">
                   <MessageSquare className="w-4 h-4" />
                 </div>
-                <span className="hidden sm:block mt-1">WhatsApp</span>
+                <span className="hidden sm:block mt-1 contact-btn-text">WhatsApp</span>
               </a>
 
               <a 
@@ -276,7 +276,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <Phone className="w-4 h-4" />
                 </div>
-                <span className="hidden sm:block mt-1">Call Now</span>
+                <span className="hidden sm:block mt-1 contact-btn-text">Call Now</span>
               </a>
 
               <a 
@@ -286,7 +286,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <Mail className="w-4 h-4" />
                 </div>
-                <span className="hidden sm:block mt-1">Email Us</span>
+                <span className="hidden sm:block mt-1 contact-btn-text">Email Us</span>
               </a>
 
               <a 
@@ -298,7 +298,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-gold flex items-center justify-center group-hover:bg-brand-gold group-hover:text-black transition-colors shrink-0">
                   <MapPin className="w-4 h-4" />
                 </div>
-                <span className="hidden sm:block mt-1">Directions</span>
+                <span className="hidden sm:block mt-1 contact-btn-text">Directions</span>
               </a>
             </div>
 

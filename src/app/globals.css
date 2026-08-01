@@ -136,4 +136,11 @@ body {
   font-size: 16px !important;
 }
 
+/* Contact button text adjustment for desktop to fit without wrapping */
+.contact-btn-text {
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
 
