@@ -65,10 +65,10 @@ const languages = [
   { code: "RU", name: "Русский" },
 ];
 
-export default function Navbar({ 
-  absoluteOnly = false, 
-  forceSolid = false 
-}: { 
+export default function Navbar({
+  absoluteOnly = false,
+  forceSolid = false
+}: {
   absoluteOnly?: boolean;
   forceSolid?: boolean;
 }) {
@@ -146,7 +146,7 @@ export default function Navbar({
                 isDynamic: true
               };
             });
-            
+
             // Append "Meet Our Teachers"
             yogaChildren.push({
               name: "meetOurTeachers",
@@ -266,7 +266,7 @@ export default function Navbar({
           const element = document.getElementById(id);
           if (element) {
             element.scrollIntoView({ behavior: "smooth", block: "start" });
-            
+
             // Clean up the URL query param, replace it with clean hash
             if (goto) {
               const newUrl = window.location.pathname + "#" + goto;
@@ -290,18 +290,18 @@ export default function Navbar({
       if (scrollAnimationFrame) {
         window.cancelAnimationFrame(scrollAnimationFrame);
       }
-      
+
       scrollAnimationFrame = window.requestAnimationFrame(() => {
         const sectionIds = ["home", "villas", "packages", "yogatours", "about", "gallery", "contact"];
         const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-        
+
         const scrollPosition = window.scrollY + window.innerHeight / 3;
         let activeSection = "HOME";
-        
+
         for (const section of sections) {
           const sectionTop = section.offsetTop;
           const sectionHeight = section.offsetHeight;
-          
+
           if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
             const id = section.id;
             if (id === "home") activeSection = "HOME";
@@ -313,7 +313,7 @@ export default function Navbar({
             else if (id === "contact") activeSection = "CONTACT";
           }
         }
-        
+
         setActiveItem(activeSection);
 
         // Update URL hash silently to match active section
@@ -327,7 +327,7 @@ export default function Navbar({
           else if (activeSection === "GALLERY") targetHash = "#gallery";
           else if (activeSection === "CONTACT") targetHash = "#contact";
           else if (activeSection === "HOME") targetHash = "";
-          
+
           if (currentHash !== targetHash) {
             const newUrl = window.location.pathname + targetHash;
             window.history.replaceState(null, "", newUrl);
@@ -360,15 +360,13 @@ export default function Navbar({
   return (
     <>
       <header
-        className={`main-header ${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${
-          (isScrolled || forceSolid)
+        className={`main-header ${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${(isScrolled || forceSolid)
             ? "py-4 border-b border-brand-gold/10 bg-[#fbf9f6]/95 backdrop-blur-md shadow-sm"
             : "py-6 bg-transparent"
-        }`}
+          }`}
       >
-        <div className={`max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between transition-opacity duration-300 ${
-          isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}>
+        <div className={`max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}>
           {/* LOGO */}
           <Link
             href="/"
@@ -385,9 +383,8 @@ export default function Navbar({
               />
             </div>
             <div className="flex flex-col select-none">
-              <span className={`font-serif text-lg md:text-xl font-medium tracking-[0.15em] group-hover:text-brand-gold transition-colors duration-300 leading-none ${
-                (isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
-              }`}>
+              <span className={`font-serif text-lg md:text-xl font-medium tracking-[0.15em] group-hover:text-brand-gold transition-colors duration-300 leading-none ${(isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
+                }`}>
                 VILLA LEMON
               </span>
               <span className="text-[7px] md:text-[8px] tracking-[0.3em] text-brand-gold font-sans font-medium mt-1 uppercase">
@@ -403,11 +400,10 @@ export default function Navbar({
                 <Link
                   href={getNavbarItemHref(item.href, item.name)}
                   onClick={() => setActiveItem(item.name)}
-                  className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${
-                    (isScrolled || forceSolid)
+                  className={`relative text-[11px] xl:text-xs font-medium tracking-[0.2em] transition-colors duration-300 py-2 focus:outline-none focus:text-brand-gold ${(isScrolled || forceSolid)
                       ? "text-brand-dark/80 hover:text-brand-dark"
                       : "text-brand-cream/80 hover:text-brand-cream"
-                  }`}
+                    }`}
                 >
                   {t(item.name)}
                   {/* Underline indicators */}
@@ -428,15 +424,13 @@ export default function Navbar({
                       setOpenDropdown(openDropdown === item.name ? null : item.name);
                       setIsLangDropdownOpen(false);
                     }}
-                    className={`p-1.5 focus:outline-none transition-colors duration-300 ${
-                      (isScrolled || forceSolid) ? "text-brand-dark hover:text-brand-gold" : "text-brand-cream hover:text-brand-gold"
-                    }`}
+                    className={`p-1.5 focus:outline-none transition-colors duration-300 ${(isScrolled || forceSolid) ? "text-brand-dark hover:text-brand-gold" : "text-brand-cream hover:text-brand-gold"
+                      }`}
                     aria-label={`Toggle ${item.name} sub-menu`}
                   >
                     <ChevronDown
-                      className={`w-3 h-3 transition-transform duration-300 ${
-                        openDropdown === item.name ? "rotate-180 text-brand-gold" : ""
-                      }`}
+                      className={`w-3 h-3 transition-transform duration-300 ${openDropdown === item.name ? "rotate-180 text-brand-gold" : ""
+                        }`}
                     />
                   </button>
                 )}
@@ -479,11 +473,10 @@ export default function Navbar({
                   e.stopPropagation();
                   setIsLangDropdownOpen(!isLangDropdownOpen);
                 }}
-                className={`flex items-center gap-1.5 text-xs font-semibold tracking-widest focus:outline-none border px-3 py-1.5 rounded-sm transition-all duration-300 ${
-                  (isScrolled || forceSolid)
+                className={`flex items-center gap-1.5 text-xs font-semibold tracking-widest focus:outline-none border px-3 py-1.5 rounded-sm transition-all duration-300 ${(isScrolled || forceSolid)
                     ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
                     : "text-brand-cream/80 hover:text-brand-cream border-brand-cream/20 hover:border-brand-gold/50 bg-[#121212]/20"
-                }`}
+                  }`}
                 aria-label={t("selectLanguage")}
                 aria-expanded={isLangDropdownOpen}
               >
@@ -511,8 +504,8 @@ export default function Navbar({
                           setIsLangDropdownOpen(false);
                         }}
                         className={`w-full text-left px-4 py-2 text-xs font-medium tracking-wider hover:bg-brand-gold/10 transition-colors duration-200 ${currentLang === lang.code
-                            ? "text-brand-gold bg-brand-gold/5"
-                            : "text-brand-cream/80"
+                          ? "text-brand-gold bg-brand-gold/5"
+                          : "text-brand-cream/80"
                           }`}
                       >
                         {lang.name}
@@ -533,11 +526,10 @@ export default function Navbar({
                   e.stopPropagation();
                   setIsLangDropdownOpen(!isLangDropdownOpen);
                 }}
-                className={`flex items-center gap-1.5 text-[10px] font-semibold tracking-widest focus:outline-none border px-2 py-1.5 rounded-sm transition-all duration-300 ${
-                  (isScrolled || forceSolid)
+                className={`flex items-center gap-1.5 text-[10px] font-semibold tracking-widest focus:outline-none border px-2 py-1.5 rounded-sm transition-all duration-300 ${(isScrolled || forceSolid)
                     ? "text-brand-dark/80 hover:text-brand-dark border-brand-dark/20 hover:border-brand-gold/50 bg-white/20"
                     : "text-brand-cream/80 hover:text-brand-cream border-brand-cream/20 hover:border-brand-gold/50 bg-[#121212]/20"
-                }`}
+                  }`}
                 aria-label={t("selectLanguage")}
                 aria-expanded={isLangDropdownOpen}
               >
@@ -565,8 +557,8 @@ export default function Navbar({
                           setIsLangDropdownOpen(false);
                         }}
                         className={`w-full text-left px-4 py-2 text-xs font-medium tracking-wider hover:bg-brand-gold/10 transition-colors duration-200 ${currentLang === lang.code
-                            ? "text-brand-gold bg-brand-gold/5"
-                            : "text-brand-cream/80"
+                          ? "text-brand-gold bg-brand-gold/5"
+                          : "text-brand-cream/80"
                           }`}
                       >
                         {lang.name}
@@ -579,9 +571,8 @@ export default function Navbar({
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 hover:text-brand-gold focus:outline-none rounded-sm transition-colors duration-300 ${
-                (isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
-              }`}
+              className={`p-2 hover:text-brand-gold focus:outline-none rounded-sm transition-colors duration-300 ${(isScrolled || forceSolid) ? "text-brand-dark" : "text-brand-cream"
+                }`}
               aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
               aria-expanded={isMobileMenuOpen}
             >
@@ -643,8 +634,8 @@ export default function Navbar({
                             setIsMobileMenuOpen(false);
                           }}
                           className={`text-sm font-semibold tracking-[0.2em] transition-colors duration-300 focus:outline-none ${activeItem === item.name
-                              ? "text-brand-gold border-l-2 border-brand-gold pl-3"
-                              : "text-brand-dark/80 hover:text-brand-gold pl-0"
+                            ? "text-brand-gold border-l-2 border-brand-gold pl-3"
+                            : "text-brand-dark/80 hover:text-brand-gold pl-0"
                             }`}
                         >
                           {t(item.name)}
@@ -660,9 +651,8 @@ export default function Navbar({
                             aria-label={`Toggle ${item.name} mobile sub-menu`}
                           >
                             <ChevronDown
-                              className={`w-4 h-4 transition-transform duration-300 ${
-                                openMobileDropdown === item.name ? "rotate-180 text-brand-gold" : ""
-                              }`}
+                              className={`w-4 h-4 transition-transform duration-300 ${openMobileDropdown === item.name ? "rotate-180 text-brand-gold" : ""
+                                }`}
                             />
                           </button>
                         )}
@@ -726,8 +716,8 @@ export default function Navbar({
                           router.replace(pathname, { locale: lang.code.toLowerCase() });
                         }}
                         className={`px-2 py-0.5 text-[9px] font-semibold tracking-wider rounded-sm transition-all duration-300 ${currentLang === lang.code
-                            ? "text-brand-gold border border-brand-gold bg-brand-gold/10"
-                            : "text-brand-dark/70 border border-brand-dark/20 hover:border-brand-gold/45 hover:text-brand-dark hover:bg-brand-dark/5"
+                          ? "text-brand-gold border border-brand-gold bg-brand-gold/10"
+                          : "text-brand-dark/70 border border-brand-dark/20 hover:border-brand-gold/45 hover:text-brand-dark hover:bg-brand-dark/5"
                           }`}
                       >
                         {lang.code}
@@ -742,7 +732,7 @@ export default function Navbar({
                 <span className="text-[10px] text-brand-dark/60 leading-relaxed font-sans">
                   {t("stayRelax")}
                   <br />
-                  info@villalemon.com
+                  villalemonhomestay@gmail.com.com
                 </span>
               </div>
             </motion.div>
