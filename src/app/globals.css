@@ -143,4 +143,14 @@ body {
   white-space: nowrap !important;
 }
 
+/* Restore original compact font sizes inside the main header navbar to maintain height and styling */
+.main-header .text-\[7px\] { font-size: 7px !important; }
+.main-header .text-\[8px\] { font-size: 8px !important; }
+.main-header .text-\[9px\] { font-size: 9px !important; }
+.main-header .text-\[10px\] { font-size: 10px !important; }
+.main-header .text-\[11px\] { font-size: 11px !important; }
+.main-header .text-xs { font-size: 12px !important; }
+.main-header .xl\:text-xs { font-size: 12px !important; }
+.main-header .text-sm { font-size: 14px !important; }
+
 

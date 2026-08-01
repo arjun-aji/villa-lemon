@@ -360,7 +360,7 @@ export default function Navbar({
   return (
     <>
       <header
-        className={`${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${
+        className={`main-header ${absoluteOnly ? "absolute" : "fixed"} top-0 left-0 w-full z-50 transition-all duration-500 ${
           (isScrolled || forceSolid)
             ? "py-4 border-b border-brand-gold/10 bg-[#fbf9f6]/95 backdrop-blur-md shadow-sm"
             : "py-6 bg-transparent"
