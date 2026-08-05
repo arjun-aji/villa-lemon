@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 
 // CORS configuration
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:3000").split(",");
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:3000").split(",").map(o => o.trim());
 app.use(
   cors({
     origin: (origin, callback) => {
