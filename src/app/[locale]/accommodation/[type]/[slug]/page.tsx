@@ -316,15 +316,58 @@ export default async function PropertyDetailsPage({
   );
 }
 
+function getSEOKeywords(type: string, title: string, slug: string): string {
+  const t = (title || "").toLowerCase();
+  const s = (slug || "").toLowerCase();
+  
+  if (t.includes("inn") || s.includes("inn")) {
+    return "boutique hotel varkala, superior room varkala, villa lemon inn, premium accommodation varkala, boutique stay kerala, hotel near varkala cliff, luxury stay varkala, balcony room varkala";
+  }
+  
+  if (t.includes("apartment") || s.includes("apartment")) {
+    return "2 bhk apartment varkala, private apartment varkala, villa lemon garden, apartment with kitchen varkala, family apartment varkala, holiday apartment kerala, self catering apartment, long stay accommodation varkala, group stay varkala";
+  }
+  
+  if (type === "villa" || t.includes("villa") || s.includes("villa")) {
+    return "entire villa varkala, luxury villa varkala, villa lemon garden, private villa kerala, family villa varkala, holiday villa varkala, villa with garden varkala, group villa kerala, vacation home varkala";
+  }
+  
+  if (type === "floor" || t.includes("floor") || s.includes("floor")) {
+    return "private floor varkala, 2 bhk floor varkala, 3 bhk floor varkala, family stay varkala, group accommodation varkala, villa lemon homestay, long stay varkala, group holiday kerala";
+  }
+  
+  // Default for room
+  return "deluxe room varkala, budget room varkala, accommodation in varkala, villa lemon, homestay varkala, room near varkala cliff, stay in varkala, hotel room varkala, affordable room varkala, beach stay kerala";
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string; type: string }> }): Promise<Metadata> {
   const { locale, slug, type } = await params;
   const property = await getPropertyDetails(slug);
   if (!property) return {};
 
-  const title = property.metaTitle?.[locale] || property.metaTitle?.en || property.title?.[locale] || property.title?.en || "Villa Lemon Stay";
-  const description = property.metaDescription?.[locale] || property.metaDescription?.en || property.shortDescription?.[locale] || property.shortDescription?.en || "";
-  const keywords = property.keywords?.[locale] || property.keywords?.en || "";
-  const canonical = property.canonicalUrl || `https://villalemon.com/${locale}/accommodation/${type}/${slug}`;
+  const accName = property.title?.[locale] || property.title?.en || "Villa Lemon Stay";
+  
+  // 1. Meta Title
+  const dbMetaTitle = (property.metaTitle?.[locale] || property.metaTitle?.en || "").trim();
+  const title = dbMetaTitle ? dbMetaTitle : `${accName} | Villa Lemon | Varkala, Kerala`;
+
+  // 2. Meta Description
+  const rawHighlights = property.highlights || [];
+  const featuresList = rawHighlights.map((h: any) => h.label?.[locale] || h.label?.en || "").filter(Boolean);
+  const mainFeatures = featuresList.slice(0, 3).join(", ") || "comfortable rooms, modern conveniences and peaceful surroundings";
+  const fallbackDescription = `Stay at ${accName} in Varkala featuring ${mainFeatures}. Enjoy free Wi-Fi, modern amenities, peaceful surroundings, and easy access to Varkala Cliff and nearby beaches.`;
+  const dbMetaDesc = (property.metaDescription?.[locale] || property.metaDescription?.en || "").trim();
+  const description = dbMetaDesc ? dbMetaDesc : fallbackDescription;
+
+  // 3. Keywords
+  const defaultKeywords = getSEOKeywords(property.accommodationType || type, accName, slug);
+  const dbKeywords = (property.keywords?.[locale] || property.keywords?.en || "").trim();
+  const keywords = dbKeywords ? dbKeywords : defaultKeywords;
+
+  // 4. Canonical URL
+  const dbCanonical = (property.canonicalUrl || "").trim();
+  const canonical = dbCanonical ? dbCanonical : `https://villalemon.in/${locale}/accommodation/${type}/${slug}`;
+  
   const ogImageUrl = property.ogImage || property.image || "/assets/hero.png";
 
   return {
