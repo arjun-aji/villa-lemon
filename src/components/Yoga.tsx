@@ -197,15 +197,6 @@ export default function Yoga({
               {heading}
             </h2>
           </div>
-          <a
-            href="#yoga-programs"
-            className="group flex items-center gap-1.5 text-[9px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 select-none border-b border-transparent hover:border-brand-gold pb-1 shrink-0"
-          >
-            <span>{viewAll}</span>
-            <span className="transition-transform duration-300 group-hover:translate-x-0.5">
-              →
-            </span>
-          </a>
         </div>
 
         {/* YOGA CARDS SLIDER */}
