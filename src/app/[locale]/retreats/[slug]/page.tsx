@@ -160,7 +160,7 @@ export default async function RetreatDetailsPage({
         <PageAutoTranslator locale={locale}>
           
           {/* HERO BANNER SECTION */}
-          <section className="relative w-full min-h-[460px] md:min-h-[580px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-12">
+          <section className="relative w-full min-h-[460px] md:min-h-[580px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-12">
             <div className="absolute inset-0 z-0">
               {retreat.heroImage ? (
                 <Image
@@ -266,7 +266,7 @@ export default async function RetreatDetailsPage({
 
           {/* OVERVIEW QUICK INFO STRIP */}
           <section className="bg-white border-b border-[#eae6db]/60 select-none py-6">
-            <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-6 text-left text-xs">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-2 sm:grid-cols-4 gap-6 text-left text-xs">
               <div>
                 <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider block">Location</span>
                 <span className="font-semibold text-gray-800 flex items-center gap-1.5 mt-1"><MapPin className="w-3.5 h-3.5 text-brand-gold" /> {loc(retreat.location)}</span>
@@ -282,10 +282,6 @@ export default async function RetreatDetailsPage({
               <div>
                 <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider block">Language</span>
                 <span className="font-semibold text-gray-800 flex items-center gap-1.5 mt-1"><Compass className="w-3.5 h-3.5 text-brand-gold" /> {loc(retreat.language)}</span>
-              </div>
-              <div className="hidden md:block">
-                <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider block">Best Time to Join</span>
-                <span className="font-semibold text-gray-800 flex items-center gap-1.5 mt-1"><Calendar className="w-3.5 h-3.5 text-brand-gold" /> {loc(retreat.bestTime)}</span>
               </div>
             </div>
           </section>
@@ -619,69 +615,81 @@ export default async function RetreatDetailsPage({
 
             {/* RIGHT COLUMN: BOOKING SIDEBAR CARD */}
             <div className="lg:col-span-4 flex flex-col space-y-6">
-              
-              <div id="booking-pricing" className="sticky top-28 bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
-                <span className="text-[8px] font-bold bg-brand-gold/15 text-brand-gold uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm mb-3 inline-block">
-                  Booking Enquiry
-                </span>
-                 {!retreat.hideRate && (
-                  <div className="flex items-baseline gap-1.5 mb-4">
-                    <span className="text-xs text-gray-400 font-semibold uppercase">Starting From</span>
-                    <span className="text-2xl font-bold text-gray-800">
-                      {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
-                    </span>
-                  </div>
-                )}
-
-                <div className="border-t border-b border-gray-100 py-4 my-4 space-y-3 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400 font-medium">Duration:</span>
-                    <span className="font-semibold text-gray-800">{retreat.days} Days / {retreat.nights} Nights</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400 font-medium">Location:</span>
-                    <span className="font-semibold text-gray-800">{loc(retreat.location)}</span>
-                  </div>
-                  {retreat.availableDates && retreat.availableDates.length > 0 && (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-gray-400 font-medium">Available Dates:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {retreat.availableDates.map((date, idx) => (
-                          <span key={idx} className="bg-gray-50 border border-gray-150 text-gray-600 text-[10px] px-2 py-0.5 rounded-sm font-medium">{date}</span>
-                        ))}
-                      </div>
+              <div className="sticky top-28 space-y-6">
+                <div id="booking-pricing" className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
+                  <span className="text-[8px] font-bold bg-brand-gold/15 text-brand-gold uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm mb-3 inline-block">
+                    Booking Enquiry
+                  </span>
+                   {!retreat.hideRate && (
+                    <div className="flex items-baseline gap-1.5 mb-4">
+                      <span className="text-xs text-gray-400 font-semibold uppercase">Starting From</span>
+                      <span className="text-2xl font-bold text-gray-800">
+                        {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
+                      </span>
                     </div>
                   )}
+
+                  <div className="border-t border-b border-gray-100 py-4 my-4 space-y-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 font-medium">Duration:</span>
+                      <span className="font-semibold text-gray-800">{retreat.days} Days / {retreat.nights} Nights</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 font-medium">Location:</span>
+                      <span className="font-semibold text-gray-800">{loc(retreat.location)}</span>
+                    </div>
+                    {retreat.availableDates && retreat.availableDates.length > 0 && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-gray-400 font-medium">Available Dates:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {retreat.availableDates.map((date, idx) => (
+                            <span key={idx} className="bg-gray-50 border border-gray-150 text-gray-600 text-[10px] px-2 py-0.5 rounded-sm font-medium">{date}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WhatsApp & Email CTA Buttons */}
+                  <div className="space-y-2 mt-6 select-none">
+                    <a
+                      href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
+                    >
+                      <Phone className="w-4 h-4 fill-white" />
+                      Enquire on WhatsApp
+                    </a>
+
+                    <a
+                      href={`mailto:${contact.email}?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat...`}
+                      className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black"
+                    >
+                      Send Email Enquiry
+                    </a>
+                  </div>
+
+                  {/* Checklist/Policies info inside sidebar card */}
+                  <div className="mt-6 pt-5 border-t border-gray-100 text-[10px] text-gray-400 font-medium space-y-2.5">
+                    {retreat.deposit && <p>🔑 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Deposit:</strong> {loc(retreat.deposit)}</p>}
+                    {retreat.cancellation && <p>🛡️ <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Cancellation:</strong> {loc(retreat.cancellation)}</p>}
+                    {retreat.pickup && <p>🚗 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Airport Pick-up:</strong> {loc(retreat.pickup)}</p>}
+                  </div>
                 </div>
 
-                {/* WhatsApp & Email CTA Buttons */}
-                <div className="space-y-2 mt-6 select-none">
-                  <a
-                    href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
-                  >
-                    <Phone className="w-4 h-4 fill-white" />
-                    Enquire on WhatsApp
-                  </a>
-
-                  <a
-                    href={`mailto:${contact.email}?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat...`}
-                    className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black"
-                  >
-                    Send Email Enquiry
-                  </a>
-                </div>
-
-                {/* Checklist/Policies info inside sidebar card */}
-                <div className="mt-6 pt-5 border-t border-gray-100 text-[10px] text-gray-400 font-medium space-y-2.5">
-                  {retreat.deposit && <p>🔑 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Deposit:</strong> {loc(retreat.deposit)}</p>}
-                  {retreat.cancellation && <p>🛡️ <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Cancellation:</strong> {loc(retreat.cancellation)}</p>}
-                  {retreat.pickup && <p>🚗 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Airport Pick-up:</strong> {loc(retreat.pickup)}</p>}
-                </div>
+                {/* Best Time to Join Card */}
+                {retreat.bestTime && (
+                  <div className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
+                    <span className="text-[8px] font-bold bg-brand-gold/15 text-brand-gold uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm mb-3 inline-block">
+                      Best Time to Join
+                    </span>
+                    <p className="text-xs text-gray-500 font-light leading-relaxed font-sans select-text">
+                      {loc(retreat.bestTime)}
+                    </p>
+                  </div>
+                )}
               </div>
-
             </div>
 
           </div>

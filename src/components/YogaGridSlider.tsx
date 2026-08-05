@@ -58,7 +58,7 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
       const { clientWidth } = containerRef.current;
-      const cardWidth = clientWidth / 5;
+      const cardWidth = clientWidth / 3;
       const scrollAmount = direction === "left" ? -cardWidth * 2 : cardWidth * 2;
       containerRef.current.scrollBy({
         left: scrollAmount,
@@ -100,10 +100,10 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-19.2px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+            className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
           >
             {/* Cover Image Wrapper */}
-            <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
+            <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
               <ImageSlideshow
                 images={item.images}
                 defaultImage={item.image}
@@ -113,7 +113,7 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               
               {!item.hideRate && (
-                <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
+                <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
                   ₹{item.price.toLocaleString()} {item.pricePeriod}
                 </div>
               )}
@@ -126,7 +126,7 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
             </div>
 
             {/* Details Wrapper */}
-            <div className="p-6 flex flex-col flex-grow items-start text-left">
+            <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
               {item.location && (
                 <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1.5 select-none font-semibold">
                   <Users className="w-3.5 h-3.5" />
@@ -140,34 +140,22 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
                 </div>
               )}
 
-              <h3 className="font-serif text-base font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300 min-h-[44px] line-clamp-2">
+              <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
                 {item.title}
               </h3>
               
-              <p className="text-[11.5px] text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text line-clamp-3">
+              <p className="text-xs md:text-sm text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text line-clamp-2">
                 {item.shortDescription}
               </p>
-              
-              <div className="flex items-center gap-3 mb-4 text-[10px] text-gray-400 font-medium w-full min-h-[16px]">
-                {item.yogaLevel && (
-                  <span className="flex items-center gap-1">
-                    <CheckCircle className="w-3.5 h-3.5 text-brand-gold" />
-                    {item.yogaLevel}
-                  </span>
-                )}
-                {item.groupSize && (
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-brand-gold" />
-                    {item.groupSize}
-                  </span>
-                )}
-              </div>
 
               <Link
                 href={item.detailUrl}
-                className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] select-none"
+                className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-[#121212] hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
               >
-                {item.detailUrl.includes("/retreats/") ? "Explore Retreat" : "View Details"}
+                <span>{item.detailUrl.includes("/retreats/") ? "Explore Retreat" : "Explore Program"}</span>
+                <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                  →
+                </span>
               </Link>
             </div>
           </div>

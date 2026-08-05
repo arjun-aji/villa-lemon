@@ -295,7 +295,7 @@ interface LocalizedYogaDetails {
         <PageAutoTranslator locale={locale}>
         
         {/* BANNER COVER PHOTO */}
-        <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-10">
+        <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-10">
           <div className="absolute inset-0 z-0">
             <ImageSlideshow
               images={yoga.images}
@@ -319,7 +319,7 @@ interface LocalizedYogaDetails {
               <div className="hidden md:flex items-center gap-1.5 text-white/50 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                 <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
-                <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors">Yoga</Link>
                 <span>&gt;</span>
                 <Link href={`/${locale}/yoga/${type}`} className="hover:text-brand-gold transition-colors">
                   {type === "retreats" ? "Yoga Retreats" : type === "classes" ? "Daily Yoga Classes" : type === "private" ? "Private Yoga Sessions" : "Our Teachers"}

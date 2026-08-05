@@ -65,7 +65,7 @@ export default async function RetreatsCatalogPage({
         <PageAutoTranslator locale={locale}>
           
           {/* HEADER SECTION */}
-          <section className="relative w-full h-[260px] md:h-[320px] flex items-end bg-[#121212] overflow-hidden pt-24">
+          <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
             <div className="absolute inset-0 z-0">
               <Image
                 src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1600"
@@ -88,7 +88,7 @@ export default async function RetreatsCatalogPage({
                 </Link>
 
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                   <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                   <span>&gt;</span>
                   <span className="text-brand-gold">Yoga & Wellness Retreats</span>

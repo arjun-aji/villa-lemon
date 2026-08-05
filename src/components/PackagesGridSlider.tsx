@@ -57,8 +57,8 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
       const { clientWidth } = containerRef.current;
-      // Scroll by 1 card width + gap approx
-      const cardWidth = clientWidth / 4;
+      // Scroll by 1 card width + gap approx (3 in a row)
+      const cardWidth = clientWidth / 3;
       const scrollAmount = direction === "left" ? -cardWidth * 2 : cardWidth * 2;
       containerRef.current.scrollBy({
         left: scrollAmount,
@@ -102,10 +102,10 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
           return (
             <div
               key={p.id}
-              className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-19.2px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             >
               {/* Photo cover */}
-              <div className="relative w-full aspect-[16/10] bg-gray-100 overflow-hidden select-none">
+              <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
                 <ImageSlideshow
                   images={p.images}
                   defaultImage={p.image}
@@ -116,9 +116,9 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
 
                 {/* Price Tag */}
                 {!p.hideRate && (
-                <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-white text-[10px] font-bold tracking-wider">
-                  ₹{p.price.toLocaleString()} {p.pricePeriod}
-                </div>
+                  <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
+                    ₹{p.price.toLocaleString()} {p.pricePeriod}
+                  </div>
                 )}
 
                 {/* Grid badge (Star + Text) */}
@@ -131,25 +131,27 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
               </div>
 
               {/* Card content */}
-              <div className="p-6 flex flex-col flex-grow items-start text-left">
+              <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
                 <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none font-semibold">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{p.duration}</span>
                 </div>
 
-                <h3 className="font-serif text-base font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300 min-h-[48px] line-clamp-2">
+                <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
                   {p.title}
                 </h3>
-                <p className="text-xs text-gray-500 font-light leading-relaxed mb-6 font-sans line-clamp-3 select-text flex-grow">
+                <p className="text-xs md:text-sm text-gray-500 font-light leading-relaxed mb-6 font-sans line-clamp-2 select-text flex-grow">
                   {p.shortDescription}
                 </p>
 
                 <Link
                   href={detailUrl}
-                  className="mt-auto text-[10px] font-bold uppercase tracking-wider text-brand-dark hover:text-brand-gold transition-colors flex items-center gap-1 group/btn border-b border-brand-dark/15 pb-0.5"
+                  className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-[#121212] hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
                 >
-                  <span>Explore experience</span>
-                  <span className="transform translate-x-0 group-hover/btn:translate-x-1 transition-transform duration-300">→</span>
+                  <span>Explore Experience</span>
+                  <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                    →
+                  </span>
                 </Link>
               </div>
             </div>

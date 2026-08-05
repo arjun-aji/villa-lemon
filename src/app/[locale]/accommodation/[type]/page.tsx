@@ -138,7 +138,7 @@ export default async function AccommodationCatalogPage({
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
         <PageAutoTranslator locale={locale}>
         {/* HERO BANNER SECTION */}
-        <section className="relative w-full h-[250px] md:h-[320px] flex items-end bg-[#121212] overflow-hidden pt-24">
+        <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
           {/* Cover background image */}
           <div className="absolute inset-0 z-0">
             {bannerImage ? (
@@ -165,7 +165,7 @@ export default async function AccommodationCatalogPage({
               </Link>
 
               {/* Breadcrumb */}
-              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+              <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                 <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
                 <Link href={`/${locale}#villas`} className="hover:text-brand-gold transition-colors">Accommodation</Link>

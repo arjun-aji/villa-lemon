@@ -125,7 +125,7 @@ export default function PropertyDetailsClient({ property, translations, locale, 
     <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16 font-sans">
       
       {/* HEADER HERO BANNER */}
-      <section className="relative w-full min-h-[300px] md:min-h-[360px] flex items-end bg-[#121212] overflow-hidden pt-28 pb-10">
+      <section className="relative w-full min-h-[300px] md:min-h-[360px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-10">
         {/* Cover Background */}
         <div className="absolute inset-0 z-0">
           <ImageSlideshow

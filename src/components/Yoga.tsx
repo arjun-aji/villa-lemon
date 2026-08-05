@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const RetreatsIcon = () => (
   <svg
@@ -113,6 +114,10 @@ export default function Yoga({
 }: YogaProps) {
   const t = useTranslations("Yoga");
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
   const tagline = taglineOverride || t("tagline");
   const heading = headingOverride || t("heading");
   const viewAll = viewAllOverride || t("viewAll");
@@ -139,6 +144,39 @@ export default function Yoga({
 
     return [];
   }, [data]);
+
+  const checkScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      checkScroll();
+      window.addEventListener("resize", checkScroll);
+    }
+    return () => {
+      if (el) el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [cards]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (containerRef.current) {
+      const { clientWidth } = containerRef.current;
+      const cardWidth = clientWidth / 3;
+      const scrollAmount = direction === "left" ? -cardWidth * 2 : cardWidth * 2;
+      containerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   if (cards.length === 0) return null;
 
@@ -170,55 +208,84 @@ export default function Yoga({
           </a>
         </div>
 
-        {/* YOGA CARDS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {cards.map((card, index) => (
-            <div
-              key={index}
-              id={
-                index === 0
-                  ? "yoga-retreats"
-                  : index === 1
-                  ? "daily-yoga-classes"
-                  : index === 2
-                  ? "private-yoga-sessions"
-                  : "meet-our-teachers"
-              }
-              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
-            >
-              {/* IMAGE CONTAINER */}
-              <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
-                <ImageSlideshow
-                  images={card.imgs}
-                  defaultImage={card.img}
-                  className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                  alt={card.title}
-                />
-                {/* Subtle vignette overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent z-10" />
-              </div>
+        {/* YOGA CARDS SLIDER */}
+        <div className="relative w-full">
+          {/* Navigation Buttons (Desktop only, overlayed on the sides) */}
+          {cards.length >= 4 && (
+            <>
+              <button
+                onClick={() => scroll("left")}
+                disabled={!canScrollLeft}
+                className="hidden lg:flex absolute -left-6 top-1/2 -translate-y-1/2 z-35 w-12 h-12 bg-white/95 hover:bg-white text-gray-800 disabled:opacity-0 disabled:pointer-events-none rounded-full shadow-lg border border-gray-150 items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#121212]" />
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                disabled={!canScrollRight}
+                className="hidden lg:flex absolute -right-6 top-1/2 -translate-y-1/2 z-35 w-12 h-12 bg-white/95 hover:bg-white text-gray-800 disabled:opacity-0 disabled:pointer-events-none rounded-full shadow-lg border border-gray-150 items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight className="w-6 h-6 text-[#121212]" />
+              </button>
+            </>
+          )}
 
-              {/* CARD DETAILS */}
-              <div className="p-5 md:p-6 flex flex-col flex-grow items-start">
-                {card.icon}
-                <h3 className="text-lg font-serif font-normal text-brand-dark mb-1.5 tracking-wide leading-snug">
-                  {card.title}
-                </h3>
-                <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-5 flex-grow line-clamp-2">
-                  {card.desc}
-                </p>
-                <a
-                  href={card.href}
-                  className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
-                >
-                  <span>{card.explore}</span>
-                  <span className="transition-transform duration-300 group-hover/link:translate-x-1">
-                    →
-                  </span>
-                </a>
+          {/* Scrolling container */}
+          <div
+            ref={containerRef}
+            className="w-full flex flex-col sm:flex-row sm:overflow-x-auto sm:snap-x sm:snap-mandatory gap-6 pb-6 no-scrollbar"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {cards.map((card, index) => (
+              <div
+                key={index}
+                id={
+                  index === 0
+                    ? "yoga-retreats"
+                    : index === 1
+                    ? "daily-yoga-classes"
+                    : index === 2
+                    ? "private-yoga-sessions"
+                    : "meet-our-teachers"
+                }
+                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+                {/* IMAGE CONTAINER */}
+                <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
+                  <ImageSlideshow
+                    images={card.imgs}
+                    defaultImage={card.img}
+                    className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                    alt={card.title}
+                  />
+                  {/* Subtle vignette overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent z-10" />
+                </div>
+
+                {/* CARD DETAILS */}
+                <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
+                  {card.icon}
+                  <h3 className="text-lg font-serif font-normal text-brand-dark mb-1.5 tracking-wide leading-snug">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-5 flex-grow line-clamp-2">
+                    {card.desc}
+                  </p>
+                  <a
+                    href={card.href}
+                    className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
+                  >
+                    <span>{card.explore}</span>
+                    <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                      →
+                    </span>
+                  </a>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

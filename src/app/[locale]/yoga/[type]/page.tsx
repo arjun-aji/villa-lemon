@@ -126,7 +126,7 @@ export default async function YogaCatalogPage({
         <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
           <PageAutoTranslator locale={locale}>
           {/* HEADER SECTION */}
-          <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
+          <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
             <div className="absolute inset-0 z-0">
               {teachersList.length > 0 ? (
                 <Image
@@ -153,10 +153,10 @@ export default async function YogaCatalogPage({
                 </Link>
 
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                   <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                   <span>&gt;</span>
-                  <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                  <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors">Yoga</Link>
                   <span>&gt;</span>
                   <span className="text-brand-gold">{tYoga.teachersTitle || "Our Teachers"}</span>
                 </div>
@@ -247,7 +247,7 @@ export default async function YogaCatalogPage({
         <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
           <PageAutoTranslator locale={locale}>
           {/* HEADER */}
-          <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
+          <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
             <div className="absolute inset-0 z-0">
               {programCategory?.image || (retreats.length > 0 && retreats[0].heroImage) ? (
                 <ImageSlideshow
@@ -273,10 +273,10 @@ export default async function YogaCatalogPage({
                 </Link>
 
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                   <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                   <span>&gt;</span>
-                  <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                  <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors">Yoga</Link>
                   <span>&gt;</span>
                   <span className="text-brand-gold">{title}</span>
                 </div>
@@ -293,7 +293,7 @@ export default async function YogaCatalogPage({
             {retreats.length === 0 ? (
               <div className="py-16 text-center text-gray-400 bg-white border border-[#eae6db]/80 rounded-md shadow-sm">
                 <p className="text-sm font-semibold">No retreats found. Check back soon.</p>
-                <Link href="/#yoga" className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">Back to yoga</Link>
+                <Link href={`/${locale}#yogatours`} className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">Back to yoga</Link>
               </div>
             ) : (
               <YogaGridSlider items={retreats} locale={locale} />
@@ -359,7 +359,7 @@ export default async function YogaCatalogPage({
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
         <PageAutoTranslator locale={locale}>
         {/* HEADER SECTION */}
-        <section className="relative w-full h-[240px] md:h-[300px] flex items-end bg-[#121212] overflow-hidden pt-24">
+        <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
           <div className="absolute inset-0 z-0">
             {programCategory?.image || (programs.length > 0 && programs[0].image) ? (
               <ImageSlideshow
@@ -385,10 +385,10 @@ export default async function YogaCatalogPage({
               </Link>
 
               {/* Breadcrumb */}
-              <div className="flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+              <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
                 <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
                 <span>&gt;</span>
-                <Link href={`/${locale}#yoga`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors">Yoga</Link>
                 <span>&gt;</span>
                 <span className="text-brand-gold">{title}</span>
               </div>
@@ -408,7 +408,7 @@ export default async function YogaCatalogPage({
           {programs.length === 0 ? (
             <div className="py-16 text-center text-gray-400 bg-white border border-[#eae6db]/80 rounded-md shadow-sm select-none">
               <p className="text-sm font-semibold">No packages found under this yoga type.</p>
-              <Link href="/#yoga" className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">
+              <Link href={`/${locale}#yogatours`} className="inline-block mt-4 text-xs font-bold text-brand-gold uppercase tracking-wider">
                 Back to yoga
               </Link>
             </div>

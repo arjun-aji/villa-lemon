@@ -110,7 +110,7 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
   const scroll = (direction: "left" | "right") => {
     if (containerRef.current) {
       const { clientWidth } = containerRef.current;
-      const cardWidth = clientWidth / 5;
+      const cardWidth = clientWidth / 3;
       const scrollAmount = direction === "left" ? -cardWidth * 2 : cardWidth * 2;
       containerRef.current.scrollBy({
         left: scrollAmount,
@@ -243,10 +243,10 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
             {filteredProperties.map((p) => (
               <div
                 key={p.id}
-                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-19.2px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 {/* Cover Image Wrapper */}
-                <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden select-none">
+                <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none animate-fade-in">
                   <ImageSlideshow
                     images={p.images}
                     defaultImage={p.image}
@@ -259,7 +259,7 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
                   
                   {/* Price tag */}
                   {!p.hideRate && (
-                    <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
+                    <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
                       From ₹{p.price.toLocaleString()} {p.pricePeriod}
                     </div>
                   )}
@@ -274,7 +274,7 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
                 </div>
 
                 {/* Card Details */}
-                <div className="p-5 flex flex-col flex-grow items-start">
+                <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
                   <span className="text-[9px] font-bold text-brand-gold uppercase tracking-widest mb-1.5 select-none leading-none">
                     {p.location}
                   </span>
@@ -299,15 +299,18 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
                     </div>
                   </div>
 
-                  <p className="text-[11.5px] text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow">
+                  <p className="text-xs md:text-sm text-gray-500 font-light leading-relaxed mb-6 font-sans flex-grow select-text line-clamp-2">
                     {p.shortDescription}
                   </p>
 
                   <Link
                     href={`/${locale}/accommodation/${typePath}/${p.slug}`}
-                    className="w-full flex items-center justify-center bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider py-3 rounded-sm transition-all duration-300 select-none text-[10px]"
+                    className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-[#121212] hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
                   >
-                    View Details
+                    <span>Explore Accommodation</span>
+                    <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                      →
+                    </span>
                   </Link>
                 </div>
               </div>
