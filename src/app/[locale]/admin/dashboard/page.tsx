@@ -885,17 +885,81 @@ export default function AdminDashboard() {
     setShowStayModal(true);
   };
 
+  const getSEOKeywords = (type: string, title: string, slug: string): string => {
+    const t = (title || "").toLowerCase();
+    const s = (slug || "").toLowerCase();
+    
+    if (t.includes("inn") || s.includes("inn")) {
+      return "boutique hotel varkala, superior room varkala, villa lemon inn, premium accommodation varkala, boutique stay kerala, hotel near varkala cliff, luxury stay varkala, balcony room varkala";
+    }
+    
+    if (t.includes("apartment") || s.includes("apartment")) {
+      return "2 bhk apartment varkala, private apartment varkala, villa lemon garden, apartment with kitchen varkala, family apartment varkala, holiday apartment kerala, self catering apartment, long stay accommodation varkala, group stay varkala";
+    }
+    
+    if (type === "villa" || t.includes("villa") || s.includes("villa")) {
+      return "entire villa varkala, luxury villa varkala, villa lemon garden, private villa kerala, family villa varkala, holiday villa varkala, villa with garden varkala, group villa kerala, vacation home varkala";
+    }
+    
+    if (type === "floor" || t.includes("floor") || s.includes("floor")) {
+      return "private floor varkala, 2 bhk floor varkala, 3 bhk floor varkala, family stay varkala, group accommodation varkala, villa lemon homestay, long stay varkala, group holiday kerala";
+    }
+    
+    return "deluxe room varkala, budget room varkala, accommodation in varkala, villa lemon, homestay varkala, room near varkala cliff, stay in varkala, hotel room varkala, affordable room varkala, beach stay kerala";
+  };
+
   const handleOpenEditStay = (s: AccommodationItemData) => {
     setEditingStay(s);
+
+    const accTitleEn = s.title?.en || "";
+    const accTitleDe = s.title?.de || "";
+    const accTitleFr = s.title?.fr || "";
+    const accTitleRu = s.title?.ru || "";
+
+    const highlightsListEn = (s.highlights || []).map(h => h.label?.en || "").filter(Boolean).slice(0, 3).join(", ");
+    const highlightsListDe = (s.highlights || []).map(h => h.label?.de || "").filter(Boolean).slice(0, 3).join(", ");
+    const highlightsListFr = (s.highlights || []).map(h => h.label?.fr || "").filter(Boolean).slice(0, 3).join(", ");
+    const highlightsListRu = (s.highlights || []).map(h => h.label?.ru || "").filter(Boolean).slice(0, 3).join(", ");
+
+    const defaultFeaturesEn = highlightsListEn || "comfortable rooms, modern conveniences and peaceful surroundings";
+    const defaultFeaturesDe = highlightsListDe || "komfortable Zimmer, moderne Annehmlichkeiten und eine ruhige Umgebung";
+    const defaultFeaturesFr = highlightsListFr || "chambres confortables, commodités modernes et environnement paisible";
+    const defaultFeaturesRu = highlightsListRu || "комфортабельные номера, современные удобства и спокойная обстановка";
+
+    const defaultKeywords = getSEOKeywords(s.accommodationType || "room", accTitleEn, s.slug);
+
+    const metaTitle = {
+      en: (s.metaTitle?.en || "").trim() || `${accTitleEn} | Villa Lemon | Varkala, Kerala`,
+      de: (s.metaTitle?.de || "").trim() || `${accTitleDe} | Villa Lemon | Varkala, Kerala`,
+      fr: (s.metaTitle?.fr || "").trim() || `${accTitleFr} | Villa Lemon | Varkala, Kerala`,
+      ru: (s.metaTitle?.ru || "").trim() || `${accTitleRu} | Villa Lemon | Varkala, Kerala`,
+    };
+
+    const metaDescription = {
+      en: (s.metaDescription?.en || "").trim() || `Stay at ${accTitleEn} in Varkala featuring ${defaultFeaturesEn}. Enjoy free Wi-Fi, modern amenities, peaceful surroundings, and easy access to Varkala Cliff and nearby beaches.`,
+      de: (s.metaDescription?.de || "").trim() || `Übernachten Sie im ${accTitleDe} in Varkala mit ${defaultFeaturesDe}. Genießen Sie kostenloses WLAN, moderne Annehmlichkeiten, eine ruhige Umgebung und einfachen Zugang zur Klippe von Varkala und den nahe gelegenen Stränden.`,
+      fr: (s.metaDescription?.fr || "").trim() || `Séjournez au ${accTitleFr} à Varkala avec ${defaultFeaturesFr}. Profitez du Wi-Fi gratuit, des équipements modernes, d'un environnement paisible et d'un accès facile à la falaise de Varkala et aux plages de la région.`,
+      ru: (s.metaDescription?.ru || "").trim() || `Остановитесь в ${accTitleRu} в Варкале с ${defaultFeaturesRu}. К услугам гостей бесплатный Wi-Fi, современные удобства, спокойная обстановка и легкий доступ к клифу Варкалы и близлежащим пляжам.`,
+    };
+
+    const keywords = {
+      en: (s.keywords?.en || "").trim() || defaultKeywords,
+      de: (s.keywords?.de || "").trim() || defaultKeywords,
+      fr: (s.keywords?.fr || "").trim() || defaultKeywords,
+      ru: (s.keywords?.ru || "").trim() || defaultKeywords,
+    };
+
+    const canonicalUrl = (s.canonicalUrl || "").trim() || `https://villalemon.in/en/accommodation/${s.accommodationType || "room"}/${s.slug}`;
+
     setStayForm({
       ...s,
       relatedAccommodations: s.relatedAccommodations || ["", "", ""],
       badgeText: s.badgeText || createEmptyLocalizedText(),
       hideRate: s.hideRate || false,
-      metaTitle: s.metaTitle || createEmptyLocalizedText(),
-      metaDescription: s.metaDescription || createEmptyLocalizedText(),
-      keywords: s.keywords || createEmptyLocalizedText(),
-      canonicalUrl: s.canonicalUrl || "",
+      metaTitle,
+      metaDescription,
+      keywords,
+      canonicalUrl,
       notes: s.notes || createEmptyLocalizedText(),
     });
     setCoverImagePreview(s.image);
@@ -948,14 +1012,55 @@ export default function AdminDashboard() {
       formData.append("checkInOutRules", JSON.stringify(stayForm.checkInOutRules || []));
       formData.append("additionalServices", JSON.stringify(stayForm.additionalServices || []));
       
+      // Automatically prefill SEO fields on save if they are blank
+      const accTitleEn = stayForm.title?.en || "";
+      const accTitleDe = stayForm.title?.de || "";
+      const accTitleFr = stayForm.title?.fr || "";
+      const accTitleRu = stayForm.title?.ru || "";
+
+      const highlightsListEn = (stayForm.highlights || []).map(h => h.label?.en || "").filter(Boolean).slice(0, 3).join(", ");
+      const highlightsListDe = (stayForm.highlights || []).map(h => h.label?.de || "").filter(Boolean).slice(0, 3).join(", ");
+      const highlightsListFr = (stayForm.highlights || []).map(h => h.label?.fr || "").filter(Boolean).slice(0, 3).join(", ");
+      const highlightsListRu = (stayForm.highlights || []).map(h => h.label?.ru || "").filter(Boolean).slice(0, 3).join(", ");
+
+      const defaultFeaturesEn = highlightsListEn || "comfortable rooms, modern conveniences and peaceful surroundings";
+      const defaultFeaturesDe = highlightsListDe || "komfortable Zimmer, moderne Annehmlichkeiten und eine ruhige Umgebung";
+      const defaultFeaturesFr = highlightsListFr || "chambres confortables, commodités modernes et environnement paisible";
+      const defaultFeaturesRu = highlightsListRu || "комфортабельные номера, современные удобства и спокойная обстановка";
+
+      const defaultKeywords = getSEOKeywords(stayForm.accommodationType || "room", accTitleEn, stayForm.slug || "");
+
+      const finalMetaTitle = {
+        en: (stayForm.metaTitle?.en || "").trim() || `${accTitleEn} | Villa Lemon | Varkala, Kerala`,
+        de: (stayForm.metaTitle?.de || "").trim() || `${accTitleDe} | Villa Lemon | Varkala, Kerala`,
+        fr: (stayForm.metaTitle?.fr || "").trim() || `${accTitleFr} | Villa Lemon | Varkala, Kerala`,
+        ru: (stayForm.metaTitle?.ru || "").trim() || `${accTitleRu} | Villa Lemon | Varkala, Kerala`,
+      };
+
+      const finalMetaDesc = {
+        en: (stayForm.metaDescription?.en || "").trim() || `Stay at ${accTitleEn} in Varkala featuring ${defaultFeaturesEn}. Enjoy free Wi-Fi, modern amenities, peaceful surroundings, and easy access to Varkala Cliff and nearby beaches.`,
+        de: (stayForm.metaDescription?.de || "").trim() || `Übernachten Sie im ${accTitleDe} in Varkala mit ${defaultFeaturesDe}. Genießen Sie kostenloses WLAN, moderne Annehmlichkeiten, eine ruhige Umgebung und einfachen Zugang zur Klippe von Varkala und den nahe gelegenen Stränden.`,
+        fr: (stayForm.metaDescription?.fr || "").trim() || `Séjournez au ${accTitleFr} à Varkala avec ${defaultFeaturesFr}. Profitez du Wi-Fi gratuit, des équipements modernes, d'un environnement paisible et d'un accès facile à la falaise de Varkala et aux plages de la région.`,
+        ru: (stayForm.metaDescription?.ru || "").trim() || `Остановитесь в ${accTitleRu} в Варкале с ${defaultFeaturesRu}. К услугам гостей бесплатный Wi-Fi, современные удобства, спокойная обстановка и легкий доступ к клифу Варкалы и близлежащим пляжам.`,
+      };
+
+      const finalKeywords = {
+        en: (stayForm.keywords?.en || "").trim() || defaultKeywords,
+        de: (stayForm.keywords?.de || "").trim() || defaultKeywords,
+        fr: (stayForm.keywords?.fr || "").trim() || defaultKeywords,
+        ru: (stayForm.keywords?.ru || "").trim() || defaultKeywords,
+      };
+
+      const finalCanonical = (stayForm.canonicalUrl || "").trim() || `https://villalemon.in/en/accommodation/${stayForm.accommodationType || "room"}/${stayForm.slug}`;
+
       const filteredRelated = (stayForm.relatedAccommodations || []).filter(Boolean);
       formData.append("relatedAccommodations", JSON.stringify(filteredRelated));
       formData.append("badgeText", JSON.stringify(stayForm.badgeText || createEmptyLocalizedText()));
       formData.append("hideRate", String(stayForm.hideRate || false));
-      formData.append("metaTitle", JSON.stringify(stayForm.metaTitle || createEmptyLocalizedText()));
-      formData.append("metaDescription", JSON.stringify(stayForm.metaDescription || createEmptyLocalizedText()));
-      formData.append("keywords", JSON.stringify(stayForm.keywords || createEmptyLocalizedText()));
-      formData.append("canonicalUrl", stayForm.canonicalUrl || "");
+      formData.append("metaTitle", JSON.stringify(finalMetaTitle));
+      formData.append("metaDescription", JSON.stringify(finalMetaDesc));
+      formData.append("keywords", JSON.stringify(finalKeywords));
+      formData.append("canonicalUrl", finalCanonical);
       formData.append("notes", JSON.stringify(stayForm.notes || createEmptyLocalizedText()));
       if (ogImageFile) formData.append("ogImage", ogImageFile);
 
