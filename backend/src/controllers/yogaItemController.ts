@@ -72,6 +72,10 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
     const shortDescription = parseField(req.body.shortDescription);
     const tagline = parseField(req.body.tagline);
     const aboutText = parseField(req.body.aboutText);
+    const metaTitle = parseField(req.body.metaTitle);
+    const metaDescription = parseField(req.body.metaDescription);
+    const keywords = parseField(req.body.keywords);
+    const canonicalUrl = req.body.canonicalUrl || "";
 
     // Arrays/Objects
     const schedule = parseField(req.body.schedule);
@@ -118,6 +122,10 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
       inclusions,
       relatedYoga,
       hideRate: req.body.hideRate === "true" || req.body.hideRate === true,
+      metaTitle,
+      metaDescription,
+      keywords,
+      canonicalUrl,
     });
 
     await newItem.save();
@@ -158,6 +166,10 @@ export const updateYogaItem = async (req: Request, res: Response): Promise<any> 
     if (req.body.shortDescription) item.shortDescription = { ...item.shortDescription, ...parseField(req.body.shortDescription) };
     if (req.body.tagline) item.tagline = { ...item.tagline, ...parseField(req.body.tagline) };
     if (req.body.aboutText) item.aboutText = { ...item.aboutText, ...parseField(req.body.aboutText) };
+    if (req.body.metaTitle) item.metaTitle = { ...item.metaTitle, ...parseField(req.body.metaTitle) };
+    if (req.body.metaDescription) item.metaDescription = { ...item.metaDescription, ...parseField(req.body.metaDescription) };
+    if (req.body.keywords) item.keywords = { ...item.keywords, ...parseField(req.body.keywords) };
+    if (req.body.canonicalUrl !== undefined) item.canonicalUrl = req.body.canonicalUrl;
 
     // Lists
     if (req.body.schedule) item.schedule = parseField(req.body.schedule);

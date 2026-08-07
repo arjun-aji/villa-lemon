@@ -265,6 +265,11 @@ interface YogaItemData {
   inclusions: LocalizedText[];
   relatedYoga?: string[];
   hideRate?: boolean;
+  metaTitle?: LocalizedText;
+  metaDescription?: LocalizedText;
+  keywords?: LocalizedText;
+  ogImage?: string;
+  canonicalUrl?: string;
 }
 
 interface TeacherData {
@@ -1374,6 +1379,10 @@ export default function AdminDashboard() {
       ],
       relatedYoga: ["", "", ""],
       hideRate: false,
+      metaTitle: createEmptyLocalizedText(),
+      metaDescription: createEmptyLocalizedText(),
+      keywords: createEmptyLocalizedText(),
+      canonicalUrl: "",
     });
     setCoverImagePreview(null);
     setCoverImageFile(null);
@@ -1421,6 +1430,11 @@ export default function AdminDashboard() {
       formData.append("shortDescription", JSON.stringify(yogaForm.shortDescription));
       formData.append("tagline", JSON.stringify(yogaForm.tagline));
       formData.append("aboutText", JSON.stringify(yogaForm.aboutText));
+
+      formData.append("metaTitle", JSON.stringify(yogaForm.metaTitle));
+      formData.append("metaDescription", JSON.stringify(yogaForm.metaDescription));
+      formData.append("keywords", JSON.stringify(yogaForm.keywords));
+      formData.append("canonicalUrl", yogaForm.canonicalUrl || "");
 
       formData.append("inclusions", JSON.stringify(yogaForm.inclusions || []));
       formData.append("benefits", JSON.stringify(yogaForm.benefits || []));
@@ -5691,6 +5705,62 @@ export default function AdminDashboard() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* SECTION: SEO METADATA */}
+              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">SEO & Social Metadata ({activeLangTab.toUpperCase()})</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Meta Title Tag</label>
+                    <input
+                      type="text"
+                      value={yogaForm.metaTitle?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const metaTitle = { ...yogaForm.metaTitle, [activeLangTab]: e.target.value } as any;
+                        setYogaForm({ ...yogaForm, metaTitle });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                      placeholder="e.g. Varkala Yoga Classes | Hatha & Vinyasa Flow"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Canonical URL link</label>
+                    <input
+                      type="text"
+                      value={yogaForm.canonicalUrl || ""}
+                      onChange={(e) => setYogaForm({ ...yogaForm, canonicalUrl: e.target.value })}
+                      className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                      placeholder="e.g. https://villalemon.com/yoga/classes/hatha-flow"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Meta Description tag</label>
+                    <textarea
+                      rows={3}
+                      value={yogaForm.metaDescription?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const metaDescription = { ...yogaForm.metaDescription, [activeLangTab]: e.target.value } as any;
+                        setYogaForm({ ...yogaForm, metaDescription });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded font-sans text-xs bg-white"
+                      placeholder="Describe the yoga program details for search engines..."
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">SEO Keywords tag</label>
+                    <textarea
+                      rows={3}
+                      value={yogaForm.keywords?.[activeLangTab] || ""}
+                      onChange={(e) => {
+                        const keywords = { ...yogaForm.keywords, [activeLangTab]: e.target.value } as any;
+                        setYogaForm({ ...yogaForm, keywords });
+                      }}
+                      className="border border-gray-200 p-2.5 rounded font-sans text-xs bg-white"
+                      placeholder="e.g. yoga varkala, yoga ashram, wellness stay kerala"
+                    />
+                  </div>
                 </div>
               </div>
 

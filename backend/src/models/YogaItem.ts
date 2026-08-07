@@ -47,6 +47,11 @@ const yogaItemSchema = new Schema<IYogaItem>(
     relatedYoga: [{ type: String }],
     displayOrder: { type: Number, default: 0 },
     hideRate: { type: Boolean, default: false },
+    metaTitle: { type: localizedTextSchema },
+    metaDescription: { type: localizedTextSchema },
+    keywords: { type: localizedTextSchema },
+    canonicalUrl: { type: String, default: "" },
+    ogImage: { type: String, default: "" },
   },
   {
     timestamps: true,

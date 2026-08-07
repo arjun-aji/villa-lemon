@@ -300,6 +300,11 @@ export interface IYogaItem extends Document {
   relatedYoga?: string[];
   displayOrder?: number;
   hideRate?: boolean;
+  metaTitle?: ILocalizedText;
+  metaDescription?: ILocalizedText;
+  keywords?: ILocalizedText;
+  ogImage?: string;
+  canonicalUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
