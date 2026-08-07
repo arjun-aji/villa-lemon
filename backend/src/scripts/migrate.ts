@@ -800,7 +800,7 @@ const runMigration = async () => {
     const samplePackages = [
       {
         slug: "cliff-beach-sightseeing-tour",
-        packageCategory: "varkalaSightseeing" as const,
+        packageCategory: ["varkalaSightseeing"],
         title: { en: "Varkala Cliff & Beach Walking Tour", de: "Varkala Cliff & Beach Wandertour", fr: "Visite à Pied des Falaises et de la Plage de Varkala", ru: "Пешеходная экскурсия по скалам и пляжам Варкалы" },
         price: 1500,
         pricePeriod: { en: "/ person", de: "/ Person", fr: "/ personne", ru: "/ человек" },

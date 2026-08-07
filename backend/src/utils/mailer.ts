@@ -21,8 +21,60 @@ export interface MailDetails {
 
 export const sendEnquiryEmail = async (details: MailDetails): Promise<boolean> => {
   const recipient = "villalemonhomestay@gmail.com";
+  const web3FormsKey = process.env.WEB3FORMS_ACCESS_KEY || "bf05dfbf-c860-4fc5-bf88-32c25b1026c3";
 
-  // Check if SMTP variables are set in .env
+  const interestedInStr = details.interestedIn && details.interestedIn.length > 0 
+    ? details.interestedIn.join(", ") 
+    : "None selected";
+
+  // 1. Try sending via Web3Forms if access key is available
+  if (web3FormsKey) {
+    try {
+      console.log(`[mailer]: Attempting to send enquiry email via Web3Forms for ${details.name}...`);
+      const payload = {
+        access_key: web3FormsKey,
+        subject: `New Stay Enquiry from ${details.name}`,
+        from_name: "Villa Lemon Enquiry",
+        replyto: details.email,
+        name: details.name,
+        email: details.email,
+        phone: details.phone,
+        "WhatsApp Number": details.whatsappNumber || "N/A",
+        country: details.country || "N/A",
+        "Planning Date": details.planningDate || "N/A",
+        "Flexible Dates": details.flexibleDates ? "Yes" : "No",
+        "Adults": details.adults ?? 1,
+        "Children": details.children ?? 0,
+        "Duration of Stay": details.duration || "N/A",
+        "Preferred Contact Method": details.preferredContact || "N/A",
+        "Preferred Accommodation": details.preferredAccommodation || "No Preference",
+        "How Found": details.howFound || "N/A",
+        "Interested In": interestedInStr,
+        message: details.message
+      };
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json() as { success: boolean; message?: string };
+      if (response.ok && result.success) {
+        console.log(`[mailer]: Email sent successfully via Web3Forms for ${details.name}`);
+        return true;
+      } else {
+        console.error("[mailer]: Web3Forms submission returned failure status:", result);
+      }
+    } catch (err) {
+      console.error("[mailer]: Failed sending via Web3Forms", err);
+    }
+  }
+
+  // 2. Fallback to SMTP if SMTP config variables are set in .env
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = parseInt(process.env.SMTP_PORT || "587");
   const smtpUser = process.env.SMTP_USER;
@@ -30,7 +82,7 @@ export const sendEnquiryEmail = async (details: MailDetails): Promise<boolean> =
 
   if (!smtpHost || !smtpUser || !smtpPass) {
     console.warn(
-      `[mailer]: SMTP configuration is missing in .env (SMTP_HOST, SMTP_USER, SMTP_PASS). ` +
+      `[mailer]: SMTP configuration is missing in .env (SMTP_HOST, SMTP_USER, SMTP_PASS) and Web3Forms was either not successful or not used. ` +
       `Skipping email notification. Logged enquiry details:`,
       JSON.stringify(details, null, 2)
     );
@@ -47,10 +99,6 @@ export const sendEnquiryEmail = async (details: MailDetails): Promise<boolean> =
         pass: smtpPass,
       },
     });
-
-    const interestedInStr = details.interestedIn && details.interestedIn.length > 0 
-      ? details.interestedIn.join(", ") 
-      : "None selected";
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eae6db; background-color: #fbf9f6; color: #121212;">
@@ -118,7 +166,7 @@ export const sendEnquiryEmail = async (details: MailDetails): Promise<boolean> =
           ${details.whatsappNumber ? `
             <a href="https://wa.me/${details.whatsappNumber.replace(/[^0-9]/g, "")}" 
                style="background-color: #16a34a; color: white; padding: 12px 20px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block; font-size: 13px; margin-right: 10px;">
-              Chat on WhatsApp
+               Chat on WhatsApp
             </a>
           ` : ""}
           <a href="mailto:${details.email}" 
@@ -140,7 +188,7 @@ export const sendEnquiryEmail = async (details: MailDetails): Promise<boolean> =
     console.log(`[mailer]: Email sent successfully to ${recipient} for ${details.name}`);
     return true;
   } catch (err) {
-    console.error("[mailer]: Failed to send email", err);
+    console.error("[mailer]: Failed to send email via SMTP", err);
     return false;
   }
 };

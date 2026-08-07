@@ -27,7 +27,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 1: 1 Night / 2 Days stay package...");
     const p1 = new PackageItem({
-      packageCategory: "varkalaPackages",
+      packageCategory: ["varkalaPackages"],
       slug: "1-night-2-days-villa-lemon",
       price: 3500,
       pricePeriod: local("/ stay"),
@@ -119,7 +119,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 2: Varkala 2 Nights / 3 Days Experience...");
     const p2 = new PackageItem({
-      packageCategory: "varkalaPackages",
+      packageCategory: ["varkalaPackages"],
       slug: "varkala-2-nights-3-days-experience",
       price: 6999,
       pricePeriod: local("/ stay"),

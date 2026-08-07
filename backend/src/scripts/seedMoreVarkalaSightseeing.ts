@@ -22,7 +22,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 4: Jatayu Earth Center Tour...");
     const jatayuTour = new PackageItem({
-      packageCategory: "varkalaSightseeing",
+      packageCategory: ["varkalaSightseeing"],
       slug: "jatayu-earth-center-tour",
       price: 3500,
       pricePeriod: local("/ person"),
@@ -151,7 +151,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 5: Varkala Janardhanaswamy Temple & Sivagiri Ashram Tour...");
     const spiritualTour = new PackageItem({
-      packageCategory: "varkalaSightseeing",
+      packageCategory: ["varkalaSightseeing"],
       slug: "varkala-temple-ashram-tour",
       price: 1500,
       pricePeriod: local("/ person"),
@@ -283,7 +283,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 6: Golden Island Canoe Boating Experience...");
     const goldenIslandCanoe = new PackageItem({
-      packageCategory: "varkalaSightseeing",
+      packageCategory: ["varkalaSightseeing"],
       slug: "golden-island-canoe-boating",
       price: 2500,
       pricePeriod: local("/ person"),

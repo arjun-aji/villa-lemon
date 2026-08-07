@@ -21,7 +21,7 @@ const run = async () => {
 
     console.log("🌿 Creating Kappil Beach & Lake Trip package item...");
     const tour = new PackageItem({
-      packageCategory: "varkalaSightseeing",
+      packageCategory: ["varkalaSightseeing"],
       slug: "kappil-beach-lake-trip",
       price: 2000,
       pricePeriod: local("/ person"),

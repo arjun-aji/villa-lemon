@@ -32,7 +32,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 1: Jatayu, Elephant Farm & Kayaking...");
     const p1 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "jatayu-elephant-kayaking-tour",
       price: 4999,
       pricePeriod: local("/ person"),
@@ -132,7 +132,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 2: Ponmudi Hill Station Trip...");
     const p2 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "ponmudi-hill-station-trip",
       price: 3200,
       pricePeriod: local("/ person"),
@@ -234,7 +234,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 3: Munroe Island Backwater Tour...");
     const p3 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "munroe-island-backwater-tour",
       price: 2500,
       pricePeriod: local("/ person"),
@@ -333,7 +333,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 4: Kanyakumari Day Trip...");
     const p4 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "kanyakumari-day-trip",
       price: 5500,
       pricePeriod: local("/ person"),
@@ -433,7 +433,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 5: Kollam & Munroe Island Cruise...");
     const p5 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "kollam-munroe-island-cruise",
       price: 3900,
       pricePeriod: local("/ person"),
@@ -535,7 +535,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 6: Neyyar Dam Trip...");
     const p6 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "neyyar-dam-trip",
       price: 3400,
       pricePeriod: local("/ person"),
@@ -633,7 +633,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 7: Houseboat Cruises...");
     const p7 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "houseboat-cruises-from-varkala",
       price: 6500,
       pricePeriod: local("/ person"),
@@ -732,7 +732,7 @@ const run = async () => {
 
     console.log("🌿 Seeding Package 8: Elephant Farm & Kayaking Tour...");
     const p8 = new PackageItem({
-      packageCategory: "dayTrips",
+      packageCategory: ["dayTrips"],
       slug: "elephant-farm-mangrove-kayaking",
       price: 3600,
       pricePeriod: local("/ person"),

@@ -31,7 +31,7 @@ const runUpdate = async () => {
 
     console.log(`[update]: Found tour: "${tour.title.en}" with ID: ${tour._id}. Updating details...`);
 
-    tour.packageCategory = "varkalaSightseeing";
+    tour.packageCategory = ["varkalaSightseeing"];
     tour.slug = "mangrove-forest-kayaking";
     tour.price = 2500;
     tour.duration = local("5 Hours");
