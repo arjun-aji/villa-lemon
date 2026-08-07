@@ -1,4 +1,26 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const messages = await getMessages({ locale });
+  const t = messages.Navbar as any || {};
+  const title = t.GALLERY || "Gallery";
+  const description = `Browse the beautiful photo gallery of Villa Lemon. View our luxury private villas, guest experiences, and the scenic tropical nature in Varkala, Kerala.`;
+
+  return {
+    title: `${title} | Villa Lemon`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/gallery`,
+    },
+  };
+}
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

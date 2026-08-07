@@ -1,4 +1,54 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const retreat = await getRetreatDetails(slug);
+  
+  const loc = (field: any) => {
+    if (!field) return "";
+    if (typeof field === "string") return field;
+    return field[locale] || field["en"] || Object.values(field)[0] || "";
+  };
+
+  if (!retreat) {
+    return {
+      title: "Retreat Details | Villa Lemon",
+      description: "Explore wellness retreats at Villa Lemon.",
+      alternates: {
+        canonical: `/${locale}/retreats/${slug}`,
+      },
+    };
+  }
+
+  const title = retreat.metaTitle?.[locale] || retreat.metaTitle?.en || `${loc(retreat.heroTitle)} | Villa Lemon`;
+  const description = retreat.metaDescription?.[locale] || retreat.metaDescription?.en || loc(retreat.shortDescription) || `Discover the retreat ${loc(retreat.heroTitle)} at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/retreats/${slug}`,
+    },
+    openGraph: {
+      title,
+      description: description.slice(0, 160),
+      url: `https://villalemon.in/${locale}/retreats/${slug}`,
+      images: [
+        {
+          url: retreat.heroImage || "/assets/hero.png",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+  };
+}
 
 import React from "react";
 import Image from "next/image";
@@ -36,6 +86,10 @@ interface RetreatDetail {
   status: string;
   featured: boolean;
   hideRate?: boolean;
+  metaTitle?: Record<string, string>;
+  metaDescription?: Record<string, string>;
+  keywords?: Record<string, string>;
+  canonicalUrl?: string;
 
   // Content
   heroTitle: Record<string, string>;

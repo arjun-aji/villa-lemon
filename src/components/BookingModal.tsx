@@ -254,10 +254,12 @@ export default function BookingModal() {
             {/* Form fields layout grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">First Name *</label>
+                <label htmlFor="modalFirstName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">First Name *</label>
                 <input
                   type="text"
                   name="firstName"
+                  id="modalFirstName"
+                  autoComplete="given-name"
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
@@ -267,10 +269,12 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Last Name</label>
+                <label htmlFor="modalLastName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
+                  id="modalLastName"
+                  autoComplete="family-name"
                   value={formData.lastName}
                   onChange={handleInputChange}
                   placeholder="Enter your last name"
@@ -279,10 +283,12 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Email Address *</label>
+                <label htmlFor="modalEmail" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Email Address *</label>
                 <input
                   type="email"
                   name="email"
+                  id="modalEmail"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -292,10 +298,12 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Mobile Number *</label>
+                <label htmlFor="modalPhone" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Mobile Number *</label>
                 <input
                   type="tel"
                   name="phone"
+                  id="modalPhone"
+                  autoComplete="tel"
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
@@ -305,10 +313,12 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">WhatsApp Number (Optional)</label>
+                <label htmlFor="modalWhatsappNumber" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">WhatsApp Number (Optional)</label>
                 <input
                   type="tel"
                   name="whatsappNumber"
+                  id="modalWhatsappNumber"
+                  autoComplete="tel"
                   value={formData.whatsappNumber}
                   onChange={handleInputChange}
                   placeholder="Enter your WhatsApp number"
@@ -317,10 +327,12 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Country</label>
+                <label htmlFor="modalCountry" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Country</label>
                 <input
                   type="text"
                   name="country"
+                  id="modalCountry"
+                  autoComplete="country-name"
                   value={formData.country}
                   onChange={handleInputChange}
                   placeholder="Enter your country"
@@ -329,10 +341,11 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Planning to Visit</label>
+                <label htmlFor="modalPlanningDate" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Planning to Visit</label>
                 <input
                   type="date"
                   name="planningDate"
+                  id="modalPlanningDate"
                   value={formData.planningDate}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -340,9 +353,10 @@ export default function BookingModal() {
               </div>
 
               <div className="flex items-center pt-8">
-                <label className="flex items-center gap-2.5 text-xs text-gray-600 font-medium select-none cursor-pointer">
+                <label htmlFor="modalFlexibleDates" className="flex items-center gap-2.5 text-xs text-gray-600 font-medium select-none cursor-pointer">
                   <input
                     type="checkbox"
+                    id="modalFlexibleDates"
                     checked={formData.flexibleDates}
                     onChange={(e) => handleCheckboxChange("flexibleDates", e.target.checked)}
                     className="accent-brand-gold w-4 h-4"
@@ -352,9 +366,10 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Adults</label>
+                <label htmlFor="modalAdults" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Adults</label>
                 <select
                   name="adults"
+                  id="modalAdults"
                   value={formData.adults}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -366,9 +381,10 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Children</label>
+                <label htmlFor="modalChildren" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Number of Children</label>
                 <select
                   name="children"
+                  id="modalChildren"
                   value={formData.children}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -380,9 +396,10 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Duration of Stay</label>
+                <label htmlFor="modalDuration" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Duration of Stay</label>
                 <select
                   name="duration"
+                  id="modalDuration"
                   value={formData.duration}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -396,9 +413,10 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Preferred Contact Method</label>
+                <label htmlFor="modalPreferredContact" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Preferred Contact Method</label>
                 <select
                   name="preferredContact"
+                  id="modalPreferredContact"
                   value={formData.preferredContact}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -432,9 +450,10 @@ export default function BookingModal() {
             {/* Dropdowns: Accommodation Selector */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-gray-100 pt-6 select-none">
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Preferred Accommodation (Optional)</label>
+                <label htmlFor="modalPreferredAccommodation" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Preferred Accommodation (Optional)</label>
                 <select
                   name="preferredAccommodation"
+                  id="modalPreferredAccommodation"
                   value={formData.preferredAccommodation}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-[#eae6db] focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -447,9 +466,10 @@ export default function BookingModal() {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">How did you find us?</label>
+                <label htmlFor="modalHowFound" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">How did you find us?</label>
                 <select
                   name="howFound"
+                  id="modalHowFound"
                   value={formData.howFound}
                   onChange={handleInputChange}
                   className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -466,9 +486,10 @@ export default function BookingModal() {
 
             {/* Message Textarea */}
             <div className="border-t border-gray-100 pt-6">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Message *</label>
+              <label htmlFor="modalMessage" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">Message *</label>
               <textarea
                 name="message"
+                id="modalMessage"
                 value={formData.message}
                 onChange={handleInputChange}
                 required
@@ -480,9 +501,10 @@ export default function BookingModal() {
 
             {/* Terms agreement checkbox */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-t border-gray-100 pt-6 select-none">
-              <label className="flex items-center gap-2.5 text-xs text-gray-600 font-medium cursor-pointer">
+              <label htmlFor="modalAgree" className="flex items-center gap-2.5 text-xs text-gray-600 font-medium cursor-pointer">
                 <input
                   type="checkbox"
+                  id="modalAgree"
                   checked={formData.agree}
                   onChange={(e) => handleCheckboxChange("agree", e.target.checked)}
                   required

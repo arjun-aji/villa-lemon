@@ -1,4 +1,43 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; category: string }>;
+}): Promise<Metadata> {
+  const { locale, category } = await params;
+  let titleKey = "varkalaTitle";
+  let descKey = "varkalaDesc";
+
+  if (category === "day-trips" || category === "dayTrips") {
+    titleKey = "daytripsTitle";
+    descKey = "daytripsDesc";
+  } else if (category === "backwater-experiences" || category === "backwaterExperiences") {
+    titleKey = "backwaterTitle";
+    descKey = "backwaterDesc";
+  } else if (category === "adventure-activities" || category === "adventureActivities") {
+    titleKey = "adventureTitle";
+    descKey = "adventureDesc";
+  } else if (category === "varkala-packages" || category === "varkalaPackages") {
+    titleKey = "varkalaPackagesTitle";
+    descKey = "varkalaPackagesDesc";
+  }
+
+  const messages = await getMessages({ locale });
+  const t = messages.Packages as any || {};
+  const title = t[titleKey] || "Holiday Packages";
+  const description = t[descKey] || `Explore curated ${category} packages at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title: `${title} | Villa Lemon`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/packages/${category}`,
+    },
+  };
+}
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";

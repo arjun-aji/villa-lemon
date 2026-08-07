@@ -203,7 +203,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5">
                   <MapPin className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("location")}</h5>
+                    <h4 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("location")}</h4>
                     <p className="leading-relaxed font-light font-sans whitespace-pre-wrap">
                       {displayAddress}
                     </p>
@@ -213,7 +213,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Phone className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("phone")}</h5>
+                    <h4 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("phone")}</h4>
                     <a href={`tel:${displayPhone.replace(/\s+/g, "")}`} className="hover:text-brand-gold transition-colors font-medium font-sans">{displayPhone}</a>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.835-4.577c1.673.993 3.336 1.52 5.188 1.52 5.395 0 9.785-4.39 9.789-9.787.002-2.614-1.012-5.071-2.859-6.918-1.847-1.847-4.305-2.86-6.919-2.86-5.398 0-9.789 4.39-9.793 9.788-.001 1.959.52 3.868 1.514 5.544l-.994 3.629 3.734-.976zM17.47 14.39c-.294-.147-1.737-.857-2.007-.955-.27-.098-.467-.147-.662.147-.196.294-.759.955-.93 1.15-.171.196-.343.22-.637.073-.294-.147-1.243-.458-2.37-1.464-.877-.78-1.47-1.744-1.642-2.038-.171-.294-.018-.453.129-.6.132-.132.294-.343.441-.515.147-.171.196-.294.294-.49.098-.196.05-.367-.025-.515-.074-.147-.662-1.592-.907-2.181-.238-.574-.48-.495-.662-.505-.171-.007-.367-.007-.562-.007-.196 0-.515.073-.784.367-.27.294-1.029 1.005-1.029 2.451 0 1.446 1.053 2.84 1.2 3.036.147.196 2.074 3.168 5.027 4.442.702.303 1.25.485 1.677.62.706.224 1.348.193 1.856.118.566-.084 1.738-.71 1.983-1.396.246-.686.246-1.273.172-1.396-.074-.122-.27-.196-.565-.343z"/>
                   </svg>
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">WhatsApp</h5>
+                    <h4 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">WhatsApp</h4>
                     <a href={`https://wa.me/${getCleanNumber(displayWhatsapp)}`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition-colors font-medium font-sans">{displayWhatsapp}</a>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Mail className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("email")}</h5>
+                    <h4 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("email")}</h4>
                     <a href={`mailto:${displayEmail}`} className="hover:text-brand-gold transition-colors font-medium font-sans">{displayEmail}</a>
                   </div>
                 </div>
@@ -239,7 +239,7 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 <div className="flex gap-3.5 border-t border-gray-100 pt-5">
                   <Clock className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("hours")}</h5>
+                    <h4 className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-1">{t("hours")}</h4>
                     <p className="font-medium font-sans whitespace-pre-wrap">{displayReceptionHours}</p>
                   </div>
                 </div>
@@ -352,10 +352,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 {/* Form fields layout grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("firstName")} *</label>
+                    <label htmlFor="firstName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("firstName")} *</label>
                     <input 
                       type="text" 
                       name="firstName" 
+                      id="firstName"
+                      autoComplete="given-name"
                       value={formData.firstName} 
                       onChange={handleInputChange} 
                       required 
@@ -365,10 +367,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("lastName")}</label>
+                    <label htmlFor="lastName" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("lastName")}</label>
                     <input 
                       type="text" 
                       name="lastName" 
+                      id="lastName"
+                      autoComplete="family-name"
                       value={formData.lastName} 
                       onChange={handleInputChange} 
                       placeholder="Enter your last name"
@@ -377,10 +381,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("emailAddress")} *</label>
+                    <label htmlFor="email" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("emailAddress")} *</label>
                     <input 
                       type="email" 
                       name="email" 
+                      id="email"
+                      autoComplete="email"
                       value={formData.email} 
                       onChange={handleInputChange} 
                       required 
@@ -390,10 +396,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("phoneNumber")} *</label>
+                    <label htmlFor="phone" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("phoneNumber")} *</label>
                     <input 
                       type="tel" 
                       name="phone" 
+                      id="phone"
+                      autoComplete="tel"
                       value={formData.phone} 
                       onChange={handleInputChange} 
                       required 
@@ -403,10 +411,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("whatsappNumber")}</label>
+                    <label htmlFor="whatsappNumber" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("whatsappNumber")}</label>
                     <input 
                       type="tel" 
                       name="whatsappNumber" 
+                      id="whatsappNumber"
+                      autoComplete="tel"
                       value={formData.whatsappNumber} 
                       onChange={handleInputChange} 
                       placeholder="Enter your WhatsApp number"
@@ -415,10 +425,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("country")}</label>
+                    <label htmlFor="country" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("country")}</label>
                     <input 
                       type="text" 
                       name="country" 
+                      id="country"
+                      autoComplete="country-name"
                       value={formData.country} 
                       onChange={handleInputChange} 
                       placeholder="Enter your country"
@@ -427,11 +439,12 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("planningDate")}</label>
+                    <label htmlFor="planningDate" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("planningDate")}</label>
                     <div className="relative">
                       <input 
                         type="date" 
                         name="planningDate" 
+                        id="planningDate"
                         value={formData.planningDate} 
                         onChange={handleInputChange} 
                         className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -440,9 +453,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div className="flex items-center pt-8">
-                    <label className="flex items-center gap-2.5 text-xs text-gray-600 font-medium select-none cursor-pointer">
+                    <label htmlFor="flexibleDates" className="flex items-center gap-2.5 text-xs text-gray-600 font-medium select-none cursor-pointer">
                       <input 
                         type="checkbox" 
+                        id="flexibleDates"
                         checked={formData.flexibleDates} 
                         onChange={(e) => handleCheckboxChange("flexibleDates", e.target.checked)} 
                         className="accent-brand-gold w-4 h-4"
@@ -452,9 +466,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("adults")}</label>
+                    <label htmlFor="adults" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("adults")}</label>
                     <select 
                       name="adults" 
+                      id="adults"
                       value={formData.adults} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -466,9 +481,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("children")}</label>
+                    <label htmlFor="children" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("children")}</label>
                     <select 
                       name="children" 
+                      id="children"
                       value={formData.children} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -480,9 +496,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("duration")}</label>
+                    <label htmlFor="duration" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("duration")}</label>
                     <select 
                       name="duration" 
+                      id="duration"
                       value={formData.duration} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -496,9 +513,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("contactMethod")}</label>
+                    <label htmlFor="preferredContact" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("contactMethod")}</label>
                     <select 
                       name="preferredContact" 
+                      id="preferredContact"
                       value={formData.preferredContact} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors select-none"
@@ -532,9 +550,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                 {/* Dropdowns: Accommodation Selector */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-gray-100 pt-6 select-none">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("preferredAccommodation")}</label>
+                    <label htmlFor="preferredAccommodation" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("preferredAccommodation")}</label>
                     <select 
                       name="preferredAccommodation" 
+                      id="preferredAccommodation"
                       value={formData.preferredAccommodation} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -547,9 +566,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("howFound")}</label>
+                    <label htmlFor="howFound" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{t("howFound")}</label>
                     <select 
                       name="howFound" 
+                      id="howFound"
                       value={formData.howFound} 
                       onChange={handleInputChange} 
                       className="w-full text-xs font-semibold px-4.5 py-3.5 border border-gray-200 focus:border-brand-gold focus:outline-none rounded-sm bg-gray-50/50 transition-colors"
@@ -566,9 +586,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
 
                 {/* Message Textarea */}
                 <div className="border-t border-gray-100 pt-6">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("message")} *</label>
+                  <label htmlFor="message" className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block select-none">{t("message")} *</label>
                   <textarea 
                     name="message" 
+                    id="message"
                     value={formData.message} 
                     onChange={handleInputChange} 
                     required 
@@ -580,9 +601,10 @@ export default function Contact({ locale, staysList, contact }: ContactProps) {
 
                 {/* Terms agreement checkbox */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-t border-gray-100 pt-6 select-none">
-                  <label className="flex items-center gap-2.5 text-xs text-gray-600 font-medium cursor-pointer">
+                  <label htmlFor="agree" className="flex items-center gap-2.5 text-xs text-gray-600 font-medium cursor-pointer">
                     <input 
                       type="checkbox" 
+                      id="agree"
                       checked={formData.agree} 
                       onChange={(e) => handleCheckboxChange("agree", e.target.checked)} 
                       required

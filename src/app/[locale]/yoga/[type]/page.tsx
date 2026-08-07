@@ -1,4 +1,41 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; type: string }>;
+}): Promise<Metadata> {
+  const { locale, type } = await params;
+  
+  let titleKey = "retreatsTitle";
+  let descKey = "retreatsDesc";
+
+  if (type === "daily-yoga-classes" || type === "classes") {
+    titleKey = "classesTitle";
+    descKey = "classesDesc";
+  } else if (type === "private-yoga-sessions" || type === "private") {
+    titleKey = "privateTitle";
+    descKey = "privateDesc";
+  } else if (type === "teachers") {
+    titleKey = "teachersTitle";
+    descKey = "teachersDesc";
+  }
+
+  const messages = await getMessages({ locale });
+  const t = messages.Yoga as any || {};
+  const title = t[titleKey] || "Yoga Program";
+  const description = t[descKey] || `Explore curated yoga ${type} options at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title: `${title} | Villa Lemon`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/yoga/${type}`,
+    },
+  };
+}
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";

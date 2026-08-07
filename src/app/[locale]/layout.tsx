@@ -36,14 +36,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       template: "%s | Villa Lemon",
     },
     description: t("description"),
-    metadataBase: new URL("https://villalemon.com"),
+    metadataBase: new URL("https://villalemon.in"),
     alternates: {
-      canonical: "/",
+      canonical: `/${locale}`,
     },
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: "https://villalemon.com",
+      url: `https://villalemon.in/${locale}`,
       siteName: "Villa Lemon",
       images: [
         {
@@ -100,8 +100,8 @@ export default async function RootLayout({
     "@type": "LodgingBusiness",
     "name": "Villa Lemon",
     "description": "Premium luxury villa rental and wellness experience platform.",
-    "image": "https://villalemon.com/assets/hero.png",
-    "url": "https://villalemon.com",
+    "image": "https://villalemon.in/assets/hero.png",
+    "url": "https://villalemon.in",
     "telephone": "+1-555-LEMON-VILLA",
     "address": {
       "@type": "PostalAddress",

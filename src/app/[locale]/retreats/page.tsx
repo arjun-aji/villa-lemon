@@ -1,4 +1,25 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const messages = await getMessages({ locale });
+  const t = messages.Yoga as any || {};
+  const title = t.retreatsTitle || "Yoga Retreats";
+  const description = t.retreatsDesc || "Discover transformative yoga and wellness retreats for mind, body, and soul at Villa Lemon in Varkala, Kerala.";
+
+  return {
+    title: `${title} | Villa Lemon`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/retreats`,
+    },
+  };
+}
 
 import React from "react";
 import Image from "next/image";

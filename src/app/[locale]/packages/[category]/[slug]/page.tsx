@@ -1,4 +1,48 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; category: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, category, slug } = await params;
+  const pkg = await getPackageDetails(slug);
+  if (!pkg) {
+    return {
+      title: "Package Details | Villa Lemon",
+      description: "Explore curated packages at Villa Lemon.",
+      alternates: {
+        canonical: `/${locale}/packages/${category}/${slug}`,
+      },
+    };
+  }
+
+  const title = pkg.metaTitle?.[locale] || pkg.metaTitle?.en || `${loc(pkg.title, locale)} | Villa Lemon`;
+  const description = pkg.metaDescription?.[locale] || pkg.metaDescription?.en || loc(pkg.shortDescription, locale) || `Explore package ${loc(pkg.title, locale)} at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/packages/${category}/${slug}`,
+    },
+    openGraph: {
+      title,
+      description: description.slice(0, 160),
+      url: `https://villalemon.in/${locale}/packages/${category}/${slug}`,
+      images: [
+        {
+          url: pkg.image || "/assets/hero.png",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+  };
+}
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -50,6 +94,10 @@ interface PackageDetails {
   inclusions: Array<Record<string, string>>;
   exclusions: Array<Record<string, string>>;
   highlights: Array<{ icon: string; label: Record<string, string> }>;
+  metaTitle?: Record<string, string>;
+  metaDescription?: Record<string, string>;
+  keywords?: Record<string, string>;
+  canonicalUrl?: string;
   whyGuestsLoveUs: Array<{ icon: string; title: Record<string, string>; desc: Record<string, string> }>;
 
   // General Info

@@ -1,4 +1,37 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; type: string }>;
+}): Promise<Metadata> {
+  const { locale, type } = await params;
+  let titleKey = "villaTitle";
+  let descKey = "villaDesc";
+
+  if (type === "floors" || type === "floor") {
+    titleKey = "floorTitle";
+    descKey = "floorDesc";
+  } else if (type === "rooms" || type === "room") {
+    titleKey = "roomTitle";
+    descKey = "roomDesc";
+  }
+
+  const messages = await getMessages({ locale });
+  const t = messages.Accommodations as any || {};
+  const title = t[titleKey] || (type === "villas" ? "Entire Villas" : type === "floors" ? "Private Floors" : "Individual Rooms");
+  const description = t[descKey] || `Discover premium private ${type} at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title: `${title} | Villa Lemon`,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/accommodation/${type}`,
+    },
+  };
+}
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";

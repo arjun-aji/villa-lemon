@@ -1,4 +1,55 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; type: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, type, slug } = await params;
+  const yoga = await getYogaDetails(slug);
+  
+  const loc = (field: any) => {
+    if (!field) return "";
+    if (typeof field === "string") return field;
+    return field[locale] || field["en"] || Object.values(field)[0] || "";
+  };
+
+  if (!yoga) {
+    return {
+      title: "Yoga Program Details | Villa Lemon",
+      description: "Explore yoga and wellness programs at Villa Lemon.",
+      alternates: {
+        canonical: `/${locale}/yoga/${type}/${slug}`,
+      },
+    };
+  }
+
+  const title = yoga.metaTitle?.[locale] || yoga.metaTitle?.en || `${loc(yoga.title)} | Villa Lemon`;
+  const description = yoga.metaDescription?.[locale] || yoga.metaDescription?.en || loc(yoga.shortDescription) || `Explore ${loc(yoga.title)} yoga program at Villa Lemon in Varkala, Kerala.`;
+
+  return {
+    title,
+    description: description.slice(0, 160),
+    alternates: {
+      canonical: `/${locale}/yoga/${type}/${slug}`,
+    },
+    openGraph: {
+      title,
+      description: description.slice(0, 160),
+      url: `https://villalemon.in/${locale}/yoga/${type}/${slug}`,
+      images: [
+        {
+          url: yoga.image || "/assets/hero.png",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+  };
+}
+
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,6 +85,10 @@ interface YogaDetails {
   inclusions: Array<Record<string, string>>;
   relatedYoga?: string[];
   images?: string[];
+  metaTitle?: Record<string, string>;
+  metaDescription?: Record<string, string>;
+  keywords?: Record<string, string>;
+  canonicalUrl?: string;
 }
 
 interface TeacherType {
