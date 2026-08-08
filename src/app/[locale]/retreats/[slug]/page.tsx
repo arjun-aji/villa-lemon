@@ -499,7 +499,7 @@ export default async function RetreatDetailsPage({
                             </div>
                           </div>
                         </div>
-                         {!room.hideRate && (room.sharedPrice > 0 || room.privatePrice > 0) && (
+                         {!retreat.hideRate && !room.hideRate && (room.sharedPrice > 0 || room.privatePrice > 0) && (
                           <div className="bg-gray-50/50 p-5 border-t border-gray-100 flex items-center justify-between text-xs w-full">
                             {room.sharedPrice > 0 && (
                               <div>
