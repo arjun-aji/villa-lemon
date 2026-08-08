@@ -11,7 +11,10 @@ export async function generateMetadata({
   let titleKey = "retreatsTitle";
   let descKey = "retreatsDesc";
 
-  if (type === "daily-yoga-classes" || type === "classes") {
+  if (type.toLowerCase() === "host-your-yoga-retreat") {
+    titleKey = "hostRetreatTitle";
+    descKey = "hostRetreatDesc";
+  } else if (type === "daily-yoga-classes" || type === "classes") {
     titleKey = "classesTitle";
     descKey = "classesDesc";
   } else if (type === "private-yoga-sessions" || type === "private") {
@@ -44,9 +47,11 @@ import Navbar from "@/components/Navbar";
 import { getMessages } from "next-intl/server";
 import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
+import HostRetreatDashboard from "@/components/HostRetreatDashboard";
 import { API_BASE_URL } from "@/config/api";
 import YogaGridSlider from "@/components/YogaGridSlider";
 import { localizeObject } from "@/utils/translator";
+import { getContactSettings } from "@/utils/contactSettings";
 
 interface YogaItemType {
   _id: string;
@@ -121,6 +126,69 @@ export default async function YogaCatalogPage({
 
   const messages = await getMessages({ locale });
   const tYoga = messages.Yoga as any;
+
+  const isHostRetreat = type.toLowerCase() === "host-your-yoga-retreat";
+  if (isHostRetreat) {
+    const contactSettings = await getContactSettings();
+    const whatsappNumber = contactSettings.whatsapp || "+91 73560 85055";
+
+    const title = tYoga.hostRetreatTitle || "Host Your Yoga Retreat";
+    const desc = tYoga.hostRetreatDesc || "Configure and book our property to conduct your own wellness retreats.";
+
+    return (
+      <>
+        <Navbar />
+        <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16">
+          <PageAutoTranslator locale={locale}>
+            {/* HEADER SECTION */}
+            <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
+              <div className="absolute inset-0 z-0">
+                <Image
+                  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1600"
+                  alt="Host Your Retreat Banner"
+                  fill
+                  className="object-cover opacity-45 brightness-75 select-none"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/40 to-transparent z-10" />
+              </div>
+
+              <div className="max-w-7xl mx-auto px-6 md:px-12 w-full pb-6 md:pb-8 relative z-20">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                  <Link 
+                    href={`/${locale}#yogatours`}
+                    className="flex items-center gap-1 text-[10px] md:text-xs font-bold tracking-wider text-brand-gold hover:text-white uppercase transition-colors select-none"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back to Yoga Tours</span>
+                  </Link>
+
+                  {/* Breadcrumb */}
+                  <div className="hidden md:flex items-center gap-1.5 text-white/60 text-[10px] md:text-xs tracking-wider uppercase font-semibold select-none">
+                    <Link href={`/${locale}`} className="hover:text-brand-gold transition-colors">Home</Link>
+                    <span>&gt;</span>
+                    <Link href={`/${locale}#yogatours`} className="hover:text-brand-gold transition-colors">Yoga</Link>
+                    <span>&gt;</span>
+                    <span className="text-brand-gold">{title}</span>
+                  </div>
+                </div>
+
+                <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
+                  {title}
+                </h1>
+                <p className="max-w-2xl text-xs sm:text-sm text-white/80 font-light leading-relaxed font-sans font-light">
+                  {desc}
+                </p>
+              </div>
+            </section>
+
+            {/* INTERACTIVE DASHBOARD AND INFORMATION DETAILS */}
+            <HostRetreatDashboard locale={locale} whatsappNumber={whatsappNumber} />
+          </PageAutoTranslator>
+        </main>
+      </>
+    );
+  }
 
   // Load yoga program categories
   let yogaCategories = [];
