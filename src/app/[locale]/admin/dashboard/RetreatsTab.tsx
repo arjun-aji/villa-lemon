@@ -511,7 +511,7 @@ export default function RetreatsTab({
               {[
                 ["days", "Days (Length)", 11],
                 ["nights", "Nights (Length)", 10],
-                ["price", "Starting Price (₹)", 24999],
+                ["price", "Price ($)", 599],
                 ["yogaHours", "Total Yoga Hours", 30],
                 ["minAge", "Min Age Allowed", 18],
                 ["maxCapacity", "Max Capacity Limit", 20],
@@ -883,12 +883,12 @@ export default function RetreatsTab({
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="flex flex-col gap-1">
-                        <label className="font-bold text-gray-600 uppercase text-[9px]">Shared Occupancy Price (₹)</label>
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Shared Occupancy Price ($)</label>
                         <input type="number" min="0" value={rm.sharedPrice || 0} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("rooms", arr); }}
                           className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <label className="font-bold text-gray-600 uppercase text-[9px]">Private Occupancy Price (₹)</label>
+                        <label className="font-bold text-gray-600 uppercase text-[9px]">Private Occupancy Price ($)</label>
                         <input type="number" min="0" value={rm.privatePrice || 0} onChange={e => { const arr = [...form.rooms]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("rooms", arr); }}
                           className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
                       </div>
@@ -1164,7 +1164,7 @@ export default function RetreatsTab({
                           <LocalInput value={tr.name} onChange={v => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], name: v }; setF("ayurvedaTreatments", arr); }} label="Treatment Title" activeLang={activeLangTab} placeholder="Abhyanga Massage" />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="font-bold text-gray-600 uppercase text-[9px]">Additional Cost (₹)</label>
+                          <label className="font-bold text-gray-600 uppercase text-[9px]">Additional Cost ($)</label>
                           <input type="number" min="0" value={tr.extraCost} onChange={e => { const arr = [...form.ayurvedaTreatments]; arr[i] = { ...arr[i], extraCost: Number(e.target.value) }; setF("ayurvedaTreatments", arr); }}
                             className="border border-gray-200 p-2 rounded text-xs bg-white" />
                         </div>
@@ -1196,12 +1196,12 @@ export default function RetreatsTab({
                       <LocalInput value={pr.roomCategory} onChange={v => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], roomCategory: v }; setF("pricingRows", arr); }} label="Room Category name" activeLang={activeLangTab} placeholder="Budget Room / Standard Room" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="font-bold text-gray-600 uppercase text-[9px]">Shared price (₹)</label>
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Shared price ($)</label>
                       <input type="number" min="0" value={pr.sharedPrice} onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], sharedPrice: Number(e.target.value) }; setF("pricingRows", arr); }}
                         className="border border-gray-200 p-2 rounded text-xs bg-white" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="font-bold text-gray-600 uppercase text-[9px]">Private price (₹)</label>
+                      <label className="font-bold text-gray-600 uppercase text-[9px]">Private price ($)</label>
                       <input type="number" min="0" value={pr.privatePrice} onChange={e => { const arr = [...form.pricingRows]; arr[i] = { ...arr[i], privatePrice: Number(e.target.value) }; setF("pricingRows", arr); }}
                         className="border border-gray-200 p-2 rounded text-xs bg-white" />
                     </div>
@@ -1375,7 +1375,7 @@ export default function RetreatsTab({
                   <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-500 font-medium">
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {r.days}D / {r.nights}N</span>
                     <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {r.groupSize?.en || `Max ${r.maxCapacity}`}</span>
-                    {r.price > 0 && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> ₹{r.price.toLocaleString()}</span>}
+                    {r.price > 0 && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> ${r.price.toLocaleString()}</span>}
                   </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
                     <button onClick={() => openEdit(r)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider border border-gray-200 hover:border-brand-gold px-2.5 py-1.5 rounded-sm text-gray-700 hover:text-brand-gold transition-colors cursor-pointer">

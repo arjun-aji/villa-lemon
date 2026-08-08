@@ -232,9 +232,9 @@ export default async function RetreatsCatalogPage({
                         <div className="w-full flex items-center justify-between border-t border-gray-100 pt-4 mt-5">
                           {!retreat.hideRate ? (
                             <div>
-                              <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Starting From</span>
+                              <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Price</span>
                               <span className="text-sm font-bold text-gray-800 mt-1 block">
-                                {retreat.price > 0 ? `₹${retreat.price.toLocaleString()}` : "On Request"}
+                                {retreat.price > 0 ? `$${retreat.price.toLocaleString()}` : "On Request"}
                               </span>
                             </div>
                           ) : (

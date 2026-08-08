@@ -114,7 +114,7 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
               
               {!item.hideRate && (
                 <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
-                  ₹{item.price.toLocaleString()} {item.pricePeriod}
+                  {item.detailUrl.includes("/retreats/") ? "$" : "₹"}{item.price.toLocaleString()} {item.pricePeriod}
                 </div>
               )}
               
