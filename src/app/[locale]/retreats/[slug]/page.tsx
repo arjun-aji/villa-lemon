@@ -680,9 +680,6 @@ export default async function RetreatDetailsPage({
             <div className="lg:col-span-4 flex flex-col space-y-6">
               <div className="sticky top-28 space-y-6">
                 <div id="booking-pricing" className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
-                  <span className="text-[8px] font-bold bg-brand-gold/15 text-brand-gold uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm mb-3 inline-block">
-                    Booking Enquiry
-                  </span>
                    {!retreat.hideRate && (
                     <div className="flex items-baseline gap-1.5 mb-4">
                       <span className="text-xs text-gray-400 font-semibold uppercase">Price</span>
@@ -722,14 +719,14 @@ export default async function RetreatDetailsPage({
                       className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
                     >
                       <Phone className="w-4 h-4 fill-white" />
-                      Enquire on WhatsApp
+                      WhatsApp Booking
                     </a>
 
                     <a
                       href={`mailto:${contact.email}?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat...`}
                       className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black"
                     >
-                      Send Email Enquiry
+                      Book Now
                     </a>
                   </div>
 
