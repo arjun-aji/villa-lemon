@@ -65,6 +65,7 @@ import { API_BASE_URL } from "@/config/api";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { getContactSettings } from "@/utils/contactSettings";
 import BookingButton from "@/components/BookingButton";
+import RetreatGalleryClient from "@/components/RetreatGalleryClient";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -163,6 +164,7 @@ interface RetreatDetail {
   checkIn?: string;
   checkOut?: string;
   bookingTerms?: Record<string, string>;
+  images?: string[];
 }
 
 async function getRetreatDetails(slug: string): Promise<RetreatDetail | null> {
@@ -644,6 +646,13 @@ export default async function RetreatDetailsPage({
                   </div>
                 )}
               </div>
+
+              {/* SECTION: GALLERY */}
+              {retreat.images && retreat.images.length > 0 && (
+                <div className="mt-6 border-t border-[#eae6db] pt-12">
+                  <RetreatGalleryClient images={retreat.images} />
+                </div>
+              )}
 
               {/* SECTION: FAQS */}
               {retreat.faqs && retreat.faqs.length > 0 && (

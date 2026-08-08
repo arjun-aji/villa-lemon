@@ -186,6 +186,7 @@ export const createRetreat = async (req: Request, res: Response): Promise<any> =
       // Gallery
       galleryYoga, galleryAccommodation, galleryExcursions, galleryFood,
       galleryTeachers, galleryBeach, galleryStudents, galleryCampus,
+      images: pf(req.body.images) || [],
 
       // Downloads
       brochureUrl: req.body.brochureUrl || "",
@@ -293,7 +294,7 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
     updateBool("isUpcoming", "true");
     updateBool("hideRate", "true");
 
-    ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates"].forEach((k) => {
+    ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates","images"].forEach((k) => {
       if (req.body[k] !== undefined) (retreat as any)[k] = pf(req.body[k]);
     });
 

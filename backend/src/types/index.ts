@@ -517,6 +517,7 @@ export interface IRetreat extends Document {
   galleryBeach: string[];
   galleryStudents: string[];
   galleryCampus: string[];
+  images?: string[];
 
   // Downloads
   brochureUrl: string;

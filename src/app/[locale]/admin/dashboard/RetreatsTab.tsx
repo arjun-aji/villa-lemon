@@ -169,6 +169,7 @@ const defaultForm = () => ({
   faqs: [] as { question: LT; answer: LT }[],
   reviews: [] as { name: string; country: string; photo: string; stars: number; review: LT; retreatJoined: string }[],
   certificates: [] as { image: string; name: LT; description: LT }[],
+  images: [] as string[],
 });
 
 type RetreatForm = ReturnType<typeof defaultForm>;
@@ -264,6 +265,7 @@ export default function RetreatsTab({
   const [saving, setSaving] = useState(false);
   const [uploadingRoomIdx, setUploadingRoomIdx] = useState<number | null>(null);
   const [uploadingExcursionIdx, setUploadingExcursionIdx] = useState<number | null>(null);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState("");
@@ -611,6 +613,111 @@ export default function RetreatsTab({
               <label className="font-bold text-gray-600 uppercase text-[9px]">Google Maps Embedded Location URL</label>
               <input type="url" value={form.retreatMap} onChange={e => setF("retreatMap", e.target.value)}
                 placeholder="https://www.google.com/maps/embed?..." className="border border-gray-200 p-2.5 rounded text-xs w-full bg-white focus:outline-none" />
+            </div>
+
+            <div className="flex flex-col gap-1.5 border-t border-gray-200 pt-4 mt-4">
+              <label className="font-bold text-gray-600 uppercase text-[9px]">Retreat Gallery Images</label>
+              
+              {/* Gallery Grid */}
+              {form.images && form.images.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-3">
+                  {form.images.map((img, idx) => (
+                    <div key={idx} className="relative aspect-video rounded border border-gray-200 overflow-hidden bg-white shadow-sm group">
+                      <img src={img} className="w-full h-full object-cover" alt="Gallery thumbnail" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const arr = form.images?.filter((_, i) => i !== idx) || [];
+                          setF("images", arr);
+                        }}
+                        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white hover:text-red-400 cursor-pointer"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload controls */}
+              <div className="flex items-center gap-3">
+                <label className="border border-dashed border-gray-300 hover:border-brand-gold rounded py-4 px-6 cursor-pointer text-center bg-white hover:bg-amber-50/20 transition-all select-none flex-1 max-w-[200px]">
+                  {uploadingGallery ? (
+                    <span className="text-xs text-gray-400 font-bold uppercase tracking-wider block animate-pulse">Uploading...</span>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
+                      <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Add Photo</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingGallery}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploadingGallery(true);
+                      try {
+                        const fd = new FormData();
+                        fd.append("image", file);
+                        const res = await fetch(`${API_BASE_URL}/api/retreats/upload-image`, {
+                          method: "POST",
+                          headers: { Authorization: `Bearer ${token}` },
+                          body: fd,
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          const currentImages = form.images || [];
+                          setF("images", [...currentImages, data.secure_url]);
+                        } else {
+                          alert("Upload failed");
+                        }
+                      } catch (err) {
+                        console.error("Gallery upload error", err);
+                      } finally {
+                        setUploadingGallery(false);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                <div className="flex-1 flex gap-2">
+                  <input
+                    type="url"
+                    id="newGalleryUrlInput"
+                    placeholder="Or paste image URL here..."
+                    className="border border-gray-200 p-2 rounded text-xs flex-1 bg-white focus:outline-none focus:border-brand-gold"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const input = e.currentTarget;
+                        const url = input.value.trim();
+                        if (url) {
+                          const currentImages = form.images || [];
+                          setF("images", [...currentImages, url]);
+                          input.value = "";
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById("newGalleryUrlInput") as HTMLInputElement;
+                      const url = input?.value.trim();
+                      if (url) {
+                        const currentImages = form.images || [];
+                        setF("images", [...currentImages, url]);
+                        if (input) input.value = "";
+                      }
+                    }}
+                    className="bg-[#121212] hover:bg-black text-white text-xs font-bold uppercase px-4 py-2.5 rounded-sm cursor-pointer select-none"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

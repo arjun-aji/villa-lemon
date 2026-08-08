@@ -210,6 +210,7 @@ const retreatSchema = new Schema<IRetreat>({
   galleryBeach: [{ type: String }],
   galleryStudents: [{ type: String }],
   galleryCampus: [{ type: String }],
+  images: [{ type: String }],
 
   // Downloads
   brochureUrl: { type: String, default: "" },
