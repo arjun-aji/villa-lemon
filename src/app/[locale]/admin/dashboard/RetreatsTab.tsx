@@ -391,7 +391,7 @@ export default function RetreatsTab({
         "ayurvedaDescription", "deposit", "balancePayment", "cancellation", "refund", "pickup", "drop", "medicalInfo", "specialRequests", "bookingTerms",
         "metaTitle", "metaDescription", "keywords"
       ];
-      const arrFields = ["highlights", "dailySchedule", "curriculum", "excursions", "rooms", "meals", "teachers", "ayurvedaTreatments", "pricingRows", "inclusions", "exclusions", "thingsToBring", "dressCode", "requirements", "whoShouldAvoid", "faqs", "reviews", "certificates", "availableDates"];
+      const arrFields = ["highlights", "dailySchedule", "curriculum", "excursions", "rooms", "meals", "teachers", "ayurvedaTreatments", "pricingRows", "inclusions", "exclusions", "thingsToBring", "dressCode", "requirements", "whoShouldAvoid", "faqs", "reviews", "certificates", "availableDates", "images"];
 
       strFields.forEach(k => fd.append(k, (form as any)[k] || ""));
       boolFields.forEach(k => fd.append(k, String((form as any)[k])));
@@ -677,6 +677,7 @@ export default function RetreatsTab({
                         console.error("Gallery upload error", err);
                       } finally {
                         setUploadingGallery(false);
+                        e.target.value = "";
                       }
                     }}
                     className="hidden"
