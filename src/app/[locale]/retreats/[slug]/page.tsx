@@ -722,12 +722,12 @@ export default async function RetreatDetailsPage({
                       WhatsApp Booking
                     </a>
 
-                    <a
-                      href={`mailto:${contact.email}?subject=Retreat%20Booking%20Enquiry&body=Hello%20Villa%20Lemon,%20I'd%20like%20to%20know%20more%20about%20the%20retreat...`}
-                      className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black"
+                    <BookingButton
+                      context="retreat"
+                      className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black cursor-pointer"
                     >
                       Book Now
-                    </a>
+                    </BookingButton>
                   </div>
 
                   {/* Checklist/Policies info inside sidebar card */}
