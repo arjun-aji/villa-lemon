@@ -363,7 +363,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
           </div>
 
           {/* ELEGANT MENU CARD DISPLAY */}
-          <div className="relative bg-[#faf7f2] border-2 border-brand-gold/25 p-6 md:p-10 rounded-sm shadow-md max-w-4xl mx-auto overflow-hidden">
+          <div className="relative bg-[#faf7f2] border-2 border-brand-gold/25 p-6 md:p-10 rounded-sm shadow-md max-w-5xl mx-auto overflow-hidden">
             {/* Watermark/Background ornament */}
             <div className="absolute -right-12 -bottom-12 w-48 h-48 opacity-5 text-[#eae6db] font-serif pointer-events-none select-none text-[200px]">
               🍋
@@ -376,7 +376,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
               </h4>
               <p className="text-[10px] text-gray-400 font-sans tracking-wide mt-1.5">100% Homemade · Fresh Ingredients · Traditional Flavors</p>
             </div>
-
+ 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Breakfast Menu Card */}
               <div className="space-y-4">
@@ -388,13 +388,13 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
                 </div>
                 <ul className="text-xs text-gray-600 font-light space-y-2.5 text-center leading-relaxed">
                   {t("menuBreakfastItems").split(", ").map((item, idx) => (
-                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200">{item}</li>
+                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200 md:whitespace-nowrap">{item}</li>
                   ))}
                 </ul>
               </div>
-
+ 
               {/* Lunch Menu Card */}
-              <div className="space-y-4 border-t md:border-t-0 md:border-l md:border-r border-brand-gold/15 pt-6 md:pt-0 px-0 md:px-6">
+              <div className="space-y-4 border-t md:border-t-0 md:border-l md:border-r border-brand-gold/15 pt-6 md:pt-0 px-0 md:px-4">
                 <div className="text-center">
                   <h5 className="font-serif font-bold text-xs text-[#b3966e] uppercase tracking-widest border-b border-brand-gold/15 pb-1 mb-3">
                     {t("menuLunchTitle").replace(/[^a-zA-Z\s]/g, "").trim() || "Lunch"}
@@ -403,11 +403,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
                 </div>
                 <ul className="text-xs text-gray-600 font-light space-y-2.5 text-center leading-relaxed">
                   {t("menuLunchItems").split(", ").map((item, idx) => (
-                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200">{item}</li>
+                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200 md:whitespace-nowrap">{item}</li>
                   ))}
                 </ul>
               </div>
-
+ 
               {/* Dinner Menu Card */}
               <div className="space-y-4 border-t md:border-t-0 pt-6 md:pt-0">
                 <div className="text-center">
@@ -418,12 +418,12 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
                 </div>
                 <ul className="text-xs text-gray-600 font-light space-y-2.5 text-center leading-relaxed">
                   {t("menuDinnerItems").split(", ").map((item, idx) => (
-                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200">{item}</li>
+                    <li key={idx} className="hover:text-brand-gold transition-colors duration-200 md:whitespace-nowrap">{item}</li>
                   ))}
                 </ul>
               </div>
             </div>
-
+ 
             {/* Menu Legend/Footnote */}
             <div className="mt-10 pt-5 border-t border-brand-gold/20 text-[9px] text-gray-400 font-sans text-center flex flex-wrap justify-center gap-x-6 gap-y-2">
               {t("menuFooterItems").split(", ").map((item, idx) => (
