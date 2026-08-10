@@ -4640,48 +4640,104 @@ export default function AdminDashboard() {
                           />
                         </div>
 
-                        <div className="flex flex-col gap-1.5 border-t pt-3">
-                          <label className="font-bold text-gray-600 uppercase">More than 60 days description</label>
-                          <textarea
-                            rows={2}
-                            value={getRetreatConfigVal("cancel60DaysDesc")}
-                            onChange={(e) => setRetreatConfigVal("cancel60DaysDesc", e.target.value)}
-                            placeholder="e.g. Full refund excluding non-refundable booking deposit."
-                            className="border p-2.5 rounded font-sans"
-                          />
+                        {/* Tier 1: 30+ days */}
+                        <div className="border-t pt-3 space-y-2">
+                          <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Tier 1 — 30+ Days Before Check-in</p>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Heading / Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("cancel60Days")}
+                              onChange={(e) => setRetreatConfigVal("cancel60Days", e.target.value)}
+                              placeholder="e.g. Cancellations made 30 days or more before the check-in date"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Description</label>
+                            <textarea
+                              rows={2}
+                              value={getRetreatConfigVal("cancel60DaysDesc")}
+                              onChange={(e) => setRetreatConfigVal("cancel60DaysDesc", e.target.value)}
+                              placeholder="e.g. Eligible for a full refund of the advance payment."
+                              className="border p-2.5 rounded font-sans"
+                            />
+                          </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5 border-t pt-3">
-                          <label className="font-bold text-gray-600 uppercase">30 to 59 days description</label>
-                          <textarea
-                            rows={2}
-                            value={getRetreatConfigVal("cancel30to59Desc")}
-                            onChange={(e) => setRetreatConfigVal("cancel30to59Desc", e.target.value)}
-                            placeholder="e.g. 50% of the total booking value will be charged."
-                            className="border p-2.5 rounded font-sans"
-                          />
+                        {/* Tier 2: Within 30 days */}
+                        <div className="border-t pt-3 space-y-2">
+                          <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Tier 2 — Within 30 Days Before Check-in</p>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Heading / Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("cancel30to59")}
+                              onChange={(e) => setRetreatConfigVal("cancel30to59", e.target.value)}
+                              placeholder="e.g. Cancellations made within 30 days of the check-in date"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Description</label>
+                            <textarea
+                              rows={2}
+                              value={getRetreatConfigVal("cancel30to59Desc")}
+                              onChange={(e) => setRetreatConfigVal("cancel30to59Desc", e.target.value)}
+                              placeholder="e.g. Non-refundable."
+                              className="border p-2.5 rounded font-sans"
+                            />
+                          </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5 border-t pt-3">
-                          <label className="font-bold text-gray-600 uppercase">Less than 30 days description</label>
-                          <textarea
-                            rows={2}
-                            value={getRetreatConfigVal("cancelUnder30Desc")}
-                            onChange={(e) => setRetreatConfigVal("cancelUnder30Desc", e.target.value)}
-                            placeholder="e.g. 100% of the total booking value will be charged."
-                            className="border p-2.5 rounded font-sans"
-                          />
+                        {/* Tier 3: Less than 30 days (optional) */}
+                        <div className="border-t pt-3 space-y-2">
+                          <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">Tier 3 — Less than 30 Days (Optional)</p>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Heading / Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("cancelUnder30")}
+                              onChange={(e) => setRetreatConfigVal("cancelUnder30", e.target.value)}
+                              placeholder="e.g. Cancellations made within 7 days..."
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Description</label>
+                            <textarea
+                              rows={2}
+                              value={getRetreatConfigVal("cancelUnder30Desc")}
+                              onChange={(e) => setRetreatConfigVal("cancelUnder30Desc", e.target.value)}
+                              placeholder="e.g. 100% of the total booking value will be charged."
+                              className="border p-2.5 rounded font-sans"
+                            />
+                          </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5 border-t pt-3">
-                          <label className="font-bold text-gray-600 uppercase">No-show & Early Departure description</label>
-                          <textarea
-                            rows={2}
-                            value={getRetreatConfigVal("noShowDesc")}
-                            onChange={(e) => setRetreatConfigVal("noShowDesc", e.target.value)}
-                            placeholder="e.g. No refund will be provided for unused nights or early departure."
-                            className="border p-2.5 rounded font-sans"
-                          />
+                        {/* No-Show (optional) */}
+                        <div className="border-t pt-3 space-y-2">
+                          <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">No-Show & Early Departure (Optional)</p>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Heading / Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("noShow")}
+                              onChange={(e) => setRetreatConfigVal("noShow", e.target.value)}
+                              placeholder="e.g. No-Show & Early Departure"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Description</label>
+                            <textarea
+                              rows={2}
+                              value={getRetreatConfigVal("noShowDesc")}
+                              onChange={(e) => setRetreatConfigVal("noShowDesc", e.target.value)}
+                              placeholder="e.g. No refund will be provided for unused nights or early departure."
+                              className="border p-2.5 rounded font-sans"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
