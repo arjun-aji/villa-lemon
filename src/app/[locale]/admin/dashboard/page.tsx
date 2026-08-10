@@ -1274,6 +1274,8 @@ export default function AdminDashboard() {
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
   const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "rooms" | "features" | "meals" | "logistics" | "policies" | "cancellation" | "experience-faqs">("general");
+  const [addonCount, setAddonCount] = useState(3);
+  const [faqCount, setFaqCount] = useState(4);
 
   // Rooms editing sub-state
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
@@ -3803,7 +3805,7 @@ export default function AdminDashboard() {
       ======================================================== */}
       {showSubgroupModal && subgroupForm.title && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-0 sm:p-4 overflow-y-auto select-text text-left">
-          <div className="bg-white rounded-none sm:rounded-md max-w-2xl w-full h-screen sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border-0 sm:border border-gray-150">
+          <div className="bg-white rounded-none sm:rounded-md max-w-4xl w-full h-screen sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl border-0 sm:border border-gray-150">
             
             <div className="p-6 border-b border-gray-150 flex items-center justify-between bg-[#121212] text-white">
               <div>
@@ -4751,75 +4753,54 @@ export default function AdminDashboard() {
                               className="border p-2.5 rounded font-sans text-xs bg-white"
                             />
                           </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 1 Title</label>
-                              <input
-                                type="text"
-                                value={getRetreatConfigVal("addon1Title")}
-                                onChange={(e) => setRetreatConfigVal("addon1Title", e.target.value)}
-                                placeholder="e.g. Varkala Sightseeing"
-                                className="border p-2.5 rounded bg-white text-xs"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 1 Description</label>
-                              <textarea
-                                rows={2}
-                                value={getRetreatConfigVal("addon1Desc")}
-                                onChange={(e) => setRetreatConfigVal("addon1Desc", e.target.value)}
-                                placeholder="Addon 1 details..."
-                                className="border p-2.5 rounded font-sans text-xs bg-white"
-                              />
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 2 Title</label>
-                              <input
-                                type="text"
-                                value={getRetreatConfigVal("addon2Title")}
-                                onChange={(e) => setRetreatConfigVal("addon2Title", e.target.value)}
-                                placeholder="e.g. Backwater Tours"
-                                className="border p-2.5 rounded bg-white text-xs"
-                              />
+                          {/* DYNAMIC ADDON LIST */}
+                          {Array.from({ length: addonCount }, (_, i) => i + 1).map((num) => (
+                            <div key={num} className="border-t pt-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-brand-gold text-[10px] uppercase tracking-widest">Addon #{num}</span>
+                                {num === addonCount && num > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setAddonCount(c => c - 1)}
+                                    className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded"
+                                  >
+                                    ✕ Remove
+                                  </button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="font-bold text-gray-600 uppercase text-[10px]">Title</label>
+                                  <input
+                                    type="text"
+                                    value={getRetreatConfigVal(`addon${num}Title`)}
+                                    onChange={(e) => setRetreatConfigVal(`addon${num}Title`, e.target.value)}
+                                    placeholder={`e.g. Addon ${num} title`}
+                                    className="border p-2.5 rounded bg-white text-xs"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="font-bold text-gray-600 uppercase text-[10px]">Description</label>
+                                  <textarea
+                                    rows={2}
+                                    value={getRetreatConfigVal(`addon${num}Desc`)}
+                                    onChange={(e) => setRetreatConfigVal(`addon${num}Desc`, e.target.value)}
+                                    placeholder={`Addon ${num} details...`}
+                                    className="border p-2.5 rounded font-sans text-xs bg-white"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 2 Description</label>
-                              <textarea
-                                rows={2}
-                                value={getRetreatConfigVal("addon2Desc")}
-                                onChange={(e) => setRetreatConfigVal("addon2Desc", e.target.value)}
-                                placeholder="Addon 2 details..."
-                                className="border p-2.5 rounded font-sans text-xs bg-white"
-                              />
-                            </div>
-                          </div>
+                          ))}
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 3 Title</label>
-                              <input
-                                type="text"
-                                value={getRetreatConfigVal("addon3Title")}
-                                onChange={(e) => setRetreatConfigVal("addon3Title", e.target.value)}
-                                placeholder="e.g. Ayurvedic Massages"
-                                className="border p-2.5 rounded bg-white text-xs"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                              <label className="font-bold text-gray-600 uppercase">Addon 3 Description</label>
-                              <textarea
-                                rows={2}
-                                value={getRetreatConfigVal("addon3Desc")}
-                                onChange={(e) => setRetreatConfigVal("addon3Desc", e.target.value)}
-                                placeholder="Addon 3 details..."
-                                className="border p-2.5 rounded font-sans text-xs bg-white"
-                              />
-                            </div>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setAddonCount(c => c + 1)}
+                            className="mt-3 w-full py-2 border-2 border-dashed border-brand-gold/40 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/5 text-[11px] font-bold uppercase tracking-wider rounded transition-all duration-200 flex items-center justify-center gap-1"
+                          >
+                            + Add Another Addon
+                          </button>
                         </div>
                       </div>
 
@@ -4828,11 +4809,23 @@ export default function AdminDashboard() {
                           Section 3: Frequently Asked Questions ({activeLangTab.toUpperCase()})
                         </h4>
                         <div className="space-y-4">
-                          {[1, 2, 3, 4].map((num) => (
+                          {/* DYNAMIC FAQ LIST */}
+                          {Array.from({ length: faqCount }, (_, i) => i + 1).map((num) => (
                             <div key={num} className="p-3 border rounded bg-white space-y-3">
-                              <span className="font-bold text-brand-gold uppercase block">FAQ #{num}</span>
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-brand-gold uppercase text-[10px] tracking-widest">FAQ #{num}</span>
+                                {num === faqCount && num > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setFaqCount(c => c - 1)}
+                                    className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded"
+                                  >
+                                    ✕ Remove
+                                  </button>
+                                )}
+                              </div>
                               <div className="flex flex-col gap-1.5">
-                                <label className="font-semibold text-gray-600">Question</label>
+                                <label className="font-semibold text-gray-600 text-xs">Question</label>
                                 <input
                                   type="text"
                                   value={getRetreatConfigVal(`faq${num}Question`)}
@@ -4842,7 +4835,7 @@ export default function AdminDashboard() {
                                 />
                               </div>
                               <div className="flex flex-col gap-1.5">
-                                <label className="font-semibold text-gray-600">Answer</label>
+                                <label className="font-semibold text-gray-600 text-xs">Answer</label>
                                 <textarea
                                   rows={2}
                                   value={getRetreatConfigVal(`faq${num}Answer`)}
@@ -4853,6 +4846,14 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           ))}
+
+                          <button
+                            type="button"
+                            onClick={() => setFaqCount(c => c + 1)}
+                            className="w-full py-2 border-2 border-dashed border-brand-gold/40 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/5 text-[11px] font-bold uppercase tracking-wider rounded transition-all duration-200 flex items-center justify-center gap-1"
+                          >
+                            + Add Another FAQ
+                          </button>
                         </div>
                       </div>
                     </div>

@@ -279,26 +279,20 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
-              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">01. {t("addon1Title")}</span>
-              <p className="text-xs text-gray-500 font-light leading-relaxed">
-                {t("addon1Desc")}
-              </p>
-            </div>
-            
-            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
-              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">02. {t("addon2Title")}</span>
-              <p className="text-xs text-gray-500 font-light leading-relaxed">
-                {t("addon2Desc")}
-              </p>
-            </div>
-
-            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
-              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">03. {t("addon3Title")}</span>
-              <p className="text-xs text-gray-500 font-light leading-relaxed">
-                {t("addon3Desc")}
-              </p>
-            </div>
+            {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => {
+              const title = t(`addon${num}Title`);
+              const desc = t(`addon${num}Desc`);
+              const titleKey = `addon${num}Title`;
+              if (!title || title === titleKey || title.trim() === "") return null;
+              return (
+                <div key={num} className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
+                  <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">
+                    {String(num).padStart(2, "0")}. {title}
+                  </span>
+                  <p className="text-xs text-gray-500 font-light leading-relaxed">{desc}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -315,7 +309,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
           </div>
 
           <div className="bg-white border border-[#eae6db]/60 rounded-sm p-6 md:p-8 space-y-2 select-text">
-            {[1, 2, 3, 4].map((num) => {
+            {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => {
               const qKey = `faq${num}Question`;
               const aKey = `faq${num}Answer`;
               const question = t(qKey);
