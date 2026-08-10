@@ -55,6 +55,814 @@ interface LocalizedText {
   ru: string;
 }
 
+const DEFAULT_HOST_RETREAT_CONFIG = {
+  // Rooms
+  rooms: [
+    {
+      id: "room-101",
+      phase: 1,
+      number: "101",
+      ac: false,
+      category: {
+        en: "Double Room Ground Floor",
+        de: "Doppelzimmer Erdgeschoss",
+        fr: "Chambre Double Rez-de-Chaussée",
+        ru: "Двухместный Номер на Первом Этаже"
+      },
+      balcony: {
+        en: "No (garden-view window)",
+        de: "Nein (Gartenblick-Fenster)",
+        fr: "Non (fenêtre vue jardin)",
+        ru: "Нет (окно с видом на сад)"
+      },
+      beds: {
+        en: "1 large bed (6 ft × 6 ft) or 2 single beds",
+        de: "1 großes Bett (180x180 cm) oder 2 Einzelbetten",
+        fr: "1 grand lit (180x180 cm) ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Type",
+        de: "Geschlossener Typ",
+        fr: "Type Fermé",
+        ru: "Закрытый Тип"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser system (direct shower)",
+        de: "Geysersystem (direkte Dusche)",
+        fr: "Système de chauffe-eau (douche directe)",
+        ru: "Бойлерная система (прямой душ)"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-102",
+      phase: 1,
+      number: "102",
+      ac: false,
+      category: {
+        en: "Double Room Ground Floor",
+        de: "Doppelzimmer Erdgeschoss",
+        fr: "Chambre Double Rez-de-Chaussée",
+        ru: "Двухместный Номер на Первом Этаже"
+      },
+      balcony: {
+        en: "Small private balcony",
+        de: "Kleiner privater Balkon",
+        fr: "Petit balcon privé",
+        ru: "Небольшой собственный балкон"
+      },
+      beds: {
+        en: "1 large bed (6 ft × 6 ft) or 2 single beds",
+        de: "1 großes Bett (180x180 cm) oder 2 Einzelbetten",
+        fr: "1 grand lit (180x180 cm) ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Not available",
+        de: "Nicht verfügbar",
+        fr: "Non disponible",
+        ru: "Недоступно"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser system (direct shower)",
+        de: "Geysersystem (direkte Dusche)",
+        fr: "Système de chauffe-eau (douche directe)",
+        ru: "Бойлерная система (прямой душ)"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-103",
+      phase: 1,
+      number: "103",
+      ac: false,
+      category: {
+        en: "Deluxe Room With Balcony",
+        de: "Deluxe-Zimmer mit Balkon",
+        fr: "Chambre Deluxe avec Balcon",
+        ru: "Номер Делюкс с Балконом"
+      },
+      balcony: {
+        en: "Yes",
+        de: "Ja",
+        fr: "Oui",
+        ru: "Да"
+      },
+      beds: {
+        en: "1 large bed (6 ft × 6 ft) or 2 single beds",
+        de: "1 großes Bett (180x180 cm) oder 2 Einzelbetten",
+        fr: "1 grand lit (180x180 cm) ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Type",
+        de: "Geschlossener Typ",
+        fr: "Type Fermé",
+        ru: "Закрытый Тип"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser system (direct shower)",
+        de: "Geysersystem (direkte Dusche)",
+        fr: "Système de chauffe-eau (douche directe)",
+        ru: "Бойлерная система (прямой душ)"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-104",
+      phase: 1,
+      number: "104",
+      ac: false,
+      category: {
+        en: "Deluxe Room With Balcony",
+        de: "Deluxe-Zimmer mit Balkon",
+        fr: "Chambre Deluxe avec Balcon",
+        ru: "Номер Делюкс с Балконом"
+      },
+      balcony: {
+        en: "Yes",
+        de: "Ja",
+        fr: "Oui",
+        ru: "Да"
+      },
+      beds: {
+        en: "1 large bed (6 ft × 6 ft) or 2 single beds",
+        de: "1 großes Bett (180x180 cm) oder 2 Einzelbetten",
+        fr: "1 grand lit (180x180 cm) ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Open Type",
+        de: "Offener Typ",
+        fr: "Type Ouvert",
+        ru: "Открытый Тип"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser system (direct shower)",
+        de: "Geysersystem (direkte Dusche)",
+        fr: "Système de chauffe-eau (douche directe)",
+        ru: "Бойлерная система (прямой душ)"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-105",
+      phase: 2,
+      number: "105",
+      ac: true,
+      category: {
+        en: "Standard Room",
+        de: "Standardzimmer",
+        fr: "Chambre Standard",
+        ru: "Стандартный Номер"
+      },
+      balcony: {
+        en: "No",
+        de: "Nein",
+        fr: "Non",
+        ru: "Нет"
+      },
+      beds: {
+        en: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)",
+        de: "1 großes Bett oder 2 Einzelbetten",
+        fr: "1 grand lit ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная Система"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-106",
+      phase: 2,
+      number: "106",
+      ac: true,
+      category: {
+        en: "Standard Room (Teacher/Single)",
+        de: "Standardzimmer (Lehrer/Einzelzimmer)",
+        fr: "Chambre Standard (Enseignant/Simple)",
+        ru: "Стандартный Номер (Преподаватель/Одноместный)"
+      },
+      balcony: {
+        en: "No",
+        de: "Nein",
+        fr: "Non",
+        ru: "Нет"
+      },
+      beds: {
+        en: "Single Large Bed (Non-Separable)",
+        de: "Einzelnes großes Bett (nicht trennbar)",
+        fr: "Grand lit simple (non séparable)",
+        ru: "Одна большая кровать (нераздельная)"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная Система"
+      },
+      notes: {
+        en: "Recommended for Teacher Accommodation or Single Occupancy",
+        de: "Empfohlen für Lehrer oder Einzelbelegung",
+        fr: "Recommandé pour enseignant ou occupation simple",
+        ru: "Рекомендуется для размещения преподавателя или одноместного размещения"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-107",
+      phase: 2,
+      number: "107",
+      ac: true,
+      category: {
+        en: "Standard Room",
+        de: "Standardzimmer",
+        fr: "Chambre Standard",
+        ru: "Стандартный Номер"
+      },
+      balcony: {
+        en: "No",
+        de: "Nein",
+        fr: "Non",
+        ru: "Нет"
+      },
+      beds: {
+        en: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)",
+        de: "1 großes Bett oder 2 Einzelbetten",
+        fr: "1 grand lit ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная Система"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-108",
+      phase: 2,
+      number: "108",
+      ac: true,
+      category: {
+        en: "Deluxe Room",
+        de: "Deluxe-Zimmer",
+        fr: "Chambre Deluxe",
+        ru: "Номер Делюкс"
+      },
+      balcony: {
+        en: "No",
+        de: "Nein",
+        fr: "Non",
+        ru: "Нет"
+      },
+      beds: {
+        en: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)",
+        de: "1 großes Bett oder 2 Einzelbetten",
+        fr: "1 grand lit ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная Система"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-109",
+      phase: 2,
+      number: "109",
+      ac: true,
+      category: {
+        en: "Deluxe Room with Balcony",
+        de: "Deluxe-Zimmer mit Balkon",
+        fr: "Chambre Deluxe avec Balcon",
+        ru: "Номер Делюкс с Балконом"
+      },
+      balcony: {
+        en: "Private Balcony",
+        de: "Privater Balkon",
+        fr: "Balcon Privé",
+        ru: "Собственный Балкон"
+      },
+      beds: {
+        en: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)",
+        de: "1 großes Bett oder 2 Einzelbetten",
+        fr: "1 grand lit ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная Система"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=600"
+      ]
+    },
+    {
+      id: "room-110",
+      phase: 2,
+      number: "110",
+      ac: true,
+      category: {
+        en: "Deluxe Room",
+        de: "Deluxe-Zimmer",
+        fr: "Chambre Deluxe",
+        ru: "Номер Делюкс"
+      },
+      balcony: {
+        en: "No",
+        de: "Nein",
+        fr: "Non",
+        ru: "Нет"
+      },
+      beds: {
+        en: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)",
+        de: "1 großes Bett oder 2 Einzelbetten",
+        fr: "1 grand lit ou 2 lits simples",
+        ru: "1 большая кровать или 2 односпальные кровати"
+      },
+      wardrobe: {
+        en: "Closed Wardrobe",
+        de: "Geschlossener Kleiderschrank",
+        fr: "Armoire Fermée",
+        ru: "Закрытый Шкаф"
+      },
+      bathroom: {
+        en: "Attached",
+        de: "Angeschlossen",
+        fr: "Attenante",
+        ru: "Примыкающая"
+      },
+      hotWater: {
+        en: "Geyser System",
+        de: "Geysersystem",
+        fr: "Système de chauffe-eau",
+        ru: "Бойлерная  Система"
+      },
+      images: [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=600",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=600"
+      ]
+    }
+  ],
+
+  // Meal Titles
+  noMealsOption: {
+    en: "No Meal Catering (Self Catering)",
+    de: "Keine Verpflegung (Selbstverpflegung)",
+    fr: "Sans Restauration (Gestion Libre)",
+    ru: "Без Питания (Самообслуживание)"
+  },
+  breakfastOnlyOption: {
+    en: "Breakfast Package Only",
+    de: "Nur Frühstückspaket",
+    fr: "Forfait Petit-Déjeuner Uniquement",
+    ru: "Только Пакет Завтраков"
+  },
+  fullDayOption: {
+    en: "Full Day Vegetarian Menu (Breakfast + Lunch + Dinner)",
+    de: "Vollpension Vegetarisches Menü (Frühstück + Mittagessen + Abendessen)",
+    fr: "Menu Végétarien Pension Complète (Petit-Déjeuner + Déjeuner + Dîner)",
+    ru: "Вегетарианское Меню на Весь День (Завтрак + Обед + Ужин)"
+  },
+
+  // Meals & Menus
+  menuBreakfastItems: {
+    en: "Fresh Fruit Juices, Ayurvedic Porridge, Traditional Idli & Dosa, Herbal Infusions",
+    de: "Frische Fruchtsäfte, Ayurvedischer Brei, Traditionelle Idli & Dosa, Kräutertees",
+    fr: "Jus de fruits frais, Porridge ayurvédique, Idli & Dosa traditionnels, Infusions aux herbes",
+    ru: "Свежие Фруктовые Соки, Аюрведическая Каша, Традиционные Идли и Доса, Травяные Настои"
+  },
+  menuLunchItems: {
+    en: "Kerala Sadhya on Banana Leaf, Organic Brown Rice, Coconut Curry, Local Seasonal Vegetables",
+    de: "Kerala Sadhya auf Bananenblatt, Bio-Naturreis, Kokosnuss-Curry, Lokales Gemüse der Saison",
+    fr: "Kerala Sadhya sur feuille de bananier, Riz complet bio, Curry de noix de coco, Légumes locaux de saison",
+    ru: "Керала Садхья на Банановом Листе, Органический Коричневый Рис, Кокосовый Карри, Местные Сезонные Овощи"
+  },
+  menuDinnerItems: {
+    en: "Light Vegetable Soup, Grilled Paneer with Herbs, Chapatis, Steamed Broccoli & Carrots",
+    de: "Leichte Gemüsesuppe, Gegrillter Paneer mit Kräutern, Chapatis, Gedämpfter Brokkoli & Karotten",
+    fr: "Soupe légère aux légumes, Paneer grillé aux herbes, Chapatis, Brocoli & Carottes à la vapeur",
+    ru: "Легкий Овощной Суп, Гриль Панир с Травами, Чапати, Брокколи и Морковь на Пару"
+  },
+  menuFooterItems: {
+    en: "Gluten-free, Lactose-free, Vegan options on request",
+    de: "Glutenfrei, Laktosefrei, Vegane Optionen auf Anfrage",
+    fr: "Options sans gluten, sans lactose, végétaliennes sur demande",
+    ru: "Безглютеновые, безлактозные, веганские варианты по запросу"
+  },
+
+  // Logistics
+  yogaHallUsageTitle: {
+    en: "Yoga Hall & Sessions Details",
+    de: "Yoga-Halle & Details zu den Sitzungen",
+    fr: "Salle de Yoga & Détails des Séances",
+    ru: "Детали Йога-Зала и Занятий"
+  },
+  yogaHallSessionsLabel: {
+    en: "Retreat Yoga Sessions per Day (Rooftop Sala Included)",
+    de: "Yoga-Sitzungen pro Tag (Dach-Sala inklusive)",
+    fr: "Séances de yoga de retraite par jour (Rooftop Sala inclus)",
+    ru: "Занятий Йогой в День (Включая Зал на Крыше)"
+  },
+  trivandrumAirport: {
+    en: "Trivandrum Airport (TRV) Transfers",
+    de: "Transfers vom Flughafen Trivandrum (TRV)",
+    fr: "Transferts de l'aéroport de Trivandrum (TRV)",
+    ru: "Трансфер из Аэропорта Тривандрам (TRV)"
+  },
+  carSmallLabel: {
+    en: "Sedan (Etios/Dzire) - Max 3 guests",
+    de: "Limousine (Etios/Dzire) - Max. 3 Gäste",
+    fr: "Berline (Etios/Dzire) - Max 3 personnes",
+    ru: "Седан (Etios/Dzire) - Макс 3 гостя"
+  },
+  carLargeLabel: {
+    en: "SUV (Innova) - Max 5 guests",
+    de: "SUV (Innova) - Max. 5 Gäste",
+    fr: "SUV (Innova) - Max 5 personnes",
+    ru: "Внедорожник (Innova) - Макс 5 гостей"
+  },
+  tempoLabel: {
+    en: "Tempo Traveller - Max 12-15 guests",
+    de: "Tempo-Reisebus - Max. 12-15 Gäste",
+    fr: "Tempo Traveller - Max 12-15 personnes",
+    ru: "Tempo Traveller - Макс 12-15 гостей"
+  },
+
+  // Highlight Features
+  roomsFeatureTitle: {
+    en: "10 Air-Conditioned Rooms",
+    de: "10 Klimatisierte Zimmer",
+    fr: "10 Chambres Climatisées",
+    ru: "10 Номеров с Кондиционером"
+  },
+  roomsFeatureDesc: {
+    en: "Distributed across two adjacent phases. Offers comfortable options ranging from standard ground-floor units to premium deluxe rooms with private balconies.",
+    de: "Verteilt auf zwei benachbarte Phasen. Bietet komfortable Optionen von Standard-Erdgeschoss-Einheiten bis hin zu Premium-Deluxe-Zimmern mit privatem Balkon.",
+    fr: "Réparties sur deux phases adjacentes. Offre des options confortables allant des unités standard au rez-de-chaussée aux chambres de luxe premium avec balcon privé.",
+    ru: "Распределено по двум соседним фазам. Предлагает комфортабельные варианты размещения от стандартных номеров на первом этаже до номеров делюкс премиум-класса с собственным балконом."
+  },
+  hallFeatureTitle: {
+    en: "Rooftop Yoga Sala",
+    de: "Yoga-Sala auf dem Dach",
+    fr: "Rooftop Yoga Sala",
+    ru: "Зал для Йоги на Крыше"
+  },
+  hallFeatureDesc: {
+    en: "Shared rooftop studio equipped with yoga mats, blocks, natural fresh air, and excellent natural lighting. Holds a capacity of 15 to 18 participants.",
+    de: "Gemeinsames Studio auf dem Dach, ausgestattet mit Yogamatten, Blöcken, natürlicher Frischluft und hervorragendem Tageslicht. Bietet Platz für 15 bis 18 Teilnehmer.",
+    fr: "Studio partagé sur le toit équipé de tapis de yoga, de briques, d'air frais naturel et d'un excellent éclairage naturel. Capacité de 15 à 18 participants.",
+    ru: "Общая студия на крыше, оборудованная ковриками для йоги, опорными блоками, со свежим воздухом и отличным естественным освещением. Вмещает от 15 до 18 участников."
+  },
+  mealsFeatureTitle: {
+    en: "Customized Homely Meals",
+    de: "Individuelle Hausmannskost",
+    fr: "Repas Maison Personnalisés",
+    ru: "Индивидуальное Домашнее Питание"
+  },
+  mealsFeatureDesc: {
+    en: "Homestyle vegetarian, vegan, and gluten-free menus cooked fresh. Flexible meal options, including full day packages and customizable retreat group menus.",
+    de: "Hausgemachte vegetarische, vegane und glutenfreie Menüs, frisch zubereitet. Flexible Verpflegungsoptionen, einschließlich Ganztagspaketen und anpassbaren Retreat-Gruppenmenüs.",
+    fr: "Menus maison végétariens, végétaliens et sans gluten préparés à la demande. Options de repas flexibles, y compris des forfaits journée complète et des menus de groupe de retraite personnalisables.",
+    ru: "Домашнее вегетарианское, веганское и безглютеновое меню, приготовленное из свежих продуктов. Гибкие варианты питания, включая пакеты услуг на весь день и настраиваемые меню для групп."
+  },
+
+  // Booking terms
+  termsTitle: {
+    en: "Booking Terms & Conditions",
+    de: "Buchungsbedingungen",
+    fr: "Conditions Générales de Réservation",
+    ru: "Правила и Условия Бронирования"
+  },
+  confirmationTitle: {
+    en: "Booking Confirmation",
+    de: "Buchungsbestätigung",
+    fr: "Confirmation de Réservation",
+    ru: "Подтверждение Бронирования"
+  },
+  confirmationRule1: {
+    en: "Booking confirmation will be provided only upon receipt of the required advance payment.",
+    de: "Die Buchungsbestätigung erfolgt erst nach Erhalt der erforderlichen Anzahlung.",
+    fr: "La confirmation de la réservation ne sera fournie qu'après réception de l'acompte requis.",
+    ru: "Подтверждение бронирования предоставляется только после получения необходимой предоплаты."
+  },
+  confirmationRule2: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  confirmationRule3: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  paymentTermsTitle: {
+    en: "Payment Terms",
+    de: "Zahlungsbedingungen",
+    fr: "Conditions de Paiement",
+    ru: "Условия Оплаты"
+  },
+  paymentTermsRule1: {
+    en: "The balance amount, if any, must be settled before or upon check-in, as agreed at the time of booking.",
+    de: "Der Restbetrag muss vor oder bei dem Check-in beglichen werden, wie bei der Buchung vereinbart.",
+    fr: "Le solde, le cas échéant, doit être réglé avant ou lors de l'enregistrement, comme convenu lors de la réservation.",
+    ru: "Оставшаяся сумма, если таковая имеется, должна быть выплачена до или во время регистрации, как былосогласовано при бронировании."
+  },
+  paymentTermsRule2: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  paymentTermsRule3: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  paymentTermsRule4: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  termsAndCondTitle: {
+    en: "Terms & Conditions",
+    de: "Allgemeine Geschäftsbedingungen",
+    fr: "Conditions Générales",
+    ru: "Правила и Условия"
+  },
+  termsRule1: {
+    en: "The above rates are valid for stays during the month of November.",
+    de: "Die oben genannten Preise gelten für Aufenthalte im November.",
+    fr: "Les tarifs ci-dessus sont valables pour les séjours durant le mois de novembre.",
+    ru: "Вышеуказанные тарифы действительны для проживания в течение ноября."
+  },
+  termsRule2: {
+    en: "All rates are inclusive of applicable GST.",
+    de: "Alle Preise verstehen sich inklusive der geltenden GST-Steuer.",
+    fr: "Tous les tarifs incluent la taxe GST applicable.",
+    ru: "Все тарифы включают применимый налог GST."
+  },
+  termsRule3: {
+    en: "All reservations are subject to room availability at the time of booking.",
+    de: "Alle Reservierungen unterliegen der Zimmerverfügbarkeit zum Zeitpunkt der Buchung.",
+    fr: "Toutes les réservations sont soumises à la disponibilité des chambres au moment de la réservation.",
+    ru: "Все бронирования зависят от наличия свободных номеров на момент бронирования."
+  },
+  termsRule4: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  termsRule5: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  termsRule6: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  termsRule7: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+
+  // Cancellation policies
+  cancellationTitle: {
+    en: "Cancellation Policy",
+    de: "Stornierungsbedingungen",
+    fr: "Politique d'Annulation",
+    ru: "Правила Отмены"
+  },
+  cancel60Days: {
+    en: "Cancellations made 30 days or more before the check-in date",
+    de: "Stornierungen ab 30 Tage vor dem Anreisedatum",
+    fr: "Annulations effectuées 30 jours ou plus avant la date d'arrivée",
+    ru: "Отмена бронирования за 30 дней и более до даты заезда"
+  },
+  cancel60DaysDesc: {
+    en: "Eligible for a full refund of the advance payment.",
+    de: "Anspruch auf eine vollständige Rückerstattung der Anzahlung.",
+    fr: "Éligible à un remboursement complet de l'acompte.",
+    ru: "Право на полный возврат предоплаты."
+  },
+  cancel30to59: {
+    en: "Cancellations made within 30 days of the check-in date",
+    de: "Stornierungen innerhalb von 30 Tagen vor dem Anreisedatum",
+    fr: "Annulations effectuées dans les 30 jours précédant la date d'arrivée",
+    ru: "Отмена бронирования в течение 30 дней до даты заезда"
+  },
+  cancel30to59Desc: {
+    en: "Non-refundable.",
+    de: "Nicht erstattungsfähig.",
+    fr: "Non remboursable.",
+    ru: "Не подлежит возврату."
+  },
+  cancelUnder30: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  cancelUnder30Desc: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  noShow: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  noShowDesc: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  amendmentsTitle: {
+    en: "Amendments",
+    de: "Änderungen",
+    fr: "Modifications",
+    ru: "Изменения"
+  },
+  amendmentsRule1: {
+    en: "Date changes are subject to availability and management approval.",
+    de: "Terminänderungen unterliegen der Verfügbarkeit und der Genehmigung durch das Management.",
+    fr: "Les modifications de dates sont soumises à disponibilité et à l'approbation de la direction.",
+    ru: "Изменение дат возможно при наличии свободных мест и одобрении руководства."
+  },
+  amendmentsRule2: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  amendmentsRule3: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  forceMajeureTitle: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  forceMajeureDesc: {
+    en: "",
+    de: "",
+    fr: "",
+    ru: ""
+  },
+  footerGreeting: {
+    en: "Thank you for choosing Villa Lemon Homestay. We look forward to welcoming you to Varkala and providing you with a comfortable and memorable stay.",
+    de: "Vielen Dank, dass Sie sich für das Villa Lemon Homestay entschieden haben. Wir freuen uns darauf, Sie in Varkala begrüßen zu dürfen und Ihnen einen angenehmen Aufenthalt zu bieten.",
+    fr: "Merci d'avoir choisi Villa Lemon Homestay. Nous nous réjouissons de vous accueillir à Varkala et de vous offrir un séjour confortable et mémorable.",
+    ru: "Благодарим вас за выбор Villa Lemon Homestay. Мы с нетерпением ждем возможности приветствовать вас в Варкале и обеспечить вам комфортное и незабываемое пребывание."
+  },
+  footerSignature: {
+    en: "SHAHID — VILLA LEMON HOMESTAY",
+    de: "SHAHID — VILLA LEMON HOMESTAY",
+    fr: "SHAHID — VILLA LEMON HOMESTAY",
+    ru: "SHAHID — VILLA LEMON HOMESTAY"
+  }
+};
+
 // ------------------------------------------------------------------
 // DATA INTERFACES
 // ------------------------------------------------------------------
@@ -336,6 +1144,8 @@ export default function AdminDashboard() {
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
   const [ogImageFile, setOgImageFile] = useState<File | null>(null);
   const [ogImagePreview, setOgImagePreview] = useState<string | null>(null);
+  const [yogaHallImageFiles, setYogaHallImageFiles] = useState<File[]>([]);
+  const [yogaHallImagePreviews, setYogaHallImagePreviews] = useState<string[]>([]);
 
   // MODALS STATE FOR SUBGROUPS (CATEGORIES)
   const [showSubgroupModal, setShowSubgroupModal] = useState(false);
@@ -343,7 +1153,13 @@ export default function AdminDashboard() {
   const [editingSubgroup, setEditingSubgroup] = useState<any | null>(null);
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
-  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "features" | "meals" | "logistics" | "policies" | "cancellation">("general");
+  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "rooms" | "features" | "meals" | "logistics" | "policies" | "cancellation">("general");
+
+  // Rooms editing sub-state
+  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
+  const [showRoomForm, setShowRoomForm] = useState(false);
+  const [roomFilesMap, setRoomFilesMap] = useState<Record<number, File[]>>({});
+  const [roomPreviewsMap, setRoomPreviewsMap] = useState<Record<number, string[]>>({});
 
   // MOBILE SIDEBAR
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -698,17 +1514,47 @@ export default function AdminDashboard() {
     setCoverImageFile(null);
     setCoverImagePreviews([]);
     setCoverImageFiles([]);
+    setYogaHallImageFiles([]);
+    setYogaHallImagePreviews([]);
+    setRoomFilesMap({});
+    setRoomPreviewsMap({});
+    setEditingRoomIndex(null);
+    setShowRoomForm(false);
     setShowSubgroupModal(true);
   };
 
   const handleOpenEditSubgroup = (cat: any, formType: "accommodation" | "package" | "yoga") => {
     setSubgroupFormType(formType);
     setEditingSubgroup(cat);
-    setSubgroupForm({ template: "default", ...cat });
-    setCoverImagePreview(cat.image);
+    
+    // Deep clone and fill in defaults
+    const catCopy = { ...cat };
+    if (formType === "yoga" && (catCopy.type === "host retreat" || catCopy.type === "host-retreat" || catCopy.template === "host-retreat" || catCopy.template === "host retreat" || catCopy.href?.includes("host-your-yoga-retreat") || catCopy.href?.includes("host-retreat"))) {
+      const config = { ...(catCopy.hostRetreatConfig || {}) };
+      Object.keys(DEFAULT_HOST_RETREAT_CONFIG).forEach((key) => {
+        if (!config[key]) {
+          config[key] = (DEFAULT_HOST_RETREAT_CONFIG as any)[key];
+        }
+      });
+      if (!config.rooms || config.rooms.length === 0) {
+        config.rooms = JSON.parse(JSON.stringify(DEFAULT_HOST_RETREAT_CONFIG.rooms));
+      }
+      catCopy.hostRetreatConfig = config;
+    }
+
+    setSubgroupForm({ template: "default", ...catCopy });
+    setCoverImagePreview(catCopy.image);
     setCoverImageFile(null);
-    setCoverImagePreviews(cat.images && cat.images.length > 0 ? cat.images : [cat.image]);
+    setCoverImagePreviews(catCopy.images && catCopy.images.length > 0 ? catCopy.images : [catCopy.image]);
     setCoverImageFiles([]);
+    setYogaHallImageFiles([]);
+    const config = catCopy.hostRetreatConfig || {};
+    const yHallImages = config.yogaHallImages || (config.yogaHallImage ? [config.yogaHallImage] : []);
+    setYogaHallImagePreviews(yHallImages);
+    setRoomFilesMap({});
+    setRoomPreviewsMap({});
+    setEditingRoomIndex(null);
+    setShowRoomForm(false);
     setShowSubgroupModal(true);
   };
 
@@ -729,6 +1575,196 @@ export default function AdminDashboard() {
         }
       }
     });
+  };
+
+  const handleAddRoomClick = () => {
+    const config = subgroupForm.hostRetreatConfig || {};
+    const rooms = config.rooms || [];
+    const newRoomIndex = rooms.length;
+    
+    const newRoom = {
+      id: Math.random().toString(36).substr(2, 9),
+      number: "",
+      phase: 1,
+      ac: false,
+      category: { en: "", de: "", fr: "", ru: "" },
+      balcony: { en: "", de: "", fr: "", ru: "" },
+      beds: { en: "", de: "", fr: "", ru: "" },
+      wardrobe: { en: "", de: "", fr: "", ru: "" },
+      bathroom: { en: "Attached", de: "Attached", fr: "Attached", ru: "Attached" },
+      hotWater: { en: "Geyser System", de: "Geyser System", fr: "Geyser System", ru: "Geyser System" },
+      notes: { en: "", de: "", fr: "", ru: "" },
+      images: [],
+      imagePublicIds: []
+    };
+    
+    setSubgroupForm({
+      ...subgroupForm,
+      hostRetreatConfig: {
+        ...config,
+        rooms: [...rooms, newRoom]
+      }
+    });
+    
+    setEditingRoomIndex(newRoomIndex);
+    setShowRoomForm(true);
+  };
+
+  const handleEditRoomClick = (index: number) => {
+    setEditingRoomIndex(index);
+    setShowRoomForm(true);
+  };
+
+  const handleDeleteRoomClick = (index: number) => {
+    if (!window.confirm("Are you sure you want to delete this room?")) return;
+    const config = subgroupForm.hostRetreatConfig || {};
+    const rooms = [...(config.rooms || [])];
+    rooms.splice(index, 1);
+    
+    const newFilesMap: Record<number, File[]> = {};
+    const newPreviewsMap: Record<number, string[]> = {};
+    
+    Object.keys(roomFilesMap).forEach((key) => {
+      const idx = parseInt(key);
+      if (idx > index) {
+        newFilesMap[idx - 1] = roomFilesMap[idx];
+      } else if (idx < index) {
+        newFilesMap[idx] = roomFilesMap[idx];
+      }
+    });
+    
+    Object.keys(roomPreviewsMap).forEach((key) => {
+      const idx = parseInt(key);
+      if (idx > index) {
+        newPreviewsMap[idx - 1] = roomPreviewsMap[idx];
+      } else if (idx < index) {
+        newPreviewsMap[idx] = roomPreviewsMap[idx];
+      }
+    });
+    
+    setRoomFilesMap(newFilesMap);
+    setRoomPreviewsMap(newPreviewsMap);
+    
+    setSubgroupForm({
+      ...subgroupForm,
+      hostRetreatConfig: {
+        ...config,
+        rooms
+      }
+    });
+  };
+
+  const handleRoomFieldChange = (field: string, val: any, lang?: string) => {
+    if (editingRoomIndex === null) return;
+    const config = subgroupForm.hostRetreatConfig || {};
+    const rooms = [...(config.rooms || [])];
+    const room = { ...rooms[editingRoomIndex] };
+    
+    if (lang) {
+      const fieldObj = (room as any)[field] || {};
+      (room as any)[field] = {
+        ...fieldObj,
+        [lang]: val
+      };
+    } else {
+      (room as any)[field] = val;
+    }
+    
+    rooms[editingRoomIndex] = room;
+    setSubgroupForm({
+      ...subgroupForm,
+      hostRetreatConfig: {
+        ...config,
+        rooms
+      }
+    });
+  };
+
+  const handleRoomImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      const newFiles = [...(roomFilesMap[index] || []), ...filesArray];
+      const newPreviews = [
+        ...(roomPreviewsMap[index] || []),
+        ...filesArray.map(f => URL.createObjectURL(f))
+      ];
+      
+      setRoomFilesMap({
+        ...roomFilesMap,
+        [index]: newFiles
+      });
+      setRoomPreviewsMap({
+        ...roomPreviewsMap,
+        [index]: newPreviews
+      });
+    }
+  };
+
+  const handleDeleteRoomImage = (roomIndex: number, imageIndex: number) => {
+    const config = subgroupForm.hostRetreatConfig || {};
+    const rooms = [...(config.rooms || [])];
+    const room = { ...rooms[roomIndex] };
+    
+    const serverImages = room.images || [];
+    const serverPublicIds = room.imagePublicIds || [];
+    const localFiles = roomFilesMap[roomIndex] || [];
+    const localPreviews = roomPreviewsMap[roomIndex] || [];
+    
+    if (imageIndex < serverImages.length) {
+      const newImages = serverImages.filter((_: string, i: number) => i !== imageIndex);
+      const newPublicIds = serverPublicIds.filter((_: string, i: number) => i !== imageIndex);
+      room.images = newImages;
+      room.imagePublicIds = newPublicIds;
+      rooms[roomIndex] = room;
+      
+      setSubgroupForm({
+        ...subgroupForm,
+        hostRetreatConfig: {
+          ...config,
+          rooms
+        }
+      });
+    } else {
+      const localIdx = imageIndex - serverImages.length;
+      const newLocalFiles = localFiles.filter((_: File, i: number) => i !== localIdx);
+      const newLocalPreviews = localPreviews.filter((_: string, i: number) => i !== localIdx);
+      
+      setRoomFilesMap({
+        ...roomFilesMap,
+        [roomIndex]: newLocalFiles
+      });
+      setRoomPreviewsMap({
+        ...roomPreviewsMap,
+        [roomIndex]: newLocalPreviews
+      });
+    }
+  };
+
+  const handleYogaHallImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      setYogaHallImageFiles((prev) => [...prev, ...filesArray]);
+      setYogaHallImagePreviews((prev) => [
+        ...prev,
+        ...filesArray.map((f) => URL.createObjectURL(f))
+      ]);
+    }
+  };
+
+  const handleDeleteYogaHallImage = (index: number) => {
+    const keptServerUrls = yogaHallImagePreviews.filter((u) => !u.startsWith("blob:"));
+    const localPreviews = yogaHallImagePreviews.filter((u) => u.startsWith("blob:"));
+    
+    if (index < keptServerUrls.length) {
+      const newServerUrls = keptServerUrls.filter((_, i) => i !== index);
+      setYogaHallImagePreviews([...newServerUrls, ...localPreviews]);
+    } else {
+      const localIdx = index - keptServerUrls.length;
+      const newLocalFiles = yogaHallImageFiles.filter((_, i) => i !== localIdx);
+      const newLocalPreviews = localPreviews.filter((_, i) => i !== localIdx);
+      setYogaHallImageFiles(newLocalFiles);
+      setYogaHallImagePreviews([...keptServerUrls, ...newLocalPreviews]);
+    }
   };
 
   const handleSaveSubgroup = async (e: React.FormEvent) => {
@@ -784,7 +1820,34 @@ export default function AdminDashboard() {
       }
 
       if (subgroupFormType === "yoga" && subgroupForm.type === "host retreat") {
-        formData.append("hostRetreatConfig", JSON.stringify(subgroupForm.hostRetreatConfig || {}));
+        const config = { ...(subgroupForm.hostRetreatConfig || {}) };
+        Object.keys(DEFAULT_HOST_RETREAT_CONFIG).forEach((key) => {
+          if (!config[key]) {
+            config[key] = (DEFAULT_HOST_RETREAT_CONFIG as any)[key];
+          }
+        });
+        if (!config.rooms || config.rooms.length === 0) {
+          config.rooms = JSON.parse(JSON.stringify(DEFAULT_HOST_RETREAT_CONFIG.rooms));
+        }
+        formData.append("hostRetreatConfig", JSON.stringify(config));
+        
+        // Append new yoga hall files
+        yogaHallImageFiles.forEach((file) => {
+          formData.append("yogaHallImages", file);
+        });
+        
+        // Append existing yoga hall URLs to keep
+        const keptYogaHallUrls = yogaHallImagePreviews.filter(u => !u.startsWith("blob:"));
+        formData.append("existingYogaHallImages", JSON.stringify(keptYogaHallUrls));
+        
+        // Append room-specific images
+        Object.keys(roomFilesMap).forEach((key) => {
+          const roomIdx = parseInt(key);
+          const filesArray = roomFilesMap[roomIdx] || [];
+          filesArray.forEach((file) => {
+            formData.append(`roomImages_${roomIdx}`, file);
+          });
+        });
       }
 
       // Send which existing server images to keep (non-blob URLs)
@@ -2651,7 +3714,7 @@ export default function AdminDashboard() {
 
             {subgroupFormType === "yoga" && subgroupForm.type === "host retreat" && (
               <div className="px-6 py-2 border-b border-gray-150 bg-[#fbf9f6] flex flex-wrap gap-1.5 select-none">
-                {(["general", "features", "meals", "logistics", "policies", "cancellation"] as const).map((tab) => (
+                {(["general", "rooms", "features", "meals", "logistics", "policies", "cancellation"] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
@@ -2660,7 +3723,7 @@ export default function AdminDashboard() {
                       hostRetreatTab === tab ? "bg-[#121212] text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    {tab === "general" ? "1. General Info" : tab === "features" ? "2. Highlight Features" : tab === "meals" ? "3. Meals & Menus" : tab === "logistics" ? "4. Logistics & Extras" : tab === "policies" ? "5. Booking Policies" : "6. Cancellation Policy"}
+                    {tab === "general" ? "1. General Info" : tab === "rooms" ? "2. Rooms Layout" : tab === "features" ? "3. Highlight Features" : tab === "meals" ? "4. Meals & Menus" : tab === "logistics" ? "5. Logistics & Extras" : tab === "policies" ? "6. Booking Policies" : "7. Cancellation Policy"}
                   </button>
                 ))}
               </div>
@@ -2784,7 +3847,250 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
-                  {/* TAB 2: HIGHLIGHT FEATURES */}
+                  {/* TAB 2: ROOMS LAYOUT */}
+                  {hostRetreatTab === "rooms" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <div className="flex justify-between items-center border-b pb-2">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider">
+                          Rooms Configuration
+                        </h4>
+                        {!showRoomForm && (
+                          <button
+                            type="button"
+                            onClick={handleAddRoomClick}
+                            className="bg-[#121212] hover:bg-black text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider"
+                          >
+                            + Add Room
+                          </button>
+                        )}
+                      </div>
+
+                      {showRoomForm && editingRoomIndex !== null ? (
+                        <div className="bg-white border rounded p-4 space-y-4">
+                          <h5 className="font-bold text-gray-700 uppercase tracking-wider pb-1 border-b">
+                            {subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.number ? `Edit Room ${subgroupForm.hostRetreatConfig.rooms[editingRoomIndex].number}` : "New Room"}
+                          </h5>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-600 uppercase text-[10px]">Room Number / ID</label>
+                              <input
+                                type="text"
+                                value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.number || ""}
+                                onChange={(e) => handleRoomFieldChange("number", e.target.value)}
+                                className="border p-2 rounded text-xs"
+                                placeholder="e.g. 101"
+                                required
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-600 uppercase text-[10px]">Phase</label>
+                              <select
+                                value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.phase || 1}
+                                onChange={(e) => handleRoomFieldChange("phase", parseInt(e.target.value))}
+                                className="border p-2 rounded bg-white text-xs"
+                              >
+                                <option value={1}>Phase 1 (Non AC)</option>
+                                <option value={2}>Phase 2 (AC Included)</option>
+                              </select>
+                            </div>
+                            <div className="flex flex-col gap-1 justify-center pt-4">
+                              <label className="flex items-center gap-2 cursor-pointer font-bold text-gray-600 text-[10px] uppercase">
+                                <input
+                                  type="checkbox"
+                                  checked={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.ac || false}
+                                  onChange={(e) => handleRoomFieldChange("ac", e.target.checked)}
+                                  className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
+                                />
+                                Air Conditioning
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="bg-gray-50 p-3 rounded space-y-3">
+                            <h6 className="font-bold text-gray-700 text-[10px] uppercase border-b pb-1">
+                              Room details in active language: ({activeLangTab.toUpperCase()})
+                            </h6>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Category Name</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.category?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("category", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. Deluxe Room with Balcony"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Beds Setup</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.beds?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("beds", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. 1 Large Bed or 2 Single Beds"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Balcony Info</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.balcony?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("balcony", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. Small private balcony"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Wardrobe</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.wardrobe?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("wardrobe", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. Closed Wardrobe"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Bathroom</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.bathroom?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("bathroom", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. Attached"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="font-bold text-gray-505 uppercase text-[9px]">Hot Water</label>
+                                <input
+                                  type="text"
+                                  value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.hotWater?.[activeLangTab] || ""}
+                                  onChange={(e) => handleRoomFieldChange("hotWater", e.target.value, activeLangTab)}
+                                  className="border p-2 rounded text-xs bg-white"
+                                  placeholder="e.g. Geyser System"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-505 uppercase text-[9px]">Special Notes</label>
+                              <input
+                                type="text"
+                                value={subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.notes?.[activeLangTab] || ""}
+                                onChange={(e) => handleRoomFieldChange("notes", e.target.value, activeLangTab)}
+                                className="border p-2 rounded text-xs bg-white"
+                                placeholder="e.g. Recommended for single occupancy"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="font-bold text-gray-600 uppercase text-[10px]">Room Images (Slideshow)</label>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              {(subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.images || []).map((url: string, imgIdx: number) => (
+                                <div key={`srv-${imgIdx}`} className="relative w-20 aspect-[4/3] rounded border overflow-hidden bg-gray-50 shrink-0">
+                                  <img src={url} className="w-full h-full object-cover" alt="Server Preview" />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteRoomImage(editingRoomIndex, imgIdx)}
+                                    className="absolute top-0.5 right-0.5 bg-red-600 hover:bg-red-700 text-white rounded-full w-4.5 h-4.5 flex items-center justify-center text-[10px] font-bold shadow-md"
+                                  >×</button>
+                                </div>
+                              ))}
+                              {(roomPreviewsMap[editingRoomIndex] || []).map((url: string, localIdx: number) => (
+                                <div key={`loc-${localIdx}`} className="relative w-20 aspect-[4/3] rounded border overflow-hidden bg-gray-50 shrink-0">
+                                  <img src={url} className="w-full h-full object-cover" alt="Local Preview" />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteRoomImage(editingRoomIndex, (subgroupForm.hostRetreatConfig?.rooms?.[editingRoomIndex]?.images || []).length + localIdx)}
+                                    className="absolute top-0.5 right-0.5 bg-red-600 hover:bg-red-700 text-white rounded-full w-4.5 h-4.5 flex items-center justify-center text-[10px] font-bold shadow-md"
+                                  >×</button>
+                                </div>
+                              ))}
+                            </div>
+
+                            <label className="border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-3 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50 text-[10px]">
+                              <Upload className="w-4 h-4 text-gray-400" />
+                              <span className="font-semibold text-gray-500">Upload Room Image(s)</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                multiple 
+                                onChange={(e) => handleRoomImageChange(e, editingRoomIndex)} 
+                                className="hidden" 
+                              />
+                            </label>
+                          </div>
+
+                          <div className="flex gap-2 justify-end pt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowRoomForm(false);
+                                setEditingRoomIndex(null);
+                              }}
+                              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded text-[10px] font-bold uppercase tracking-wider"
+                            >
+                              Done Editing Room
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {(!subgroupForm.hostRetreatConfig?.rooms || subgroupForm.hostRetreatConfig.rooms.length === 0) ? (
+                            <p className="text-gray-400 italic text-[11px]">No rooms configured yet. Click "+ Add Room" to start.</p>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-2">
+                              {subgroupForm.hostRetreatConfig.rooms.map((room: any, index: number) => {
+                                const catStr = room.category?.[activeLangTab] || room.category?.en || "Standard Room";
+                                return (
+                                  <div key={room.id || index} className="bg-white border p-3 rounded flex items-center justify-between shadow-sm">
+                                    <div className="flex items-center gap-4">
+                                      <div className="bg-brand-cream border border-brand-gold/15 text-brand-gold-dark font-bold text-xs w-10 h-10 rounded-sm flex items-center justify-center">
+                                        R{room.number || "?"}
+                                      </div>
+                                      <div>
+                                        <span className="font-bold text-gray-800 text-xs">{catStr}</span>
+                                        <div className="text-[10px] text-gray-400 font-light flex gap-2 mt-0.5">
+                                          <span>Phase: {room.phase}</span>
+                                          <span>•</span>
+                                          <span>AC: {room.ac ? "Yes" : "No"}</span>
+                                          <span>•</span>
+                                          <span>Images: {(room.images || []).length + (roomFilesMap[index] || []).length}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleEditRoomClick(index)}
+                                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded text-[10px] font-bold uppercase"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteRoomClick(index)}
+                                        className="bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded text-[10px] font-bold uppercase"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 3: HIGHLIGHT FEATURES */}
                   {hostRetreatTab === "features" && (
                     <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
                       <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
@@ -2916,6 +4222,39 @@ export default function AdminDashboard() {
                             className="border p-2.5 rounded font-sans"
                           />
                         </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Self-Catering Package Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("noMealsOption")}
+                              onChange={(e) => setRetreatConfigVal("noMealsOption", e.target.value)}
+                              placeholder="e.g. No Meal Catering (Self Catering)"
+                              className="border p-2.5 rounded text-xs bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Breakfast-Only Package Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("breakfastOnlyOption")}
+                              onChange={(e) => setRetreatConfigVal("breakfastOnlyOption", e.target.value)}
+                              placeholder="e.g. Breakfast Package Only"
+                              className="border p-2.5 rounded text-xs bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Full-Day Meals Package Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("fullDayOption")}
+                              onChange={(e) => setRetreatConfigVal("fullDayOption", e.target.value)}
+                              placeholder="e.g. Full Day Vegetarian Menu"
+                              className="border p-2.5 rounded text-xs bg-white"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -2992,6 +4331,37 @@ export default function AdminDashboard() {
                               placeholder="e.g. Exclusive daily use for group yoga sessions"
                               className="border p-2.5 rounded"
                             />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">Yoga Hall Images (Rooftop Sala)</label>
+                          <div className="flex flex-col gap-3">
+                            {yogaHallImagePreviews.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {yogaHallImagePreviews.map((url, imgIdx) => (
+                                  <div key={imgIdx} className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0 bg-gray-50 group">
+                                    <img src={url} className="w-full h-full object-cover" alt="Yoga Hall Preview" />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteYogaHallImage(imgIdx)}
+                                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                                    >×</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            <label className="border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-3 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50 text-[10px]">
+                              <Upload className="w-4 h-4 text-gray-400" />
+                              <span className="font-semibold text-gray-500">Upload Yoga Hall Image(s)</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                multiple
+                                onChange={handleYogaHallImageChange} 
+                                className="hidden" 
+                              />
+                            </label>
                           </div>
                         </div>
                       </div>

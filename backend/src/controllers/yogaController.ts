@@ -61,7 +61,40 @@ export const createYogaProgram = async (req: Request, res: Response): Promise<an
     const coverImages = uploadResults.map(res => res.secure_url);
     const coverImagePublicIds = uploadResults.map(res => res.public_id);
 
+    const yogaHallFiles = files.filter(f => f.fieldname === "yogaHallImages");
+    let yogaHallImages: string[] = [];
+    let yogaHallImagePublicIds: string[] = [];
+    if (yogaHallFiles.length > 0) {
+      const uploadResults = await Promise.all(yogaHallFiles.map(f => uploadImage(f.buffer, "yoga")));
+      yogaHallImages = uploadResults.map(r => r.secure_url);
+      yogaHallImagePublicIds = uploadResults.map(r => r.public_id);
+    }
+
     const hostRetreatConfig = req.body.hostRetreatConfig ? parseField(req.body.hostRetreatConfig) : {};
+    if (yogaHallImages.length > 0) {
+      hostRetreatConfig.yogaHallImages = yogaHallImages;
+      hostRetreatConfig.yogaHallImagePublicIds = yogaHallImagePublicIds;
+      hostRetreatConfig.yogaHallImage = yogaHallImages[0];
+      hostRetreatConfig.yogaHallImagePublicId = yogaHallImagePublicIds[0];
+    }
+
+    // Process room images for new program
+    if (hostRetreatConfig.rooms && Array.isArray(hostRetreatConfig.rooms)) {
+      for (let i = 0; i < hostRetreatConfig.rooms.length; i++) {
+        const room = hostRetreatConfig.rooms[i];
+        const roomFiles = files.filter(f => f.fieldname === `roomImages_${i}`);
+        let newUrls: string[] = [];
+        let newPublicIds: string[] = [];
+        if (roomFiles.length > 0) {
+          const uploadPromises = roomFiles.map(file => uploadImage(file.buffer, "yoga"));
+          const uploadResults = await Promise.all(uploadPromises);
+          newUrls = uploadResults.map(r => r.secure_url);
+          newPublicIds = uploadResults.map(r => r.public_id);
+        }
+        room.images = [...(room.images || []), ...newUrls];
+        room.imagePublicIds = [...(room.imagePublicIds || []), ...newPublicIds];
+      }
+    }
 
     const newProgram = new YogaProgram({
       type,
@@ -109,9 +142,73 @@ export const updateYogaProgram = async (req: Request, res: Response): Promise<an
     if (req.body.description) program.description = { ...program.description, ...parseField(req.body.description) };
     if (req.body.explore) program.explore = { ...program.explore, ...parseField(req.body.explore) };
     if (req.body.template) program.template = req.body.template;
-    if (req.body.hostRetreatConfig) program.hostRetreatConfig = parseField(req.body.hostRetreatConfig);
+    
+    const oldConfig = program.hostRetreatConfig || {};
+    const newConfig = req.body.hostRetreatConfig ? parseField(req.body.hostRetreatConfig) : null;
+    if (newConfig) {
+      // Find deleted yoga hall images
+      const currentYogaHallPids = oldConfig.yogaHallImagePublicIds || (oldConfig.yogaHallImagePublicId ? [oldConfig.yogaHallImagePublicId] : []);
+      const keptYogaHallUrls = req.body.existingYogaHallImages ? parseField(req.body.existingYogaHallImages) : [];
+      const currentYogaHallUrls = oldConfig.yogaHallImages || (oldConfig.yogaHallImage ? [oldConfig.yogaHallImage] : []);
+      
+      const yogaHallPidsToDelete = currentYogaHallPids.filter((pid: string, idx: number) => {
+        const url = currentYogaHallUrls[idx];
+        return url && !keptYogaHallUrls.includes(url);
+      });
+      
+      if (yogaHallPidsToDelete.length > 0) {
+        await Promise.all(yogaHallPidsToDelete.map((pid: string) => deleteImage(pid).catch(() => {})));
+      }
+      
+      newConfig.yogaHallImages = currentYogaHallUrls.filter((url: string) => keptYogaHallUrls.includes(url));
+      newConfig.yogaHallImagePublicIds = currentYogaHallPids.filter((_: string, idx: number) => {
+        const url = currentYogaHallUrls[idx];
+        return url && keptYogaHallUrls.includes(url);
+      });
+      newConfig.yogaHallImage = newConfig.yogaHallImages[0] || "";
+      newConfig.yogaHallImagePublicId = newConfig.yogaHallImagePublicIds[0] || "";
+      
+      // Delete any room public IDs that were removed
+      const currentRooms = oldConfig.rooms || [];
+      const newRooms = newConfig.rooms || [];
+      const keptPublicIds = new Set<string>();
+      newRooms.forEach((r: any) => {
+        if (r.imagePublicIds) {
+          r.imagePublicIds.forEach((pid: string) => keptPublicIds.add(pid));
+        }
+      });
+      const pidsToDelete: string[] = [];
+      currentRooms.forEach((r: any) => {
+        if (r.imagePublicIds) {
+          r.imagePublicIds.forEach((pid: string) => {
+            if (!keptPublicIds.has(pid)) {
+              pidsToDelete.push(pid);
+            }
+          });
+        }
+      });
+      if (pidsToDelete.length > 0) {
+        await Promise.all(pidsToDelete.map(pid => deleteImage(pid).catch(() => {})));
+      }
+
+      program.hostRetreatConfig = newConfig;
+    }
 
     const files = req.files as Express.Multer.File[] || [];
+    const yogaHallFiles = files.filter(f => f.fieldname === "yogaHallImages");
+    if (yogaHallFiles.length > 0) {
+      const uploadResults = await Promise.all(yogaHallFiles.map(f => uploadImage(f.buffer, "yoga")));
+      const newUrls = uploadResults.map(r => r.secure_url);
+      const newPublicIds = uploadResults.map(r => r.public_id);
+      
+      const config = program.hostRetreatConfig || {};
+      config.yogaHallImages = [...(config.yogaHallImages || []), ...newUrls];
+      config.yogaHallImagePublicIds = [...(config.yogaHallImagePublicIds || []), ...newPublicIds];
+      config.yogaHallImage = config.yogaHallImages[0] || "";
+      config.yogaHallImagePublicId = config.yogaHallImagePublicIds[0] || "";
+      program.hostRetreatConfig = config;
+      program.markModified("hostRetreatConfig");
+    }
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");
 
     const existingImagesKept: string[] = req.body.existingImages ? parseField(req.body.existingImages) : null;
@@ -151,6 +248,24 @@ export const updateYogaProgram = async (req: Request, res: Response): Promise<an
       program.image = allImages[0] || program.image;
       program.imagePublicId = allPublicIds[0] || program.imagePublicId;
     }
+    // Upload room-specific images for updating
+    if (program.hostRetreatConfig?.rooms && Array.isArray(program.hostRetreatConfig.rooms)) {
+      for (let i = 0; i < program.hostRetreatConfig.rooms.length; i++) {
+        const room = program.hostRetreatConfig.rooms[i];
+        const roomFiles = files.filter(f => f.fieldname === `roomImages_${i}`);
+        
+        if (roomFiles.length > 0) {
+          const uploadPromises = roomFiles.map(file => uploadImage(file.buffer, "yoga"));
+          const uploadResults = await Promise.all(uploadPromises);
+          const newUrls = uploadResults.map(r => r.secure_url);
+          const newPublicIds = uploadResults.map(r => r.public_id);
+          
+          room.images = [...(room.images || []), ...newUrls];
+          room.imagePublicIds = [...(room.imagePublicIds || []), ...newPublicIds];
+        }
+      }
+      program.markModified("hostRetreatConfig");
+    }
 
     await program.save();
 
@@ -178,11 +293,24 @@ export const deleteYogaProgram = async (req: Request, res: Response): Promise<an
       });
     }
 
-    // Delete image from Cloudinary
-    if (program.imagePublicId) {
-      await deleteImage(program.imagePublicId).catch(err => {
-        console.warn(`[cloudinary]: Image delete failed: ${err.message}`);
+    // Delete images from Cloudinary
+    const pids = program.imagePublicIds || (program.imagePublicId ? [program.imagePublicId] : []);
+    if (program.hostRetreatConfig?.yogaHallImagePublicIds) {
+      program.hostRetreatConfig.yogaHallImagePublicIds.forEach((pid: string) => pids.push(pid));
+    } else if (program.hostRetreatConfig?.yogaHallImagePublicId) {
+      pids.push(program.hostRetreatConfig.yogaHallImagePublicId);
+    }
+    if (program.hostRetreatConfig?.rooms && Array.isArray(program.hostRetreatConfig.rooms)) {
+      program.hostRetreatConfig.rooms.forEach((r: any) => {
+        if (r.imagePublicIds) {
+          r.imagePublicIds.forEach((pid: string) => pids.push(pid));
+        }
       });
+    }
+    if (pids.length > 0) {
+      await Promise.all(pids.map(pid => deleteImage(pid).catch(err => {
+        console.warn(`[cloudinary]: Image delete failed for pid ${pid}: ${err.message}`);
+      })));
     }
 
     await YogaProgram.findByIdAndDelete(id);

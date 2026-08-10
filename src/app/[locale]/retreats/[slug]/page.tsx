@@ -681,7 +681,7 @@ export default async function RetreatDetailsPage({
               <div className="sticky top-28 space-y-6">
                 <div id="booking-pricing" className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
                    {!retreat.hideRate && (
-                    <div className="flex items-baseline gap-1.5 mb-4">
+                    <div className="flex justify-between items-baseline mb-4">
                       <span className="text-xs text-gray-400 font-semibold uppercase">Price</span>
                       <span className="text-2xl font-bold text-gray-800">
                         {retreat.price > 0 ? `$${retreat.price.toLocaleString()}` : "On Request"}
