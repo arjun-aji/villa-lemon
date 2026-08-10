@@ -283,7 +283,7 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
     const updateNum = (key: string) => { if (req.body[key] !== undefined) (retreat as any)[key] = Number(req.body[key]); };
     const updateBool = (key: string, val: string) => { if (req.body[key] !== undefined) (retreat as any)[key] = req.body[key] === val; };
 
-    ["yogaType","slug","video","retreatMap","brochurePdf","checkIn","checkOut","emergencyContact","canonicalUrl","brochureUrl","packingListUrl","schedulePdfUrl","termsPdfUrl","status"].forEach(update);
+    ["yogaType","slug","video","retreatMap","brochurePdf","checkIn","checkOut","emergencyContact","canonicalUrl","brochureUrl","packingListUrl","schedulePdfUrl","termsPdfUrl","status","heroImage"].forEach(update);
     ["heroTitle","heroSubtitle","tagline","shortDescription","fullDescription","retreatOverview","whyChoose","whoIsItFor","bestTime","cta","location","difficulty","yogaLevel","language","groupSize","accommodationType","yogaStyle","morningSession","eveningSession","meditation","pranayama","philosophy","classLanguage","suitableFor","yogaCertificate","yogaDescription","ayurvedaTitle","ayurvedaDescription","deposit","balancePayment","cancellation","refund","pickup","drop","medicalInfo","specialRequests","bookingTerms","metaTitle","metaDescription","keywords"].forEach(update);
     ["days","nights","price","minAge","maxCapacity","yogaHours","maxParticipants","minParticipants","displayOrder"].forEach(updateNum);
     updateBool("certificate", "true");

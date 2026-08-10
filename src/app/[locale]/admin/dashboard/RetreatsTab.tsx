@@ -378,7 +378,11 @@ export default function RetreatsTab({
     setSaving(true);
     try {
       const fd = new FormData();
-      if (heroImageFile) fd.append("heroImage", heroImageFile);
+      if (form.images && form.images.length > 0) {
+        fd.append("heroImage", form.images[0]);
+      } else {
+        fd.append("heroImage", "");
+      }
 
       // Append all fields
       const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming", "hideRate"];
@@ -588,21 +592,6 @@ export default function RetreatsTab({
         {/* ── Tab: Media ── */}
         {activeFormTab === "media" && (
           <div className="space-y-4 animate-fade-in bg-gray-50 p-4 rounded border border-gray-100">
-            <div className="flex flex-col gap-1.5">
-              <label className="font-bold text-gray-600 uppercase text-[9px]">Hero Background Image *</label>
-              <div className="flex items-center gap-4">
-                {heroImagePreview && (
-                  <div className="w-36 aspect-video rounded border overflow-hidden shrink-0 bg-white">
-                    <img src={heroImagePreview} className="w-full h-full object-cover" alt="Preview" />
-                  </div>
-                )}
-                <label className="flex-1 border border-dashed border-gray-300 hover:border-brand-gold rounded p-6 cursor-pointer text-center bg-white hover:bg-amber-50/20 transition-all select-none">
-                  <Upload className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                  <span className="text-xs text-gray-500 font-bold uppercase tracking-wider block">Upload Image</span>
-                  <input type="file" accept="image/*" onChange={handleHeroImageChange} className="hidden" required={!editing} />
-                </label>
-              </div>
-            </div>
 
             <div className="flex flex-col gap-1">
               <label className="font-bold text-gray-600 uppercase text-[9px]">Video Link (YouTube/Vimeo)</label>
@@ -616,7 +605,7 @@ export default function RetreatsTab({
             </div>
 
             <div className="flex flex-col gap-1.5 border-t border-gray-200 pt-4 mt-4">
-              <label className="font-bold text-gray-600 uppercase text-[9px]">Retreat Gallery Images</label>
+              <label className="font-bold text-gray-600 uppercase text-[9px]">Retreat Slideshow & Gallery Images (The 1st image will be used as the Cover and Hero Background)</label>
               
               {/* Gallery Grid */}
               {form.images && form.images.length > 0 && (
