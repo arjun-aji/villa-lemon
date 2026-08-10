@@ -1699,6 +1699,44 @@ export default function AdminDashboard() {
     });
   };
 
+  // Remove an addon at position `num` and shift all subsequent ones down
+  const removeAddon = (num: number) => {
+    const langs = ["en", "de", "fr", "ru"];
+    const config = { ...(subgroupForm.hostRetreatConfig || {}) };
+    // Shift items down from num+1 to addonCount
+    for (let i = num; i < addonCount; i++) {
+      const nextTitle = config[`addon${i + 1}Title`];
+      const nextDesc = config[`addon${i + 1}Desc`];
+      config[`addon${i}Title`] = nextTitle || langs.reduce((a, l) => ({ ...a, [l]: "" }), {});
+      config[`addon${i}Desc`] = nextDesc || langs.reduce((a, l) => ({ ...a, [l]: "" }), {});
+    }
+    // Clear the last slot
+    langs.forEach(l => {
+      config[`addon${addonCount}Title`] = { ...config[`addon${addonCount}Title`], [l]: "" };
+      config[`addon${addonCount}Desc`] = { ...config[`addon${addonCount}Desc`], [l]: "" };
+    });
+    setSubgroupForm({ ...subgroupForm, hostRetreatConfig: config });
+    setAddonCount(c => c - 1);
+  };
+
+  // Remove a FAQ at position `num` and shift all subsequent ones down
+  const removeFaq = (num: number) => {
+    const langs = ["en", "de", "fr", "ru"];
+    const config = { ...(subgroupForm.hostRetreatConfig || {}) };
+    for (let i = num; i < faqCount; i++) {
+      const nextQ = config[`faq${i + 1}Question`];
+      const nextA = config[`faq${i + 1}Answer`];
+      config[`faq${i}Question`] = nextQ || langs.reduce((a, l) => ({ ...a, [l]: "" }), {});
+      config[`faq${i}Answer`] = nextA || langs.reduce((a, l) => ({ ...a, [l]: "" }), {});
+    }
+    langs.forEach(l => {
+      config[`faq${faqCount}Question`] = { ...config[`faq${faqCount}Question`], [l]: "" };
+      config[`faq${faqCount}Answer`] = { ...config[`faq${faqCount}Answer`], [l]: "" };
+    });
+    setSubgroupForm({ ...subgroupForm, hostRetreatConfig: config });
+    setFaqCount(c => c - 1);
+  };
+
   const handleAddRoomClick = () => {
     const config = subgroupForm.hostRetreatConfig || {};
     const rooms = config.rooms || [];
@@ -4856,10 +4894,10 @@ export default function AdminDashboard() {
                             <div key={num} className="border-t pt-3">
                               <div className="flex items-center justify-between mb-2">
                                 <span className="font-bold text-brand-gold text-[10px] uppercase tracking-widest">Addon #{num}</span>
-                                {num === addonCount && num > 1 && (
+                                {addonCount > 1 && (
                                   <button
                                     type="button"
-                                    onClick={() => setAddonCount(c => c - 1)}
+                                    onClick={() => removeAddon(num)}
                                     className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded"
                                   >
                                     ✕ Remove
@@ -4911,10 +4949,10 @@ export default function AdminDashboard() {
                             <div key={num} className="p-3 border rounded bg-white space-y-3">
                               <div className="flex items-center justify-between">
                                 <span className="font-bold text-brand-gold uppercase text-[10px] tracking-widest">FAQ #{num}</span>
-                                {num === faqCount && num > 1 && (
+                                {faqCount > 1 && (
                                   <button
                                     type="button"
-                                    onClick={() => setFaqCount(c => c - 1)}
+                                    onClick={() => removeFaq(num)}
                                     className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded"
                                   >
                                     ✕ Remove
