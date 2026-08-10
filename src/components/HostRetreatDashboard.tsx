@@ -150,9 +150,16 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
   const rawT = useTranslations("HostRetreat");
   const [yogaHallIdx, setYogaHallIdx] = React.useState(0);
 
+  // Keys that are only stored in dbConfig (CMS) and never exist in static translation files.
+  // Calling rawT on these would throw MISSING_MESSAGE errors.
+  const CMS_ONLY_KEY_PREFIXES = ["addon", "faq"];
+  const isCmsOnlyKey = (key: string) => CMS_ONLY_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
+
   const t = (key: string, values?: any): string => {
     const val = dbConfig?.[key]?.[locale] || dbConfig?.[key]?.en;
     if (val) return val;
+    // For dynamic CMS-only keys, don't attempt rawT lookup (would throw MISSING_MESSAGE)
+    if (isCmsOnlyKey(key)) return "";
     try {
       if (values) {
         return rawT(key, values);
