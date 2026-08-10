@@ -1273,7 +1273,7 @@ export default function AdminDashboard() {
   const [editingSubgroup, setEditingSubgroup] = useState<any | null>(null);
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
-  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "rooms" | "features" | "meals" | "logistics" | "policies" | "cancellation" | "experience-faqs">("general");
+  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "features" | "experience-faqs" | "rooms" | "meals" | "logistics" | "policies" | "cancellation">("general");
   const [addonCount, setAddonCount] = useState(3);
   const [faqCount, setFaqCount] = useState(4);
 
@@ -3836,7 +3836,7 @@ export default function AdminDashboard() {
 
             {subgroupFormType === "yoga" && subgroupForm.type === "host retreat" && (
               <div className="px-6 py-2 border-b border-gray-150 bg-[#fbf9f6] flex flex-wrap gap-1.5 select-none">
-                {(["general", "rooms", "features", "meals", "logistics", "policies", "cancellation", "experience-faqs"] as const).map((tab) => (
+                {(["general", "features", "experience-faqs", "rooms", "meals", "logistics", "policies", "cancellation"] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
@@ -3845,7 +3845,7 @@ export default function AdminDashboard() {
                       hostRetreatTab === tab ? "bg-[#121212] text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    {tab === "general" ? "1. General Info" : tab === "rooms" ? "2. Rooms Layout" : tab === "features" ? "3. Highlight Features" : tab === "meals" ? "4. Meals & Menus" : tab === "logistics" ? "5. Logistics & Extras" : tab === "policies" ? "6. Booking Policies" : tab === "cancellation" ? "7. Cancellation Policy" : "8. Experience & FAQs"}
+                    {tab === "general" ? "1. General Info" : tab === "features" ? "2. Highlight Features" : tab === "experience-faqs" ? "3. Experience & FAQs" : tab === "rooms" ? "4. Rooms Layout" : tab === "meals" ? "5. Meals & Menus" : tab === "logistics" ? "6. Logistics & Extras" : tab === "policies" ? "7. Booking Policies" : "8. Cancellation Policy"}
                   </button>
                 ))}
               </div>
@@ -3891,12 +3891,12 @@ export default function AdminDashboard() {
 
                       <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
                         <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
-                          Localized values ({activeLangTab.toUpperCase()})
+                          Page Meta — Nav Card ({activeLangTab.toUpperCase()})
                         </h4>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="flex flex-col gap-1.5">
-                            <label className="font-bold text-gray-600 uppercase">Title</label>
+                            <label className="font-bold text-gray-600 uppercase">Nav Card Title</label>
                             <input
                               type="text"
                               value={subgroupForm.title?.[activeLangTab] || ""}
@@ -3926,9 +3926,9 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-600 uppercase">Description Text</label>
+                          <label className="font-bold text-gray-600 uppercase">Nav Card Description</label>
                           <textarea
-                            rows={4}
+                            rows={3}
                             value={subgroupForm.description?.[activeLangTab] || ""}
                             onChange={(e) => {
                               const description = { ...subgroupForm.description, [activeLangTab]: e.target.value };
@@ -3936,6 +3936,47 @@ export default function AdminDashboard() {
                             }}
                             className="border p-2.5 rounded font-sans"
                             required={activeLangTab === "en"}
+                          />
+                        </div>
+                      </div>
+
+                      {/* ── HERO / INTRO SECTION ── */}
+                      <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                          Hero Section — "Exclusive Group Retreat Venue" ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <p className="text-[10px] text-gray-500">This controls the eyebrow label, main heading, and intro paragraph at the top of the Host Your Retreat page.</p>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Eyebrow Label</label>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("retreatVenue")}
+                            onChange={(e) => setRetreatConfigVal("retreatVenue", e.target.value)}
+                            placeholder="e.g. Exclusive Group Retreat Venue"
+                            className="border p-2.5 rounded text-xs"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Main Heading</label>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("hostTitle")}
+                            onChange={(e) => setRetreatConfigVal("hostTitle", e.target.value)}
+                            placeholder="e.g. Host Your Retreat at Villa Lemon"
+                            className="border p-2.5 rounded text-xs"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Intro Paragraph</label>
+                          <textarea
+                            rows={4}
+                            value={getRetreatConfigVal("hostIntro")}
+                            onChange={(e) => setRetreatConfigVal("hostIntro", e.target.value)}
+                            placeholder="We provide private, premium homestay accommodation..."
+                            className="border p-2.5 rounded font-sans text-xs"
                           />
                         </div>
                       </div>
