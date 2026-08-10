@@ -653,25 +653,34 @@ export default function RetreatsTab({
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     disabled={uploadingGallery}
                     onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+                      const files = Array.from(e.target.files || []);
+                      if (files.length === 0) return;
                       setUploadingGallery(true);
                       try {
-                        const fd = new FormData();
-                        fd.append("image", file);
-                        const res = await fetch(`${API_BASE_URL}/api/retreats/upload-image`, {
-                          method: "POST",
-                          headers: { Authorization: `Bearer ${token}` },
-                          body: fd,
+                        const uploadPromises = files.map(async (file) => {
+                          const fd = new FormData();
+                          fd.append("image", file);
+                          const res = await fetch(`${API_BASE_URL}/api/retreats/upload-image`, {
+                            method: "POST",
+                            headers: { Authorization: `Bearer ${token}` },
+                            body: fd,
+                          });
+                          if (res.ok) {
+                            const data = await res.json();
+                            return data.secure_url as string;
+                          } else {
+                            console.error("Upload failed for file:", file.name);
+                            return null;
+                          }
                         });
-                        if (res.ok) {
-                          const data = await res.json();
+                        const urls = await Promise.all(uploadPromises);
+                        const validUrls = urls.filter((url): url is string => !!url);
+                        if (validUrls.length > 0) {
                           const currentImages = form.images || [];
-                          setF("images", [...currentImages, data.secure_url]);
-                        } else {
-                          alert("Upload failed");
+                          setF("images", [...currentImages, ...validUrls]);
                         }
                       } catch (err) {
                         console.error("Gallery upload error", err);
