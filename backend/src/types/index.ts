@@ -71,6 +71,7 @@ export interface IYogaProgram extends Document {
   href: string;
   displayOrder?: number;
   template?: string;
+  hostRetreatConfig?: any;
   createdAt: Date;
   updatedAt: Date;
 }

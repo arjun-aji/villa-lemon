@@ -27,6 +27,7 @@ const yogaProgramSchema = new Schema<IYogaProgram>(
     href: { type: String, required: true },
     displayOrder: { type: Number, default: 0 },
     template: { type: String, default: "default" },
+    hostRetreatConfig: { type: Schema.Types.Mixed, default: {} },
   },
   {
     timestamps: true,

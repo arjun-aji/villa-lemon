@@ -1,5 +1,18 @@
 export const revalidate = 3600;
 import type { Metadata } from "next";
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
+import Navbar from "@/components/Navbar";
+import { getMessages } from "next-intl/server";
+import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
+import PageAutoTranslator from "@/components/PageAutoTranslator";
+import HostRetreatDashboard from "@/components/HostRetreatDashboard";
+import { API_BASE_URL } from "@/config/api";
+import YogaGridSlider from "@/components/YogaGridSlider";
+import { localizeObject } from "@/utils/translator";
+import { getContactSettings } from "@/utils/contactSettings";
 
 export async function generateMetadata({
   params,
@@ -8,6 +21,34 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, type } = await params;
   
+  let dbTitle = "";
+  let dbDesc = "";
+  let dbImages: string[] = [];
+
+  try {
+    const resCats = await fetch(`${API_BASE_URL}/api/yoga/programs`, { cache: "no-store" });
+    if (resCats.ok) {
+      const catsJson = await resCats.json();
+      const yogaCategories = catsJson.data || [];
+      const programCategory = yogaCategories.find((cat: any) => {
+        const hrefParts = (cat.href || "").split("/");
+        const slug = hrefParts[hrefParts.length - 1];
+        return slug.toLowerCase() === type.toLowerCase() || (cat.type && cat.type.toLowerCase() === type.toLowerCase());
+      });
+      if (programCategory) {
+        dbTitle = programCategory.title?.[locale] || programCategory.title?.en || "";
+        dbDesc = programCategory.description?.[locale] || programCategory.description?.en || "";
+        if (programCategory.image) {
+          dbImages = programCategory.images && programCategory.images.length > 0 
+            ? programCategory.images 
+            : [programCategory.image];
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to fetch yoga categories in generateMetadata:", err);
+  }
+
   let titleKey = "retreatsTitle";
   let descKey = "retreatsDesc";
 
@@ -27,8 +68,8 @@ export async function generateMetadata({
 
   const messages = await getMessages({ locale });
   const t = messages.Yoga as any || {};
-  const title = t[titleKey] || "Yoga Program";
-  const description = t[descKey] || `Explore curated yoga ${type} options at Villa Lemon in Varkala, Kerala.`;
+  const title = dbTitle || t[titleKey] || "Yoga Program";
+  const description = dbDesc || t[descKey] || `Explore curated yoga ${type} options at Villa Lemon in Varkala, Kerala.`;
 
   return {
     title: `${title} | Villa Lemon`,
@@ -36,22 +77,13 @@ export async function generateMetadata({
     alternates: {
       canonical: `/${locale}/yoga/${type}`,
     },
+    ...(dbImages.length > 0 && {
+      openGraph: {
+        images: dbImages.map(img => ({ url: img })),
+      }
+    })
   };
 }
-
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ImageSlideshow } from "@/components/ImageSlideshow";
-import Navbar from "@/components/Navbar";
-import { getMessages } from "next-intl/server";
-import { Clock, CheckCircle, Users, ChevronLeft } from "lucide-react";
-import PageAutoTranslator from "@/components/PageAutoTranslator";
-import HostRetreatDashboard from "@/components/HostRetreatDashboard";
-import { API_BASE_URL } from "@/config/api";
-import YogaGridSlider from "@/components/YogaGridSlider";
-import { localizeObject } from "@/utils/translator";
-import { getContactSettings } from "@/utils/contactSettings";
 
 interface YogaItemType {
   _id: string;
@@ -127,13 +159,32 @@ export default async function YogaCatalogPage({
   const messages = await getMessages({ locale });
   const tYoga = messages.Yoga as any;
 
+  // Load yoga program categories
+  let yogaCategories = [];
+  try {
+    const resCats = await fetch(`${API_BASE_URL}/api/yoga/programs`, { cache: "no-store" });
+    if (resCats.ok) {
+      const catsJson = await resCats.json();
+      yogaCategories = catsJson.data || [];
+    }
+  } catch (err) {
+    console.warn("Failed to fetch yoga categories in catalog page:", err);
+  }
+
+  // Try to find the matching category by matching its href suffix or type (case-insensitive)
+  const programCategory = yogaCategories.find((cat: any) => {
+    const hrefParts = (cat.href || "").split("/");
+    const slug = hrefParts[hrefParts.length - 1];
+    return slug.toLowerCase() === type.toLowerCase() || (cat.type && cat.type.toLowerCase() === type.toLowerCase());
+  });
+
   const isHostRetreat = type.toLowerCase() === "host-your-yoga-retreat";
   if (isHostRetreat) {
     const contactSettings = await getContactSettings();
     const whatsappNumber = contactSettings.whatsapp || "+91 73560 85055";
 
-    const title = tYoga.hostRetreatTitle || "Host Your Yoga Retreat";
-    const desc = tYoga.hostRetreatDesc || "Configure and book our property to conduct your own wellness retreats.";
+    const title = programCategory?.title?.[locale] || programCategory?.title?.en || tYoga.hostRetreatTitle || "Host Your Yoga Retreat";
+    const desc = programCategory?.description?.[locale] || programCategory?.description?.en || tYoga.hostRetreatDesc || "Configure and book our property to conduct your own wellness retreats.";
 
     return (
       <>
@@ -143,13 +194,22 @@ export default async function YogaCatalogPage({
             {/* HEADER SECTION */}
             <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-8">
               <div className="absolute inset-0 z-0">
-                <Image
-                  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1600"
-                  alt="Host Your Retreat Banner"
-                  fill
-                  className="object-cover opacity-45 brightness-75 select-none"
-                  priority
-                />
+                {programCategory?.image ? (
+                  <ImageSlideshow
+                    images={programCategory.images && programCategory.images.length > 0 ? programCategory.images : [programCategory.image]}
+                    defaultImage={programCategory.image}
+                    className="object-cover w-full h-full opacity-45 brightness-75 select-none"
+                    alt={title}
+                  />
+                ) : (
+                  <Image
+                    src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1600"
+                    alt="Host Your Retreat Banner"
+                    fill
+                    className="object-cover opacity-45 brightness-75 select-none"
+                    priority
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/40 to-transparent z-10" />
               </div>
 
@@ -183,31 +243,12 @@ export default async function YogaCatalogPage({
             </section>
 
             {/* INTERACTIVE DASHBOARD AND INFORMATION DETAILS */}
-            <HostRetreatDashboard locale={locale} whatsappNumber={whatsappNumber} />
+            <HostRetreatDashboard locale={locale} whatsappNumber={whatsappNumber} dbConfig={programCategory?.hostRetreatConfig} />
           </PageAutoTranslator>
         </main>
       </>
     );
   }
-
-  // Load yoga program categories
-  let yogaCategories = [];
-  try {
-    const resCats = await fetch(`${API_BASE_URL}/api/yoga/programs`, { cache: "no-store" });
-    if (resCats.ok) {
-      const catsJson = await resCats.json();
-      yogaCategories = catsJson.data || [];
-    }
-  } catch (err) {
-    console.warn("Failed to fetch yoga categories in catalog page:", err);
-  }
-
-  // Try to find the matching category by matching its href suffix or type (case-insensitive)
-  const programCategory = yogaCategories.find((cat: any) => {
-    const hrefParts = (cat.href || "").split("/");
-    const slug = hrefParts[hrefParts.length - 1];
-    return slug.toLowerCase() === type.toLowerCase() || (cat.type && cat.type.toLowerCase() === type.toLowerCase());
-  });
 
   if (type === "teachers") {
     // TEACHERS DIRECTORY LAYOUT

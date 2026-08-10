@@ -343,6 +343,7 @@ export default function AdminDashboard() {
   const [editingSubgroup, setEditingSubgroup] = useState<any | null>(null);
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
+  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "features" | "meals" | "logistics" | "policies" | "cancellation">("general");
 
   // MOBILE SIDEBAR
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -711,6 +712,25 @@ export default function AdminDashboard() {
     setShowSubgroupModal(true);
   };
 
+  const getRetreatConfigVal = (key: string, lang: string = activeLangTab) => {
+    return subgroupForm.hostRetreatConfig?.[key]?.[lang] || "";
+  };
+
+  const setRetreatConfigVal = (key: string, val: string, lang: string = activeLangTab) => {
+    const config = subgroupForm.hostRetreatConfig || {};
+    const fieldObj = config[key] || {};
+    setSubgroupForm({
+      ...subgroupForm,
+      hostRetreatConfig: {
+        ...config,
+        [key]: {
+          ...fieldObj,
+          [lang]: val
+        }
+      }
+    });
+  };
+
   const handleSaveSubgroup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
@@ -753,7 +773,6 @@ export default function AdminDashboard() {
       formData.append("description", JSON.stringify(subgroupForm.description));
       formData.append("explore", JSON.stringify(subgroupForm.explore));
 
-      // Append banner feature fields for accommodation
       if (subgroupFormType === "accommodation") {
         const sf = subgroupForm as any;
         for (const n of [1, 2, 3, 4]) {
@@ -762,6 +781,10 @@ export default function AdminDashboard() {
           if (sf[titleKey]) formData.append(titleKey, JSON.stringify(sf[titleKey]));
           if (sf[subtitleKey]) formData.append(subtitleKey, JSON.stringify(sf[subtitleKey]));
         }
+      }
+
+      if (subgroupFormType === "yoga" && subgroupForm.type === "host retreat") {
+        formData.append("hostRetreatConfig", JSON.stringify(subgroupForm.hostRetreatConfig || {}));
       }
 
       // Send which existing server images to keep (non-blob URLs)
@@ -2626,264 +2649,816 @@ export default function AdminDashboard() {
               ))}
             </div>
 
+            {subgroupFormType === "yoga" && subgroupForm.type === "host retreat" && (
+              <div className="px-6 py-2 border-b border-gray-150 bg-[#fbf9f6] flex flex-wrap gap-1.5 select-none">
+                {(["general", "features", "meals", "logistics", "policies", "cancellation"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setHostRetreatTab(tab)}
+                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm transition-all ${
+                      hostRetreatTab === tab ? "bg-[#121212] text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {tab === "general" ? "1. General Info" : tab === "features" ? "2. Highlight Features" : tab === "meals" ? "3. Meals & Menus" : tab === "logistics" ? "4. Logistics & Extras" : tab === "policies" ? "5. Booking Policies" : "6. Cancellation Policy"}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <form onSubmit={handleSaveSubgroup} className="flex-grow overflow-y-auto p-6 space-y-5 text-xs">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Category Type selector */}
-                {subgroupFormType === "accommodation" && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
-                    <select
-                      value={subgroupForm.type}
-                      onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
-                      className="border p-2.5 rounded bg-white"
-                    >
-                      <option value="villa">Entire Villa</option>
-                      <option value="floor">Private Floor</option>
-                      <option value="room">Individual Room</option>
-                    </select>
-                  </div>
-                )}
+              {/* ----------------------------------------------------
+                  HOST RETREAT SPECIAL TABBED CONTENT
+              ---------------------------------------------------- */}
+              {subgroupFormType === "yoga" && subgroupForm.type === "host retreat" ? (
+                <div className="space-y-5">
+                  
+                  {/* TAB 1: GENERAL INFO */}
+                  {hostRetreatTab === "general" && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
+                          <select
+                            value={subgroupForm.type || "host retreat"}
+                            onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
+                            className="border p-2.5 rounded bg-white"
+                          >
+                            <option value="host retreat">Host Your Yoga Retreat</option>
+                            <option value="retreats">Yoga Retreats</option>
+                            <option value="classes">Daily Yoga Classes</option>
+                            <option value="private">Private Yoga Sessions</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Href Target Path</label>
+                          <input
+                            type="text"
+                            value={subgroupForm.href || ""}
+                            onChange={(e) => setSubgroupForm({ ...subgroupForm, href: e.target.value })}
+                            placeholder="/yoga/Host-Your-Yoga-Retreat"
+                            className="border p-2.5 rounded"
+                            required
+                          />
+                        </div>
+                      </div>
 
-                {subgroupFormType === "package" && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Subgroup Category Key</label>
-                    <select
-                      value={subgroupForm.category}
-                      onChange={(e) => setSubgroupForm({ ...subgroupForm, category: e.target.value })}
-                      className="border p-2.5 rounded bg-white"
-                    >
-                      <option value="varkalaSightseeing">Varkala Sightseeing</option>
-                      <option value="dayTrips">Day Trips</option>
-                      <option value="backwaterExperiences">Backwater Experiences</option>
-                      <option value="adventureActivities">Adventure Activities</option>
-                      <option value="varkalaPackages">Varkala Packages</option>
-                    </select>
-                  </div>
-                )}
+                      <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                          Localized values ({activeLangTab.toUpperCase()})
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Title</label>
+                            <input
+                              type="text"
+                              value={subgroupForm.title?.[activeLangTab] || ""}
+                              onChange={(e) => {
+                                const title = { ...subgroupForm.title, [activeLangTab]: e.target.value };
+                                setSubgroupForm({ ...subgroupForm, title });
+                              }}
+                              className="border p-2.5 rounded"
+                              required={activeLangTab === "en"}
+                            />
+                          </div>
+                          
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Explore Link Title</label>
+                            <input
+                              type="text"
+                              value={subgroupForm.explore?.[activeLangTab] || ""}
+                              onChange={(e) => {
+                                const explore = { ...subgroupForm.explore, [activeLangTab]: e.target.value };
+                                setSubgroupForm({ ...subgroupForm, explore });
+                              }}
+                              placeholder="Explore"
+                              className="border p-2.5 rounded"
+                              required={activeLangTab === "en"}
+                            />
+                          </div>
+                        </div>
 
-                {subgroupFormType === "yoga" && (
-                  <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Description Text</label>
+                          <textarea
+                            rows={4}
+                            value={subgroupForm.description?.[activeLangTab] || ""}
+                            onChange={(e) => {
+                              const description = { ...subgroupForm.description, [activeLangTab]: e.target.value };
+                              setSubgroupForm({ ...subgroupForm, description });
+                            }}
+                            className="border p-2.5 rounded font-sans"
+                            required={activeLangTab === "en"}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Cover Image Upload */}
+                      <div className="space-y-2">
+                        <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
+                        <div className="flex flex-col gap-3">
+                          {coverImagePreviews && coverImagePreviews.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {coverImagePreviews.map((url, idx) => (
+                                <div key={idx} className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0 bg-gray-50 group">
+                                  <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteCoverImage(idx)}
+                                    className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                                    title="Remove image"
+                                  >×</button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
+                            <Upload className="w-4 h-4 text-gray-400" />
+                            <span className="font-semibold text-gray-500">Upload Banner Image(s)</span>
+                            <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: HIGHLIGHT FEATURES */}
+                  {hostRetreatTab === "features" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                        Highlight Section Features ({activeLangTab.toUpperCase()})
+                      </h4>
+                      
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Rooms Feature Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("roomsFeatureTitle")}
+                              onChange={(e) => setRetreatConfigVal("roomsFeatureTitle", e.target.value)}
+                              placeholder="e.g. 10 Air-Conditioned Rooms"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Rooms Feature Description</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("roomsFeatureDesc")}
+                              onChange={(e) => setRetreatConfigVal("roomsFeatureDesc", e.target.value)}
+                              placeholder="e.g. Spread across 2 private floors..."
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Yoga Hall Feature Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("hallFeatureTitle")}
+                              onChange={(e) => setRetreatConfigVal("hallFeatureTitle", e.target.value)}
+                              placeholder="e.g. Rooftop Yoga Shala"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Yoga Hall Feature Description</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("hallFeatureDesc")}
+                              onChange={(e) => setRetreatConfigVal("hallFeatureDesc", e.target.value)}
+                              placeholder="e.g. Rooftop space with sea views..."
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Meals Feature Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("mealsFeatureTitle")}
+                              onChange={(e) => setRetreatConfigVal("mealsFeatureTitle", e.target.value)}
+                              placeholder="e.g. Healthy Vegetarian Catering"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Meals Feature Description</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("mealsFeatureDesc")}
+                              onChange={(e) => setRetreatConfigVal("mealsFeatureDesc", e.target.value)}
+                              placeholder="e.g. Locally sourced vegan & veg meals..."
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: MEALS & MENUS */}
+                  {hostRetreatTab === "meals" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                        Meals & Sample Menu Options ({activeLangTab.toUpperCase()})
+                      </h4>
+                      <p className="text-[10px] text-gray-500 font-light">List menu items separated by commas.</p>
+                      
+                      <div className="space-y-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Breakfast Items</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("menuBreakfastItems")}
+                            onChange={(e) => setRetreatConfigVal("menuBreakfastItems", e.target.value)}
+                            placeholder="e.g. Fresh Fruit Juices, Ayurvedic Porridge, Traditional Idli & Dosa, Herbal Infusions"
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">Lunch Items</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("menuLunchItems")}
+                            onChange={(e) => setRetreatConfigVal("menuLunchItems", e.target.value)}
+                            placeholder="e.g. Kerala Sadhya on Banana Leaf, Organic Brown Rice, Coconut Curry, Local Seasonal Vegetables"
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">Dinner Items</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("menuDinnerItems")}
+                            onChange={(e) => setRetreatConfigVal("menuDinnerItems", e.target.value)}
+                            placeholder="e.g. Light Vegetable Soup, Grilled Paneer with Herbs, Chapatis, Steamed Broccoli & Carrots"
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">General Diet Info / Footnote</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("menuFooterItems")}
+                            onChange={(e) => setRetreatConfigVal("menuFooterItems", e.target.value)}
+                            placeholder="e.g. Gluten-free, Lactose-free, and Vegan options are prepared on request."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: LOGISTICS & EXTRAS */}
+                  {hostRetreatTab === "logistics" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                        Logistics, Transport & Shala Access ({activeLangTab.toUpperCase()})
+                      </h4>
+                      
+                      <div className="space-y-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Trivandrum Airport Transport Info</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("trivandrumAirport")}
+                            onChange={(e) => setRetreatConfigVal("trivandrumAirport", e.target.value)}
+                            placeholder="e.g. We coordinate airport pickups from Trivandrum (TRV) Airport directly to the villa."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Small Car Capacity Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("carSmallLabel")}
+                              onChange={(e) => setRetreatConfigVal("carSmallLabel", e.target.value)}
+                              placeholder="e.g. Sedan (max 3 guests)"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Large Car Capacity Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("carLargeLabel")}
+                              onChange={(e) => setRetreatConfigVal("carLargeLabel", e.target.value)}
+                              placeholder="e.g. Innova / SUV (max 5 guests)"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Tempo Capacity Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("tempoLabel")}
+                              onChange={(e) => setRetreatConfigVal("tempoLabel", e.target.value)}
+                              placeholder="e.g. Tempo Traveller (max 12 guests)"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Yoga Hall Usage Header</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("yogaHallUsageTitle")}
+                              onChange={(e) => setRetreatConfigVal("yogaHallUsageTitle", e.target.value)}
+                              placeholder="e.g. Rooftop Yoga Shala Access"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Yoga Hall Sessions Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("yogaHallSessionsLabel")}
+                              onChange={(e) => setRetreatConfigVal("yogaHallSessionsLabel", e.target.value)}
+                              placeholder="e.g. Exclusive daily use for group yoga sessions"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 5: BOOKING POLICIES */}
+                  {hostRetreatTab === "policies" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                        Booking Confirmation, Terms & policies ({activeLangTab.toUpperCase()})
+                      </h4>
+                      
+                      <div className="space-y-4 text-xs font-sans">
+                        <div className="space-y-2">
+                          <span className="font-bold text-gray-700 block uppercase">Booking Confirmation Rules</span>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("confirmationRule1")}
+                            onChange={(e) => setRetreatConfigVal("confirmationRule1", e.target.value)}
+                            placeholder="Rule 1: To confirm a retreat booking, a 30% non-refundable advance is required."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("confirmationRule2")}
+                            onChange={(e) => setRetreatConfigVal("confirmationRule2", e.target.value)}
+                            placeholder="Rule 2: Balance 70% due 30 days prior to arrival."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("confirmationRule3")}
+                            onChange={(e) => setRetreatConfigVal("confirmationRule3", e.target.value)}
+                            placeholder="Rule 3: Booking is fully confirmed once written confirmation is issued."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-2 border-t pt-3">
+                          <span className="font-bold text-gray-700 block uppercase">Payment Terms Rules</span>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("paymentTermsRule1")}
+                            onChange={(e) => setRetreatConfigVal("paymentTermsRule1", e.target.value)}
+                            placeholder="Rule 1: 30% advance deposit paid via bank transfer."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("paymentTermsRule2")}
+                            onChange={(e) => setRetreatConfigVal("paymentTermsRule2", e.target.value)}
+                            placeholder="Rule 2: 70% due 30 days prior to arrival."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("paymentTermsRule3")}
+                            onChange={(e) => setRetreatConfigVal("paymentTermsRule3", e.target.value)}
+                            placeholder="Rule 3: Payments can be settled via card or wire transfer."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-2 border-t pt-3">
+                          <span className="font-bold text-gray-700 block uppercase">Terms & Conditions</span>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("termsRule1")}
+                            onChange={(e) => setRetreatConfigVal("termsRule1", e.target.value)}
+                            placeholder="Rule 1: Valid for selected periods only."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("termsRule2")}
+                            onChange={(e) => setRetreatConfigVal("termsRule2", e.target.value)}
+                            placeholder="Rule 2: Room allocations subject to availability."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("termsRule3")}
+                            onChange={(e) => setRetreatConfigVal("termsRule3", e.target.value)}
+                            placeholder="Rule 3: Check-in: 2:00 PM | Check-out: 11:00 AM."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-2 border-t pt-3">
+                          <span className="font-bold text-gray-700 block uppercase">Amendments & Date Changes</span>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("amendmentsRule1")}
+                            onChange={(e) => setRetreatConfigVal("amendmentsRule1", e.target.value)}
+                            placeholder="Rule 1: Date changes are subject to availability."
+                            className="border p-2 rounded w-full text-xs"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-700 uppercase">Force Majeure Description</label>
+                          <textarea
+                            rows={3}
+                            value={getRetreatConfigVal("forceMajeureDesc")}
+                            onChange={(e) => setRetreatConfigVal("forceMajeureDesc", e.target.value)}
+                            placeholder="Describe rules for natural disasters, lockouts, etc."
+                            className="border p-2 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Footer Greeting Text</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("footerGreeting")}
+                              onChange={(e) => setRetreatConfigVal("footerGreeting", e.target.value)}
+                              placeholder="We look forward to welcoming you..."
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Footer Signature Text</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("footerSignature")}
+                              onChange={(e) => setRetreatConfigVal("footerSignature", e.target.value)}
+                              placeholder="Shahid — Villa Lemon Homestay"
+                              className="border p-2.5 rounded"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 6: CANCELLATION POLICY */}
+                  {hostRetreatTab === "cancellation" && (
+                    <div className="space-y-4 bg-gray-50 p-4 rounded border border-gray-100">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">
+                        Cancellation Policy Rules ({activeLangTab.toUpperCase()})
+                      </h4>
+                      
+                      <div className="space-y-4 font-sans">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Cancellation Policy Section Title</label>
+                          <input
+                            type="text"
+                            value={getRetreatConfigVal("cancellationTitle")}
+                            onChange={(e) => setRetreatConfigVal("cancellationTitle", e.target.value)}
+                            placeholder="e.g. Cancellation Policy"
+                            className="border p-2.5 rounded"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">More than 60 days description</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("cancel60DaysDesc")}
+                            onChange={(e) => setRetreatConfigVal("cancel60DaysDesc", e.target.value)}
+                            placeholder="e.g. Full refund excluding non-refundable booking deposit."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">30 to 59 days description</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("cancel30to59Desc")}
+                            onChange={(e) => setRetreatConfigVal("cancel30to59Desc", e.target.value)}
+                            placeholder="e.g. 50% of the total booking value will be charged."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">Less than 30 days description</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("cancelUnder30Desc")}
+                            onChange={(e) => setRetreatConfigVal("cancelUnder30Desc", e.target.value)}
+                            placeholder="e.g. 100% of the total booking value will be charged."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                          <label className="font-bold text-gray-600 uppercase">No-show & Early Departure description</label>
+                          <textarea
+                            rows={2}
+                            value={getRetreatConfigVal("noShowDesc")}
+                            onChange={(e) => setRetreatConfigVal("noShowDesc", e.target.value)}
+                            placeholder="e.g. No refund will be provided for unused nights or early departure."
+                            className="border p-2.5 rounded font-sans"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              ) : (
+                /* ----------------------------------------------------
+                    REGULAR SUBGROUP LAYOUT (DEFAULT)
+                ---------------------------------------------------- */
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Category Type selector */}
+                    {subgroupFormType === "accommodation" && (
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
+                        <select
+                          value={subgroupForm.type}
+                          onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
+                          className="border p-2.5 rounded bg-white"
+                        >
+                          <option value="villa">Entire Villa</option>
+                          <option value="floor">Private Floor</option>
+                          <option value="room">Individual Room</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {subgroupFormType === "package" && (
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Subgroup Category Key</label>
+                        <select
+                          value={subgroupForm.category}
+                          onChange={(e) => setSubgroupForm({ ...subgroupForm, category: e.target.value })}
+                          className="border p-2.5 rounded bg-white"
+                        >
+                          <option value="varkalaSightseeing">Varkala Sightseeing</option>
+                          <option value="dayTrips">Day Trips</option>
+                          <option value="backwaterExperiences">Backwater Experiences</option>
+                          <option value="adventureActivities">Adventure Activities</option>
+                          <option value="varkalaPackages">Varkala Packages</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {subgroupFormType === "yoga" && (
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
+                          <select
+                            value={subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private" ? subgroupForm.type : "custom"}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSubgroupForm({
+                                ...subgroupForm,
+                                type: val === "custom" ? "" : val
+                              });
+                            }}
+                            className="border p-2.5 rounded bg-white"
+                          >
+                            <option value="retreats">Yoga Retreats</option>
+                            <option value="classes">Daily Yoga Classes</option>
+                            <option value="private">Private Yoga Sessions</option>
+                            <option value="custom">Custom (Specify slug)</option>
+                          </select>
+                        </div>
+                        {!(subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private") && (
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Custom Type Slug</label>
+                            <input
+                              type="text"
+                              value={subgroupForm.type || ""}
+                              onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
+                              placeholder="e.g. yoga-tour"
+                              className="border p-2.5 rounded bg-white"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase">Subgroup Type</label>
+                      <label className="font-bold text-gray-600 uppercase">Href Target Path</label>
+                      <input
+                        type="text"
+                        value={subgroupForm.href || ""}
+                        onChange={(e) => setSubgroupForm({ ...subgroupForm, href: e.target.value })}
+                        placeholder="/accommodation/villas"
+                        className="border p-2.5 rounded"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">CMS Template Layout</label>
                       <select
-                        value={subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private" ? subgroupForm.type : "custom"}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSubgroupForm({
-                            ...subgroupForm,
-                            type: val === "custom" ? "" : val
-                          });
-                        }}
-                        className="border p-2.5 rounded bg-white"
+                        value={subgroupForm.template || "default"}
+                        onChange={(e) => setSubgroupForm({ ...subgroupForm, template: e.target.value })}
+                        className="border p-2.5 rounded bg-white w-full"
                       >
-                        <option value="retreats">Yoga Retreats</option>
-                        <option value="classes">Daily Yoga Classes</option>
-                        <option value="private">Private Yoga Sessions</option>
-                        <option value="custom">Custom (Specify slug)</option>
+                        {subgroupFormType === "accommodation" && (
+                          <option value="default">Default Accommodation Catalog</option>
+                        )}
+                        {subgroupFormType === "package" && (
+                          <option value="default">Default Tour Package Layout</option>
+                        )}
+                        {subgroupFormType === "yoga" && (
+                          <>
+                            <option value="default">Default Programs Grid</option>
+                            <option value="retreats">Yoga Retreat Template (Lists retreat entries)</option>
+                          </>
+                        )}
                       </select>
                     </div>
-                    {!(subgroupForm.type === "retreats" || subgroupForm.type === "classes" || subgroupForm.type === "private") && (
+                  </div>
+
+                  {subgroupFormType === "accommodation" && (
+                    <div className="flex items-center gap-2 select-none my-2 pl-1">
+                      <input
+                        type="checkbox"
+                        id="subgroupHideRate"
+                        checked={subgroupForm.hideRate || false}
+                        onChange={(e) => setSubgroupForm({ ...subgroupForm, hideRate: e.target.checked })}
+                        className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                      />
+                      <label htmlFor="subgroupHideRate" className="font-bold text-gray-700 uppercase cursor-pointer select-none">
+                        Hide Price / Rate from Listing Grid
+                      </label>
+                    </div>
+                  )}
+
+                  {/* TRANSLATED FIELDS */}
+                  <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
+                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Localized values ({activeLangTab.toUpperCase()})</h4>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Custom Type Slug</label>
+                        <label className="font-bold text-gray-600 uppercase">Title</label>
                         <input
                           type="text"
-                          value={subgroupForm.type || ""}
-                          onChange={(e) => setSubgroupForm({ ...subgroupForm, type: e.target.value })}
-                          placeholder="e.g. yoga-tour"
-                          className="border p-2.5 rounded bg-white"
+                          value={subgroupForm.title?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const title = { ...subgroupForm.title, [activeLangTab]: e.target.value };
+                            setSubgroupForm({ ...subgroupForm, title });
+                          }}
+                          className="border p-2.5 rounded"
+                          required={activeLangTab === "en"}
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Explore Link Title</label>
+                        <input
+                          type="text"
+                          value={subgroupForm.explore?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const explore = { ...subgroupForm.explore, [activeLangTab]: e.target.value };
+                            setSubgroupForm({ ...subgroupForm, explore });
+                          }}
+                          placeholder="Explore Entire Villas"
+                          className="border p-2.5 rounded"
+                          required={activeLangTab === "en"}
+                        />
+                      </div>
+                    </div>
+
+                    {subgroupFormType === "accommodation" && subgroupForm.price && (
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Starting Price Label</label>
+                        <input
+                          type="text"
+                          value={subgroupForm.price?.[activeLangTab] || ""}
+                          onChange={(e) => {
+                            const price = { ...subgroupForm.price, [activeLangTab]: e.target.value };
+                            setSubgroupForm({ ...subgroupForm, price });
+                          }}
+                          placeholder="From ₹24,500 / night"
+                          className="border p-2.5 rounded"
+                          required={activeLangTab === "en"}
                         />
                       </div>
                     )}
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-bold text-gray-600 uppercase">Description Text</label>
+                      <textarea
+                        rows={4}
+                        value={subgroupForm.description?.[activeLangTab] || ""}
+                        onChange={(e) => {
+                          const description = { ...subgroupForm.description, [activeLangTab]: e.target.value };
+                          setSubgroupForm({ ...subgroupForm, description });
+                        }}
+                        className="border p-2.5 rounded font-sans"
+                        required={activeLangTab === "en"}
+                      />
+                    </div>
                   </div>
-                )}
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Href Target Path</label>
-                  <input
-                    type="text"
-                    value={subgroupForm.href || ""}
-                    onChange={(e) => setSubgroupForm({ ...subgroupForm, href: e.target.value })}
-                    placeholder="/accommodation/villas"
-                    className="border p-2.5 rounded"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">CMS Template Layout</label>
-                  <select
-                    value={subgroupForm.template || "default"}
-                    onChange={(e) => setSubgroupForm({ ...subgroupForm, template: e.target.value })}
-                    className="border p-2.5 rounded bg-white w-full"
-                  >
-                    {subgroupFormType === "accommodation" && (
-                      <option value="default">Default Accommodation Catalog</option>
-                    )}
-                    {subgroupFormType === "package" && (
-                      <option value="default">Default Tour Package Layout</option>
-                    )}
-                    {subgroupFormType === "yoga" && (
-                      <>
-                        <option value="default">Default Programs Grid</option>
-                        <option value="retreats">Yoga Retreat Template (Lists retreat entries)</option>
-                      </>
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              {subgroupFormType === "accommodation" && (
-                <div className="flex items-center gap-2 select-none my-2 pl-1">
-                  <input
-                    type="checkbox"
-                    id="subgroupHideRate"
-                    checked={subgroupForm.hideRate || false}
-                    onChange={(e) => setSubgroupForm({ ...subgroupForm, hideRate: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
-                  />
-                  <label htmlFor="subgroupHideRate" className="font-bold text-gray-700 uppercase cursor-pointer select-none">
-                    Hide Price / Rate from Listing Grid
-                  </label>
-                </div>
-              )}
-
-              {/* TRANSLATED FIELDS */}
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Localized values ({activeLangTab.toUpperCase()})</h4>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Title</label>
-                    <input
-                      type="text"
-                      value={subgroupForm.title?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const title = { ...subgroupForm.title, [activeLangTab]: e.target.value };
-                        setSubgroupForm({ ...subgroupForm, title });
-                      }}
-                      className="border p-2.5 rounded"
-                      required={activeLangTab === "en"}
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Explore Link Title</label>
-                    <input
-                      type="text"
-                      value={subgroupForm.explore?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const explore = { ...subgroupForm.explore, [activeLangTab]: e.target.value };
-                        setSubgroupForm({ ...subgroupForm, explore });
-                      }}
-                      placeholder="Explore Entire Villas"
-                      className="border p-2.5 rounded"
-                      required={activeLangTab === "en"}
-                    />
-                  </div>
-                </div>
-
-                {subgroupFormType === "accommodation" && subgroupForm.price && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="font-bold text-gray-600 uppercase">Starting Price Label</label>
-                    <input
-                      type="text"
-                      value={subgroupForm.price?.[activeLangTab] || ""}
-                      onChange={(e) => {
-                        const price = { ...subgroupForm.price, [activeLangTab]: e.target.value };
-                        setSubgroupForm({ ...subgroupForm, price });
-                      }}
-                      placeholder="From ₹24,500 / night"
-                      className="border p-2.5 rounded"
-                      required={activeLangTab === "en"}
-                    />
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-gray-600 uppercase">Description Text</label>
-                  <textarea
-                    rows={4}
-                    value={subgroupForm.description?.[activeLangTab] || ""}
-                    onChange={(e) => {
-                      const description = { ...subgroupForm.description, [activeLangTab]: e.target.value };
-                      setSubgroupForm({ ...subgroupForm, description });
-                    }}
-                    className="border p-2.5 rounded font-sans"
-                    required={activeLangTab === "en"}
-                  />
-                </div>
-              </div>
-
-              {/* BANNER FEATURES — only for accommodation subgroups */}
-              {subgroupFormType === "accommodation" && (
-                <div className="bg-amber-50 p-4 rounded border border-amber-200 space-y-4">
-                  <h4 className="font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200 pb-1.5 text-[11px]">
-                    Banner Feature Badges ({activeLangTab.toUpperCase()}) — 4 highlighted icons below the hero image
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {([1, 2, 3, 4] as const).map((n) => (
-                      <div key={n} className="bg-white border border-amber-100 rounded p-3 space-y-2">
-                        <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Feature {n}</span>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-500 uppercase text-[10px]">Title</label>
-                          <input
-                            type="text"
-                            value={(subgroupForm as any)[`feature${n}Title`]?.[activeLangTab] || ""}
-                            onChange={(e) => {
-                              const key = `feature${n}Title`;
-                              const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
-                              setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
-                            }}
-                            placeholder={n === 1 ? "Private Pool" : n === 2 ? "Spacious Living" : n === 3 ? "Premium Amenities" : "Dedicated Service"}
-                            className="border p-2 rounded text-xs"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-bold text-gray-500 uppercase text-[10px]">Subtitle</label>
-                          <input
-                            type="text"
-                            value={(subgroupForm as any)[`feature${n}Subtitle`]?.[activeLangTab] || ""}
-                            onChange={(e) => {
-                              const key = `feature${n}Subtitle`;
-                              const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
-                              setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
-                            }}
-                            placeholder={n === 1 ? "In most villas" : n === 2 ? "For families & groups" : n === 3 ? "Luxury redefined" : "24/7 assistance"}
-                            className="border p-2 rounded text-xs"
-                          />
-                        </div>
+                  {/* BANNER FEATURES — only for accommodation subgroups */}
+                  {subgroupFormType === "accommodation" && (
+                    <div className="bg-amber-50 p-4 rounded border border-amber-200 space-y-4">
+                      <h4 className="font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200 pb-1.5 text-[11px]">
+                        Banner Feature Badges ({activeLangTab.toUpperCase()}) — 4 highlighted icons below the hero image
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {([1, 2, 3, 4] as const).map((n) => (
+                          <div key={n} className="bg-white border border-amber-100 rounded p-3 space-y-2">
+                            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Feature {n}</span>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-500 uppercase text-[10px]">Title</label>
+                              <input
+                                type="text"
+                                value={(subgroupForm as any)[`feature${n}Title`]?.[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const key = `feature${n}Title`;
+                                  const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
+                                  setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
+                                }}
+                                placeholder={n === 1 ? "Private Pool" : n === 2 ? "Spacious Living" : n === 3 ? "Premium Amenities" : "Dedicated Service"}
+                                className="border p-2 rounded text-xs"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-500 uppercase text-[10px]">Subtitle</label>
+                              <input
+                                type="text"
+                                value={(subgroupForm as any)[`feature${n}Subtitle`]?.[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const key = `feature${n}Subtitle`;
+                                  const prev = (subgroupForm as any)[key] || { en: "", de: "", fr: "", ru: "" };
+                                  setSubgroupForm({ ...subgroupForm, [key]: { ...prev, [activeLangTab]: e.target.value } });
+                                }}
+                                placeholder={n === 1 ? "In most villas" : n === 2 ? "For families & groups" : n === 3 ? "Luxury redefined" : "24/7 assistance"}
+                                className="border p-2 rounded text-xs"
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Cover Image Upload */}
-              <div className="space-y-2">
-                <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
-                <div className="flex flex-col gap-3">
-                  {coverImagePreviews && coverImagePreviews.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {coverImagePreviews.map((url, idx) => (
-                        <div key={idx} className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0 bg-gray-50 group">
-                          <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteCoverImage(idx)}
-                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
-                            title="Remove image"
-                          >×</button>
-                        </div>
-                      ))}
                     </div>
                   )}
-                  <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
-                    <Upload className="w-4 h-4 text-gray-400" />
-                    <span className="font-semibold text-gray-500">Upload Banner Image(s)</span>
-                    <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
-                  </label>
-                </div>
-              </div>
+
+                  {/* Cover Image Upload */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-gray-600 uppercase">Cover Banner Image(s) (Upload multiple for slideshow)</label>
+                    <div className="flex flex-col gap-3">
+                      {coverImagePreviews && coverImagePreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {coverImagePreviews.map((url, idx) => (
+                            <div key={idx} className="relative w-24 aspect-[2/1] rounded border overflow-hidden shrink-0 bg-gray-50 group">
+                              <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCoverImage(idx)}
+                                className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md transition-colors leading-none z-10"
+                                title="Remove image"
+                              >×</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <label className="flex-grow border-2 border-dashed border-gray-300 hover:border-brand-gold rounded p-4 text-center cursor-pointer flex flex-col items-center gap-1 bg-white hover:bg-gray-50">
+                        <Upload className="w-4 h-4 text-gray-400" />
+                        <span className="font-semibold text-gray-500">Upload Banner Image(s)</span>
+                        <input type="file" accept="image/*" multiple onChange={handleCoverImageChange} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="border-t border-gray-150 pt-5 flex items-center justify-end gap-3">
                 <button

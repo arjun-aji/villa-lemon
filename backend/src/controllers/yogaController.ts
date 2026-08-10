@@ -61,6 +61,8 @@ export const createYogaProgram = async (req: Request, res: Response): Promise<an
     const coverImages = uploadResults.map(res => res.secure_url);
     const coverImagePublicIds = uploadResults.map(res => res.public_id);
 
+    const hostRetreatConfig = req.body.hostRetreatConfig ? parseField(req.body.hostRetreatConfig) : {};
+
     const newProgram = new YogaProgram({
       type,
       title,
@@ -72,6 +74,7 @@ export const createYogaProgram = async (req: Request, res: Response): Promise<an
       explore,
       href: href || "#contact",
       template: req.body.template || "default",
+      hostRetreatConfig,
     });
 
     await newProgram.save();
@@ -106,6 +109,7 @@ export const updateYogaProgram = async (req: Request, res: Response): Promise<an
     if (req.body.description) program.description = { ...program.description, ...parseField(req.body.description) };
     if (req.body.explore) program.explore = { ...program.explore, ...parseField(req.body.explore) };
     if (req.body.template) program.template = req.body.template;
+    if (req.body.hostRetreatConfig) program.hostRetreatConfig = parseField(req.body.hostRetreatConfig);
 
     const files = req.files as Express.Multer.File[] || [];
     const imageFiles = files.filter(f => f.fieldname === "images" || f.fieldname === "image");

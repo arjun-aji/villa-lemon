@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { 
   Home, 
   Coffee, 
@@ -53,7 +54,55 @@ const ROOMS_DATA: RoomInfo[] = [
   { id: "110", phase: 2, floor: "First Floor", number: "110", category: "Deluxe Room", balcony: "No", beds: "1 Large Bed (6 ft × 6 ft) or 2 Single Beds (6 ft × 3 ft each)", bedOptions: ["1 Large Bed", "2 Single Beds"], wardrobe: "Closed Wardrobe", bathroom: "Attached", hotWater: "Geyser System", ac: true, photoLink: "https://photos.app.goo.gl/YXZy5o9WXxmJwohd6" },
 ];
 
-export default function HostRetreatDashboard({ locale, whatsappNumber }: { locale: string; whatsappNumber?: string }) {
+export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig }: { locale: string; whatsappNumber?: string; dbConfig?: any }) {
+  const rawT = useTranslations("HostRetreat");
+
+  const t = (key: string, values?: any): string => {
+    const val = dbConfig?.[key]?.[locale] || dbConfig?.[key]?.en;
+    if (val) return val;
+    try {
+      if (values) {
+        return rawT(key, values);
+      }
+      return rawT.raw(key) as string;
+    } catch {
+      try {
+        return rawT.raw(key) as string;
+      } catch {
+        return key;
+      }
+    }
+  };
+
+  const getFloorText = (floor: string) => {
+    if (floor === "Ground Floor") return t("phase1FloorGround");
+    if (floor === "First Floor") return t("phase1FloorFirst");
+    return floor;
+  };
+
+  const getCategoryText = (cat: string) => {
+    if (cat.includes("Standard Room")) {
+      if (cat.includes("Teacher/Single")) return t("roomCategoryTeacher");
+      return t("roomCategoryStandard");
+    }
+    if (cat.includes("Deluxe Room")) {
+      if (cat.includes("Balcony") || cat.includes("With Balcony")) return t("roomCategoryDeluxeBalcony");
+      return t("roomCategoryDeluxe");
+    }
+    if (cat.includes("Double Room")) {
+      return t("roomCategoryStandard");
+    }
+    return cat;
+  };
+
+  const getBalconyText = (balcony: string) => {
+    if (balcony === "No (garden-view window)") return t("noBalcony");
+    if (balcony === "Small private balcony") return t("smallBalcony");
+    if (balcony === "Yes" || balcony === "Private Balcony") return t("hasBalcony");
+    if (balcony === "No") return t("noBalcony");
+    return balcony;
+  };
+
   // Navigation / Tabs inside the planner
   const [activeStep, setActiveStep] = useState<"accommodations" | "meals" | "logistics" | "summary">("accommodations");
 
@@ -122,64 +171,89 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
   // Generate Inquiry Proposal text
   const proposalText = useMemo(() => {
     const lines: string[] = [];
-    lines.push("🍋 VILLA LEMON YOGA RETREAT INQUIRY 🍋");
-    lines.push(`Requested Date: [Enter Preferred Dates Here]`);
-    lines.push(`Estimated Participants: ${stats.participants} guests`);
-    lines.push(`Total Rooms Booked: ${stats.totalRooms} Rooms`);
-    lines.push(`  • Phase 1 Rooms: ${stats.phase1Rooms}`);
-    lines.push(`  • Phase 2 Rooms: ${stats.phase2Rooms}`);
+    lines.push(t("inquiryTemplateTitle"));
+    lines.push(t("inquiryTemplateDates"));
+    lines.push(t("inquiryTemplateParticipants").replace("{count}", String(stats.participants)));
+    lines.push(t("inquiryTemplateRooms").replace("{count}", String(stats.totalRooms)));
+    lines.push(t("inquiryTemplatePhase1").replace("{count}", String(stats.phase1Rooms)));
+    lines.push(t("inquiryTemplatePhase2").replace("{count}", String(stats.phase2Rooms)));
     lines.push("");
-    lines.push("🏠 ROOM ALLOCATION:");
+    lines.push(t("inquiryTemplateRoomAllocation"));
     
     ROOMS_DATA.forEach(room => {
       if (selectedRooms[room.id]) {
-        const occStr = room.id === "106" ? "Single Occupancy" : (roomOccupancy[room.id] === "shared" ? "Shared Occupancy (2 guests)" : "Single Occupancy (1 guest)");
-        const bedStr = roomBedConfig[room.id];
-        lines.push(`  - Room ${room.number} (${room.category}): ${occStr} | Bed: ${bedStr}`);
+        const occKey = room.id === "106" 
+          ? "inquiryTemplateSingleOccupancy" 
+          : (roomOccupancy[room.id] === "shared" 
+            ? "inquiryTemplateSharedOccupancy" 
+            : "inquiryTemplateSingleGuest");
+        
+        const occStr = t(occKey);
+        
+        let bedStr: string = roomBedConfig[room.id];
+        if (bedStr === "1 Large Bed") {
+          bedStr = t("oneLargeBed");
+        } else if (bedStr === "2 Single Beds") {
+          bedStr = t("twoSingleBeds");
+        }
+        
+        let catStr = getCategoryText(room.category);
+
+        lines.push(
+          t("inquiryTemplateRoomDetail")
+            .replace("{number}", room.number)
+            .replace("{category}", catStr)
+            .replace("{occupancy}", occStr)
+            .replace("{bed}", bedStr)
+        );
       }
     });
     
     lines.push("");
-    lines.push("🍽 MEAL PREFERENCES:");
+    lines.push(t("inquiryTemplateMealPreferences"));
     if (mealOption === "full") {
-      lines.push("  • Full Day Vegetarian Meals (Breakfast + Lunch + Dinner) Requested");
+      lines.push(t("inquiryTemplateMealFull"));
     } else if (mealOption === "breakfast") {
-      lines.push("  • Breakfast Only Requested");
+      lines.push(t("inquiryTemplateMealBreakfast"));
     } else {
-      lines.push("  • No Meals Requested");
+      lines.push(t("inquiryTemplateMealNone"));
     }
     if (dietaryNotes.trim()) {
-      lines.push(`  • Dietary Requirements: ${dietaryNotes}`);
+      lines.push(t("inquiryTemplateDietaryNotes").replace("{notes}", dietaryNotes));
     }
     if (customMealsRequest) {
-      lines.push("  • Custom meal plan options requested");
+      lines.push(t("inquiryTemplateCustomMenu"));
     }
 
     lines.push("");
-    lines.push("🚗 TRANSPORT LOGISTICS:");
+    lines.push(t("inquiryTemplateLogistics"));
     const vehicles: string[] = [];
-    if (smallCarCount > 0) vehicles.push(`${smallCarCount}x Small Car (Trivandrum Airport Transfer)`);
-    if (bigCarCount > 0) vehicles.push(`${bigCarCount}x Big Car (Trivandrum Airport Transfer)`);
-    if (tempoTravellerCount > 0) vehicles.push(`${tempoTravellerCount}x 17-seater Tempo Traveller`);
+    if (smallCarCount > 0) vehicles.push(`${smallCarCount}x ${t("carSmallLabel")}`);
+    if (bigCarCount > 0) vehicles.push(`${bigCarCount}x ${t("carLargeLabel")}`);
+    if (tempoTravellerCount > 0) vehicles.push(`${tempoTravellerCount}x ${t("tempoLabel")}`);
     
     if (vehicles.length > 0) {
-      vehicles.forEach(v => lines.push(`  • ${v}`));
+      lines.push(t("inquiryTemplateTransfers"));
+      vehicles.forEach(v => lines.push(`    - ${v}`));
     } else {
-      lines.push("  • No airport transfers planned yet");
+      lines.push(t("inquiryTemplateNoTransfers"));
     }
 
     lines.push("");
     lines.push("🧘 YOGA FACILITIES:");
-    lines.push(`  • Shared Rooftop Yoga Hall access requested`);
-    lines.push(`  • Planned Yoga Sessions: ${yogaSessionsPerDay} per day`);
+    lines.push(`  • ${t("inquiryTemplateYogaSessions").replace("{count}", String(yogaSessionsPerDay))}`);
     if (customYogaRequirements.trim()) {
-      lines.push(`  • Special Yoga Needs: ${customYogaRequirements}`);
+      lines.push(t("inquiryTemplateCustomYoga").replace("{notes}", customYogaRequirements));
     }
     lines.push("");
-    lines.push("Thank you! Please contact us with the custom packages for this group size.");
+    lines.push(t("inquiryTemplateTncFooter"));
+    lines.push(t("inquiryTemplateConfirmTnc"));
+    lines.push(`  • Signature: ${t("inquiryTemplateSignature")}`);
+    lines.push("");
+    lines.push(t("inquiryTemplateCopyPrompt"));
     
     return lines.join("\n");
-  }, [stats, selectedRooms, roomOccupancy, roomBedConfig, mealOption, dietaryNotes, customMealsRequest, smallCarCount, bigCarCount, tempoTravellerCount, yogaSessionsPerDay, customYogaRequirements]);
+  }, [stats, selectedRooms, roomOccupancy, roomBedConfig, mealOption, dietaryNotes, customMealsRequest, smallCarCount, bigCarCount, tempoTravellerCount, yogaSessionsPerDay, customYogaRequirements, t]);
 
   // Handle Copy to Clipboard
   const handleCopy = async () => {
@@ -229,16 +303,14 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-[10px] md:text-xs font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block">
-              Exclusive Group Retreat Venue
+              {t("retreatVenue")}
             </span>
             <h2 className="font-serif text-2xl md:text-4xl font-normal text-brand-dark tracking-wide leading-tight">
-              Host Your Retreat at Villa Lemon
+              {t("hostTitle")}
             </h2>
             <div className="w-16 h-[1.5px] bg-brand-gold mx-auto mt-4 mb-5" />
             <p className="text-xs md:text-sm text-gray-500 font-light leading-relaxed">
-              We provide private, premium homestay accommodation combined with a tranquil rooftop yoga hall, 
-              homely catering services, and reliable airport transfers. Use our interactive dashboard below to 
-              plan your room layout, customize meals, select logistics, and draft a proposal request.
+              {t("hostIntro")}
             </p>
           </div>
 
@@ -247,30 +319,30 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
             <div className="bg-[#fbf9f6] p-6 border border-[#eae6db]/40 rounded-sm">
               <div className="flex items-center gap-3 mb-3 text-brand-gold">
                 <Home className="w-5 h-5" />
-                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">10 Air-Conditioned Rooms</h4>
+                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">{t("roomsFeatureTitle")}</h4>
               </div>
               <p className="text-xs text-gray-500 font-light leading-relaxed">
-                Distributed across two adjacent phases. Offers comfortable options ranging from standard ground-floor units to premium deluxe rooms with private balconies.
+                {t("roomsFeatureDesc")}
               </p>
             </div>
             
             <div className="bg-[#fbf9f6] p-6 border border-[#eae6db]/40 rounded-sm">
               <div className="flex items-center gap-3 mb-3 text-brand-gold">
                 <Sparkles className="w-5 h-5" />
-                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">Rooftop Yoga Sala</h4>
+                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">{t("hallFeatureTitle")}</h4>
               </div>
               <p className="text-xs text-gray-500 font-light leading-relaxed">
-                Shared rooftop studio equipped with yoga mats, blocks, natural fresh air, and excellent natural lighting. Holds a capacity of 15 to 18 participants.
+                {t("hallFeatureDesc")}
               </p>
             </div>
 
             <div className="bg-[#fbf9f6] p-6 border border-[#eae6db]/40 rounded-sm">
               <div className="flex items-center gap-3 mb-3 text-brand-gold">
                 <Utensils className="w-5 h-5" />
-                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">Customized Homely Meals</h4>
+                <h4 className="font-serif font-medium text-brand-dark text-sm md:text-base">{t("mealsFeatureTitle")}</h4>
               </div>
               <p className="text-xs text-gray-500 font-light leading-relaxed">
-                Homestyle vegetarian, vegan, and gluten-free menus cooked fresh. Flexible meal options, including full day packages and customizable retreat group menus.
+                {t("mealsFeatureDesc")}
               </p>
             </div>
           </div>
@@ -289,7 +361,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
               <div className="flex items-center gap-2 mb-6">
                 <Sparkles className="w-5 h-5 text-brand-gold" />
                 <span className="font-serif text-sm font-semibold tracking-wider text-brand-dark uppercase">
-                  Planner Wizard
+                  {t("plannerWizard")}
                 </span>
               </div>
 
@@ -305,7 +377,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 >
                   <span className="flex items-center gap-2.5 text-xs md:text-sm">
                     <Home className="w-4 h-4 text-brand-gold" />
-                    1. Accommodations
+                    {t("stepAccommodations")}
                   </span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
@@ -320,7 +392,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 >
                   <span className="flex items-center gap-2.5 text-xs md:text-sm">
                     <Coffee className="w-4 h-4 text-brand-gold" />
-                    2. Dining & Menu
+                    {t("stepDining")}
                   </span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
@@ -335,7 +407,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 >
                   <span className="flex items-center gap-2.5 text-xs md:text-sm">
                     <Car className="w-4 h-4 text-brand-gold" />
-                    3. Airport & Extras
+                    {t("stepAirport")}
                   </span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
@@ -350,7 +422,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 >
                   <span className="flex items-center gap-2.5 text-xs md:text-sm font-semibold">
                     <Send className="w-4 h-4 text-brand-gold" />
-                    4. Get Proposal Summary
+                    {t("stepSummary")}
                   </span>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
@@ -360,27 +432,27 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
             {/* LIVE CAPACITY METER */}
             <div className="mt-8 border-t border-[#eae6db] pt-6">
               <h5 className="font-serif text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-4">
-                LIVE CAPACITY CALCULATOR
+                {t("liveCapacity")}
               </h5>
               
               <div className="flex flex-col gap-4 bg-white p-4 border border-[#eae6db]/60 rounded-sm">
                 <div>
-                  <span className="text-[10px] text-gray-400 block font-bold uppercase">Total Participants</span>
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase">{t("totalParticipants")}</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
                     <span className="text-2xl font-semibold text-brand-dark font-sans">{stats.participants}</span>
-                    <span className="text-xs text-gray-400 font-light">guests max</span>
+                    <span className="text-xs text-gray-400 font-light">{t("guestsMax")}</span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-gray-400 block font-bold uppercase">Allocated Rooms</span>
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase">{t("allocatedRooms")}</span>
                   <div className="flex items-baseline gap-1 mt-0.5">
                     <span className="text-lg font-semibold text-brand-dark font-sans">{stats.totalRooms}</span>
-                    <span className="text-xs text-gray-400 font-light">/ 10 rooms</span>
+                    <span className="text-xs text-gray-400 font-light">{t("roomsMax")}</span>
                   </div>
                   <div className="text-[9px] text-gray-400 font-light mt-1 flex justify-between">
-                    <span>Phase 1: {stats.phase1Rooms} rooms</span>
-                    <span>Phase 2: {stats.phase2Rooms} rooms</span>
+                    <span>Phase 1: {stats.phase1Rooms} {t("allocatedRooms").toLowerCase()}</span>
+                    <span>Phase 2: {stats.phase2Rooms} {t("allocatedRooms").toLowerCase()}</span>
                   </div>
                 </div>
 
@@ -405,10 +477,10 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
               <div>
                 <div className="mb-6">
                   <h3 className="font-serif text-lg font-normal text-brand-dark mb-1">
-                    Configure Accommodation Blocks
+                    {t("roomDetailsTitle")}
                   </h3>
                   <p className="text-xs text-gray-500 font-light">
-                    Select rooms you wish to assign for your participants. Customize single vs double/shared occupancy to dynamically compute capacity.
+                    {t("selectRoomsIntro")}
                   </p>
                 </div>
 
@@ -416,81 +488,88 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 <div className="mb-8">
                   <div className="flex justify-between items-center bg-[#fbf9f6] px-3 py-2 border border-[#eae6db]/60 rounded-sm mb-3">
                     <span className="font-serif text-xs font-semibold text-brand-dark uppercase tracking-wider">
-                      Phase 1 Homestay (4 Rooms - Rooftop Yoga Hall access)
+                      {t("phase1Title")}
                     </span>
                     <a href="https://photos.app.goo.gl/hQ2KY84mnMKHvBWQ6" target="_blank" rel="noopener noreferrer" className="text-[10px] text-brand-gold hover:underline font-bold">
-                      View Photos
+                      {t("roomPhotoLinkText")}
                     </a>
                   </div>
                   
                   <div className="flex flex-col gap-3">
-                    {ROOMS_DATA.filter(r => r.phase === 1).map(room => (
-                      <div key={room.id} className={`p-4 border rounded-sm transition-all ${
-                        selectedRooms[room.id] 
-                          ? "border-brand-gold/60 bg-white" 
-                          : "border-gray-200 bg-gray-50/50 opacity-60"
-                      }`}>
-                        
-                        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                          <label className="flex items-center gap-3 cursor-pointer select-none">
-                            <input 
-                              type="checkbox"
-                              checked={selectedRooms[room.id]}
-                              onChange={() => toggleRoom(room.id)}
-                              className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
-                            />
-                            <div>
-                              <span className="font-bold text-xs md:text-sm text-brand-dark">Room {room.number}</span>
-                              <span className="text-[10px] text-gray-400 font-light block md:inline md:ml-2">
-                                {room.category}
-                              </span>
-                            </div>
-                          </label>
-
-                          {selectedRooms[room.id] && (
-                            <div className="flex items-center gap-2">
-                              {/* Occupancy Selector */}
-                              <div className="flex border border-gray-200 rounded-sm overflow-hidden text-[10px] font-bold">
-                                <button
-                                  type="button"
-                                  onClick={() => setOccupancy(room.id, "single")}
-                                  className={`px-2.5 py-1 ${roomOccupancy[room.id] === "single" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
-                                >
-                                  Single
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setOccupancy(room.id, "shared")}
-                                  className={`px-2.5 py-1 ${roomOccupancy[room.id] === "shared" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
-                                >
-                                  Shared (2)
-                                </button>
+                    {ROOMS_DATA.filter(r => r.phase === 1).map(room => {
+                      const roomCategory = getCategoryText(room.category);
+                      const roomBalcony = getBalconyText(room.balcony);
+                      return (
+                        <div key={room.id} className={`p-4 border rounded-sm transition-all ${
+                          selectedRooms[room.id] 
+                            ? "border-brand-gold/60 bg-white" 
+                            : "border-gray-200 bg-gray-50/50 opacity-60"
+                        }`}>
+                          
+                          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                            <label className="flex items-center gap-3 cursor-pointer select-none">
+                              <input 
+                                type="checkbox"
+                                checked={selectedRooms[room.id]}
+                                onChange={() => toggleRoom(room.id)}
+                                className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
+                              />
+                              <div>
+                                <span className="font-bold text-xs md:text-sm text-brand-dark">Room {room.number}</span>
+                                <span className="text-[10px] text-gray-400 font-light block md:inline md:ml-2">
+                                  {roomCategory}
+                                </span>
                               </div>
+                            </label>
 
-                              {/* Bed config */}
-                              <select
-                                value={roomBedConfig[room.id]}
-                                onChange={(e) => setBedConfig(room.id, e.target.value as any)}
-                                className="text-[10px] bg-[#fbf9f6] border border-gray-200 rounded-sm px-2 py-1 focus:ring-brand-gold focus:border-brand-gold"
-                              >
-                                {room.bedOptions.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
-                            </div>
-                          )}
+                            {selectedRooms[room.id] && (
+                              <div className="flex items-center gap-2">
+                                {/* Occupancy Selector */}
+                                <div className="flex border border-gray-200 rounded-sm overflow-hidden text-[10px] font-bold">
+                                  <button
+                                    type="button"
+                                    onClick={() => setOccupancy(room.id, "single")}
+                                    className={`px-2.5 py-1 ${roomOccupancy[room.id] === "single" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
+                                  >
+                                    {t("singleOccupancy").split(" ")[0]}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setOccupancy(room.id, "shared")}
+                                    className={`px-2.5 py-1 ${roomOccupancy[room.id] === "shared" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
+                                  >
+                                    {t("sharedOccupancy").split(" ")[0]} (2)
+                                  </button>
+                                </div>
+
+                                {/* Bed config */}
+                                <select
+                                  value={roomBedConfig[room.id]}
+                                  onChange={(e) => setBedConfig(room.id, e.target.value as any)}
+                                  className="text-[10px] bg-[#fbf9f6] border border-gray-200 rounded-sm px-2 py-1 focus:ring-brand-gold focus:border-brand-gold"
+                                >
+                                  {room.bedOptions.map(opt => {
+                                    const optStr = opt === "1 Large Bed" ? t("oneLargeBed") : t("twoSingleBeds");
+                                    return (
+                                      <option key={opt} value={opt}>{optStr}</option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Room spec bullet points */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-gray-500 font-light pt-2 mt-2 border-t border-gray-100">
+                            <span>🌅 {t("balconyLabel")}: {roomBalcony}</span>
+                            <span>🚪 {t("wardrobeLabel")}: {room.id === "102" ? t("acNo") : (room.id === "104" ? "Open Type" : "Closed Type")}</span>
+                            <span>🚿 {t("bathroomLabel")}: {t("attachedBathroom")}</span>
+                            <span>🔥 {t("hotWaterLabel")}: Solar</span>
+                          </div>
+
                         </div>
-
-                        {/* Room spec bullet points */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-gray-500 font-light pt-2 mt-2 border-t border-gray-100">
-                          <span>🌅 Balcony: {room.balcony}</span>
-                          <span>🚪 Wardrobe: {room.wardrobe}</span>
-                          <span>🚿 Bathroom: Attached</span>
-                          <span>🔥 Hot Water: Geyser</span>
-                        </div>
-
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -498,100 +577,107 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 <div>
                   <div className="flex justify-between items-center bg-[#fbf9f6] px-3 py-2 border border-[#eae6db]/60 rounded-sm mb-3">
                     <span className="font-serif text-xs font-semibold text-brand-dark uppercase tracking-wider">
-                      Phase 2 Homestay (6 Rooms - AC Included)
+                      {t("phase2Title")}
                     </span>
                     <span className="flex gap-2">
                       <a href="https://photos.app.goo.gl/4rrQpirgHdyzojZj8" target="_blank" rel="noopener noreferrer" className="text-[10px] text-brand-gold hover:underline font-bold">
-                        Ground Floor Photos
+                        {t("roomPhotoLinkText")} (G)
                       </a>
                       <span className="text-gray-300">|</span>
                       <a href="https://photos.app.goo.gl/YXZy5o9WXxmJwohd6" target="_blank" rel="noopener noreferrer" className="text-[10px] text-brand-gold hover:underline font-bold">
-                        First Floor Photos
+                        {t("roomPhotoLinkText")} (1)
                       </a>
                     </span>
                   </div>
 
                   <div className="flex flex-col gap-3">
-                    {ROOMS_DATA.filter(r => r.phase === 2).map(room => (
-                      <div key={room.id} className={`p-4 border rounded-sm transition-all ${
-                        selectedRooms[room.id] 
-                          ? "border-brand-gold/60 bg-white" 
-                          : "border-gray-200 bg-gray-50/50 opacity-60"
-                      }`}>
-                        
-                        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                          <label className="flex items-center gap-3 cursor-pointer select-none">
-                            <input 
-                              type="checkbox"
-                              checked={selectedRooms[room.id]}
-                              onChange={() => toggleRoom(room.id)}
-                              className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
-                            />
-                            <div>
-                              <span className="font-bold text-xs md:text-sm text-brand-dark">Room {room.number}</span>
-                              <span className="text-[10px] text-gray-400 font-light block md:inline md:ml-2">
-                                {room.category}
-                              </span>
-                            </div>
-                          </label>
-
-                          {selectedRooms[room.id] && (
-                            <div className="flex items-center gap-2">
-                              {/* Occupancy Selector */}
-                              {room.id === "106" ? (
-                                <span className="text-[9px] bg-brand-cream border border-brand-gold/20 text-brand-gold-dark font-medium px-2 py-0.5 rounded-sm">
-                                  Teacher/Single Only
+                    {ROOMS_DATA.filter(r => r.phase === 2).map(room => {
+                      const roomCategory = getCategoryText(room.category);
+                      const roomBalcony = getBalconyText(room.balcony);
+                      return (
+                        <div key={room.id} className={`p-4 border rounded-sm transition-all ${
+                          selectedRooms[room.id] 
+                            ? "border-brand-gold/60 bg-white" 
+                            : "border-gray-200 bg-gray-50/50 opacity-60"
+                        }`}>
+                          
+                          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                            <label className="flex items-center gap-3 cursor-pointer select-none">
+                              <input 
+                                type="checkbox"
+                                checked={selectedRooms[room.id]}
+                                onChange={() => toggleRoom(room.id)}
+                                className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
+                              />
+                              <div>
+                                <span className="font-bold text-xs md:text-sm text-brand-dark">Room {room.number}</span>
+                                <span className="text-[10px] text-gray-400 font-light block md:inline md:ml-2">
+                                  {roomCategory}
                                 </span>
-                              ) : (
-                                <div className="flex border border-gray-200 rounded-sm overflow-hidden text-[10px] font-bold">
-                                  <button
-                                    type="button"
-                                    onClick={() => setOccupancy(room.id, "single")}
-                                    className={`px-2.5 py-1 ${roomOccupancy[room.id] === "single" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
-                                  >
-                                    Single
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setOccupancy(room.id, "shared")}
-                                    className={`px-2.5 py-1 ${roomOccupancy[room.id] === "shared" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
-                                  >
-                                    Shared (2)
-                                  </button>
-                                </div>
-                              )}
+                              </div>
+                            </label>
 
-                              {/* Bed config selector */}
-                              <select
-                                value={roomBedConfig[room.id]}
-                                onChange={(e) => setBedConfig(room.id, e.target.value as any)}
-                                className="text-[10px] bg-[#fbf9f6] border border-gray-200 rounded-sm px-2 py-1 focus:ring-brand-gold focus:border-brand-gold"
-                              >
-                                {room.bedOptions.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
-                            </div>
-                          )}
-                        </div>
+                            {selectedRooms[room.id] && (
+                              <div className="flex items-center gap-2">
+                                {/* Occupancy Selector */}
+                                {room.id === "106" ? (
+                                  <span className="text-[9px] bg-brand-cream border border-brand-gold/20 text-brand-gold-dark font-medium px-2 py-0.5 rounded-sm">
+                                    {t("roomIsTeacherSingleOnly")}
+                                  </span>
+                                ) : (
+                                  <div className="flex border border-gray-200 rounded-sm overflow-hidden text-[10px] font-bold">
+                                    <button
+                                      type="button"
+                                      onClick={() => setOccupancy(room.id, "single")}
+                                      className={`px-2.5 py-1 ${roomOccupancy[room.id] === "single" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
+                                    >
+                                      {t("singleOccupancy").split(" ")[0]}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setOccupancy(room.id, "shared")}
+                                      className={`px-2.5 py-1 ${roomOccupancy[room.id] === "shared" ? "bg-brand-gold text-white" : "bg-gray-50 text-gray-500"}`}
+                                    >
+                                      {t("sharedOccupancy").split(" ")[0]} (2)
+                                    </button>
+                                  </div>
+                                )}
 
-                        {/* Room notes & specifications */}
-                        <div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-gray-500 font-light pt-2 mt-2 border-t border-gray-100">
-                            <span>❄️ Air Conditioning: Yes</span>
-                            <span>🌅 Balcony: {room.balcony}</span>
-                            <span>🚪 Wardrobe: {room.wardrobe}</span>
-                            <span>🚿 Hot Water: Geyser</span>
+                                {/* Bed config selector */}
+                                <select
+                                  value={roomBedConfig[room.id]}
+                                  onChange={(e) => setBedConfig(room.id, e.target.value as any)}
+                                  className="text-[10px] bg-[#fbf9f6] border border-gray-200 rounded-sm px-2 py-1 focus:ring-brand-gold focus:border-brand-gold"
+                                >
+                                  {room.bedOptions.map(opt => {
+                                    const optStr = opt === "1 Large Bed" ? t("oneLargeBed") : t("twoSingleBeds");
+                                    return (
+                                      <option key={opt} value={opt}>{optStr}</option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                            )}
                           </div>
-                          {room.notes && (
-                            <p className="text-[9px] text-[#c5a880] italic mt-1 font-light">
-                              💡 Note: {room.notes}
-                            </p>
-                          )}
-                        </div>
 
-                      </div>
-                    ))}
+                          {/* Room notes & specifications */}
+                          <div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-gray-500 font-light pt-2 mt-2 border-t border-gray-100">
+                              <span>❄️ {t("acLabel")}: {t("acYes")}</span>
+                              <span>🌅 {t("balconyLabel")}: {roomBalcony}</span>
+                              <span>🚪 {t("wardrobeLabel")}: Closed Type</span>
+                              <span>🚿 {t("hotWaterLabel")}: Geyser</span>
+                            </div>
+                            {room.notes && (
+                              <p className="text-[9px] text-[#c5a880] italic mt-1 font-light">
+                                💡 {t("notesLabel")}: {t("roomIsTeacherSingleOnly")}
+                              </p>
+                            )}
+                          </div>
+
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -602,10 +688,10 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
               <div>
                 <div className="mb-6">
                   <h3 className="font-serif text-lg font-normal text-brand-dark mb-1">
-                    Catering & Meal Options
+                    {t("diningTitle")}
                   </h3>
                   <p className="text-xs text-gray-500 font-light">
-                    We offer freshly prepared homestyle vegetarian meals for your group. Select your package details.
+                    {t("diningIntro")}
                   </p>
                 </div>
 
@@ -620,11 +706,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     }`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-xs text-brand-dark uppercase">No Meals</span>
+                      <span className="font-bold text-xs text-brand-dark uppercase">{t("noMealsOption").split(" ")[0]}</span>
                       {mealOption === "none" && <CheckCircle className="w-4 h-4 text-brand-gold" />}
                     </div>
                     <p className="text-[11px] text-gray-400 font-light leading-relaxed">
-                      You will arrange external dining or use the shared kitchen facilities.
+                      {t("noMealsOption")}
                     </p>
                   </div>
 
@@ -637,11 +723,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     }`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-xs text-brand-dark uppercase">Breakfast Only</span>
+                      <span className="font-bold text-xs text-brand-dark uppercase">{t("breakfastOnlyOption").split(" ")[0]}</span>
                       {mealOption === "breakfast" && <CheckCircle className="w-4 h-4 text-brand-gold" />}
                     </div>
                     <p className="text-[11px] text-gray-400 font-light leading-relaxed">
-                      Homely breakfast served daily from 8:00 AM to 10:00 AM on request.
+                      {t("breakfastOnlyOption")}
                     </p>
                   </div>
 
@@ -654,11 +740,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     }`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-xs text-brand-dark uppercase">Full Day Meals</span>
+                      <span className="font-bold text-xs text-brand-dark uppercase">{t("fullDayOption").split(" ")[0]}</span>
                       {mealOption === "full" && <CheckCircle className="w-4 h-4 text-brand-gold" />}
                     </div>
                     <p className="text-[11px] text-gray-400 font-light leading-relaxed">
-                      Complete package including Breakfast, Lunch (1:00 PM – 2:30 PM) and Dinner (7:30 PM – 9:00 PM).
+                      {t("fullDayOption")}
                     </p>
                   </div>
                 </div>
@@ -677,15 +763,12 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                       {/* Breakfast Menu */}
                       <div>
                         <h5 className="font-bold text-[10px] text-brand-gold uppercase tracking-wider mb-2">
-                          🍳 Breakfast (09:00 AM – 10:00 AM)
+                          {t("menuBreakfastTitle")}
                         </h5>
                         <ul className="text-[10px] text-gray-500 font-light space-y-1">
-                          <li>• Fresh Seasonal Fruits & Juice</li>
-                          <li>• Herbal / Masala Tea / Coffee</li>
-                          <li>• Idli & Sambar / Dosa with Chutney</li>
-                          <li>• Appam & Vegetable Stew</li>
-                          <li>• Poha / Upma or Oats Porridge</li>
-                          <li>• Eggs (cooked on request)</li>
+                          {t("menuBreakfastItems").split(", ").map((item, idx) => (
+                            <li key={idx}>• {item}</li>
+                          ))}
                         </ul>
                       </div>
 
@@ -693,14 +776,12 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                       {mealOption === "full" && (
                         <div>
                           <h5 className="font-bold text-[10px] text-brand-gold uppercase tracking-wider mb-2">
-                            🍲 Lunch (1:00 PM – 2:00 PM)
+                            {t("menuLunchTitle")}
                           </h5>
                           <ul className="text-[10px] text-gray-500 font-light space-y-1">
-                            <li>• Steamed Rice & Chapati</li>
-                            <li>• Homestyle Dal</li>
-                            <li>• Two Seasonal Veg Curries</li>
-                            <li>• Salad, Pickle & Papad</li>
-                            <li>• Curd / Yogurt & Fresh Fruit</li>
+                            {t("menuLunchItems").split(", ").map((item, idx) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
                           </ul>
                         </div>
                       )}
@@ -709,14 +790,12 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                       {mealOption === "full" && (
                         <div>
                           <h5 className="font-bold text-[10px] text-brand-gold uppercase tracking-wider mb-2">
-                            🌙 Dinner (05:00 PM – 06:00 PM)
+                            {t("menuDinnerTitle")}
                           </h5>
                           <ul className="text-[10px] text-gray-500 font-light space-y-1">
-                            <li>• Rice & Chapati with Dal</li>
-                            <li>• Paneer or Tofu Dish</li>
-                            <li>• Vegetable Curry & Salad</li>
-                            <li>• Warm Soup</li>
-                            <li>• Dessert (on selected days)</li>
+                            {t("menuDinnerItems").split(", ").map((item, idx) => (
+                              <li key={idx}>• {item}</li>
+                            ))}
                           </ul>
                         </div>
                       )}
@@ -724,10 +803,9 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
 
                     {/* Meal details list */}
                     <div className="mt-4 pt-3 border-t border-[#eae6db]/60 text-[9px] text-gray-400 font-light leading-relaxed flex flex-wrap gap-x-4 gap-y-1">
-                      <span>✓ 100% Vegetarian</span>
-                      <span>✓ Custom menus for groups</span>
-                      <span>✓ Filtered drinking water included</span>
-                      <span>✓ Vegan/Gluten-Free upon request</span>
+                      {t("menuFooterItems").split(", ").map((item, idx) => (
+                        <span key={idx}>{item}</span>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -735,11 +813,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 {/* DIETARY REQUIREMENTS & CUSTOM MENU DETAILS */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-brand-dark uppercase mb-1.5">
-                      Dietary Preferences & Requirements
+                    <label className="block text-xs font-bold text-brand-dark uppercase mb-1.5 font-sans">
+                      {t("dietaryNotesLabel")}
                     </label>
                     <textarea
-                      placeholder="e.g. 3 Vegans, 1 Gluten-free participant, allergy constraints..."
+                      placeholder={t("dietaryNotesPlaceholder")}
                       value={dietaryNotes}
                       onChange={(e) => setDietaryNotes(e.target.value)}
                       className="w-full h-20 text-xs bg-[#fbf9f6] border border-gray-200 rounded-sm p-3 focus:ring-brand-gold focus:border-brand-gold font-light"
@@ -754,7 +832,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                       className="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold border-gray-300"
                     />
                     <span className="text-xs text-gray-500 font-light font-sans">
-                      We would like to customize the menu for our retreat groups (South Indian, North Indian, and Continental options)
+                      {t("customGroupMenusCheck")}
                     </span>
                   </label>
                 </div>
@@ -766,10 +844,10 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
               <div>
                 <div className="mb-6">
                   <h3 className="font-serif text-lg font-normal text-brand-dark mb-1">
-                    Logistics, Transfers & Yoga Hall
+                    {t("airportLogisticsTitle")}
                   </h3>
                   <p className="text-xs text-gray-500 font-light">
-                    Select airport pickups from Trivandrum Airport (TRV - 42 km) and plan yoga sessions in the Rooftop Yoga Hall.
+                    {t("airportLogisticsIntro")}
                   </p>
                 </div>
 
@@ -777,7 +855,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 <div className="bg-[#fbf9f6] border border-[#eae6db]/60 p-5 rounded-sm mb-6">
                   <h4 className="font-serif text-xs font-semibold text-brand-dark uppercase tracking-wider mb-3 flex items-center gap-2">
                     <Car className="w-4 h-4 text-brand-gold" />
-                    Airport Pickups / Drop Services
+                    {t("trivandrumAirport")}
                   </h4>
                   <p className="text-[11px] text-gray-500 font-light mb-4 leading-relaxed font-sans">
                     We organize reliable logistics using three vehicle categories. Choose your required quantity:
@@ -786,8 +864,8 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-white p-3 border border-gray-100 rounded-sm flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-xs text-brand-dark block">Small Car</span>
-                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">Fits 3 guests + luggage</span>
+                        <span className="font-bold text-xs text-brand-dark block">{t("carSmallLabel").split(" - ")[0]}</span>
+                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">{t("carSmallLabel").split(" - ")[1] || "Fits 3 guests + luggage"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -810,8 +888,8 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
 
                     <div className="bg-white p-3 border border-gray-100 rounded-sm flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-xs text-brand-dark block">Big Car (SUV)</span>
-                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">Fits 4-5 guests + luggage</span>
+                        <span className="font-bold text-xs text-brand-dark block">{t("carLargeLabel").split(" - ")[0]}</span>
+                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">{t("carLargeLabel").split(" - ")[1] || "Fits 4-5 guests + luggage"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -834,8 +912,8 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
 
                     <div className="bg-white p-3 border border-gray-100 rounded-sm flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-xs text-brand-dark block">Tempo Traveller</span>
-                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">17-Seater capacity coach</span>
+                        <span className="font-bold text-xs text-brand-dark block">{t("tempoLabel").split(" - ")[0]}</span>
+                        <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans">{t("tempoLabel").split(" - ")[1] || "17-Seater capacity coach"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -862,7 +940,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                 <div className="bg-[#fbf9f6] border border-[#eae6db]/60 p-5 rounded-sm mb-6">
                   <h4 className="font-serif text-xs font-semibold text-brand-dark uppercase tracking-wider mb-2 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-brand-gold" />
-                    Rooftop Yoga Sala Details
+                    {t("yogaHallUsageTitle")}
                   </h4>
                   <p className="text-[11px] text-gray-500 font-light mb-4 leading-relaxed font-sans">
                     Access to our rooftop sala includes Yoga Mats and Yoga Blocks. Natural ventilation with a peaceful view. Holds 15-18 mats comfortably.
@@ -870,11 +948,10 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
 
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                      <span className="font-bold text-xs text-brand-dark block">Planned Yoga Sessions</span>
-                      <span className="text-[9px] text-gray-400 font-light block mt-0.5 font-sans font-light">How many sessions do you plan to conduct daily?</span>
+                      <span className="font-bold text-xs text-brand-dark block font-sans">{t("yogaHallSessionsLabel")}</span>
                     </div>
 
-                    <div className="flex border border-gray-200 rounded-sm overflow-hidden text-xs font-bold">
+                    <div className="flex border border-gray-200 rounded-sm overflow-hidden text-xs font-bold font-sans">
                       {[1, 2, 3, 4].map(num => (
                         <button
                           key={num}
@@ -882,19 +959,19 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                           onClick={() => setYogaSessionsPerDay(num)}
                           className={`px-3 py-1.5 ${yogaSessionsPerDay === num ? "bg-brand-gold text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
                         >
-                          {num} {num === 1 ? "Session" : "Sessions"}
+                          {num} {t("sessionsPerDay")}
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div className="mt-4">
-                    <label className="block text-[10px] font-bold text-brand-dark uppercase mb-1">
-                      Special requests for yoga room setup / classes
+                    <label className="block text-[10px] font-bold text-brand-dark uppercase mb-1 font-sans">
+                      {t("customYogaTitle")}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Sound system, meditation cushions, custom schedule..."
+                      placeholder={t("customYogaPlaceholder")}
                       value={customYogaRequirements}
                       onChange={(e) => setCustomYogaRequirements(e.target.value)}
                       className="w-full text-xs bg-white border border-gray-200 rounded-sm px-3 py-2.5 focus:ring-brand-gold focus:border-brand-gold font-light"
@@ -930,11 +1007,11 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
             {activeStep === "summary" && (
               <div>
                 <div className="mb-6">
-                  <h3 className="font-serif text-lg font-normal text-brand-dark mb-1">
-                    Your Customized Retreat Proposal
+                  <h3 className="font-serif text-lg font-normal text-brand-dark mb-1 font-sans">
+                    {t("proposalTitle")}
                   </h3>
                   <p className="text-xs text-gray-500 font-light">
-                    Review your group's requirements below. Submit this proposal template directly to Shahid via WhatsApp or copy details to your clipboard.
+                    {t("proposalIntro")}
                   </p>
                 </div>
 
@@ -943,16 +1020,16 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                   <textarea
                     readOnly
                     value={proposalText}
-                    className="w-full h-72 text-[10px] sm:text-xs bg-[#fbf9f6] border border-[#eae6db] rounded-sm p-4 text-gray-700 font-mono focus:ring-0 focus:border-[#eae6db] leading-relaxed resize-none cursor-text select-text"
+                    className="w-full h-72 text-[10px] sm:text-xs bg-[#fbf9f6] border border-[#eae6db] rounded-sm p-4 text-gray-700 font-mono focus:ring-0 focus:border-[#eae6db] leading-relaxed resize-none cursor-text select-text font-sans"
                   />
                   <div className="absolute bottom-3 right-3 flex gap-2">
                     <button
                       type="button"
                       onClick={handleCopy}
-                      className="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold tracking-wider px-3 py-1.5 rounded-sm shadow-sm hover:bg-gray-50 flex items-center gap-1 transition-all select-none"
+                      className="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold tracking-wider px-3 py-1.5 rounded-sm shadow-sm hover:bg-gray-50 flex items-center gap-1 transition-all select-none font-sans"
                     >
                       <Copy className="w-3 h-3 text-brand-gold" />
-                      {copied ? "COPIED!" : "COPY PLAN"}
+                      {copied ? t("proposalCopied") : t("copyProposal")}
                     </button>
                   </div>
                 </div>
@@ -965,23 +1042,23 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-widest px-6 py-4 rounded-sm flex items-center justify-center gap-2 shadow-sm transition-all select-none uppercase font-sans"
                   >
                     <Send className="w-4 h-4" />
-                    Submit Inquiry via WhatsApp
+                    {t("sendProposal")}
                   </button>
                 </div>
 
                 {/* BOOKING PROCEDURES SHORTLIST */}
-                <div className="mt-8 border-t border-[#eae6db] pt-6">
+                <div className="mt-8 border-t border-[#eae6db] pt-6 font-sans">
                   <h5 className="font-serif text-[10px] font-bold tracking-wider text-brand-dark uppercase mb-3">
-                    Important Terms & Booking Information
+                    {t("termsTitle")}
                   </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] text-gray-500 font-light leading-relaxed font-sans">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] text-gray-500 font-light leading-relaxed">
                     <div className="space-y-1">
-                      <p>• <strong>Deposit Required:</strong> 30% non-refundable advance confirms booking.</p>
-                      <p>• <strong>Final Balance:</strong> Remaining 70% due 30 days prior to group arrival.</p>
+                      <p>• <strong>Deposit Required:</strong> {t("confirmationRule1")}</p>
+                      <p>• <strong>Final Balance:</strong> {t("paymentTermsRule2")}</p>
                     </div>
                     <div className="space-y-1">
                       <p>• <strong>Meals & Sessions:</strong> Final headcounts must be locked in at booking confirmation.</p>
-                      <p>• <strong>Check-In/Out:</strong> 2:00 PM check-in and 11:00 AM check-out.</p>
+                      <p>• <strong>Check-In/Out:</strong> {t("termsRule3")}</p>
                     </div>
                   </div>
                 </div>
@@ -1002,7 +1079,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     }}
                     className="text-[10px] font-bold tracking-wider text-gray-600 uppercase border border-gray-200 px-4 py-2 hover:bg-gray-50 rounded-sm font-sans"
                   >
-                    ← Previous Step
+                    {t("previousStep")}
                   </button>
                 ) : (
                   <div />
@@ -1020,7 +1097,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
                     }}
                     className="bg-brand-dark hover:bg-[#1e1e1e] text-white text-[10px] font-bold tracking-wider uppercase px-5 py-2.5 rounded-sm font-sans"
                   >
-                    Continue to Next Step →
+                    {t("continueNextStep")}
                   </button>
                 ) : (
                   <div />
@@ -1038,7 +1115,7 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
       <section className="bg-[#fbf9f6] border-t border-[#eae6db]/60 py-12 md:py-16">
         <div className="max-w-4xl mx-auto px-6">
           <h3 className="font-serif text-xl md:text-2xl font-normal text-brand-dark tracking-wide leading-tight mb-8 text-center">
-            Booking Terms & Conditions
+            {t("termsTitle")}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left font-sans">
@@ -1046,39 +1123,39 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
             <div className="space-y-4">
               <div>
                 <h4 className="font-serif font-bold text-xs text-brand-gold uppercase tracking-wider mb-2">
-                  Booking Confirmation
+                  {t("confirmationTitle")}
                 </h4>
                 <ul className="text-xs text-gray-500 font-light leading-relaxed space-y-1.5">
-                  <li>• To confirm a retreat booking, a 30% non-refundable advance payment is required.</li>
-                  <li>• The remaining balance must be paid 30 days before the retreat arrival date, unless otherwise agreed in writing.</li>
-                  <li>• Bookings are confirmed only after the advance payment has been received and written confirmation has been issued by Villa Lemon.</li>
+                  <li>• {t("confirmationRule1")}</li>
+                  <li>• {t("confirmationRule2")}</li>
+                  <li>• {t("confirmationRule3")}</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-serif font-bold text-xs text-brand-gold uppercase tracking-wider mb-2">
-                  Payment Terms
+                  {t("paymentTermsTitle")}
                 </h4>
                 <ul className="text-xs text-gray-500 font-light leading-relaxed space-y-1.5">
-                  <li>• 30% advance payment to confirm the booking.</li>
-                  <li>• 70% balance payment due 30 days before arrival.</li>
-                  <li>• Payments can be made by bank transfer or other agreed payment methods.</li>
-                  <li>• Any additional services requested during the retreat must be settled before departure.</li>
+                  <li>• {t("paymentTermsRule1")}</li>
+                  <li>• {t("paymentTermsRule2")}</li>
+                  <li>• {t("paymentTermsRule3")}</li>
+                  <li>• {t("paymentTermsRule4")}</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-serif font-bold text-xs text-brand-gold uppercase tracking-wider mb-2">
-                  Terms & Conditions
+                  {t("termsAndCondTitle")}
                 </h4>
                 <ul className="text-xs text-gray-500 font-light leading-relaxed space-y-1.5">
-                  <li>• Prices are valid for the agreed travel period only.</li>
-                  <li>• Room allocation is subject to availability.</li>
-                  <li>• Check-in: 2:00 PM | Check-out: 11:00 AM.</li>
-                  <li>• Early check-in and late check-out are subject to availability and may incur additional charges.</li>
-                  <li>• Meal packages, yoga hall rental, airport transfers, and excursions should be confirmed before arrival.</li>
-                  <li>• Organizers are responsible for providing the final rooming list and participant details before arrival.</li>
-                  <li>• Any damages caused during the stay will be charged to the retreat organizer.</li>
+                  <li>• {t("termsRule1")}</li>
+                  <li>• {t("termsRule2")}</li>
+                  <li>• {t("termsRule3")}</li>
+                  <li>• {t("termsRule4")}</li>
+                  <li>• {t("termsRule5")}</li>
+                  <li>• {t("termsRule6")}</li>
+                  <li>• {t("termsRule7")}</li>
                 </ul>
               </div>
             </div>
@@ -1087,49 +1164,49 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
             <div className="space-y-4">
               <div className="bg-white border border-gray-100 p-5 rounded-sm">
                 <h4 className="font-serif font-bold text-xs text-[#b3966e] uppercase tracking-wider mb-3">
-                  Cancellation Policy
+                  {t("cancellationTitle")}
                 </h4>
                 
                 <div className="space-y-3 text-xs text-gray-500 font-light leading-relaxed">
                   <div>
-                    <span className="font-bold text-brand-dark block">More than 60 days before arrival</span>
-                    <span className="block mt-0.5">Full refund of payments received, excluding the non-refundable booking deposit.</span>
+                    <span className="font-bold text-brand-dark block">{t("cancel60Days")}</span>
+                    <span className="block mt-0.5">{t("cancel60DaysDesc")}</span>
                   </div>
 
                   <div className="border-t border-gray-100 pt-2.5">
-                    <span className="font-bold text-brand-dark block">30–59 days before arrival</span>
-                    <span className="block mt-0.5">50% of the total booking value will be charged.</span>
+                    <span className="font-bold text-brand-dark block">{t("cancel30to59")}</span>
+                    <span className="block mt-0.5">{t("cancel30to59Desc")}</span>
                   </div>
 
                   <div className="border-t border-gray-100 pt-2.5">
-                    <span className="font-bold text-brand-dark block">Less than 30 days before arrival</span>
-                    <span className="block mt-0.5">100% of the total booking value will be charged.</span>
+                    <span className="font-bold text-brand-dark block">{t("cancelUnder30")}</span>
+                    <span className="block mt-0.5">{t("cancelUnder30Desc")}</span>
                   </div>
 
                   <div className="border-t border-gray-100 pt-2.5">
-                    <span className="font-bold text-brand-dark block">No-show or Early Departure</span>
-                    <span className="block mt-0.5">No refund will be provided for unused nights, no-shows, or early departures.</span>
+                    <span className="font-bold text-brand-dark block">{t("noShow")}</span>
+                    <span className="block mt-0.5">{t("noShowDesc")}</span>
                   </div>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-serif font-bold text-xs text-brand-gold uppercase tracking-wider mb-2">
-                  Amendments
+                  {t("amendmentsTitle")}
                 </h4>
                 <ul className="text-xs text-gray-500 font-light leading-relaxed space-y-1.5 font-sans">
-                  <li>• Date changes are subject to availability and management approval.</li>
-                  <li>• Reduction in the number of rooms or participants after confirmation may result in cancellation charges.</li>
-                  <li>• Additional rooms or services will be subject to availability.</li>
+                  <li>• {t("amendmentsRule1")}</li>
+                  <li>• {t("amendmentsRule2")}</li>
+                  <li>• {t("amendmentsRule3")}</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-serif font-bold text-xs text-brand-gold uppercase tracking-wider mb-2 font-sans">
-                  Force Majeure
+                  {t("forceMajeureTitle")}
                 </h4>
                 <p className="text-xs text-gray-500 font-light leading-relaxed font-sans">
-                  Villa Lemon shall not be held liable for cancellations or interruptions caused by events beyond our reasonable control, including natural disasters, government restrictions, pandemics, civil unrest, or other unforeseen circumstances. In such cases, both parties will work together in good faith to reschedule the retreat where possible.
+                  {t("forceMajeureDesc")}
                 </p>
               </div>
             </div>
@@ -1137,11 +1214,10 @@ export default function HostRetreatDashboard({ locale, whatsappNumber }: { local
           
           <div className="text-center mt-12 bg-white border border-[#eae6db] p-6 rounded-sm">
             <p className="text-xs md:text-sm text-gray-500 font-light leading-relaxed font-sans">
-              We look forward to welcoming you and your retreat participants to Varkala. For any custom group sizes 
-              or bespoke requests, contact us directly to craft a personalized wellness package.
+              {t("footerGreeting")}
             </p>
             <div className="text-xs font-bold text-brand-gold uppercase tracking-widest mt-4 font-sans">
-              Shahid — Villa Lemon Homestay
+              {t("footerSignature")}
             </div>
           </div>
         </div>
