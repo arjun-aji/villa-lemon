@@ -244,7 +244,100 @@ export default function HostRetreatDashboard({ locale, whatsappNumber, dbConfig 
 
       {/* ─── DETAILED BROCHURE CONTENT ─── */}
       <div className="max-w-5xl mx-auto px-6 py-16 space-y-20">
-        
+
+        {/* EXPERIENCE SECTION */}
+        <section id="experience" className="bg-white border border-[#eae6db] p-8 md:p-12 rounded-sm shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-[#eae6db] pb-6 md:pb-0 md:pr-8 text-center md:text-left">
+            <span className="text-[10px] font-bold text-brand-gold uppercase tracking-[0.2em] block mb-2">Our Track Record</span>
+            <h3 className="font-serif text-3xl md:text-4xl text-brand-dark font-light leading-tight">
+              {t("experienceTitle")}
+            </h3>
+            <p className="text-xs text-brand-gold font-bold uppercase tracking-wider mt-2">
+              {t("experienceStats")}
+            </p>
+          </div>
+          <div className="md:col-span-2 text-xs md:text-sm text-gray-500 font-light leading-relaxed">
+            <p>
+              {t("experienceDesc")}
+            </p>
+          </div>
+        </section>
+
+        {/* ADDONS / EXCURSIONS SECTION */}
+        <section id="addons" className="space-y-8">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-[10px] md:text-xs font-bold text-brand-gold uppercase tracking-[0.2em] mb-1.5 block">
+              Beyond the Mat
+            </span>
+            <h3 className="font-serif text-2xl md:text-3xl font-normal text-brand-dark tracking-wide">
+              {t("addonsTitle")}
+            </h3>
+            <div className="w-10 h-[1px] bg-brand-gold/60 mx-auto mt-3 mb-4" />
+            <p className="text-xs text-gray-500 font-light leading-relaxed">
+              {t("addonsIntro")}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
+              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">01. {t("addon1Title")}</span>
+              <p className="text-xs text-gray-500 font-light leading-relaxed">
+                {t("addon1Desc")}
+              </p>
+            </div>
+            
+            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
+              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">02. {t("addon2Title")}</span>
+              <p className="text-xs text-gray-500 font-light leading-relaxed">
+                {t("addon2Desc")}
+              </p>
+            </div>
+
+            <div className="bg-white border border-[#eae6db]/40 p-6 rounded-sm hover:shadow-md transition-shadow duration-300">
+              <span className="text-xs text-brand-gold font-semibold uppercase tracking-wider block mb-2">03. {t("addon3Title")}</span>
+              <p className="text-xs text-gray-500 font-light leading-relaxed">
+                {t("addon3Desc")}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ SECTION */}
+        <section id="faqs" className="space-y-8 max-w-4xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-[10px] md:text-xs font-bold text-brand-gold uppercase tracking-[0.2em] mb-1.5 block">
+              Frequently Asked Questions
+            </span>
+            <h3 className="font-serif text-2xl md:text-3xl font-normal text-brand-dark tracking-wide">
+              Retreat Organizer FAQs
+            </h3>
+            <div className="w-10 h-[1px] bg-brand-gold/60 mx-auto mt-3 mb-4" />
+          </div>
+
+          <div className="bg-white border border-[#eae6db]/60 rounded-sm p-6 md:p-8 space-y-2 select-text">
+            {[1, 2, 3, 4].map((num) => {
+              const qKey = `faq${num}Question`;
+              const aKey = `faq${num}Answer`;
+              const question = t(qKey);
+              const answer = t(aKey);
+
+              if (!question || question === qKey || question.trim() === "") return null;
+
+              return (
+                <details key={num} className="group border-b border-[#eae6db]/50 last:border-0 pb-4 pt-3 cursor-pointer">
+                  <summary className="flex justify-between items-center list-none font-serif text-xs md:text-sm font-medium text-brand-dark hover:text-brand-gold transition-colors duration-200">
+                    <span>{question}</span>
+                    <span className="text-brand-gold font-light transition-transform duration-300 group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="text-xs text-gray-500 font-light mt-3 leading-relaxed pl-1">
+                    {answer}
+                  </p>
+                </details>
+              );
+            })}
+          </div>
+        </section>
+
         {/* 1. PROPERTY & ROOM LAYOUTS */}
         <section id="rooms" className="space-y-8">
           <div className="text-center max-w-2xl mx-auto">

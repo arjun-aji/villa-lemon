@@ -121,13 +121,133 @@ const run = async () => {
       config.footerGreeting = {
         en: "Thank you for choosing Villa Lemon Homestay. We look forward to welcoming you to Varkala and providing you with a comfortable and memorable stay.",
         de: "Vielen Dank, dass Sie sich für das Villa Lemon Homestay entschieden haben. Wir freuen uns darauf, Sie in Varkala begrüßen zu dürfen und Ihnen einen angenehmen Aufenthalt zu bieten.",
-        fr: "Merci d'avoir choisi Villa Lemon Homestay. Nous nous réjouissons de vous accueillir à Varkala et de vous offrir un séjour confortable et mémorable.",
+        fr: "Merci d'avoir choisi Villa Lemon Homestay. We look forward to welcoming you to Varkala and providing you with a comfortable and memorable stay.",
         ru: "Благодарим вас за выбор Villa Lemon Homestay. Мы с нетерпением ждем возможности приветствовать вас в Варкале и обеспечить вам комфортное и незабываемое пребывание."
+      };
+
+      // Experience Section
+      config.experienceTitle = {
+        en: "5+ Years",
+        de: "5+ Jahre",
+        fr: "5+ Ans",
+        ru: "5+ Лет"
+      };
+      config.experienceStats = {
+        en: "Hosting Global Retreats",
+        de: "Ausrichter globaler Retreats",
+        fr: "Accueil de retraites mondiales",
+        ru: "Организация международных ретритов"
+      };
+      config.experienceDesc = {
+        en: "We have been hosting premium yoga retreats and wellness programs for over 5 years. Our hosts have welcomed teachers and practitioners from Germany, France, the UK, Russia, and all over the world, creating a warm, inclusive community space.",
+        de: "Wir veranstalten seit über 5 Jahren erstklassige Yoga-Retreats und Wellness-Programme. Unsere Gastgeber haben Lehrer und Praktizierende aus Deutschland, Frankreich, Großbritannien, Russland und der ganzen Welt willkommen geheißen und so einen warmen, integrativen Gemeinschaftsraum geschaffen.",
+        fr: "Nous organisons des retraites de yoga et des programmes de bien-être haut de gamme depuis plus de 5 ans. Nos hôtes ont accueilli des enseignants et des praticiens d'Allemagne, de France, du Royaume-Uni, de Russie et du monde entier, créant ainsi un espace communautaire chaleureux et inclusif.",
+        ru: "Мы проводим йога-ретриты премиум-класса и оздоровительные программы уже более 5 лет. Наши хозяева принимали преподавателей и практиков из Германии, Франции, Великобритании, России и со всего мира, создавая теплое, инклюзивное пространство для сообщества."
+      };
+
+      // Addons / Curated excursions
+      config.addonsTitle = {
+        en: "Curated Excursions & Extras",
+        de: "Kurierte Ausflüge & Extras",
+        fr: "Excursions et Extras sur Mesure",
+        ru: "Организованные Экскурсии и Дополнительные Услуги"
+      };
+      config.addonsIntro = {
+        en: "To make your retreat truly unforgettable, we offer curated local packages and excursions for your group.",
+        de: "Um Ihr Retreat unvergesslich zu machen, bieten wir kuratierte lokale Pakete und Ausflüge für Ihre Gruppe an.",
+        fr: "Pour rendre votre retraite inoubliable, nous proposons des forfaits locaux et des excursions sur mesure pour votre groupe.",
+        ru: "Чтобы сделать ваш ретрит незабываемым, мы предлагаем специальные пакеты экскурсий для вашей группы."
+      };
+      config.addon1Title = {
+        en: "Varkala Sightseeing",
+        de: "Varkala Besichtigung",
+        fr: "Visite de Varkala",
+        ru: "Достопримечательности Варкалы"
+      };
+      config.addon1Desc = {
+        en: "Explore the famous Varkala Cliffs, ancient temples, natural springs, and pristine beaches with our guided day trips.",
+        de: "Erkunden Sie die berühmten Klippen von Varkala, alte Tempel, natürliche Quellen und unberührte Strände bei unseren geführten Tagesausflügen.",
+        fr: "Explorez les célèbres falaises de Varkala, les temples anciens, les sources naturelles et les plages immaculées grâce à nos excursions guidées d'une journée.",
+        ru: "Исследуйте знаменитые клифы Варкалы, древние храмы, природные источники и чистейшие пляжи в наших однодневных поездках с гидом."
+      };
+      config.addon2Title = {
+        en: "Backwater & Mangrove Tours",
+        de: "Backwater & Mangroven Touren",
+        fr: "Tours des Backwaters & Mangroves",
+        ru: "Туры по Заводям и Манграм"
+      };
+      config.addon2Desc = {
+        en: "Paddle through tranquil mangrove forests at sunrise or enjoy a relaxing houseboat cruise in the nearby backwaters.",
+        de: "Paddeln Sie bei Sonnenaufgang durch ruhige Mangrovenwälder oder genießen Sie eine entspannende Hausbootfahrt in den nahe gelegenen Backwaters.",
+        fr: "Naviguez dans les forêts de mangroves paisibles au lever du soleil ou profitez d'une croisière relaxante en péniche dans les backwaters voisins.",
+        ru: "Проплывите на каяке по тихим мангровым лесам на рассвете или насладитесь расслабляющим круизом на хаусботе по близлежащим заводям."
+      };
+      config.addon3Title = {
+        en: "Ayurvedic Treatments",
+        de: "Ayurvedische Behandlungen",
+        fr: "Soins Ayurvédiques",
+        ru: "Аюрведические Процедуры"
+      };
+      config.addon3Desc = {
+        en: "Treat your participants to authentic Ayurvedic massages, consultations, and traditional steam bath therapies.",
+        de: "Verwöhnen Sie Ihre Teilnehmer mit authentischen ayurvedischen Massagen, Konsultationen und traditionellen Dampfbadtherapien.",
+        fr: "Offrez à vos participants des massages ayurvédiques authentiques, des consultations et des thérapies traditionnelles par bain de vapeur.",
+        ru: "Порадуйте своих участников аутентичным аюрведическим массажем, консультациями и традиционными паровыми банями."
+      };
+
+      // FAQs
+      config.faq1Question = {
+        en: "Do you provide yoga props and mats?",
+        de: "Stellen Sie Yoga-Requisiten und Matten zur Verfügung?",
+        fr: "Fournissez-vous des accessoires et des tapis de yoga?",
+        ru: "Предоставляете ли вы инвентарь и коврики для йоги?"
+      };
+      config.faq1Answer = {
+        en: "Yes, our rooftop yoga shala is fully equipped with high-quality yoga mats, blocks, and straps, all available free of charge.",
+        de: "Ja, unsere Yoga-Shala auf dem Dach ist komplett mit hochwertigen Yogamatten, Blöcken und Gurten ausgestattet, die alle kostenlos zur Verfügung stehen.",
+        fr: "Oui, notre shala de yoga sur le toit est entièrement équipé de tapis de yoga, de briques et de sangles de qualité, tous disponibles gratuitement.",
+        ru: "Да, наш зал для йоги на крыше полностью оборудован высококачественными ковриками, блоками и ремнями, все предоставляется бесплатно."
+      };
+      config.faq2Question = {
+        en: "Can you cater to specific dietary requirements?",
+        de: "Können Sie auf spezielle Ernährungsbedürfnisse eingehen?",
+        fr: "Pouvez-vous vous adapter à des régimes alimentaires particuliers?",
+        ru: "Можете ли вы учесть особые требования к питанию?"
+      };
+      config.faq2Answer = {
+        en: "Absolutely. Our kitchen staff is trained in preparing vegan, gluten-free, dairy-free, and custom Ayurvedic meals upon request.",
+        de: "Absolut. Unsere Küchenmitarbeiter sind geschult auf Anfrage vegane, glutenfreie, milchfreie und maßgeschneiderte ayurvedische Mahlzeiten zuzubereiten.",
+        fr: "Absolument. Notre personnel de cuisine est formé pour préparer des repas végétaliens, sans gluten, sans produits laitiers et ayurvédiques sur demande.",
+        ru: "Конечно. Наш персонал обучен приготовлению веганских, безглютеновых, безлактозных и индивидуальных аюрведических блюд по запросу."
+      };
+      config.faq3Question = {
+        en: "Do you arrange airport transfers?",
+        de: "Organisieren Sie Flughafentransfers?",
+        fr: "Organisez-vous les transferts depuis l'aéroport?",
+        ru: "Организуете ли вы трансфер из аэропорта?"
+      };
+      config.faq3Answer = {
+        en: "Yes, we can arrange reliable transfers from Trivandrum International Airport (TRV) using Sedans, SUVs, or Tempo Travellers.",
+        de: "Ja, wir können zuverlässige Transfers vom Trivandrum International Airport (TRV) mit Limousinen, SUVs oder Tempo-Reisebussen organisieren.",
+        fr: "Oui, nous pouvons organiser des transferts fiables depuis l'aéroport de Trivandrum (TRV) en berline, SUV ou Tempo Traveller.",
+        ru: "Да, мы можем организовать надежный трансфер из международного аэропорта Тривандрам (TRV) на седанах, внедорожниках или автобусах."
+      };
+      config.faq4Question = {
+        en: "Is there a minimum group size to book?",
+        de: "Gibt es eine Mindestgruppengröße für die Buchung?",
+        fr: "Y a-t-il une taille minimale de groupe pour réserver?",
+        ru: "Есть ли минимальный размер группы для бронирования?"
+      };
+      config.faq4Answer = {
+        en: "We accommodate both small intimate groups and larger retreats of up to 18-20 participants depending on room configurations.",
+        de: "Wir bieten Platz für kleine, intime Gruppen sowie für größere Retreats mit bis zu 18–20 Teilnehmern, je nach Zimmerkonfiguration.",
+        fr: "Nous accueillons aussi bien de petits groupes intimes que des retraites plus importantes allant jusqu'à 18-20 participants selon la configuration des chambres.",
+        ru: "Мы принимаем как небольшие группы, так и крупные ретриты до 18-20 участников в зависимости от конфигурации номеров."
       };
 
       prog.markModified("hostRetreatConfig");
       await prog.save();
-      console.log(`Updated policies and rooms AC for program: ${prog.title?.en || prog._id}`);
+      console.log(`Updated policies, rooms AC, experience, addons, and FAQs for program: ${prog.title?.en || prog._id}`);
       updatedCount++;
     }
   }

@@ -860,6 +860,126 @@ const DEFAULT_HOST_RETREAT_CONFIG = {
     de: "SHAHID — VILLA LEMON HOMESTAY",
     fr: "SHAHID — VILLA LEMON HOMESTAY",
     ru: "SHAHID — VILLA LEMON HOMESTAY"
+  },
+
+  // Experience Section
+  experienceTitle: {
+    en: "5+ Years",
+    de: "5+ Jahre",
+    fr: "5+ Ans",
+    ru: "5+ Лет"
+  },
+  experienceStats: {
+    en: "Hosting Global Retreats",
+    de: "Ausrichter globaler Retreats",
+    fr: "Accueil de retraites mondiales",
+    ru: "Организация международных ретритов"
+  },
+  experienceDesc: {
+    en: "We have been hosting premium yoga retreats and wellness programs for over 5 years. Our hosts have welcomed teachers and practitioners from Germany, France, the UK, Russia, and all over the world, creating a warm, inclusive community space.",
+    de: "Wir veranstalten seit über 5 Jahren erstklassige Yoga-Retreats und Wellness-Programme. Unsere Gastgeber haben Lehrer und Praktizierende aus Deutschland, Frankreich, Großbritannien, Russland und der ganzen Welt willkommen geheißen und so einen warmen, integrativen Gemeinschaftsraum geschaffen.",
+    fr: "Nous organisons des retraites de yoga et des programmes de bien-être haut de gamme depuis plus de 5 ans. Nos hôtes ont accueilli des enseignants et des praticiens d'Allemagne, de France, du Royaume-Uni, de Russie et du monde entier, créant ainsi un espace communautaire chaleureux et inclusif.",
+    ru: "Мы проводим йога-ретриты премиум-класса и оздоровительные программы уже более 5 лет. Наши хозяева принимали преподавателей и практиков из Германии, Франции, Великобритании, России и со всего мира, создавая теплое, инклюзивное пространство для сообщества."
+  },
+
+  // Addons / Curated excursions
+  addonsTitle: {
+    en: "Curated Excursions & Extras",
+    de: "Kurierte Ausflüge & Extras",
+    fr: "Excursions et Extras sur Mesure",
+    ru: "Организованные Экскурсии и Дополнительные Услуги"
+  },
+  addonsIntro: {
+    en: "To make your retreat truly unforgettable, we offer curated local packages and excursions for your group.",
+    de: "Um Ihr Retreat unvergesslich zu machen, bieten wir kuratierte lokale Pakete und Ausflüge für Ihre Gruppe an.",
+    fr: "Pour rendre votre retraite inoubliable, nous proposons des forfaits locaux et des excursions sur mesure pour votre groupe.",
+    ru: "Чтобы сделать ваш ретрит незабываемым, мы предлагаем специальные пакеты экскурсий для вашей группы."
+  },
+  addon1Title: {
+    en: "Varkala Sightseeing",
+    de: "Varkala Besichtigung",
+    fr: "Visite de Varkala",
+    ru: "Достопримечательности Варкалы"
+  },
+  addon1Desc: {
+    en: "Explore the famous Varkala Cliffs, ancient temples, natural springs, and pristine beaches with our guided day trips.",
+    de: "Erkunden Sie die berühmten Klippen von Varkala, alte Tempel, natürliche Quellen und unberührte Strände bei unseren geführten Tagesausflügen.",
+    fr: "Explorez les célèbres falaises de Varkala, les temples anciens, les sources naturelles et les plages immaculées grâce à nos excursions guidées d'une journée.",
+    ru: "Исследуйте знаменитые клифы Варкалы, древние храмы, природные источники и чистейшие пляжи в наших однодневных поездках с гидом."
+  },
+  addon2Title: {
+    en: "Backwater & Mangrove Tours",
+    de: "Backwater & Mangroven Touren",
+    fr: "Tours des Backwaters & Mangroves",
+    ru: "Туры по Заводям и Манграм"
+  },
+  addon2Desc: {
+    en: "Paddle through tranquil mangrove forests at sunrise or enjoy a relaxing houseboat cruise in the nearby backwaters.",
+    de: "Paddeln Sie bei Sonnenaufgang durch ruhige Mangrovenwälder oder genießen Sie eine entspannende Hausbootfahrt in den nahe gelegenen Backwaters.",
+    fr: "Naviguez dans les forêts de mangroves paisibles au lever du soleil ou profitez d'une croisière relaxante en péniche dans les backwaters voisins.",
+    ru: "Проплывите на каяке по тихим мангровым лесам на рассвете или насладитесь расслабляющим круизом на хаусботе по близлежащим заводям."
+  },
+  addon3Title: {
+    en: "Ayurvedic Treatments",
+    de: "Ayurvedische Behandlungen",
+    fr: "Soins Ayurvédiques",
+    ru: "Аюрведические Процедуры"
+  },
+  addon3Desc: {
+    en: "Treat your participants to authentic Ayurvedic massages, consultations, and traditional steam bath therapies.",
+    de: "Verwöhnen Sie Ihre Teilnehmer mit authentischen ayurvedischen Massagen, Konsultationen und traditionellen Dampfbadtherapien.",
+    fr: "Offrez à vos participants des massages ayurvédiques authentiques, des consultations et des thérapies traditionnelles par bain de vapeur.",
+    ru: "Порадуйте своих участников аутентичным аюрведическим массажем, консультациями и традиционными паровыми банями."
+  },
+
+  // FAQs
+  faq1Question: {
+    en: "Do you provide yoga props and mats?",
+    de: "Stellen Sie Yoga-Requisiten und Matten zur Verfügung?",
+    fr: "Fournissez-vous des accessoires et des tapis de yoga?",
+    ru: "Предоставляете ли вы инвентарь и коврики для йоги?"
+  },
+  faq1Answer: {
+    en: "Yes, our rooftop yoga shala is fully equipped with high-quality yoga mats, blocks, and straps, all available free of charge.",
+    de: "Ja, unsere Yoga-Shala auf dem Dach ist komplett mit hochwertigen Yogamatten, Blöcken und Gurten ausgestattet, die alle kostenlos zur Verfügung stehen.",
+    fr: "Oui, notre shala de yoga sur le toit est entièrement équipé de tapis de yoga, de briques et de sangles de qualité, tous disponibles gratuitement.",
+    ru: "Да, наш зал для йоги на крыше полностью оборудован высококачественными ковриками, блоками и ремнями, все предоставляется бесплатно."
+  },
+  faq2Question: {
+    en: "Can you cater to specific dietary requirements?",
+    de: "Können Sie auf spezielle Ernährungsbedürfnisse eingehen?",
+    fr: "Pouvez-vous vous adapter à des régimes alimentaires particuliers?",
+    ru: "Можете ли вы учесть особые требования к питанию?"
+  },
+  faq2Answer: {
+    en: "Absolutely. Our kitchen staff is trained in preparing vegan, gluten-free, dairy-free, and custom Ayurvedic meals upon request.",
+    de: "Absolut. Unsere Küchenmitarbeiter sind geschult auf Anfrage vegane, glutenfreie, milchfreie und maßgeschneiderte ayurvedische Mahlzeiten zuzubereiten.",
+    fr: "Absolument. Notre personnel de cuisine est formé pour préparer des repas végétaliens, sans gluten, sans produits laitiers et ayurvédiques sur demande.",
+    ru: "Конечно. Наш персонал обучен приготовлению веганских, безглютеновых, безлактозных и индивидуальных аюрведических блюд по запросу."
+  },
+  faq3Question: {
+    en: "Do you arrange airport transfers?",
+    de: "Organisieren Sie Flughafentransfers?",
+    fr: "Organisez-vous les transferts depuis l'aéroport?",
+    ru: "Организуете ли вы трансфер из аэропорта?"
+  },
+  faq3Answer: {
+    en: "Yes, we can arrange reliable transfers from Trivandrum International Airport (TRV) using Sedans, SUVs, or Tempo Travellers.",
+    de: "Ja, wir können zuverlässige Transfers vom Trivandrum International Airport (TRV) mit Limousinen, SUVs oder Tempo-Reisebussen organisieren.",
+    fr: "Oui, nous pouvons organiser des transferts fiables depuis l'aéroport de Trivandrum (TRV) en berline, SUV ou Tempo Traveller.",
+    ru: "Да, мы можем организовать надежный трансфер из международного аэропорта Тривандрам (TRV) на седанах, внедорожниках или автобусах."
+  },
+  faq4Question: {
+    en: "Is there a minimum group size to book?",
+    de: "Gibt es eine Mindestgruppengröße für die Buchung?",
+    fr: "Y a-t-il une taille minimale de groupe pour réserver?",
+    ru: "Есть ли минимальный размер группы для бронирования?"
+  },
+  faq4Answer: {
+    en: "We accommodate both small intimate groups and larger retreats of up to 18-20 participants depending on room configurations.",
+    de: "Wir bieten Platz für kleine, intime Gruppen sowie für größere Retreats mit bis zu 18–20 Teilnehmern, je nach Zimmerkonfiguration.",
+    fr: "Nous accueillons aussi bien de petits groupes intimes que des retraites plus importantes allant jusqu'à 18-20 participants selon la configuration des chambres.",
+    ru: "Мы принимаем как небольшие группы, так и крупные ретриты до 18-20 участников в зависимости от конфигурации номеров."
   }
 };
 
@@ -1153,7 +1273,7 @@ export default function AdminDashboard() {
   const [editingSubgroup, setEditingSubgroup] = useState<any | null>(null);
   const [savingSubgroup, setSavingSubgroup] = useState(false);
   const [subgroupForm, setSubgroupForm] = useState<any>({});
-  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "rooms" | "features" | "meals" | "logistics" | "policies" | "cancellation">("general");
+  const [hostRetreatTab, setHostRetreatTab] = useState<"general" | "rooms" | "features" | "meals" | "logistics" | "policies" | "cancellation" | "experience-faqs">("general");
 
   // Rooms editing sub-state
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
@@ -3714,7 +3834,7 @@ export default function AdminDashboard() {
 
             {subgroupFormType === "yoga" && subgroupForm.type === "host retreat" && (
               <div className="px-6 py-2 border-b border-gray-150 bg-[#fbf9f6] flex flex-wrap gap-1.5 select-none">
-                {(["general", "rooms", "features", "meals", "logistics", "policies", "cancellation"] as const).map((tab) => (
+                {(["general", "rooms", "features", "meals", "logistics", "policies", "cancellation", "experience-faqs"] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
@@ -3723,7 +3843,7 @@ export default function AdminDashboard() {
                       hostRetreatTab === tab ? "bg-[#121212] text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
-                    {tab === "general" ? "1. General Info" : tab === "rooms" ? "2. Rooms Layout" : tab === "features" ? "3. Highlight Features" : tab === "meals" ? "4. Meals & Menus" : tab === "logistics" ? "5. Logistics & Extras" : tab === "policies" ? "6. Booking Policies" : "7. Cancellation Policy"}
+                    {tab === "general" ? "1. General Info" : tab === "rooms" ? "2. Rooms Layout" : tab === "features" ? "3. Highlight Features" : tab === "meals" ? "4. Meals & Menus" : tab === "logistics" ? "5. Logistics & Extras" : tab === "policies" ? "6. Booking Policies" : tab === "cancellation" ? "7. Cancellation Policy" : "8. Experience & FAQs"}
                   </button>
                 ))}
               </div>
@@ -4560,6 +4680,179 @@ export default function AdminDashboard() {
                             placeholder="e.g. No refund will be provided for unused nights or early departure."
                             className="border p-2.5 rounded font-sans"
                           />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 8: EXPERIENCE & FAQS */}
+                  {hostRetreatTab === "experience-faqs" && (
+                    <div className="space-y-6 bg-gray-50 p-4 rounded border border-gray-100">
+                      <div>
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5 mb-4">
+                          Section 1: Experience & Track Record ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <div className="space-y-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Experience Title / Counter</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("experienceTitle")}
+                              onChange={(e) => setRetreatConfigVal("experienceTitle", e.target.value)}
+                              placeholder="e.g. 5+ Years"
+                              className="border p-2.5 rounded bg-white text-xs"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Experience Subtitle / Stats Label</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("experienceStats")}
+                              onChange={(e) => setRetreatConfigVal("experienceStats", e.target.value)}
+                              placeholder="e.g. Hosting Global Retreats"
+                              className="border p-2.5 rounded bg-white text-xs"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Experience Description</label>
+                            <textarea
+                              rows={3}
+                              value={getRetreatConfigVal("experienceDesc")}
+                              onChange={(e) => setRetreatConfigVal("experienceDesc", e.target.value)}
+                              placeholder="Describe your history conducting yoga retreats for international groups..."
+                              className="border p-2.5 rounded font-sans text-xs bg-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5 mb-4">
+                          Section 2: Curated Excursions & Extras ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <div className="space-y-4">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Addons Title</label>
+                            <input
+                              type="text"
+                              value={getRetreatConfigVal("addonsTitle")}
+                              onChange={(e) => setRetreatConfigVal("addonsTitle", e.target.value)}
+                              placeholder="e.g. Curated Excursions & Extras"
+                              className="border p-2.5 rounded bg-white text-xs"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-bold text-gray-600 uppercase">Addons Intro</label>
+                            <textarea
+                              rows={2}
+                              value={getRetreatConfigVal("addonsIntro")}
+                              onChange={(e) => setRetreatConfigVal("addonsIntro", e.target.value)}
+                              placeholder="Introduction description..."
+                              className="border p-2.5 rounded font-sans text-xs bg-white"
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 1 Title</label>
+                              <input
+                                type="text"
+                                value={getRetreatConfigVal("addon1Title")}
+                                onChange={(e) => setRetreatConfigVal("addon1Title", e.target.value)}
+                                placeholder="e.g. Varkala Sightseeing"
+                                className="border p-2.5 rounded bg-white text-xs"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 1 Description</label>
+                              <textarea
+                                rows={2}
+                                value={getRetreatConfigVal("addon1Desc")}
+                                onChange={(e) => setRetreatConfigVal("addon1Desc", e.target.value)}
+                                placeholder="Addon 1 details..."
+                                className="border p-2.5 rounded font-sans text-xs bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 2 Title</label>
+                              <input
+                                type="text"
+                                value={getRetreatConfigVal("addon2Title")}
+                                onChange={(e) => setRetreatConfigVal("addon2Title", e.target.value)}
+                                placeholder="e.g. Backwater Tours"
+                                className="border p-2.5 rounded bg-white text-xs"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 2 Description</label>
+                              <textarea
+                                rows={2}
+                                value={getRetreatConfigVal("addon2Desc")}
+                                onChange={(e) => setRetreatConfigVal("addon2Desc", e.target.value)}
+                                placeholder="Addon 2 details..."
+                                className="border p-2.5 rounded font-sans text-xs bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 3 Title</label>
+                              <input
+                                type="text"
+                                value={getRetreatConfigVal("addon3Title")}
+                                onChange={(e) => setRetreatConfigVal("addon3Title", e.target.value)}
+                                placeholder="e.g. Ayurvedic Massages"
+                                className="border p-2.5 rounded bg-white text-xs"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="font-bold text-gray-600 uppercase">Addon 3 Description</label>
+                              <textarea
+                                rows={2}
+                                value={getRetreatConfigVal("addon3Desc")}
+                                onChange={(e) => setRetreatConfigVal("addon3Desc", e.target.value)}
+                                placeholder="Addon 3 details..."
+                                className="border p-2.5 rounded font-sans text-xs bg-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5 mb-4">
+                          Section 3: Frequently Asked Questions ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <div className="space-y-4">
+                          {[1, 2, 3, 4].map((num) => (
+                            <div key={num} className="p-3 border rounded bg-white space-y-3">
+                              <span className="font-bold text-brand-gold uppercase block">FAQ #{num}</span>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="font-semibold text-gray-600">Question</label>
+                                <input
+                                  type="text"
+                                  value={getRetreatConfigVal(`faq${num}Question`)}
+                                  onChange={(e) => setRetreatConfigVal(`faq${num}Question`, e.target.value)}
+                                  placeholder={`Question ${num}`}
+                                  className="border p-2 rounded w-full text-xs"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="font-semibold text-gray-600">Answer</label>
+                                <textarea
+                                  rows={2}
+                                  value={getRetreatConfigVal(`faq${num}Answer`)}
+                                  onChange={(e) => setRetreatConfigVal(`faq${num}Answer`, e.target.value)}
+                                  placeholder={`Answer ${num}`}
+                                  className="border p-2 rounded w-full text-xs font-sans"
+                                />
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
