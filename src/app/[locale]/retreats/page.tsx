@@ -29,6 +29,7 @@ import { getMessages } from "next-intl/server";
 import { Clock, Users, Compass, Calendar, Award, ChevronRight, ChevronLeft } from "lucide-react";
 import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { API_BASE_URL } from "@/config/api";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 
 interface RetreatSummary {
   _id: string;
@@ -48,6 +49,7 @@ interface RetreatSummary {
   isPopular: boolean;
   isSoldOut: boolean;
   hideRate?: boolean;
+  images?: string[];
 }
 
 async function getRetreats(): Promise<RetreatSummary[]> {
@@ -152,18 +154,11 @@ export default async function RetreatsCatalogPage({
                     >
                       {/* Image container */}
                       <div className="relative aspect-[16/10] overflow-hidden bg-[#121212]">
-                        {retreat.heroImage ? (
-                          <Image
-                            src={retreat.heroImage}
-                            alt={title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Compass className="w-8 h-8 text-gray-600" />
-                          </div>
-                        )}
+                        <ImageSlideshow
+                          images={retreat.images}
+                          defaultImage={retreat.heroImage}
+                          alt={title}
+                        />
 
                         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10 select-none">
                           {retreat.featured && (

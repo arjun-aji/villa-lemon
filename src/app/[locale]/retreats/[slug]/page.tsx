@@ -66,6 +66,7 @@ import PageAutoTranslator from "@/components/PageAutoTranslator";
 import { getContactSettings } from "@/utils/contactSettings";
 import BookingButton from "@/components/BookingButton";
 import RetreatGalleryClient from "@/components/RetreatGalleryClient";
+import { ImageSlideshow } from "@/components/ImageSlideshow";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -218,17 +219,13 @@ export default async function RetreatDetailsPage({
           {/* HERO BANNER SECTION */}
           <section className="relative w-full min-h-[460px] md:min-h-[580px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-12">
             <div className="absolute inset-0 z-0">
-              {retreat.heroImage ? (
-                <Image
-                  src={retreat.heroImage}
+              <div className="absolute inset-0 opacity-50">
+                <ImageSlideshow
+                  images={retreat.images}
+                  defaultImage={retreat.heroImage}
                   alt={loc(retreat.heroTitle)}
-                  fill
-                  className="object-cover opacity-50"
-                  priority
                 />
-              ) : (
-                <div className="w-full h-full bg-slate-900" />
-              )}
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
             </div>
 
