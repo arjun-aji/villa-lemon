@@ -61,6 +61,7 @@ import BookingButton from "@/components/BookingButton";
 import { getContactSettings } from "@/utils/contactSettings";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
 import AboutImageSlider from "@/components/AboutImageSlider";
+import TourGalleryClient from "@/components/TourGalleryClient";
 
 // Extract the English-first value from a localized Record or plain string
 function loc(field: Record<string, string> | string | undefined | null, locale?: string): string {
@@ -751,6 +752,17 @@ export default async function PackageDetailsPage({
                 )}
               </div>
             )}
+
+            {/* IMPORTANT NOTES ALERT BOX */}
+            {pkg.notes && (
+              <div className="bg-amber-50 border border-amber-200 p-5 rounded-sm flex gap-3 text-xs text-amber-800 text-left mt-8">
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold uppercase tracking-wider text-[9px] block mb-1">Please Note</span>
+                  <p className="font-light leading-relaxed font-sans">{pkg.notes}</p>
+                </div>
+              </div>
+            )}
           </div>
 
 
@@ -832,16 +844,6 @@ export default async function PackageDetailsPage({
               </div>
             )}
 
-            {/* IMPORTANT NOTES ALERT BOX */}
-            {pkg.notes && (
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-sm flex gap-3 text-xs text-amber-800 text-left">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold uppercase tracking-wider text-[9px] block mb-1">Please Note</span>
-                  <p className="font-light leading-relaxed font-sans">{pkg.notes}</p>
-                </div>
-              </div>
-            )}
           </div>
         </section>
 
@@ -892,24 +894,7 @@ export default async function PackageDetailsPage({
           {/* Row: Gallery */}
           {pkg.gallery.length > 0 && (
             <div className="w-full border-t border-[#eae6db] pt-12">
-              <h3 className="font-serif text-2xl font-normal text-[#121212] mb-6">
-                Tour Gallery
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {pkg.gallery.map((imgUrl, i) => (
-                  <div 
-                    key={i} 
-                    className="relative w-full aspect-video rounded-sm overflow-hidden border border-[#eae6db]/40 shadow-xs hover:shadow-md hover:scale-[1.01] transition-all duration-300"
-                  >
-                    <Image
-                      src={imgUrl}
-                      alt={`${pkg.title} Gallery image ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
+              <TourGalleryClient images={pkg.gallery} title="Tour Gallery" />
             </div>
           )}
 
