@@ -82,6 +82,7 @@ interface PackageDetails {
   title: Record<string, string>;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: Record<string, string>;
   image: string;
   aboutImage: string;
@@ -235,6 +236,7 @@ export default async function PackageDetailsPage({
     category: getPrimaryCat(rawPackage.packageCategory),
     title: loc(rawPackage.title),
     price: rawPackage.price,
+    actualPrice: rawPackage.actualPrice,
     pricePeriod: loc(rawPackage.pricePeriod),
     image: rawPackage.image || "",
     images: rawPackage.images || [],
@@ -295,6 +297,7 @@ export default async function PackageDetailsPage({
         type: foundStay.accommodationType,
         title: foundStay.title[locale] || foundStay.title["en"] || "",
         price: foundStay.price,
+        actualPrice: foundStay.actualPrice,
         pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
         image: foundStay.image,
         bedrooms: foundStay.bedrooms,
@@ -320,6 +323,7 @@ export default async function PackageDetailsPage({
         type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
+        actualPrice: foundPkg.actualPrice,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         bedrooms: 0,
@@ -344,6 +348,7 @@ export default async function PackageDetailsPage({
         type: foundYoga.yogaType,
         title: foundYoga.title[locale] || foundYoga.title["en"] || "",
         price: foundYoga.price,
+        actualPrice: foundYoga.actualPrice,
         pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
         image: foundYoga.image,
         bedrooms: 0,
@@ -371,6 +376,7 @@ export default async function PackageDetailsPage({
         type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
+        actualPrice: foundPkg.actualPrice,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         slug: foundPkg.slug,
@@ -391,6 +397,7 @@ export default async function PackageDetailsPage({
         type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
+        actualPrice: foundPkg.actualPrice,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         slug: foundPkg.slug,
@@ -468,7 +475,16 @@ export default async function PackageDetailsPage({
                 <div className="text-left">
                   <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Pricing</span>
                   <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">
-                    {pkg.price > 0 ? `₹${pkg.price.toLocaleString()} ${pkg.pricePeriod}` : "On Request"}
+                    {pkg.price > 0 ? (
+                      <span className="flex items-center gap-1.5">
+                        {pkg.actualPrice && pkg.actualPrice > 0 && (
+                          <span className="line-through text-white/50 font-medium">₹{pkg.actualPrice.toLocaleString()}</span>
+                        )}
+                        <span>₹{pkg.price.toLocaleString()} {pkg.pricePeriod}</span>
+                      </span>
+                    ) : (
+                      "On Request"
+                    )}
                   </h4>
                 </div>
               </div>
@@ -999,7 +1015,16 @@ export default async function PackageDetailsPage({
                         <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-4 text-xs">
                           <span className="text-gray-400 uppercase tracking-widest text-[9px] font-medium">Starting from</span>
                           <span className="font-bold text-gray-800">
-                            {rp.price > 0 ? `₹${rp.price.toLocaleString()} ${rp.pricePeriod}` : "On Request"}
+                            {rp.price > 0 ? (
+                              <span className="flex items-center gap-1.5">
+                                {rp.actualPrice && rp.actualPrice > 0 && (
+                                  <span className="line-through text-gray-400 font-medium">₹{rp.actualPrice.toLocaleString()}</span>
+                                )}
+                                <span>₹{rp.price.toLocaleString()} {rp.pricePeriod}</span>
+                              </span>
+                            ) : (
+                              "On Request"
+                            )}
                           </span>
                         </div>
                       </div>

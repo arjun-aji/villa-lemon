@@ -13,6 +13,7 @@ export interface YogaCardItem {
   image: string;
   images?: string[];
   price: number;
+  actualPrice?: number;
   pricePeriod: string;
   duration?: string;
   shortDescription: string;
@@ -114,7 +115,12 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
               
               {!item.hideRate && (
                 <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
-                  {item.detailUrl.includes("/retreats/") ? "$" : "₹"}{item.price.toLocaleString()} {item.pricePeriod}
+                  {item.actualPrice && item.actualPrice > 0 && (
+                    <span className="line-through text-gray-400 mr-1.5 font-medium">
+                      {item.detailUrl.includes("/retreats/") ? "$" : "₹"}{item.actualPrice.toLocaleString()}
+                    </span>
+                  )}
+                  <span>{item.detailUrl.includes("/retreats/") ? "$" : "₹"}{item.price.toLocaleString()} {item.pricePeriod}</span>
                 </div>
               )}
               

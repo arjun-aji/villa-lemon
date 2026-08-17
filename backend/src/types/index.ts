@@ -154,6 +154,7 @@ export interface IAccommodationItem extends Document {
   title: ILocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
@@ -210,6 +211,7 @@ export interface IPackageItem extends Document {
   title: ILocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
@@ -282,6 +284,7 @@ export interface IYogaItem extends Document {
   title: ILocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: ILocalizedText;
   image: string;
   imagePublicId?: string;
@@ -427,6 +430,7 @@ export interface IRetreat extends Document {
   days: number;
   nights: number;
   price: number;
+  actualPrice?: number;
   location: ILocalizedText;
   difficulty: ILocalizedText;
   yogaLevel: ILocalizedText;

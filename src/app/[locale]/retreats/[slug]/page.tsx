@@ -76,6 +76,7 @@ interface RetreatDetail {
   days: number;
   nights: number;
   price: number;
+  actualPrice?: number;
   location: Record<string, string>;
   difficulty: Record<string, string>;
   yogaLevel: Record<string, string>;
@@ -681,7 +682,16 @@ export default async function RetreatDetailsPage({
                     <div className="flex justify-between items-baseline mb-4">
                       <span className="text-xs text-gray-400 font-semibold uppercase">Price</span>
                       <span className="text-2xl font-bold text-gray-800">
-                        {retreat.price > 0 ? `$${retreat.price.toLocaleString()}` : "On Request"}
+                        {retreat.price > 0 ? (
+                          <span className="flex items-baseline gap-2">
+                            {retreat.actualPrice && retreat.actualPrice > 0 && (
+                              <span className="line-through text-gray-400 text-base font-medium">${retreat.actualPrice.toLocaleString()}</span>
+                            )}
+                            <span>${retreat.price.toLocaleString()}</span>
+                          </span>
+                        ) : (
+                          "On Request"
+                        )}
                       </span>
                     </div>
                   )}

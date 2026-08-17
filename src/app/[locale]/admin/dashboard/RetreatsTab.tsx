@@ -22,6 +22,7 @@ interface Retreat {
   days: number;
   nights: number;
   price: number;
+  actualPrice?: number;
   heroTitle: LT;
   tagline: LT;
   shortDescription: LT;
@@ -84,6 +85,7 @@ const defaultForm = () => ({
   days: 11,
   nights: 10,
   price: 24999,
+  actualPrice: "",
   minAge: 18,
   maxCapacity: 20,
   certificate: true,
@@ -387,7 +389,7 @@ export default function RetreatsTab({
       // Append all fields
       const boolFields = ["certificate", "featured", "bookingOpen", "isPopular", "isSoldOut", "isUpcoming", "hideRate"];
       const numFields = ["days", "nights", "price", "minAge", "maxCapacity", "yogaHours", "maxParticipants", "minParticipants", "displayOrder"];
-      const strFields = ["yogaType", "slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap"];
+      const strFields = ["yogaType", "slug", "status", "checkIn", "checkOut", "emergencyContact", "canonicalUrl", "brochureUrl", "packingListUrl", "schedulePdfUrl", "termsPdfUrl", "video", "retreatMap", "actualPrice"];
       const ltFields = [
         "heroTitle", "heroSubtitle", "tagline", "shortDescription", "fullDescription", "retreatOverview", "whyChoose", "whoIsItFor", "bestTime", "cta",
         "location", "difficulty", "yogaLevel", "language", "groupSize", "accommodationType", "yogaStyle", "morningSession", "eveningSession",
@@ -517,7 +519,8 @@ export default function RetreatsTab({
               {[
                 ["days", "Days (Length)", 11],
                 ["nights", "Nights (Length)", 10],
-                ["price", "Price ($)", 599],
+                ["price", "Offer Price ($)", 599],
+                ["actualPrice", "Actual Price ($, Optional)", ""],
                 ["yogaHours", "Total Yoga Hours", 30],
                 ["minAge", "Min Age Allowed", 18],
                 ["maxCapacity", "Max Capacity Limit", 20],
@@ -525,8 +528,11 @@ export default function RetreatsTab({
               ].map(([k, l, d]) => (
                 <div key={k as string} className="flex flex-col gap-1">
                   <label className="font-bold text-gray-600 uppercase text-[9px]">{l as string}</label>
-                  <input type="number" min="0" value={(form as any)[k as string] ?? d}
-                    onChange={e => setF(k as keyof RetreatForm, Number(e.target.value))}
+                  <input type="number" min="0" value={(form as any)[k as string] ?? ""}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setF(k as keyof RetreatForm, val === "" ? "" : Number(val));
+                    }}
                     className="border border-gray-200 p-2.5 rounded text-xs focus:outline-none focus:border-brand-gold bg-white" />
                 </div>
               ))}
@@ -1481,7 +1487,15 @@ export default function RetreatsTab({
                   <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-500 font-medium">
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {r.days}D / {r.nights}N</span>
                     <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {r.groupSize?.en || `Max ${r.maxCapacity}`}</span>
-                    {r.price > 0 && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> ${r.price.toLocaleString()}</span>}
+                    {r.price > 0 && (
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="w-3 h-3" />
+                        {r.actualPrice && r.actualPrice > 0 && (
+                          <span className="line-through text-gray-400 mr-1">${r.actualPrice.toLocaleString()}</span>
+                        )}
+                        <span>${r.price.toLocaleString()}</span>
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
                     <button onClick={() => openEdit(r)} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider border border-gray-200 hover:border-brand-gold px-2.5 py-1.5 rounded-sm text-gray-700 hover:text-brand-gold transition-colors cursor-pointer">

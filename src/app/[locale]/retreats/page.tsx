@@ -37,6 +37,7 @@ interface RetreatSummary {
   days: number;
   nights: number;
   price: number;
+  actualPrice?: number;
   heroTitle: { en: string; de?: string; fr?: string; ru?: string };
   tagline: { en: string; de?: string; fr?: string; ru?: string };
   shortDescription: { en: string; de?: string; fr?: string; ru?: string };
@@ -229,7 +230,16 @@ export default async function RetreatsCatalogPage({
                             <div>
                               <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Price</span>
                               <span className="text-sm font-bold text-gray-800 mt-1 block">
-                                {retreat.price > 0 ? `$${retreat.price.toLocaleString()}` : "On Request"}
+                                {retreat.price > 0 ? (
+                                  <span className="flex items-center gap-1.5">
+                                    {retreat.actualPrice && retreat.actualPrice > 0 && (
+                                      <span className="line-through text-gray-400 font-medium text-xs">${retreat.actualPrice.toLocaleString()}</span>
+                                    )}
+                                    <span>${retreat.price.toLocaleString()}</span>
+                                  </span>
+                                ) : (
+                                  "On Request"
+                                )}
                               </span>
                             </div>
                           ) : (

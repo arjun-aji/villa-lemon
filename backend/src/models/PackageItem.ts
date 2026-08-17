@@ -82,6 +82,7 @@ const packageItemSchema = new Schema<IPackageItem>(
     title: { type: localizedTextSchema },
     slug: { type: String, required: true, unique: true },
     price: { type: Number, default: 0 },
+    actualPrice: { type: Number },
     pricePeriod: { type: localizedTextSchema },
     image: { type: String, default: "" },
     imagePublicId: { type: String },

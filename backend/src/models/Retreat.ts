@@ -119,6 +119,7 @@ const retreatSchema = new Schema<IRetreat>({
   days: { type: Number, default: 7 },
   nights: { type: Number, default: 7 },
   price: { type: Number, default: 0 },
+  actualPrice: { type: Number },
   location: { type: L },
   difficulty: { type: L },
   yogaLevel: { type: L },

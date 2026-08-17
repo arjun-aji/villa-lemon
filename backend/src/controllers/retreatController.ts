@@ -102,6 +102,7 @@ export const createRetreat = async (req: Request, res: Response): Promise<any> =
       days: Number(req.body.days || 7),
       nights: Number(req.body.nights || 7),
       price: Number(req.body.price || 0),
+      actualPrice: req.body.actualPrice ? Number(req.body.actualPrice) : undefined,
       location: pf(req.body.location),
       difficulty: pf(req.body.difficulty),
       yogaLevel: pf(req.body.yogaLevel),
@@ -293,6 +294,10 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
     updateBool("isSoldOut", "true");
     updateBool("isUpcoming", "true");
     updateBool("hideRate", "true");
+
+    if (req.body.actualPrice !== undefined) {
+      retreat.actualPrice = req.body.actualPrice ? Number(req.body.actualPrice) : undefined;
+    }
 
     ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates","images"].forEach((k) => {
       if (req.body[k] !== undefined) (retreat as any)[k] = pf(req.body[k]);

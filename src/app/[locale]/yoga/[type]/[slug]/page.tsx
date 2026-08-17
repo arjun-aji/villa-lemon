@@ -72,6 +72,7 @@ interface YogaDetails {
   title: Record<string, string>;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: Record<string, string>;
   image: string;
   aboutImage: string;
@@ -199,6 +200,7 @@ interface LocalizedYogaDetails {
   type: string;
   title: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: string;
   image: string;
   images?: string[];
@@ -221,6 +223,7 @@ interface LocalizedYogaDetails {
     type: rawYoga.yogaType,
     title: ly.title,
     price: ly.price,
+    actualPrice: ly.actualPrice,
     pricePeriod: ly.pricePeriod,
     image: ly.image,
     images: rawYoga.images || [],
@@ -260,6 +263,7 @@ interface LocalizedYogaDetails {
         type: foundStay.accommodationType,
         title: foundStay.title[locale] || foundStay.title["en"] || "",
         price: foundStay.price,
+        actualPrice: foundStay.actualPrice,
         pricePeriod: foundStay.pricePeriod[locale] || foundStay.pricePeriod["en"] || "",
         image: foundStay.image,
         slug: foundStay.slug,
@@ -279,6 +283,7 @@ interface LocalizedYogaDetails {
         type: primaryCat,
         title: foundPkg.title[locale] || foundPkg.title["en"] || "",
         price: foundPkg.price,
+        actualPrice: foundPkg.actualPrice,
         pricePeriod: foundPkg.pricePeriod[locale] || foundPkg.pricePeriod["en"] || "",
         image: foundPkg.image,
         slug: foundPkg.slug,
@@ -297,6 +302,7 @@ interface LocalizedYogaDetails {
         type: foundYoga.yogaType,
         title: foundYoga.title[locale] || foundYoga.title["en"] || "",
         price: foundYoga.price,
+        actualPrice: foundYoga.actualPrice,
         pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
         image: foundYoga.image,
         slug: foundYoga.slug,
@@ -316,6 +322,7 @@ interface LocalizedYogaDetails {
       type: foundYoga.yogaType,
       title: foundYoga.title[locale] || foundYoga.title["en"] || "",
       price: foundYoga.price,
+      actualPrice: foundYoga.actualPrice,
       pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
       image: foundYoga.image,
       slug: foundYoga.slug,
@@ -333,6 +340,7 @@ interface LocalizedYogaDetails {
       type: foundYoga.yogaType,
       title: foundYoga.title[locale] || foundYoga.title["en"] || "",
       price: foundYoga.price,
+      actualPrice: foundYoga.actualPrice,
       pricePeriod: foundYoga.pricePeriod[locale] || foundYoga.pricePeriod["en"] || "",
       image: foundYoga.image,
       slug: foundYoga.slug,
@@ -404,7 +412,12 @@ interface LocalizedYogaDetails {
                 <Shield className="w-5 h-5 text-brand-gold" />
                 <div className="text-left">
                   <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Investment</span>
-                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">₹{yoga.price.toLocaleString()} {yoga.pricePeriod}</h4>
+                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">
+                    {yoga.actualPrice && yoga.actualPrice > 0 && (
+                      <span className="line-through text-white/50 font-medium mr-1.5">₹{yoga.actualPrice.toLocaleString()}</span>
+                    )}
+                    <span>₹{yoga.price.toLocaleString()} {yoga.pricePeriod}</span>
+                  </h4>
                 </div>
               </div>
 
@@ -614,7 +627,16 @@ interface LocalizedYogaDetails {
                       <div className={`flex items-center justify-between text-[10px] ${y.duration ? "pt-2" : "border-t border-gray-150 pt-4 mt-4"}`}>
                         <span className="text-gray-400 uppercase tracking-widest text-[9px] font-medium">Starting from</span>
                         <span className="font-bold text-gray-800">
-                          {y.price > 0 ? `₹${y.price.toLocaleString()} ${y.pricePeriod}` : "On Request"}
+                          {y.price > 0 ? (
+                            <span className="flex items-center gap-1.5">
+                              {y.actualPrice && y.actualPrice > 0 && (
+                                <span className="line-through text-gray-400 font-medium">₹{y.actualPrice.toLocaleString()}</span>
+                              )}
+                              <span>₹{y.price.toLocaleString()} {y.pricePeriod}</span>
+                            </span>
+                          ) : (
+                            "On Request"
+                          )}
                         </span>
                       </div>
                     </div>

@@ -132,6 +132,7 @@ export default async function AccommodationCatalogPage({
         title: lp.title,
         slug: lp.slug,
         price: lp.price,
+        actualPrice: lp.actualPrice,
         pricePeriod: lp.pricePeriod,
         image: lp.image,
         bedrooms: lp.bedrooms,

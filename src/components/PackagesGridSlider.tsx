@@ -10,6 +10,7 @@ interface PackageItem {
   title: string;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: string;
   image: string;
   images?: string[];
@@ -117,7 +118,10 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
                 {/* Price Tag */}
                 {!p.hideRate && (
                   <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
-                    ₹{p.price.toLocaleString()} {p.pricePeriod}
+                    {p.actualPrice && p.actualPrice > 0 && (
+                      <span className="line-through text-gray-400 mr-1.5 font-medium">₹{p.actualPrice.toLocaleString()}</span>
+                    )}
+                    <span>₹{p.price.toLocaleString()} {p.pricePeriod}</span>
                   </div>
                 )}
 

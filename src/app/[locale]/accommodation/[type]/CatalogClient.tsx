@@ -11,6 +11,7 @@ interface Property {
   title: string;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: string;
   image: string;
   bedrooms: number;
@@ -260,7 +261,11 @@ export default function CatalogClient({ properties, typePath, locale, contact }:
                   {/* Price tag */}
                   {!p.hideRate && (
                     <div className="absolute bottom-4 right-4 bg-[#121212]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider shadow-sm z-20">
-                      From ₹{p.price.toLocaleString()} {p.pricePeriod}
+                      <span>From </span>
+                      {p.actualPrice && p.actualPrice > 0 && (
+                        <span className="line-through text-gray-400 mr-1.5">₹{p.actualPrice.toLocaleString()}</span>
+                      )}
+                      <span>₹{p.price.toLocaleString()} {p.pricePeriod}</span>
                     </div>
                   )}
 

@@ -36,6 +36,7 @@ interface Property {
   type: string;
   title: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: string;
   image: string;
   images?: string[];
@@ -76,6 +77,7 @@ interface PropertyDetailsClientProps {
     type: string;
     title: string;
     price: number;
+    actualPrice?: number;
     pricePeriod: string;
     image: string;
     images?: string[];
@@ -848,7 +850,11 @@ export default function PropertyDetailsClient({ property, translations, locale, 
                     {/* Price Tag */}
                     {!item.hideRate && (
                       <div className="absolute bottom-4 left-4 bg-[#121212]/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/10 text-white text-[11px] font-semibold tracking-wider">
-                        From ₹{item.price.toLocaleString()} {item.pricePeriod}
+                        <span>From </span>
+                        {item.actualPrice && item.actualPrice > 0 && (
+                          <span className="line-through text-gray-400 mr-1.5">₹{item.actualPrice.toLocaleString()}</span>
+                        )}
+                        <span>₹{item.price.toLocaleString()} {item.pricePeriod}</span>
                       </div>
                     )}
 

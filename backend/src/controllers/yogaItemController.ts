@@ -64,7 +64,7 @@ export const getYogaItemBySlug = async (req: Request, res: Response): Promise<an
 
 export const createYogaItem = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { yogaType, slug, price } = req.body;
+    const { yogaType, slug, price, actualPrice } = req.body;
 
     const title = parseField(req.body.title);
     const pricePeriod = parseField(req.body.pricePeriod);
@@ -104,6 +104,7 @@ export const createYogaItem = async (req: Request, res: Response): Promise<any> 
       title,
       slug,
       price: Number(price),
+      actualPrice: actualPrice ? Number(actualPrice) : undefined,
       pricePeriod,
       image: coverImages[0] || "",
       imagePublicId: coverImagePublicIds[0] || "",
@@ -158,6 +159,9 @@ export const updateYogaItem = async (req: Request, res: Response): Promise<any> 
     if (req.body.yogaType) item.yogaType = req.body.yogaType;
     if (req.body.slug) item.slug = req.body.slug;
     if (req.body.price) item.price = Number(req.body.price);
+    if (req.body.actualPrice !== undefined) {
+      item.actualPrice = req.body.actualPrice ? Number(req.body.actualPrice) : undefined;
+    }
 
     // Parsed fields
     if (req.body.title) item.title = { ...item.title, ...parseField(req.body.title) };

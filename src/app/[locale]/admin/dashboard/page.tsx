@@ -1072,6 +1072,7 @@ interface AccommodationItemData {
   title: LocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: LocalizedText;
   image: string;
   images?: string[];
@@ -1115,6 +1116,7 @@ interface PackageItemData {
   title: LocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: LocalizedText;
   image: string;
   images?: string[];
@@ -1179,6 +1181,7 @@ interface YogaItemData {
   title: LocalizedText;
   slug: string;
   price: number;
+  actualPrice?: number;
   pricePeriod: LocalizedText;
   image: string;
   images?: string[];
@@ -2083,6 +2086,7 @@ export default function AdminDashboard() {
       accommodationType: prefilledType || "villa",
       slug: "",
       price: 15000,
+      actualPrice: undefined,
       bedrooms: 2,
       bathrooms: 2,
       guests: 4,
@@ -2204,6 +2208,7 @@ export default function AdminDashboard() {
 
     setStayForm({
       ...s,
+      actualPrice: s.actualPrice ?? undefined,
       relatedAccommodations: s.relatedAccommodations || ["", "", ""],
       badgeText: s.badgeText || createEmptyLocalizedText(),
       hideRate: s.hideRate || false,
@@ -2238,6 +2243,11 @@ export default function AdminDashboard() {
       formData.append("accommodationType", stayForm.accommodationType || "villa");
       formData.append("slug", stayForm.slug || "");
       formData.append("price", String(stayForm.price || 0));
+      if (stayForm.actualPrice !== undefined) {
+        formData.append("actualPrice", String(stayForm.actualPrice));
+      } else {
+        formData.append("actualPrice", "");
+      }
       formData.append("bedrooms", String(stayForm.bedrooms || 0));
       formData.append("bathrooms", String(stayForm.bathrooms || 0));
       formData.append("guests", String(stayForm.guests || 0));
@@ -2388,6 +2398,7 @@ export default function AdminDashboard() {
       packageCategory: prefilledCategory ? [prefilledCategory as any] : ["varkalaSightseeing"],
       slug: "",
       price: 2500,
+      actualPrice: undefined,
       title: createEmptyLocalizedText(),
       pricePeriod: createEmptyLocalizedText("/ person"),
       duration: createEmptyLocalizedText("4 Hours"),
@@ -2464,6 +2475,7 @@ export default function AdminDashboard() {
     setEditingPackage(p);
     setPackageForm({
       ...p,
+      actualPrice: p.actualPrice ?? undefined,
       packageCategory: Array.isArray(p.packageCategory) ? p.packageCategory : p.packageCategory ? [p.packageCategory] : ["varkalaSightseeing"],
       relatedPackages: p.relatedPackages || ["", "", ""],
       badgeText: p.badgeText || createEmptyLocalizedText(),
@@ -2493,6 +2505,11 @@ export default function AdminDashboard() {
       formData.append("packageCategory", JSON.stringify(packageForm.packageCategory || ["varkalaSightseeing"]));
       formData.append("slug", packageForm.slug || "");
       formData.append("price", String(packageForm.price || 0));
+      if (packageForm.actualPrice !== undefined) {
+        formData.append("actualPrice", String(packageForm.actualPrice));
+      } else {
+        formData.append("actualPrice", "");
+      }
       formData.append("video", packageForm.video || "");
       formData.append("canonicalUrl", packageForm.canonicalUrl || "");
 
@@ -2612,6 +2629,7 @@ export default function AdminDashboard() {
       yogaType: prefilledType || "retreats",
       slug: "",
       price: 15000,
+      actualPrice: undefined,
       title: createEmptyLocalizedText(),
       pricePeriod: createEmptyLocalizedText("/ program"),
       duration: createEmptyLocalizedText("7 Days"),
@@ -2645,6 +2663,7 @@ export default function AdminDashboard() {
     setEditingYoga(y);
     setYogaForm({
       ...y,
+      actualPrice: y.actualPrice ?? undefined,
       relatedYoga: y.relatedYoga || ["", "", ""]
     });
     setCoverImagePreview(y.image);
@@ -2669,6 +2688,11 @@ export default function AdminDashboard() {
       formData.append("yogaType", yogaForm.yogaType || "retreats");
       formData.append("slug", yogaForm.slug || "");
       formData.append("price", String(yogaForm.price || 0));
+      if (yogaForm.actualPrice !== undefined) {
+        formData.append("actualPrice", String(yogaForm.actualPrice));
+      } else {
+        formData.append("actualPrice", "");
+      }
 
       formData.append("title", JSON.stringify(yogaForm.title));
       formData.append("pricePeriod", JSON.stringify(yogaForm.pricePeriod));
@@ -5319,7 +5343,7 @@ export default function AdminDashboard() {
               {/* SECTION: GENERAL SPECS */}
               <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
                 <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">1. General Specifications</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="font-bold text-gray-600 uppercase">Property Category</label>
                     <select
@@ -5352,6 +5376,19 @@ export default function AdminDashboard() {
                       placeholder="e.g. 24500"
                       className="border border-gray-200 p-2.5 rounded"
                       required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-bold text-gray-600 uppercase">Actual Price (₹, Optional)</label>
+                    <input
+                      type="number"
+                      value={stayForm.actualPrice ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setStayForm({ ...stayForm, actualPrice: val === "" ? undefined : Number(val) });
+                      }}
+                      placeholder="e.g. 29000"
+                      className="border border-gray-200 p-2.5 rounded"
                     />
                   </div>
                 </div>
@@ -6468,7 +6505,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
                         <input
@@ -6485,6 +6522,19 @@ export default function AdminDashboard() {
                           value={packageForm.price}
                           onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
                           className="border p-2.5 rounded text-xs bg-white"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-600 uppercase">Actual Price (₹, Optional)</label>
+                        <input
+                          type="number"
+                          value={packageForm.actualPrice ?? ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setPackageForm({ ...packageForm, actualPrice: val === "" ? undefined : Number(val) });
+                          }}
+                          className="border p-2.5 rounded text-xs bg-white"
+                          placeholder="e.g. 15000"
                         />
                       </div>
                     </div>
@@ -7775,7 +7825,7 @@ export default function AdminDashboard() {
 
             <form onSubmit={handleSaveYoga} className="flex-grow overflow-y-auto p-6 space-y-6 text-xs">
               
-              <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gray-50 p-4 rounded border border-gray-100 grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="font-bold text-gray-600 uppercase">Program Type</label>
                   <select
@@ -7808,6 +7858,19 @@ export default function AdminDashboard() {
                     onChange={(e) => setYogaForm({ ...yogaForm, price: Number(e.target.value) })}
                     className="border p-2.5 rounded"
                     required
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-bold text-gray-600 uppercase">Actual Price (₹, Optional)</label>
+                  <input
+                    type="number"
+                    value={yogaForm.actualPrice ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setYogaForm({ ...yogaForm, actualPrice: val === "" ? undefined : Number(val) });
+                    }}
+                    className="border p-2.5 rounded"
+                    placeholder="e.g. 18000"
                   />
                 </div>
               </div>

@@ -64,7 +64,7 @@ export const getPackageItemBySlug = async (req: Request, res: Response): Promise
 
 export const createPackageItem = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { slug, price } = req.body;
+    const { slug, price, actualPrice } = req.body;
     const parsedCat = parseField(req.body.packageCategory);
     const packageCategory = Array.isArray(parsedCat) ? parsedCat : parsedCat ? [parsedCat] : [];
 
@@ -145,6 +145,7 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       title,
       slug,
       price: Number(price),
+      actualPrice: actualPrice ? Number(actualPrice) : undefined,
       pricePeriod,
       image: imageUrl,
       imagePublicId: imagePublicId,
@@ -241,6 +242,9 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
     }
     if (req.body.slug) item.slug = req.body.slug;
     if (req.body.price) item.price = Number(req.body.price);
+    if (req.body.actualPrice !== undefined) {
+      item.actualPrice = req.body.actualPrice ? Number(req.body.actualPrice) : undefined;
+    }
     if (req.body.video !== undefined) item.video = req.body.video;
     if (req.body.canonicalUrl !== undefined) item.canonicalUrl = req.body.canonicalUrl;
 

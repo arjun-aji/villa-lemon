@@ -64,7 +64,7 @@ export const getAccommodationItemBySlug = async (req: Request, res: Response): P
 
 export const createAccommodationItem = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { accommodationType, slug, price, bedrooms, bathrooms, guests, checkInTime, checkOutTime, mapLink } = req.body;
+    const { accommodationType, slug, price, actualPrice, bedrooms, bathrooms, guests, checkInTime, checkOutTime, mapLink } = req.body;
 
     const title = parseField(req.body.title);
     const pricePeriod = parseField(req.body.pricePeriod);
@@ -142,6 +142,7 @@ export const createAccommodationItem = async (req: Request, res: Response): Prom
       title,
       slug,
       price: Number(price),
+      actualPrice: actualPrice ? Number(actualPrice) : undefined,
       pricePeriod,
       image: coverImages[0] || "",
       imagePublicId: coverImagePublicIds[0] || "",
@@ -215,6 +216,9 @@ export const updateAccommodationItem = async (req: Request, res: Response): Prom
     if (req.body.accommodationType) item.accommodationType = req.body.accommodationType;
     if (req.body.slug) item.slug = req.body.slug;
     if (req.body.price) item.price = Number(req.body.price);
+    if (req.body.actualPrice !== undefined) {
+      item.actualPrice = req.body.actualPrice ? Number(req.body.actualPrice) : undefined;
+    }
     if (req.body.bedrooms) item.bedrooms = Number(req.body.bedrooms);
     if (req.body.bathrooms) item.bathrooms = Number(req.body.bathrooms);
     if (req.body.guests) item.guests = Number(req.body.guests);

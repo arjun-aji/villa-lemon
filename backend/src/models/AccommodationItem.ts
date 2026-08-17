@@ -65,6 +65,7 @@ const accommodationItemSchema = new Schema<IAccommodationItem>(
     title: { type: localizedTextSchema, required: true },
     slug: { type: String, required: true, unique: true },
     price: { type: Number, required: true },
+    actualPrice: { type: Number },
     pricePeriod: { type: localizedTextSchema, required: true },
     image: { type: String, required: true },
     imagePublicId: { type: String },

@@ -137,6 +137,7 @@ export default async function PackagesCatalogPage({
         title: lp.title,
         slug: lp.slug,
         price: lp.price,
+        actualPrice: lp.actualPrice,
         pricePeriod: lp.pricePeriod,
         image: lp.image,
         images: lp.images,
