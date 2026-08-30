@@ -7308,11 +7308,68 @@ export default function AdminDashboard() {
                     <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Morning / Primary Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
                     <div className="flex flex-col gap-3">
                       {(packageForm.itinerary || []).map((step, idx) => (
-                        <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
-                          <div>
-                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[10px] block">{step.timeOrDay[activeLangTab]}</span>
-                            <h5 className="font-serif font-semibold text-xs text-[#121212] mt-1">{step.activity[activeLangTab]}</h5>
-                            <p className="text-[11px] text-gray-500 font-light font-sans mt-0.5">{step.desc[activeLangTab]}</p>
+                        <div key={idx} className="flex items-center border bg-white p-3 rounded gap-3 shadow-sm">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-grow">
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
+                              <input
+                                type="text"
+                                value={step.timeOrDay[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itinerary = [...(packageForm.itinerary || [])];
+                                  itinerary[idx] = {
+                                    ...itinerary[idx],
+                                    timeOrDay: {
+                                      ...itinerary[idx].timeOrDay,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itinerary });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. 09:00 AM"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
+                              <input
+                                type="text"
+                                value={step.activity[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itinerary = [...(packageForm.itinerary || [])];
+                                  itinerary[idx] = {
+                                    ...itinerary[idx],
+                                    activity: {
+                                      ...itinerary[idx].activity,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itinerary });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. Pick-up"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
+                              <input
+                                type="text"
+                                value={step.desc[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itinerary = [...(packageForm.itinerary || [])];
+                                  itinerary[idx] = {
+                                    ...itinerary[idx],
+                                    desc: {
+                                      ...itinerary[idx].desc,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itinerary });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. Meeting at Villa Lemon..."
+                              />
+                            </div>
                           </div>
                           <button
                             type="button"
@@ -7321,9 +7378,9 @@ export default function AdminDashboard() {
                               itinerary.splice(idx, 1);
                               setPackageForm({ ...packageForm, itinerary });
                             }}
-                            className="text-red-500 mt-1 shrink-0"
+                            className="text-red-500 shrink-0 p-1.5 hover:bg-red-50 rounded transition-colors self-end sm:self-center mb-0.5 sm:mb-0"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
@@ -7372,11 +7429,68 @@ export default function AdminDashboard() {
                     <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Evening Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
                     <div className="flex flex-col gap-3">
                       {(packageForm.itineraryEvening || []).map((step, idx) => (
-                        <div key={idx} className="flex items-start justify-between border bg-white p-3 rounded gap-3">
-                          <div>
-                            <span className="font-bold text-brand-gold uppercase tracking-wider text-[10px] block">{step.timeOrDay[activeLangTab]}</span>
-                            <h5 className="font-serif font-semibold text-xs text-[#121212] mt-1">{step.activity[activeLangTab]}</h5>
-                            <p className="text-[11px] text-gray-500 font-light font-sans mt-0.5">{step.desc[activeLangTab]}</p>
+                        <div key={idx} className="flex items-center border bg-white p-3 rounded gap-3 shadow-sm">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-grow">
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
+                              <input
+                                type="text"
+                                value={step.timeOrDay[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                  itineraryEvening[idx] = {
+                                    ...itineraryEvening[idx],
+                                    timeOrDay: {
+                                      ...itineraryEvening[idx].timeOrDay,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itineraryEvening });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. 03:30 PM"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
+                              <input
+                                type="text"
+                                value={step.activity[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                  itineraryEvening[idx] = {
+                                    ...itineraryEvening[idx],
+                                    activity: {
+                                      ...itineraryEvening[idx].activity,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itineraryEvening });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. Pick-up"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
+                              <input
+                                type="text"
+                                value={step.desc[activeLangTab] || ""}
+                                onChange={(e) => {
+                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                  itineraryEvening[idx] = {
+                                    ...itineraryEvening[idx],
+                                    desc: {
+                                      ...itineraryEvening[idx].desc,
+                                      [activeLangTab]: e.target.value
+                                    }
+                                  };
+                                  setPackageForm({ ...packageForm, itineraryEvening });
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                placeholder="e.g. Meeting at Villa Lemon..."
+                              />
+                            </div>
                           </div>
                           <button
                             type="button"
@@ -7385,9 +7499,9 @@ export default function AdminDashboard() {
                               itineraryEvening.splice(idx, 1);
                               setPackageForm({ ...packageForm, itineraryEvening });
                             }}
-                            className="text-red-500 mt-1 shrink-0"
+                            className="text-red-500 shrink-0 p-1.5 hover:bg-red-50 rounded transition-colors self-end sm:self-center mb-0.5 sm:mb-0"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
