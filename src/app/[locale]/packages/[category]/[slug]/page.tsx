@@ -416,19 +416,19 @@ export default async function PackageDetailsPage({
       <main className="w-full bg-[#fbf9f6] text-[#121212] min-h-screen pb-16 font-sans">
         <PageAutoTranslator locale={locale}>
         {/* BANNER COVER PHOTO */}
-        <section className="relative w-full min-h-[300px] md:min-h-[400px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-12">
+        <section className="relative w-full min-h-[440px] md:min-h-[500px] lg:min-h-[540px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-36 pb-12 md:pb-14">
           <div className="absolute inset-0 z-0">
             {pkg.image ? (
               <ImageSlideshow
                 images={pkg.images}
                 defaultImage={pkg.image}
-                className="object-cover w-full h-full opacity-50 brightness-75 select-none"
+                className="object-cover w-full h-full opacity-85 brightness-95 select-none"
                 alt={pkg.title}
               />
             ) : (
               <div className="w-full h-full bg-brand-dark/80" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/30 to-black/10 z-10" />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full relative z-20">
@@ -450,56 +450,62 @@ export default async function PackageDetailsPage({
                   {category === "varkala-sightseeing" || category === "varkalaSightseeing" ? "Varkala Sightseeing" : category === "day-trips" || category === "dayTrips" ? "Day Trips" : category === "backwater-experiences" || category === "backwaterExperiences" ? "Backwater Experiences" : category === "varkala-packages" || category === "varkalaPackages" ? "Varkala Packages" : "Adventure Activities"}
                 </Link>
                 <span>&gt;</span>
-                <span className="text-brand-gold truncate max-w-[200px]">{pkg.title}</span>
+                <span className="text-brand-gold max-w-[280px] lg:max-w-md truncate">{pkg.title}</span>
               </div>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-3 sm:mb-4 tracking-wide leading-tight max-w-4xl">
               {pkg.title}
             </h1>
-            <p className="max-w-3xl text-sm sm:text-base md:text-lg text-brand-gold font-serif italic mb-6">
-              {pkg.tagline}
-            </p>
+            {pkg.tagline && (
+              <p className="max-w-3xl text-sm sm:text-base md:text-lg text-brand-gold font-serif italic mb-6 leading-relaxed">
+                {pkg.tagline}
+              </p>
+            )}
             
-            <div className="flex flex-col gap-6 md:flex-row md:items-center border-t border-white/10 pt-6 mt-8">
-              <div className="flex items-center gap-2.5 text-white select-none">
-                <Clock className="w-5 h-5 text-brand-gold" />
-                <div className="text-left">
-                  <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Duration</span>
-                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">{pkg.duration || "N/A"}</h4>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2.5 text-white select-none md:ml-8">
-                <Shield className="w-5 h-5 text-brand-gold" />
-                <div className="text-left">
-                  <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Pricing</span>
-                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">
-                    {pkg.price > 0 ? (
-                      <span className="flex items-center gap-1.5">
-                        {pkg.actualPrice && pkg.actualPrice > 0 && (
-                          <span className="line-through text-white/50 font-medium">₹{pkg.actualPrice.toLocaleString()}</span>
-                        )}
-                        <span>₹{pkg.price.toLocaleString()} {pkg.pricePeriod}</span>
-                      </span>
-                    ) : (
-                      "On Request"
-                    )}
-                  </h4>
-                </div>
-              </div>
-
-              {pkg.location && (
-                <div className="flex items-center gap-2.5 text-white select-none md:ml-8">
-                  <MapPin className="w-5 h-5 text-brand-gold" />
-                  <div className="text-left">
-                    <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Location</span>
-                    <h4 className="text-xs font-bold mt-1 uppercase tracking-wider truncate max-w-[220px]">{pkg.location}</h4>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-t border-white/15 pt-6 mt-6 md:mt-8">
+              {/* Metadata Info Badges */}
+              <div className="flex flex-wrap items-center gap-6 sm:gap-8 md:gap-10">
+                <div className="flex items-center gap-3 text-white select-none">
+                  <Clock className="w-5 h-5 text-brand-gold shrink-0" />
+                  <div className="text-left flex flex-col justify-center">
+                    <span className="text-[9px] text-white/50 block leading-none font-semibold uppercase tracking-wider">Duration</span>
+                    <h4 className="text-xs font-bold mt-1 uppercase tracking-wider text-white leading-tight">{pkg.duration || "N/A"}</h4>
                   </div>
                 </div>
-              )}
+                
+                <div className="flex items-center gap-3 text-white select-none">
+                  <Shield className="w-5 h-5 text-brand-gold shrink-0" />
+                  <div className="text-left flex flex-col justify-center">
+                    <span className="text-[9px] text-white/50 block leading-none font-semibold uppercase tracking-wider">Pricing</span>
+                    <h4 className="text-xs font-bold mt-1 uppercase tracking-wider text-white leading-tight">
+                      {pkg.price > 0 ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          {pkg.actualPrice && pkg.actualPrice > 0 && (
+                            <span className="line-through text-white/50 font-normal">₹{pkg.actualPrice.toLocaleString()}</span>
+                          )}
+                          <span>₹{pkg.price.toLocaleString()} {pkg.pricePeriod}</span>
+                        </span>
+                      ) : (
+                        "On Request"
+                      )}
+                    </h4>
+                  </div>
+                </div>
 
-              <div className="flex flex-wrap items-center gap-3 select-none md:ml-auto mt-4 sm:mt-0">
+                {pkg.location && (
+                  <div className="flex items-center gap-3 text-white select-none">
+                    <MapPin className="w-5 h-5 text-brand-gold shrink-0" />
+                    <div className="text-left flex flex-col justify-center">
+                      <span className="text-[9px] text-white/50 block leading-none font-semibold uppercase tracking-wider">Location</span>
+                      <h4 className="text-xs font-bold mt-1 uppercase tracking-wider text-white leading-tight truncate max-w-[220px]">{pkg.location}</h4>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-3 select-none">
                 <a
                   href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the package: ${encodeURIComponent(loc(pkg.title, locale))}`}
                   target="_blank"
@@ -619,11 +625,29 @@ export default async function PackageDetailsPage({
               </div>
             </div>
 
+            {/* Things to Bring */}
+            {pkg.thingsToBring.length > 0 && (
+              <div className="w-full bg-white border border-[#eae6db]/85 rounded-sm p-6 shadow-sm">
+                <h3 className="font-serif text-base font-semibold text-amber-800 mb-4 border-b border-[#eae6db] pb-3 flex items-center gap-2 select-none">
+                  <Briefcase className="w-4 h-4 text-amber-600" />
+                  <span>Things to Bring</span>
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 select-text text-xs text-gray-600 font-light leading-relaxed">
+                  {pkg.thingsToBring.map((tb, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                      <span>{tb}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
           </div>
 
           {/* Right Column: Top Sidebar (6 cols) */}
           <div className="lg:col-span-6 flex flex-col gap-8">
-            <div className="relative w-full h-[300px] lg:h-[460px] rounded-sm overflow-hidden shadow-sm border border-[#eae6db] select-none">
+            <div className="relative w-full aspect-[4/3] rounded-sm overflow-hidden shadow-sm border border-[#eae6db] select-none">
               <AboutImageSlider
                 images={pkg.aboutImages}
                 defaultImage={pkg.aboutImage}
@@ -632,20 +656,79 @@ export default async function PackageDetailsPage({
             </div>
 
             {/* Direct Booking WhatsApp Card */}
-            <div id="book" className="bg-[#121212] text-white p-6 rounded-sm shadow-lg select-none text-center">
-              <span className="text-[9px] text-brand-gold font-bold tracking-widest uppercase">Direct Booking</span>
-              <h4 className="font-serif text-lg font-normal text-white mt-1 mb-4">Chat with local coordinator</h4>
-              <p className="text-[11px] text-white/50 leading-relaxed font-light mb-6">
+            <div id="book" className="bg-[#121212] text-white p-6 rounded-sm shadow-lg select-none text-left">
+              <div className="text-center mb-5">
+                <span className="text-[9px] text-brand-gold font-bold tracking-widest uppercase">Direct Booking</span>
+                <h4 className="font-serif text-lg font-normal text-white mt-1">Chat with local coordinator</h4>
+              </div>
+
+              {/* Price section */}
+              <div className="flex justify-between items-baseline mb-4 pb-4 border-b border-white/10">
+                <span className="text-xs text-white/50 font-semibold uppercase tracking-wider">Price</span>
+                <span className="text-2xl font-bold text-white">
+                  {pkg.price > 0 ? (
+                    <span className="flex items-baseline gap-2">
+                      {pkg.actualPrice && pkg.actualPrice > 0 && (
+                        <span className="line-through text-white/40 text-base font-normal">₹{pkg.actualPrice.toLocaleString()}</span>
+                      )}
+                      <span className="text-brand-gold">₹{pkg.price.toLocaleString()}</span>
+                      {pkg.pricePeriod && (
+                        <span className="text-xs text-white/60 font-normal font-sans">{pkg.pricePeriod}</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-brand-gold text-lg">On Request</span>
+                  )}
+                </span>
+              </div>
+
+              {/* Key parameters (Duration & Location) */}
+              {(pkg.duration || pkg.location) && (
+                <div className="border-b border-white/10 pb-4 mb-4 space-y-2.5 text-xs">
+                  {pkg.duration && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/40 font-medium">Duration:</span>
+                      <span className="font-semibold text-white/90">{pkg.duration}</span>
+                    </div>
+                  )}
+                  {pkg.location && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/40 font-medium">Location:</span>
+                      <span className="font-semibold text-white/90 truncate max-w-[200px]">{pkg.location}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p className="text-[11px] text-white/50 leading-relaxed font-light mb-6 text-center">
                 Direct booking provides the most customizable experience details. Contact us on WhatsApp to confirm timing.
               </p>
-              <a
-                href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the package tour: ${encodeURIComponent(loc(pkg.title, locale))}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px]"
-              >
-                <span>{pkg.cta || tPkg.whatsappUs || "WhatsApp Us"}</span>
-              </a>
+
+              <div className="space-y-2.5 select-none">
+                <a
+                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the package tour: ${encodeURIComponent(loc(pkg.title, locale))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] shadow-sm"
+                >
+                  <Phone className="w-4 h-4 fill-white" />
+                  <span>WhatsApp Booking</span>
+                </a>
+
+                <BookingButton
+                  className="w-full flex items-center justify-center gap-2 bg-[#222222] hover:bg-[#2a2a2a] text-brand-gold hover:text-white font-bold uppercase tracking-wider text-[10px] py-3.5 rounded-sm transition-all duration-300 border border-white/10 shadow-xs cursor-pointer"
+                  context={`Package: ${loc(pkg.title, locale)}`}
+                >
+                  {tPkg.bookNow || "Book Now"}
+                </BookingButton>
+              </div>
+
+              {(pkg.cancellation || pkg.pickup) && (
+                <div className="mt-5 pt-4 border-t border-white/10 text-[10px] text-white/40 font-medium space-y-1.5">
+                  {pkg.cancellation && <p className="truncate">🛡️ <strong className="text-white/60 uppercase text-[9px] tracking-wide">Cancellation:</strong> {pkg.cancellation}</p>}
+                  {pkg.pickup && <p className="truncate">🚗 <strong className="text-white/60 uppercase text-[9px] tracking-wide">Pickup:</strong> {pkg.pickup}</p>}
+                </div>
+              )}
             </div>
 
             {/* HIGHLIGHTS */}
@@ -782,7 +865,7 @@ export default async function PackageDetailsPage({
           </div>
 
 
-          {/* Right: Why Choose, Things to bring & Guidelines (5 cols) */}
+          {/* Right: Why Choose & Guidelines (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-8">
             
             {/* Why choose this experience */}
@@ -804,24 +887,6 @@ export default async function PackageDetailsPage({
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Things to Bring */}
-            {pkg.thingsToBring.length > 0 && (
-              <div className="bg-white border border-[#eae6db]/85 rounded-sm p-6 shadow-sm">
-                <h3 className="font-serif text-base font-semibold text-amber-800 mb-4 border-b border-[#eae6db] pb-3 flex items-center gap-2 select-none">
-                  <Briefcase className="w-4 h-4 text-amber-600" />
-                  <span>Things to Bring</span>
-                </h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 select-text text-xs text-gray-600 font-light leading-relaxed">
-                  {pkg.thingsToBring.map((tb, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-1.5" />
-                      <span>{tb}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
 

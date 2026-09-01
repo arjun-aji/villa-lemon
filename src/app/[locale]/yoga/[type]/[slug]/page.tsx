@@ -358,15 +358,15 @@ interface LocalizedYogaDetails {
         <PageAutoTranslator locale={locale}>
         
         {/* BANNER COVER PHOTO */}
-        <section className="relative w-full min-h-[280px] md:min-h-[340px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-28 pb-10">
+        <section className="relative w-full min-h-[440px] md:min-h-[500px] lg:min-h-[540px] flex items-end bg-[#121212] overflow-hidden pt-32 md:pt-36 pb-12 md:pb-14">
           <div className="absolute inset-0 z-0">
             <ImageSlideshow
               images={yoga.images}
               defaultImage={yoga.image}
-              className="object-cover w-full h-full opacity-50 brightness-75 select-none"
+              className="object-cover w-full h-full opacity-85 brightness-95 select-none"
               alt={yoga.title}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/30 to-black/10 z-10" />
           </div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-12 w-full relative z-20">
@@ -388,40 +388,46 @@ interface LocalizedYogaDetails {
                   {type === "retreats" ? "Yoga Retreats" : type === "classes" ? "Daily Yoga Classes" : type === "private" ? "Private Yoga Sessions" : "Our Teachers"}
                 </Link>
                 <span>&gt;</span>
-                <span className="text-brand-gold">{yoga.title}</span>
+                <span className="text-brand-gold max-w-[280px] lg:max-w-md truncate">{yoga.title}</span>
               </div>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-4 tracking-wide leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white font-normal mb-3 sm:mb-4 tracking-wide leading-tight max-w-4xl">
               {yoga.title}
             </h1>
-            <p className="max-w-3xl text-sm sm:text-base md:text-lg text-brand-gold font-serif italic mb-6">
-              {yoga.tagline}
-            </p>
+            {yoga.tagline && (
+              <p className="max-w-3xl text-sm sm:text-base md:text-lg text-brand-gold font-serif italic mb-6 leading-relaxed">
+                {yoga.tagline}
+              </p>
+            )}
             
-            <div className="flex flex-col gap-6 md:flex-row md:items-center border-t border-white/10 pt-6 mt-8">
-              <div className="flex items-center gap-2.5 text-white select-none">
-                <Clock className="w-5 h-5 text-brand-gold" />
-                <div className="text-left">
-                  <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Program Type</span>
-                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">{yoga.duration}</h4>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-t border-white/15 pt-6 mt-6 md:mt-8">
+              {/* Metadata Info Badges */}
+              <div className="flex flex-wrap items-center gap-6 sm:gap-8 md:gap-10">
+                <div className="flex items-center gap-3 text-white select-none">
+                  <Clock className="w-5 h-5 text-brand-gold shrink-0" />
+                  <div className="text-left flex flex-col justify-center">
+                    <span className="text-[9px] text-white/50 block leading-none font-semibold uppercase tracking-wider">Program Type</span>
+                    <h4 className="text-xs font-bold mt-1 uppercase tracking-wider text-white leading-tight">{yoga.duration}</h4>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-2.5 text-white select-none md:ml-8">
-                <Shield className="w-5 h-5 text-brand-gold" />
-                <div className="text-left">
-                  <span className="text-[9px] text-white/40 block leading-none font-semibold uppercase">Investment</span>
-                  <h4 className="text-xs font-bold mt-1 uppercase tracking-wider">
-                    {yoga.actualPrice && yoga.actualPrice > 0 && (
-                      <span className="line-through text-white/50 font-medium mr-1.5">₹{yoga.actualPrice.toLocaleString()}</span>
-                    )}
-                    <span>₹{yoga.price.toLocaleString()} {yoga.pricePeriod}</span>
-                  </h4>
+                
+                <div className="flex items-center gap-3 text-white select-none">
+                  <Shield className="w-5 h-5 text-brand-gold shrink-0" />
+                  <div className="text-left flex flex-col justify-center">
+                    <span className="text-[9px] text-white/50 block leading-none font-semibold uppercase tracking-wider">Investment</span>
+                    <h4 className="text-xs font-bold mt-1 uppercase tracking-wider text-white leading-tight">
+                      {yoga.actualPrice && yoga.actualPrice > 0 && (
+                        <span className="line-through text-white/50 font-normal mr-1.5">₹{yoga.actualPrice.toLocaleString()}</span>
+                      )}
+                      <span>₹{yoga.price.toLocaleString()} {yoga.pricePeriod}</span>
+                    </h4>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 select-none md:ml-auto mt-4 sm:mt-0">
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-3 select-none">
                 <a
                   href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to book the yoga program: ${encodeURIComponent(yoga.title)}`}
                   target="_blank"
@@ -554,20 +560,64 @@ interface LocalizedYogaDetails {
             )}
 
             {/* Side CTA Panel */}
-            <div id="book" className="bg-[#121212] text-white p-6 rounded-md shadow-lg select-none text-center">
-              <span className="text-[9px] text-brand-gold font-bold tracking-widest uppercase">Direct Booking</span>
-              <h4 className="font-serif text-lg font-normal text-white mt-1 mb-4">Request wellness package</h4>
-              <p className="text-[11px] text-white/50 leading-relaxed font-light mb-6">
+            <div id="book" className="bg-[#121212] text-white p-6 rounded-md shadow-lg select-none text-left">
+              <div className="text-center mb-5">
+                <span className="text-[9px] text-brand-gold font-bold tracking-widest uppercase">Direct Booking</span>
+                <h4 className="font-serif text-lg font-normal text-white mt-1">Request wellness package</h4>
+              </div>
+
+              {/* Price section */}
+              <div className="flex justify-between items-baseline mb-4 pb-4 border-b border-white/10">
+                <span className="text-xs text-white/50 font-semibold uppercase tracking-wider">Price</span>
+                <span className="text-2xl font-bold text-white">
+                  {yoga.price > 0 ? (
+                    <span className="flex items-baseline gap-2">
+                      {yoga.actualPrice && yoga.actualPrice > 0 && (
+                        <span className="line-through text-white/40 text-base font-normal">₹{yoga.actualPrice.toLocaleString()}</span>
+                      )}
+                      <span className="text-brand-gold">₹{yoga.price.toLocaleString()}</span>
+                      {yoga.pricePeriod && (
+                        <span className="text-xs text-white/60 font-normal font-sans">{yoga.pricePeriod}</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-brand-gold text-lg">On Request</span>
+                  )}
+                </span>
+              </div>
+
+              {/* Key parameters (Duration) */}
+              {yoga.duration && (
+                <div className="border-b border-white/10 pb-4 mb-4 space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/40 font-medium">Program Type:</span>
+                    <span className="font-semibold text-white/90">{yoga.duration}</span>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-[11px] text-white/50 leading-relaxed font-light mb-6 text-center">
                 Consult with our Acharyas to design a personal retreat or schedule a private therapy session.
               </p>
-              <a
-                href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to consult/book the yoga package: ${encodeURIComponent(yoga.title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px]"
-              >
-                <span>Chat on WhatsApp</span>
-              </a>
+
+              <div className="space-y-2.5 select-none">
+                <a
+                  href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hi, I would like to consult/book the yoga package: ${encodeURIComponent(yoga.title)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider py-3.5 rounded-sm transition-all duration-300 text-[10px] shadow-sm"
+                >
+                  <Phone className="w-4 h-4 fill-white" />
+                  <span>WhatsApp Booking</span>
+                </a>
+
+                <BookingButton
+                  className="w-full flex items-center justify-center gap-2 bg-[#222222] hover:bg-[#2a2a2a] text-brand-gold hover:text-white font-bold uppercase tracking-wider text-[10px] py-3.5 rounded-sm transition-all duration-300 border border-white/10 shadow-xs cursor-pointer"
+                  context={`Yoga Program: ${yoga.title}`}
+                >
+                  {tYoga.bookNow || "Book Now"}
+                </BookingButton>
+              </div>
             </div>
           </div>
 
