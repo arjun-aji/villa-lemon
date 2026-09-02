@@ -92,6 +92,42 @@ const pricingRowSchema = new Schema({
   upgradeCost: { type: Number, default: 0 },
 }, { _id: false });
 
+const retreatMonthPricingSchema = new Schema({
+  month: { type: L },
+  year: { type: String, default: "" },
+  startDate: { type: String, default: "" },
+  endDate: { type: String, default: "" },
+  regularPrice: { type: Number, default: 0 },
+  discountedPrice: { type: Number },
+  discountPercentage: { type: String, default: "" },
+  availableSpots: { type: Number },
+  availabilityStatus: { type: String, enum: ["available", "limited", "sold_out"], default: "available" },
+  isFeatured: { type: Boolean, default: false },
+  bookingEnabled: { type: Boolean, default: true },
+}, { _id: true });
+
+const retreatOfferSchema = new Schema({
+  enableOfferBanner: { type: Boolean, default: false },
+  badge: { type: L },
+  title: { type: L },
+  description: { type: L },
+  discountType: { type: String, default: "percentage" },
+  discountValue: { type: Number, default: 0 },
+  bookingDeadline: { type: String, default: "" },
+  applicableMonths: { type: L },
+  ctaText: { type: L },
+}, { _id: false });
+
+const retreatAdvancedPricingSchema = new Schema({
+  enabled: { type: Boolean, default: false },
+  currency: { type: String, default: "USD" },
+  priceDisplayLabel: { type: L },
+  pricePeriodLabel: { type: L },
+  footnoteText: { type: L },
+  offer: { type: retreatOfferSchema, default: () => ({}) },
+  monthlyPricing: [retreatMonthPricingSchema],
+}, { _id: false });
+
 const faqSchema = new Schema({
   question: { type: L },
   answer: { type: L },
@@ -184,6 +220,7 @@ const retreatSchema = new Schema<IRetreat>({
 
   // Pricing
   pricingRows: [pricingRowSchema],
+  advancedPricing: { type: retreatAdvancedPricingSchema, default: () => ({ enabled: false, monthlyPricing: [] }) },
 
   // Checklists
   inclusions: [L],

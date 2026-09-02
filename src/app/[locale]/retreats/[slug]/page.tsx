@@ -67,6 +67,7 @@ import { getContactSettings } from "@/utils/contactSettings";
 import BookingButton from "@/components/BookingButton";
 import RetreatGalleryClient from "@/components/RetreatGalleryClient";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
+import YogaRetreatPricingSection from "@/components/YogaRetreatPricingSection";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -167,6 +168,7 @@ interface RetreatDetail {
   checkOut?: string;
   bookingTerms?: Record<string, string>;
   images?: string[];
+  advancedPricing?: any;
 }
 
 async function getRetreatDetails(slug: string): Promise<RetreatDetail | null> {
@@ -210,6 +212,11 @@ export default async function RetreatDetailsPage({
   };
 
   const retreat = rawRetreat;
+  const isAdvancedPricingEnabled = Boolean(
+    retreat.advancedPricing?.enabled &&
+    retreat.advancedPricing?.monthlyPricing &&
+    retreat.advancedPricing.monthlyPricing.length > 0
+  );
 
   return (
     <>
@@ -341,10 +348,10 @@ export default async function RetreatDetailsPage({
           </section>
 
           {/* MAIN PAGE BODY GRID */}
-          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-12 grid grid-cols-1 lg:grid-cols-12 gap-12 text-left">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
             
             {/* LEFT COLUMN: RETREAT DETAILS */}
-            <div className="lg:col-span-8 flex flex-col space-y-12">
+            <div className="lg:col-span-7 flex flex-col space-y-12">
               
               {/* SECTION: OVERVIEW */}
               <div className="bg-white border border-[#eae6db]/60 p-6 md:p-8 rounded-sm shadow-sm">
@@ -675,75 +682,83 @@ export default async function RetreatDetailsPage({
             </div>
 
             {/* RIGHT COLUMN: BOOKING SIDEBAR CARD */}
-            <div className="lg:col-span-4 flex flex-col space-y-6">
-              <div className="sticky top-28 space-y-6">
-                <div id="booking-pricing" className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
-                   {!retreat.hideRate && (
-                    <div className="flex justify-between items-baseline mb-4">
-                      <span className="text-xs text-gray-400 font-semibold uppercase">Price</span>
-                      <span className="text-2xl font-bold text-gray-800">
-                        {retreat.price > 0 ? (
-                          <span className="flex items-baseline gap-2">
-                            {retreat.actualPrice && retreat.actualPrice > 0 && (
-                              <span className="line-through text-gray-400 text-base font-medium">${retreat.actualPrice.toLocaleString()}</span>
-                            )}
-                            <span>${retreat.price.toLocaleString()}</span>
-                          </span>
-                        ) : (
-                          "On Request"
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="border-t border-b border-gray-100 py-4 my-4 space-y-3 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Duration:</span>
-                      <span className="font-semibold text-gray-800">{retreat.days} Days / {retreat.nights} Nights</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400 font-medium">Location:</span>
-                      <span className="font-semibold text-gray-800">{loc(retreat.location)}</span>
-                    </div>
-                    {retreat.availableDates && retreat.availableDates.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-gray-400 font-medium">Available Dates:</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {retreat.availableDates.map((date, idx) => (
-                            <span key={idx} className="bg-gray-50 border border-gray-150 text-gray-600 text-[10px] px-2 py-0.5 rounded-sm font-medium">{date}</span>
-                          ))}
-                        </div>
+            <div className="lg:col-span-5 h-full relative">
+              <div className="sticky top-28 space-y-6 z-10">
+                {isAdvancedPricingEnabled ? (
+                  <YogaRetreatPricingSection
+                    retreat={retreat}
+                    locale={locale}
+                    contact={contact}
+                  />
+                ) : (
+                  <div id="booking-pricing" className="bg-white border border-[#eae6db]/70 rounded-sm shadow-sm p-6 text-left">
+                     {!retreat.hideRate && (
+                      <div className="flex justify-between items-baseline mb-4">
+                        <span className="text-xs text-gray-400 font-semibold uppercase">Price</span>
+                        <span className="text-2xl font-bold text-gray-800">
+                          {retreat.price > 0 ? (
+                            <span className="flex items-baseline gap-2">
+                              {retreat.actualPrice && retreat.actualPrice > 0 && (
+                                <span className="line-through text-gray-400 text-base font-medium">${retreat.actualPrice.toLocaleString()}</span>
+                              )}
+                              <span>${retreat.price.toLocaleString()}</span>
+                            </span>
+                          ) : (
+                            "On Request"
+                          )}
+                        </span>
                       </div>
                     )}
-                  </div>
 
-                  {/* WhatsApp & Email CTA Buttons */}
-                  <div className="space-y-2 mt-6 select-none">
-                    <a
-                      href={`https://wa.me/${(contact.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
-                    >
-                      <Phone className="w-4 h-4 fill-white" />
-                      WhatsApp Booking
-                    </a>
+                    <div className="border-t border-b border-gray-100 py-4 my-4 space-y-3 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400 font-medium">Duration:</span>
+                        <span className="font-semibold text-gray-800">{retreat.days} Days / {retreat.nights} Nights</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400 font-medium">Location:</span>
+                        <span className="font-semibold text-gray-800">{loc(retreat.location)}</span>
+                      </div>
+                      {retreat.availableDates && retreat.availableDates.length > 0 && (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-gray-400 font-medium">Available Dates:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {retreat.availableDates.map((date, idx) => (
+                              <span key={idx} className="bg-gray-50 border border-gray-150 text-gray-600 text-[10px] px-2 py-0.5 rounded-sm font-medium">{date}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-                    <BookingButton
-                      context="retreat"
-                      className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black cursor-pointer"
-                    >
-                      Book Now
-                    </BookingButton>
-                  </div>
+                    {/* WhatsApp & Email CTA Buttons */}
+                    <div className="space-y-2 mt-6 select-none">
+                      <a
+                        href={`https://wa.me/${(contact?.whatsapp || "+91 73560 85055").replace(/[^0-9]/g, "")}?text=Hello%20Villa%20Lemon,%20I%20am%20interested%20in%20booking%20the%20retreat:%20${encodeURIComponent(loc(retreat.heroTitle))}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#20ba5a] text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all shadow-sm"
+                      >
+                        <Phone className="w-4 h-4 fill-white" />
+                        WhatsApp Booking
+                      </a>
 
-                  {/* Checklist/Policies info inside sidebar card */}
-                  <div className="mt-6 pt-5 border-t border-gray-100 text-[10px] text-gray-400 font-medium space-y-2.5">
-                    {retreat.deposit && <p>🔑 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Deposit:</strong> {loc(retreat.deposit)}</p>}
-                    {retreat.cancellation && <p>🛡️ <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Cancellation:</strong> {loc(retreat.cancellation)}</p>}
-                    {retreat.pickup && <p>🚗 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Airport Pick-up:</strong> {loc(retreat.pickup)}</p>}
+                      <BookingButton
+                        context="retreat"
+                        className="w-full flex items-center justify-center gap-2 bg-[#121212] hover:bg-black text-white font-bold uppercase tracking-wider text-[10px] py-3 rounded-sm transition-all border border-black cursor-pointer"
+                      >
+                        Book Now
+                      </BookingButton>
+                    </div>
+
+                    {/* Checklist/Policies info inside sidebar card */}
+                    <div className="mt-6 pt-5 border-t border-gray-100 text-[10px] text-gray-400 font-medium space-y-2.5">
+                      {retreat.deposit && <p>🔑 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Deposit:</strong> {loc(retreat.deposit)}</p>}
+                      {retreat.cancellation && <p>🛡️ <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Cancellation:</strong> {loc(retreat.cancellation)}</p>}
+                      {retreat.pickup && <p>🚗 <strong className="text-gray-500 uppercase text-[9px] tracking-wide">Airport Pick-up:</strong> {loc(retreat.pickup)}</p>}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Best Time to Join Card */}
                 {retreat.bestTime && (

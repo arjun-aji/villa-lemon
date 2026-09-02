@@ -423,6 +423,43 @@ export interface IRetreatCertificate {
   description: ILocalizedText;
 }
 
+export interface IRetreatMonthPricing {
+  _id?: string;
+  month: ILocalizedText;
+  year?: string;
+  startDate?: string;
+  endDate?: string;
+  regularPrice: number;
+  discountedPrice?: number;
+  discountPercentage?: string;
+  availableSpots?: number;
+  availabilityStatus?: "available" | "limited" | "sold_out";
+  isFeatured?: boolean;
+  bookingEnabled?: boolean;
+}
+
+export interface IRetreatPromotionalOffer {
+  enableOfferBanner?: boolean;
+  badge?: ILocalizedText;
+  title?: ILocalizedText;
+  description?: ILocalizedText;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
+  bookingDeadline?: string;
+  applicableMonths?: ILocalizedText;
+  ctaText?: ILocalizedText;
+}
+
+export interface IRetreatAdvancedPricing {
+  enabled?: boolean;
+  currency?: string;
+  priceDisplayLabel?: ILocalizedText;
+  pricePeriodLabel?: ILocalizedText;
+  footnoteText?: ILocalizedText;
+  offer?: IRetreatPromotionalOffer;
+  monthlyPricing?: IRetreatMonthPricing[];
+}
+
 export interface IRetreat extends Document {
   // General Info
   yogaType?: string;
@@ -495,6 +532,7 @@ export interface IRetreat extends Document {
 
   // Pricing
   pricingRows: IRetreatPricingRow[];
+  advancedPricing?: IRetreatAdvancedPricing;
 
   // Checklists
   inclusions: ILocalizedText[];

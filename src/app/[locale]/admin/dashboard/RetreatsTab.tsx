@@ -57,6 +57,7 @@ const FORM_TABS = [
   { id: "general", label: "General Info", icon: Settings },
   { id: "content", label: "Content", icon: FileText },
   { id: "media", label: "Media", icon: CameraIcon },
+  { id: "pricing", label: "Pricing & Offers", icon: DollarSign },
   { id: "highlights", label: "Highlights & Schedule", icon: Star },
   { id: "itinerary", label: "Itinerary & Excursions", icon: BookOpen },
   { id: "accommodation", label: "Rooms & Meals", icon: Home },
@@ -75,6 +76,79 @@ function CameraIcon(props: any) {
       <circle cx="12" cy="13" r="3" />
     </svg>
   );
+}
+
+const MONTH_NAMES = [
+  { en: "January", de: "Januar", fr: "Janvier", ru: "Январь" },
+  { en: "February", de: "Februar", fr: "Février", ru: "Февраль" },
+  { en: "March", de: "März", fr: "Mars", ru: "Март" },
+  { en: "April", de: "April", fr: "Avril", ru: "Апрель" },
+  { en: "May", de: "Mai", fr: "Mai", ru: "Май" },
+  { en: "June", de: "Juni", fr: "Juin", ru: "Июнь" },
+  { en: "July", de: "Juli", fr: "Juillet", ru: "Июль" },
+  { en: "August", de: "August", fr: "Août", ru: "Август" },
+  { en: "September", de: "September", fr: "Septembre", ru: "Сентябрь" },
+  { en: "October", de: "Oktober", fr: "Octobre", ru: "Октябрь" },
+  { en: "November", de: "November", fr: "Novembre", ru: "Ноябрь" },
+  { en: "December", de: "Dezember", fr: "Décembre", ru: "Декабрь" },
+];
+
+function getNextRetreatMonth(existingList: any[] = []) {
+  const currentYear = 2026;
+  if (!existingList || existingList.length === 0) {
+    // Start with October 2026
+    const startIdx = 9; // October (0-indexed)
+    const m = MONTH_NAMES[startIdx];
+    return {
+      month: {
+        en: `${m.en} ${currentYear}`,
+        de: `${m.de} ${currentYear}`,
+        fr: `${m.fr} ${currentYear}`,
+        ru: `${m.ru} ${currentYear}`,
+      },
+      year: String(currentYear),
+    };
+  }
+
+  // Parse the last entry to find month & year
+  const last = existingList[existingList.length - 1];
+  const lastText = (last.month?.en || "").trim();
+  let lastMonthIdx = -1;
+  let lastYear = parseInt(last.year) || currentYear;
+
+  for (let i = 0; i < MONTH_NAMES.length; i++) {
+    if (new RegExp(MONTH_NAMES[i].en, "i").test(lastText)) {
+      lastMonthIdx = i;
+      break;
+    }
+  }
+
+  const matchYear = lastText.match(/\b(20\d\d)\b/);
+  if (matchYear) {
+    lastYear = parseInt(matchYear[1]);
+  }
+
+  if (lastMonthIdx === -1) {
+    lastMonthIdx = (existingList.length + 8) % 12;
+  }
+
+  let nextMonthIdx = lastMonthIdx + 1;
+  let nextYear = lastYear;
+  if (nextMonthIdx >= 12) {
+    nextMonthIdx = 0;
+    nextYear += 1;
+  }
+
+  const nextM = MONTH_NAMES[nextMonthIdx];
+  return {
+    month: {
+      en: `${nextM.en} ${nextYear}`,
+      de: `${nextM.de} ${nextYear}`,
+      fr: `${nextM.fr} ${nextYear}`,
+      ru: `${nextM.ru} ${nextYear}`,
+    },
+    year: String(nextYear),
+  };
 }
 
 // ─── Default form state ────────────────────────────────────────────────────────
@@ -152,6 +226,39 @@ const defaultForm = () => ({
   metaTitle: emptyLT(),
   metaDescription: emptyLT(),
   keywords: emptyLT(),
+  // Advanced Pricing
+  advancedPricing: {
+    enabled: false,
+    currency: "USD",
+    priceDisplayLabel: { en: "Starting from", de: "Ab", fr: "À partir de", ru: "От" } as LT,
+    pricePeriodLabel: { en: "per person", de: "pro Person", fr: "par personne", ru: "за человека" } as LT,
+    footnoteText: { en: "Prices are per person • All prices in USD • Subject to availability", de: "", fr: "", ru: "" } as LT,
+    offer: {
+      enableOfferBanner: false,
+      badge: emptyLT(),
+      title: emptyLT(),
+      description: emptyLT(),
+      discountType: "percentage" as const,
+      discountValue: 0,
+      bookingDeadline: "",
+      applicableMonths: emptyLT(),
+      ctaText: emptyLT(),
+    },
+    monthlyPricing: [] as Array<{
+      _id?: string;
+      month: LT;
+      year: string;
+      startDate: string;
+      endDate: string;
+      regularPrice: number;
+      discountedPrice?: number;
+      discountPercentage?: string;
+      availableSpots?: number;
+      availabilityStatus: "available" | "limited" | "sold_out";
+      isFeatured: boolean;
+      bookingEnabled: boolean;
+    }>,
+  },
   // Arrays
   highlights: [] as { icon: string; title: LT; description: LT }[],
   dailySchedule: [] as { time: string; activity: LT; description: LT; icon: string }[],
@@ -288,6 +395,24 @@ export default function RetreatsTab({
     fetchTeachers();
   }, [fetchTeachers]);
 
+  const populateForm = (data?: any, defaultType: string = "retreats") => {
+    const base = defaultForm();
+    if (!data) return { ...base, yogaType: defaultType };
+    return {
+      ...base,
+      ...data,
+      advancedPricing: {
+        ...base.advancedPricing,
+        ...(data.advancedPricing || {}),
+        offer: {
+          ...base.advancedPricing.offer,
+          ...(data.advancedPricing?.offer || {}),
+        },
+        monthlyPricing: data.advancedPricing?.monthlyPricing || [],
+      },
+    };
+  };
+
   // Sync state if modalMode is enabled
   useEffect(() => {
     if (modalMode) {
@@ -295,11 +420,11 @@ export default function RetreatsTab({
       if (isOpen) {
         if (editingItem) {
           setEditing(editingItem);
-          setForm({ ...defaultForm(), ...editingItem });
+          setForm(populateForm(editingItem, defaultYogaType));
           setHeroImagePreview(editingItem.heroImage || "");
         } else {
           setEditing(null);
-          setForm({ ...defaultForm(), yogaType: defaultYogaType });
+          setForm(populateForm(null, defaultYogaType));
           setHeroImagePreview("");
         }
         setHeroImageFile(null);
@@ -339,7 +464,7 @@ export default function RetreatsTab({
 
   const openCreate = () => {
     setEditing(null);
-    setForm(defaultForm());
+    setForm(populateForm(null, defaultYogaType));
     setHeroImageFile(null);
     setHeroImagePreview("");
     setActiveFormTab("general");
@@ -349,7 +474,7 @@ export default function RetreatsTab({
 
   const openEdit = (r: Retreat) => {
     setEditing(r);
-    setForm({ ...defaultForm(), ...(r as any) });
+    setForm(populateForm(r, defaultYogaType));
     setHeroImageFile(null);
     setHeroImagePreview(r.heroImage || "");
     setActiveFormTab("general");
@@ -404,6 +529,7 @@ export default function RetreatsTab({
       numFields.forEach(k => fd.append(k, String((form as any)[k] || 0)));
       ltFields.forEach(k => fd.append(k, JSON.stringify((form as any)[k] || emptyLT())));
       arrFields.forEach(k => fd.append(k, JSON.stringify((form as any)[k] || [])));
+      fd.append("advancedPricing", JSON.stringify(form.advancedPricing));
 
       const url = editing ? `${API_BASE_URL}/api/retreats/${editing._id}` : `${API_BASE_URL}/api/retreats`;
       const method = editing ? "PUT" : "POST";
@@ -723,6 +849,502 @@ export default function RetreatsTab({
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Pricing & Offers (Yoga Retreat Dynamic Monthly Pricing) ── */}
+        {activeFormTab === "pricing" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Enable Advanced Pricing Toggle Banner */}
+            <div className="bg-gradient-to-r from-amber-50/70 via-emerald-50/50 to-amber-50/70 p-5 rounded border border-brand-gold/30 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <span className="font-serif text-sm font-semibold text-gray-900 block">
+                    Enable Advanced Yoga Retreat Pricing
+                  </span>
+                  <p className="text-[11px] text-gray-500 font-light mt-0.5">
+                    Switch ON to activate the month-wise retreat pricing carousel and promotional discount banner. When OFF, the standard simple price ({form.price ? `$${form.price}` : "fallback"}) is used.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer select-none shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={form.advancedPricing?.enabled || false}
+                    onChange={(e) =>
+                      setF("advancedPricing", {
+                        ...form.advancedPricing,
+                        enabled: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+            </div>
+
+            {/* Section 1: Price Display Settings */}
+            <div className="bg-gray-50 p-5 rounded border border-gray-200 space-y-4">
+              <span className="font-serif text-sm font-semibold text-gray-800 block border-b pb-2">
+                1. Price Display Settings
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="font-bold text-gray-600 uppercase text-[9px] tracking-wider">
+                    Currency Symbol / Code
+                  </label>
+                  <input
+                    type="text"
+                    value={form.advancedPricing?.currency || "USD"}
+                    onChange={(e) =>
+                      setF("advancedPricing", {
+                        ...form.advancedPricing,
+                        currency: e.target.value,
+                      })
+                    }
+                    placeholder="USD or $"
+                    className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                  />
+                </div>
+                <LocalInput
+                  value={form.advancedPricing?.priceDisplayLabel || emptyLT()}
+                  onChange={(v) =>
+                    setF("advancedPricing", {
+                      ...form.advancedPricing,
+                      priceDisplayLabel: v,
+                    })
+                  }
+                  label="Price Display Label"
+                  activeLang={activeLangTab}
+                  placeholder="Starting from"
+                />
+                <LocalInput
+                  value={form.advancedPricing?.pricePeriodLabel || emptyLT()}
+                  onChange={(v) =>
+                    setF("advancedPricing", {
+                      ...form.advancedPricing,
+                      pricePeriodLabel: v,
+                    })
+                  }
+                  label="Price Period Label"
+                  activeLang={activeLangTab}
+                  placeholder="per person or / person"
+                />
+              </div>
+              <LocalInput
+                value={form.advancedPricing?.footnoteText || emptyLT()}
+                onChange={(v) =>
+                  setF("advancedPricing", {
+                    ...form.advancedPricing,
+                    footnoteText: v,
+                  })
+                }
+                label="Pricing Footnote Note"
+                activeLang={activeLangTab}
+                placeholder="Prices are per person • All prices in USD • Subject to availability"
+              />
+            </div>
+
+            {/* Section 2: Promotional Offer Banner */}
+            <div className="bg-gray-50 p-5 rounded border border-gray-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <div>
+                  <span className="font-serif text-sm font-semibold text-gray-800 block">
+                    2. Promotional / Discount Offer Banner
+                  </span>
+                  <p className="text-[10px] text-gray-500 font-light">
+                    Highlight early-bird or seasonal discount offers prominently above the month selector.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer select-none shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={form.advancedPricing?.offer?.enableOfferBanner || false}
+                    onChange={(e) =>
+                      setF("advancedPricing", {
+                        ...form.advancedPricing,
+                        offer: {
+                          ...form.advancedPricing.offer,
+                          enableOfferBanner: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              {form.advancedPricing?.offer?.enableOfferBanner && (
+                <div className="space-y-4 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <LocalInput
+                      value={form.advancedPricing.offer.badge || emptyLT()}
+                      onChange={(v) =>
+                        setF("advancedPricing", {
+                          ...form.advancedPricing,
+                          offer: { ...form.advancedPricing.offer, badge: v },
+                        })
+                      }
+                      label="Offer Badge"
+                      activeLang={activeLangTab}
+                      placeholder="10% OFF"
+                    />
+                    <LocalInput
+                      value={form.advancedPricing.offer.title || emptyLT()}
+                      onChange={(v) =>
+                        setF("advancedPricing", {
+                          ...form.advancedPricing,
+                          offer: { ...form.advancedPricing.offer, title: v },
+                        })
+                      }
+                      label="Offer Title"
+                      activeLang={activeLangTab}
+                      placeholder="BOOK EARLY & SAVE MORE!"
+                    />
+                  </div>
+                  <LocalTextarea
+                    value={form.advancedPricing.offer.description || emptyLT()}
+                    onChange={(v) =>
+                      setF("advancedPricing", {
+                        ...form.advancedPricing,
+                        offer: { ...form.advancedPricing.offer, description: v },
+                      })
+                    }
+                    label="Offer Description"
+                    activeLang={activeLangTab}
+                    placeholder="Get up to 10% OFF when you book before 31 May, 2025"
+                    rows={2}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="font-bold text-gray-600 uppercase text-[9px] tracking-wider">
+                        Booking Deadline (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={form.advancedPricing.offer.bookingDeadline || ""}
+                        onChange={(e) =>
+                          setF("advancedPricing", {
+                            ...form.advancedPricing,
+                            offer: { ...form.advancedPricing.offer, bookingDeadline: e.target.value },
+                          })
+                        }
+                        placeholder="31 May, 2025"
+                        className="border border-gray-200 p-2.5 rounded text-xs bg-white"
+                      />
+                    </div>
+                    <LocalInput
+                      value={form.advancedPricing.offer.applicableMonths || emptyLT()}
+                      onChange={(v) =>
+                        setF("advancedPricing", {
+                          ...form.advancedPricing,
+                          offer: { ...form.advancedPricing.offer, applicableMonths: v },
+                        })
+                      }
+                      label="Applicable Retreat Months (Optional)"
+                      activeLang={activeLangTab}
+                      placeholder="May 2025 - September 2025"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section 3: Monthly Retreat Pricing Cards Repeater */}
+            <div className="bg-gray-50 p-5 rounded border border-gray-200 space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <div>
+                  <span className="font-serif text-sm font-semibold text-gray-800 block">
+                    3. Monthly Retreat Pricing Cards
+                  </span>
+                  <p className="text-[10px] text-gray-500 font-light">
+                    Add retreat months, regular and discounted prices, spot counts, and availability badges.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentList = form.advancedPricing?.monthlyPricing || [];
+                    const nextMonthInfo = getNextRetreatMonth(currentList);
+                    const newEntry = {
+                      month: nextMonthInfo.month as LT,
+                      year: nextMonthInfo.year,
+                      startDate: "",
+                      endDate: "",
+                      regularPrice: 950,
+                      discountedPrice: 855,
+                      discountPercentage: "10% OFF",
+                      availableSpots: 6,
+                      availabilityStatus: "available" as const,
+                      isFeatured: currentList.length === 0,
+                      bookingEnabled: true,
+                    };
+                    setF("advancedPricing", {
+                      ...form.advancedPricing,
+                      monthlyPricing: [...currentList, newEntry],
+                    });
+                  }}
+                  className="flex items-center gap-1.5 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3.5 py-2 rounded-sm transition-colors cursor-pointer select-none"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Retreat Month
+                </button>
+              </div>
+
+              {(!form.advancedPricing?.monthlyPricing || form.advancedPricing.monthlyPricing.length === 0) ? (
+                <div className="text-center py-8 bg-white rounded border border-dashed border-gray-300 text-gray-400">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-xs font-medium">No retreat month pricing entries added yet.</p>
+                  <p className="text-[10px] mt-0.5 text-gray-400">Click &quot;Add Retreat Month&quot; to configure month-wise pricing cards.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {form.advancedPricing.monthlyPricing.map((item, idx) => {
+                    const updateItem = (updated: Partial<typeof item>) => {
+                      const arr = [...form.advancedPricing.monthlyPricing];
+                      arr[idx] = { ...arr[idx], ...updated };
+                      setF("advancedPricing", {
+                        ...form.advancedPricing,
+                        monthlyPricing: arr,
+                      });
+                    };
+
+                    const moveUp = () => {
+                      if (idx === 0) return;
+                      const arr = [...form.advancedPricing.monthlyPricing];
+                      const temp = arr[idx];
+                      arr[idx] = arr[idx - 1];
+                      arr[idx - 1] = temp;
+                      setF("advancedPricing", { ...form.advancedPricing, monthlyPricing: arr });
+                    };
+
+                    const moveDown = () => {
+                      if (idx === form.advancedPricing.monthlyPricing.length - 1) return;
+                      const arr = [...form.advancedPricing.monthlyPricing];
+                      const temp = arr[idx];
+                      arr[idx] = arr[idx + 1];
+                      arr[idx + 1] = temp;
+                      setF("advancedPricing", { ...form.advancedPricing, monthlyPricing: arr });
+                    };
+
+                    const removeItem = () => {
+                      const arr = form.advancedPricing.monthlyPricing.filter((_, i) => i !== idx);
+                      setF("advancedPricing", { ...form.advancedPricing, monthlyPricing: arr });
+                    };
+
+                    return (
+                      <div
+                        key={idx}
+                        className="bg-white p-4.5 rounded border border-gray-200 relative shadow-sm space-y-3 text-left transition-all hover:border-gray-300"
+                      >
+                        {/* Header row of card */}
+                        <div className="flex items-center justify-between border-b pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="bg-brand-gold/15 text-brand-gold text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm">
+                              Month #{idx + 1}
+                            </span>
+                            <span className="font-serif text-sm font-semibold text-gray-800">
+                              {item.month?.[activeLangTab] || item.month?.en || `Month #${idx + 1}`}
+                            </span>
+                            {item.isFeatured && (
+                              <span className="bg-emerald-100 text-emerald-800 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded">
+                                Featured / Default
+                              </span>
+                            )}
+                            {item.availabilityStatus === "sold_out" && (
+                              <span className="bg-red-100 text-red-800 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded">
+                                Sold Out
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={moveUp}
+                              disabled={idx === 0}
+                              className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer"
+                              title="Move Up"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              onClick={moveDown}
+                              disabled={idx === form.advancedPricing.monthlyPricing.length - 1}
+                              className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer"
+                              title="Move Down"
+                            >
+                              ▼
+                            </button>
+                            <button
+                              type="button"
+                              onClick={removeItem}
+                              className="p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-2"
+                              title="Delete Entry"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Primary Fields Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <div className="sm:col-span-2">
+                            <LocalInput
+                              value={item.month}
+                              onChange={(v) => updateItem({ month: v })}
+                              label="Month / Retreat Title *"
+                              activeLang={activeLangTab}
+                              placeholder="MAY 2025 or October 2026"
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Regular Price ($) *
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={item.regularPrice || ""}
+                              onChange={(e) => updateItem({ regularPrice: Number(e.target.value) })}
+                              placeholder="950"
+                              className="border border-gray-200 p-2 rounded text-xs bg-white"
+                              required
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Discounted Price ($)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={item.discountedPrice !== undefined ? item.discountedPrice : ""}
+                              onChange={(e) =>
+                                updateItem({
+                                  discountedPrice: e.target.value ? Number(e.target.value) : undefined,
+                                })
+                              }
+                              placeholder="855"
+                              className="border border-gray-200 p-2 rounded text-xs bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Secondary Fields Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1">
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Discount Badge (e.g. 10% OFF)
+                            </label>
+                            <input
+                              type="text"
+                              value={item.discountPercentage || ""}
+                              onChange={(e) => updateItem({ discountPercentage: e.target.value })}
+                              placeholder="10% OFF"
+                              className="border border-gray-200 p-2 rounded text-xs bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Available Spots
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={item.availableSpots !== undefined ? item.availableSpots : ""}
+                              onChange={(e) =>
+                                updateItem({
+                                  availableSpots: e.target.value ? Number(e.target.value) : undefined,
+                                })
+                              }
+                              placeholder="3 or 6"
+                              className="border border-gray-200 p-2 rounded text-xs bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Availability Status
+                            </label>
+                            <select
+                              value={item.availabilityStatus || "available"}
+                              onChange={(e) =>
+                                updateItem({
+                                  availabilityStatus: e.target.value as "available" | "limited" | "sold_out",
+                                })
+                              }
+                              className="border border-gray-200 p-2 rounded text-xs bg-white"
+                            >
+                              <option value="available">Available</option>
+                              <option value="limited">Limited</option>
+                              <option value="sold_out">Sold Out</option>
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Dates Range (Optional)
+                            </label>
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={item.startDate || ""}
+                                onChange={(e) => updateItem({ startDate: e.target.value })}
+                                placeholder="Start Date"
+                                className="border border-gray-200 p-2 rounded text-xs bg-white w-1/2 text-[11px]"
+                              />
+                              <input
+                                type="text"
+                                value={item.endDate || ""}
+                                onChange={(e) => updateItem({ endDate: e.target.value })}
+                                placeholder="End Date"
+                                className="border border-gray-200 p-2 rounded text-xs bg-white w-1/2 text-[11px]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Toggles bar */}
+                        <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-gray-100 text-[11px] text-gray-600">
+                          <label className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={item.isFeatured || false}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  const arr = form.advancedPricing.monthlyPricing.map((m, i) => ({
+                                    ...m,
+                                    isFeatured: i === idx,
+                                  }));
+                                  setF("advancedPricing", {
+                                    ...form.advancedPricing,
+                                    monthlyPricing: arr,
+                                  });
+                                } else {
+                                  updateItem({ isFeatured: false });
+                                }
+                              }}
+                              className="rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                            />
+                            <span>Selected / Featured by default</span>
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={item.bookingEnabled !== false}
+                              onChange={(e) => updateItem({ bookingEnabled: e.target.checked })}
+                              className="rounded border-gray-300 text-brand-gold focus:ring-brand-gold"
+                            />
+                            <span>Booking Enabled</span>
+                          </label>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

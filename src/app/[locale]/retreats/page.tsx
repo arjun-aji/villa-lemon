@@ -51,6 +51,7 @@ interface RetreatSummary {
   isSoldOut: boolean;
   hideRate?: boolean;
   images?: string[];
+  advancedPricing?: any;
 }
 
 async function getRetreats(): Promise<RetreatSummary[]> {
@@ -148,6 +149,21 @@ export default async function RetreatsCatalogPage({
                   const size = loc(retreat.groupSize);
                   const lang = loc(retreat.language);
 
+                  let displayPrice = retreat.price;
+                  let displayActualPrice = retreat.actualPrice;
+                  if (retreat.advancedPricing?.enabled && retreat.advancedPricing?.monthlyPricing?.length > 0) {
+                    const available = retreat.advancedPricing.monthlyPricing.filter((m: any) => m.bookingEnabled !== false);
+                    if (available.length > 0) {
+                      const prices = available.map((m: any) => m.discountedPrice || m.regularPrice);
+                      const minP = Math.min(...prices);
+                      const matched = available.find((m: any) => (m.discountedPrice || m.regularPrice) === minP);
+                      if (matched) {
+                        displayPrice = minP;
+                        displayActualPrice = matched.discountedPrice ? matched.regularPrice : undefined;
+                      }
+                    }
+                  }
+
                   return (
                     <div
                       key={retreat._id}
@@ -228,14 +244,14 @@ export default async function RetreatsCatalogPage({
                         <div className="w-full flex items-center justify-between border-t border-gray-100 pt-4 mt-5">
                           {!retreat.hideRate ? (
                             <div>
-                              <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Price</span>
+                              <span className="text-[9px] text-gray-400 block leading-none font-bold uppercase">Starting from</span>
                               <span className="text-sm font-bold text-gray-800 mt-1 block">
-                                {retreat.price > 0 ? (
+                                {displayPrice > 0 ? (
                                   <span className="flex items-center gap-1.5">
-                                    {retreat.actualPrice && retreat.actualPrice > 0 && (
-                                      <span className="line-through text-gray-400 font-medium text-xs">${retreat.actualPrice.toLocaleString()}</span>
+                                    {displayActualPrice && displayActualPrice > 0 && (
+                                      <span className="line-through text-gray-400 font-medium text-xs">${displayActualPrice.toLocaleString()}</span>
                                     )}
-                                    <span>${retreat.price.toLocaleString()}</span>
+                                    <span>${displayPrice.toLocaleString()}</span>
                                   </span>
                                 ) : (
                                   "On Request"

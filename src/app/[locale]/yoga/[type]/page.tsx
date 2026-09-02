@@ -366,24 +366,41 @@ export default async function YogaCatalogPage({
     const targetType = programCategory ? programCategory.type : "retreats";
     const filteredRetreats = rawRetreats.filter((r: any) => (r.yogaType || "retreats") === targetType);
 
-    const retreats = filteredRetreats.map((r: any) => ({
-      id: r._id,
-      title: (r.heroTitle?.[locale] || r.heroTitle?.en || "Yoga Retreat"),
-      slug: r.slug,
-      image: r.heroImage || "",
-      images: r.images || [],
-      price: r.price || 0,
-      actualPrice: r.actualPrice,
-      pricePeriod: `· ${r.days} Days`,
-      duration: `${r.days} Days`,
-      shortDescription: (r.shortDescription?.[locale] || r.shortDescription?.en || ""),
-      featured: r.featured,
-      hideRate: r.hideRate || false,
-      detailUrl: `/${locale}/retreats/${r.slug}`,
-      yogaLevel: (r.yogaLevel?.[locale] || r.yogaLevel?.en || ""),
-      groupSize: (r.groupSize?.[locale] || r.groupSize?.en || ""),
-      location: (r.location?.[locale] || r.location?.en || "Varkala, Kerala"),
-    }));
+    const retreats = filteredRetreats.map((r: any) => {
+      let displayPrice = r.price || 0;
+      let displayActualPrice = r.actualPrice;
+      if (r.advancedPricing?.enabled && r.advancedPricing?.monthlyPricing?.length > 0) {
+        const availableMonths = r.advancedPricing.monthlyPricing.filter((m: any) => m.bookingEnabled !== false);
+        if (availableMonths.length > 0) {
+          const prices = availableMonths.map((m: any) => m.discountedPrice || m.regularPrice);
+          const minPrice = Math.min(...prices);
+          const matchedMonth = availableMonths.find((m: any) => (m.discountedPrice || m.regularPrice) === minPrice);
+          if (matchedMonth) {
+            displayPrice = minPrice;
+            displayActualPrice = matchedMonth.discountedPrice ? matchedMonth.regularPrice : undefined;
+          }
+        }
+      }
+
+      return {
+        id: r._id,
+        title: (r.heroTitle?.[locale] || r.heroTitle?.en || "Yoga Retreat"),
+        slug: r.slug,
+        image: r.heroImage || "",
+        images: r.images || [],
+        price: displayPrice,
+        actualPrice: displayActualPrice,
+        pricePeriod: `· ${r.days} Days`,
+        duration: `${r.days} Days`,
+        shortDescription: (r.shortDescription?.[locale] || r.shortDescription?.en || ""),
+        featured: r.featured,
+        hideRate: r.hideRate || false,
+        detailUrl: `/${locale}/retreats/${r.slug}`,
+        yogaLevel: (r.yogaLevel?.[locale] || r.yogaLevel?.en || ""),
+        groupSize: (r.groupSize?.[locale] || r.groupSize?.en || ""),
+        location: (r.location?.[locale] || r.location?.en || "Varkala, Kerala"),
+      };
+    });
 
     const title = tYoga.retreatsTitle || "Yoga Retreats";
     const desc = tYoga.retreatsDesc || "Transformative retreats for mind, body & soul.";

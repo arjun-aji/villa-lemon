@@ -166,6 +166,7 @@ export const createRetreat = async (req: Request, res: Response): Promise<any> =
 
       // Pricing
       pricingRows: pf(req.body.pricingRows) || [],
+      advancedPricing: pf(req.body.advancedPricing) || { enabled: false, monthlyPricing: [] },
 
       // Checklists
       inclusions: pf(req.body.inclusions) || [],
@@ -299,7 +300,7 @@ export const updateRetreat = async (req: Request, res: Response): Promise<any> =
       retreat.actualPrice = req.body.actualPrice ? Number(req.body.actualPrice) : undefined;
     }
 
-    ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates","images"].forEach((k) => {
+    ["highlights","dailySchedule","curriculum","excursions","meals","ayurvedaTreatments","pricingRows","advancedPricing","inclusions","exclusions","thingsToBring","dressCode","requirements","whoShouldAvoid","faqs","reviews","certificates","availableDates","images"].forEach((k) => {
       if (req.body[k] !== undefined) (retreat as any)[k] = pf(req.body[k]);
     });
 
