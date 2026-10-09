@@ -53,9 +53,8 @@ export const ImageSlideshow: React.FC<ImageSlideshowProps> = ({
           <img
             key={src + index}
             src={src}
-            className={`${className} absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              isActive ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className={`${className} absolute inset-0 transition-opacity duration-1000 ease-in-out ${isActive ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
             alt={`${alt} ${index + 1}`}
           />
         );

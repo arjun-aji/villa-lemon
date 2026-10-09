@@ -329,9 +329,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Yoga data={finalYoga} />
       <About data={aboutData} />
       <HomeGallery data={finalGallery} />
-      <Contact 
-        locale={locale} 
-        staysList={finalAccommodations.map(acc => ({ _id: acc._id, title: acc.title }))} 
+      <Contact
+        locale={locale}
+        staysList={finalAccommodations.map(acc => ({ _id: acc._id, title: acc.title }))}
         contact={contactData}
       />
       <Footer contact={contactData} />

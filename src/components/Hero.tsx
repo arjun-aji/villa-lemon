@@ -117,9 +117,8 @@ export default function Hero({ data, highlightsData }: HeroProps) {
         {DESKTOP_IMAGES.map((src, index) => (
           <div
             key={`desktop-${index}`}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out hidden md:block ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out hidden md:block ${index === currentIndex ? "opacity-100" : "opacity-0"
+              }`}
           >
             <Image
               src={src}
@@ -135,9 +134,8 @@ export default function Hero({ data, highlightsData }: HeroProps) {
         {MOBILE_IMAGES.map((src, index) => (
           <div
             key={`mobile-${index}`}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out block md:hidden ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out block md:hidden ${index === currentIndex ? "opacity-100" : "opacity-0"
+              }`}
           >
             <Image
               src={src}
@@ -159,7 +157,7 @@ export default function Hero({ data, highlightsData }: HeroProps) {
       {/* HERO MAIN BODY */}
       <div className="relative z-20 flex-grow flex items-center max-w-7xl mx-auto px-6 md:px-12 w-full pt-28 pb-20 md:pt-32 md:pb-16">
         <div className="max-w-2xl text-left flex flex-col items-start gap-4 md:gap-8">
-          
+
           {/* Tagline */}
           <motion.div
             custom={0}
@@ -239,11 +237,10 @@ export default function Hero({ data, highlightsData }: HeroProps) {
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              index === currentIndex
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${index === currentIndex
                 ? "bg-brand-gold w-8"
                 : "bg-brand-cream/40 hover:bg-brand-cream/70"
-            }`}
+              }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
