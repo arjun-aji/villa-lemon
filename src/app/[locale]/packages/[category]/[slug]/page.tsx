@@ -534,73 +534,75 @@ export default async function PackageDetailsPage({
           <div className="lg:col-span-6 flex flex-col items-start space-y-10">
             
             {/* GENERAL & QUICK FACTS SUMMARY */}
-            <div className="w-full bg-white border border-[#eae6db]/65 p-6 md:p-8 rounded-sm shadow-sm">
-              <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block select-none">
-                Key Parameters
-              </span>
-              <h2 className="font-serif text-2xl font-normal text-[#121212] mb-6">
-                Tour General Information
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6 select-text text-xs">
-                {pkg.difficulty && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Difficulty</span>
-                    <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Gauge className="w-3.5 h-3.5 text-brand-gold" /> {pkg.difficulty}</span>
-                  </div>
-                )}
-                {pkg.groupSize && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Group Size</span>
-                    <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-brand-gold" /> {pkg.groupSize}</span>
-                  </div>
-                )}
-                {pkg.travelTime && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Travel Time</span>
-                    <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-brand-gold" /> {pkg.travelTime}</span>
-                  </div>
-                )}
-                {pkg.bestTime && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Best Time</span>
-                    <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-brand-gold" /> {pkg.bestTime}</span>
-                  </div>
-                )}
-                {pkg.entryFee && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Entry Fees</span>
-                    <span className="font-semibold text-gray-700">{pkg.entryFee}</span>
-                  </div>
-                )}
-                {pkg.optionalCharges && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Optional Fees</span>
-                    <span className="font-semibold text-gray-700">{pkg.optionalCharges}</span>
-                  </div>
-                )}
-                {pkg.dressCode && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Dress Code</span>
-                    <span className="font-semibold text-gray-700">{pkg.dressCode}</span>
+            {(pkg.difficulty || pkg.groupSize || pkg.travelTime || pkg.bestTime || pkg.entryFee || pkg.optionalCharges || pkg.dressCode || (pkg.quickFacts && pkg.quickFacts.length > 0)) && (
+              <div className="w-full bg-white border border-[#eae6db]/65 p-6 md:p-8 rounded-sm shadow-sm">
+                <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] mb-2 block select-none">
+                  Key Parameters
+                </span>
+                <h2 className="font-serif text-2xl font-normal text-[#121212] mb-6">
+                  Tour General Information
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6 select-text text-xs">
+                  {pkg.difficulty && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Difficulty</span>
+                      <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Gauge className="w-3.5 h-3.5 text-brand-gold" /> {pkg.difficulty}</span>
+                    </div>
+                  )}
+                  {pkg.groupSize && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Group Size</span>
+                      <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-brand-gold" /> {pkg.groupSize}</span>
+                    </div>
+                  )}
+                  {pkg.travelTime && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Travel Time</span>
+                      <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-brand-gold" /> {pkg.travelTime}</span>
+                    </div>
+                  )}
+                  {pkg.bestTime && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Best Time</span>
+                      <span className="font-semibold text-gray-800 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-brand-gold" /> {pkg.bestTime}</span>
+                    </div>
+                  )}
+                  {pkg.entryFee && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Entry Fees</span>
+                      <span className="font-semibold text-gray-700">{pkg.entryFee}</span>
+                    </div>
+                  )}
+                  {pkg.optionalCharges && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Optional Fees</span>
+                      <span className="font-semibold text-gray-700">{pkg.optionalCharges}</span>
+                    </div>
+                  )}
+                  {pkg.dressCode && (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-gray-400 font-medium uppercase text-[9px] tracking-wider">Dress Code</span>
+                      <span className="font-semibold text-gray-700">{pkg.dressCode}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* QUICK FACTS LIST (KEY VALUE) */}
+                {pkg.quickFacts && pkg.quickFacts.length > 0 && (
+                  <div className="border-t border-gray-100 pt-6 mt-6">
+                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3.5 flex items-center gap-1"><Info className="w-3.5 h-3.5 text-brand-gold" /> Quick Facts</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+                      {pkg.quickFacts.map((fact, idx) => (
+                        <div key={idx} className="bg-[#fbf9f6] p-2.5 rounded-sm border border-[#eae6db]/30 flex flex-col gap-0.5">
+                          <span className="font-serif font-semibold text-[#121212]">{fact.key}</span>
+                          <span className="text-gray-500 font-light">{fact.value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* QUICK FACTS LIST (KEY VALUE) */}
-              {pkg.quickFacts.length > 0 && (
-                <div className="border-t border-gray-100 pt-6 mt-6">
-                  <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3.5 flex items-center gap-1"><Info className="w-3.5 h-3.5 text-brand-gold" /> Quick Facts</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
-                    {pkg.quickFacts.map((fact, idx) => (
-                      <div key={idx} className="bg-[#fbf9f6] p-2.5 rounded-sm border border-[#eae6db]/30 flex flex-col gap-0.5">
-                        <span className="font-serif font-semibold text-[#121212]">{fact.key}</span>
-                        <span className="text-gray-500 font-light">{fact.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
 
 
             {/* DESCRIPTION */}
@@ -618,11 +620,17 @@ export default async function PackageDetailsPage({
                   ))}
                 </div>
               )}
-              <div className="text-sm font-sans font-light leading-relaxed text-gray-700 space-y-4">
-                {pkg.aboutText.split("\n\n").map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
-              </div>
+              {pkg.aboutText ? (
+                <div className="text-sm font-sans font-light leading-relaxed text-gray-700 space-y-4">
+                  {pkg.aboutText.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              ) : !pkg.tourOverview && pkg.shortDescription ? (
+                <div className="text-sm font-sans font-light leading-relaxed text-gray-700 space-y-4">
+                  <p>{pkg.shortDescription}</p>
+                </div>
+              ) : null}
             </div>
 
             {/* Things to Bring */}

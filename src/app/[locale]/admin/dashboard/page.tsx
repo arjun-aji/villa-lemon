@@ -1299,6 +1299,19 @@ export default function AdminDashboard() {
   const [editingPackage, setEditingPackage] = useState<PackageItemData | null>(null);
   const [savingPackage, setSavingPackage] = useState(false);
   const [packageForm, setPackageForm] = useState<Partial<PackageItemData>>({});
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\-]+/g, "")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+/, "")
+      .replace(/-+$/, "");
+  };
 
   const [showYogaModal, setShowYogaModal] = useState(false);
   const [editingYoga, setEditingYoga] = useState<YogaItemData | null>(null);
@@ -2394,52 +2407,49 @@ export default function AdminDashboard() {
   // ------------------------------------------------------------------
   const handleOpenAddPackage = (prefilledCategory?: string) => {
     setEditingPackage(null);
+    setIsSlugManuallyEdited(false);
     setPackageForm({
       packageCategory: prefilledCategory ? [prefilledCategory as any] : ["varkalaSightseeing"],
       slug: "",
-      price: 2500,
+      price: 0,
       actualPrice: undefined,
       title: createEmptyLocalizedText(),
-      pricePeriod: createEmptyLocalizedText("/ person"),
-      duration: createEmptyLocalizedText("4 Hours"),
+      pricePeriod: createEmptyLocalizedText(),
+      duration: createEmptyLocalizedText(),
       shortDescription: createEmptyLocalizedText(),
       tagline: createEmptyLocalizedText(),
       aboutText: createEmptyLocalizedText(),
-      inclusions: [createEmptyLocalizedText("Guide service"), createEmptyLocalizedText("Water bottle")],
-      exclusions: [createEmptyLocalizedText("Camera charges")],
-      itinerary: [
-        { timeOrDay: createEmptyLocalizedText("09:00 AM"), activity: createEmptyLocalizedText("Pick-up"), desc: createEmptyLocalizedText("Meeting at cliff helipad.") }
-      ],
-      itineraryEvening: [
-        { timeOrDay: createEmptyLocalizedText("03:30 PM"), activity: createEmptyLocalizedText("Pick-up"), desc: createEmptyLocalizedText("Meeting at cliff helipad.") }
-      ],
-      highlights: [{ icon: "compass", label: createEmptyLocalizedText("Sightseeing") }],
-      whyGuestsLoveUs: [{ icon: "star", title: createEmptyLocalizedText("Best Guides"), desc: createEmptyLocalizedText("Expert storytellers.") }],
+      inclusions: [],
+      exclusions: [],
+      itinerary: [],
+      itineraryEvening: [],
+      highlights: [],
+      whyGuestsLoveUs: [],
       
       // General Info
-      travelTime: createEmptyLocalizedText("1 Hour"),
-      entryFee: createEmptyLocalizedText("None"),
-      optionalCharges: createEmptyLocalizedText("None"),
-      difficulty: createEmptyLocalizedText("Easy"),
-      groupSize: createEmptyLocalizedText("Up to 10"),
-      location: createEmptyLocalizedText("Varkala"),
+      travelTime: createEmptyLocalizedText(),
+      entryFee: createEmptyLocalizedText(),
+      optionalCharges: createEmptyLocalizedText(),
+      difficulty: createEmptyLocalizedText(),
+      groupSize: createEmptyLocalizedText(),
+      location: createEmptyLocalizedText(),
 
       // Localized Content
       tourOverview: createEmptyLocalizedText(),
-      bestTime: createEmptyLocalizedText("October to March"),
-      dressCode: createEmptyLocalizedText("Casual"),
-      cta: createEmptyLocalizedText("Book Now"),
+      bestTime: createEmptyLocalizedText(),
+      dressCode: createEmptyLocalizedText(),
+      cta: createEmptyLocalizedText(),
 
       // Media
       gallery: [],
       video: "",
 
       // Structural lists
-      quickFacts: [{ key: createEmptyLocalizedText("Duration"), value: createEmptyLocalizedText("4 Hours") }],
-      thingsToBring: [createEmptyLocalizedText("Sunscreen"), createEmptyLocalizedText("Sunglasses")],
-      nearbyAttractions: [{ name: createEmptyLocalizedText("Varkala Cliff"), distance: createEmptyLocalizedText("2 km") }],
+      quickFacts: [],
+      thingsToBring: [],
+      nearbyAttractions: [],
       relatedPackages: ["", "", ""],
-      faqs: [{ question: createEmptyLocalizedText("Is food included?"), answer: createEmptyLocalizedText("No, meals are not included.") }],
+      faqs: [],
 
       // SEO
       metaTitle: createEmptyLocalizedText(),
@@ -2448,10 +2458,10 @@ export default function AdminDashboard() {
       canonicalUrl: "",
 
       // Booking Info
-      cancellation: createEmptyLocalizedText("Free cancellation up to 24 hours before."),
-      refund: createEmptyLocalizedText("Full refund if cancelled in time."),
-      pickup: createEmptyLocalizedText("Hotel lobby pick-up."),
-      drop: createEmptyLocalizedText("Drop-off at hotel."),
+      cancellation: createEmptyLocalizedText(),
+      refund: createEmptyLocalizedText(),
+      pickup: createEmptyLocalizedText(),
+      drop: createEmptyLocalizedText(),
       notes: createEmptyLocalizedText(),
       hideRate: false,
       badgeText: createEmptyLocalizedText(),
@@ -2473,12 +2483,19 @@ export default function AdminDashboard() {
 
   const handleOpenEditPackage = (p: PackageItemData) => {
     setEditingPackage(p);
+    setIsSlugManuallyEdited(true);
     setPackageForm({
       ...p,
       actualPrice: p.actualPrice ?? undefined,
       packageCategory: Array.isArray(p.packageCategory) ? p.packageCategory : p.packageCategory ? [p.packageCategory] : ["varkalaSightseeing"],
       relatedPackages: p.relatedPackages || ["", "", ""],
       badgeText: p.badgeText || createEmptyLocalizedText(),
+      notes: {
+        en: p.notes?.en || "",
+        de: p.notes?.de || "",
+        fr: p.notes?.fr || "",
+        ru: p.notes?.ru || "",
+      },
     });
     setCoverImagePreview(p.image);
     setCoverImageFile(null);
@@ -2498,14 +2515,36 @@ export default function AdminDashboard() {
   const handleSavePackage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    // Validate the 3 essential fields
+    const titleEn = packageForm.title?.en?.trim();
+    const cleanSlug = packageForm.slug?.trim();
+    const shortDescEn = packageForm.shortDescription?.en?.trim();
+
+    if (!titleEn) {
+      alert("Package Name (Title) is required.");
+      setActivePkgFormTab("general");
+      return;
+    }
+    if (!cleanSlug) {
+      alert("Slug is required.");
+      setActivePkgFormTab("general");
+      return;
+    }
+    if (!shortDescEn) {
+      alert("Short Description is required.");
+      setActivePkgFormTab("general");
+      return;
+    }
+
     setSavingPackage(true);
 
     try {
       const formData = new FormData();
       formData.append("packageCategory", JSON.stringify(packageForm.packageCategory || ["varkalaSightseeing"]));
-      formData.append("slug", packageForm.slug || "");
+      formData.append("slug", cleanSlug);
       formData.append("price", String(packageForm.price || 0));
-      if (packageForm.actualPrice !== undefined) {
+      if (packageForm.actualPrice !== undefined && packageForm.actualPrice !== null) {
         formData.append("actualPrice", String(packageForm.actualPrice));
       } else {
         formData.append("actualPrice", "");
@@ -2513,34 +2552,39 @@ export default function AdminDashboard() {
       formData.append("video", packageForm.video || "");
       formData.append("canonicalUrl", packageForm.canonicalUrl || "");
 
-      formData.append("title", JSON.stringify(packageForm.title));
-      formData.append("pricePeriod", JSON.stringify(packageForm.pricePeriod));
-      formData.append("duration", JSON.stringify(packageForm.duration));
-      formData.append("shortDescription", JSON.stringify(packageForm.shortDescription));
-      formData.append("tagline", JSON.stringify(packageForm.tagline));
-      formData.append("aboutText", JSON.stringify(packageForm.aboutText));
+      formData.append("title", JSON.stringify(packageForm.title || { en: titleEn, de: "", fr: "", ru: "" }));
+      formData.append("pricePeriod", JSON.stringify(packageForm.pricePeriod || createEmptyLocalizedText()));
+      formData.append("duration", JSON.stringify(packageForm.duration || createEmptyLocalizedText()));
+      formData.append("shortDescription", JSON.stringify(packageForm.shortDescription || { en: shortDescEn, de: "", fr: "", ru: "" }));
+      formData.append("tagline", JSON.stringify(packageForm.tagline || createEmptyLocalizedText()));
+      formData.append("aboutText", JSON.stringify(packageForm.aboutText || createEmptyLocalizedText()));
 
-      formData.append("travelTime", JSON.stringify(packageForm.travelTime));
-      formData.append("entryFee", JSON.stringify(packageForm.entryFee));
-      formData.append("optionalCharges", JSON.stringify(packageForm.optionalCharges));
-      formData.append("difficulty", JSON.stringify(packageForm.difficulty));
-      formData.append("groupSize", JSON.stringify(packageForm.groupSize));
-      formData.append("location", JSON.stringify(packageForm.location));
+      formData.append("travelTime", JSON.stringify(packageForm.travelTime || createEmptyLocalizedText()));
+      formData.append("entryFee", JSON.stringify(packageForm.entryFee || createEmptyLocalizedText()));
+      formData.append("optionalCharges", JSON.stringify(packageForm.optionalCharges || createEmptyLocalizedText()));
+      formData.append("difficulty", JSON.stringify(packageForm.difficulty || createEmptyLocalizedText()));
+      formData.append("groupSize", JSON.stringify(packageForm.groupSize || createEmptyLocalizedText()));
+      formData.append("location", JSON.stringify(packageForm.location || createEmptyLocalizedText()));
 
-      formData.append("tourOverview", JSON.stringify(packageForm.tourOverview));
-      formData.append("bestTime", JSON.stringify(packageForm.bestTime));
-      formData.append("dressCode", JSON.stringify(packageForm.dressCode));
-      formData.append("cta", JSON.stringify(packageForm.cta));
+      formData.append("tourOverview", JSON.stringify(packageForm.tourOverview || createEmptyLocalizedText()));
+      formData.append("bestTime", JSON.stringify(packageForm.bestTime || createEmptyLocalizedText()));
+      formData.append("dressCode", JSON.stringify(packageForm.dressCode || createEmptyLocalizedText()));
+      formData.append("cta", JSON.stringify(packageForm.cta || createEmptyLocalizedText()));
 
-      formData.append("metaTitle", JSON.stringify(packageForm.metaTitle));
-      formData.append("metaDescription", JSON.stringify(packageForm.metaDescription));
-      formData.append("keywords", JSON.stringify(packageForm.keywords));
+      formData.append("metaTitle", JSON.stringify(packageForm.metaTitle || createEmptyLocalizedText()));
+      formData.append("metaDescription", JSON.stringify(packageForm.metaDescription || createEmptyLocalizedText()));
+      formData.append("keywords", JSON.stringify(packageForm.keywords || createEmptyLocalizedText()));
 
-      formData.append("cancellation", JSON.stringify(packageForm.cancellation));
-      formData.append("refund", JSON.stringify(packageForm.refund));
-      formData.append("pickup", JSON.stringify(packageForm.pickup));
-      formData.append("drop", JSON.stringify(packageForm.drop));
-      formData.append("notes", JSON.stringify(packageForm.notes));
+      formData.append("cancellation", JSON.stringify(packageForm.cancellation || createEmptyLocalizedText()));
+      formData.append("refund", JSON.stringify(packageForm.refund || createEmptyLocalizedText()));
+      formData.append("pickup", JSON.stringify(packageForm.pickup || createEmptyLocalizedText()));
+      formData.append("drop", JSON.stringify(packageForm.drop || createEmptyLocalizedText()));
+      formData.append("notes", JSON.stringify({
+        en: packageForm.notes?.en || "",
+        de: packageForm.notes?.de || "",
+        fr: packageForm.notes?.fr || "",
+        ru: packageForm.notes?.ru || "",
+      }));
 
       formData.append("inclusions", JSON.stringify(packageForm.inclusions || []));
       formData.append("exclusions", JSON.stringify(packageForm.exclusions || []));
@@ -2560,21 +2604,17 @@ export default function AdminDashboard() {
       // Send which existing server images to keep (non-blob URLs)
       const existingImageUrls = coverImagePreviews.filter(u => !u.startsWith("blob:"));
       formData.append("existingImages", JSON.stringify(existingImageUrls));
-      // Append only new file uploads
       coverImageFiles.forEach(file => {
         formData.append("images", file);
       });
 
-      // Send which existing about images to keep
       const existingAboutUrls = aboutImagePreviews.filter(u => !u.startsWith("blob:"));
       formData.append("existingAboutImages", JSON.stringify(existingAboutUrls));
-      // Append only new about image uploads
       aboutImageFiles.forEach(file => {
         formData.append("aboutImage", file);
       });
       if (ogImageFile) formData.append("ogImage", ogImageFile);
 
-      // Append gallery uploads and existing links
       if (newGalleryFiles.length > 0) {
         newGalleryFiles.forEach((file) => {
           formData.append("gallery", file);
@@ -2594,14 +2634,22 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        setShowPackageModal(false);
+        const result = await res.json();
+        const savedItem = result.data;
         fetchData();
+        if (!editingPackage && savedItem) {
+          handleOpenEditPackage(savedItem);
+          alert("Package created successfully! You can now add other details or close this window.");
+        } else {
+          setShowPackageModal(false);
+        }
       } else {
         const err = await res.json();
         alert(err.message || "Failed to save package");
       }
     } catch (err) {
       console.error(err);
+      alert("Error saving package.");
     } finally {
       setSavingPackage(false);
     }
@@ -6451,9 +6499,90 @@ export default function AdminDashboard() {
               
               {activePkgFormTab === "general" && (
                 <div className="space-y-4 animate-fade-in">
+                  
+                  {/* ESSENTIAL INFORMATION CARD */}
+                  <div className="bg-amber-50/60 p-4 rounded border border-amber-200/80 space-y-4 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-amber-200/80 pb-2 gap-1">
+                      <h4 className="font-bold text-[#121212] uppercase tracking-wider text-xs flex items-center gap-1.5">
+                        <span className="text-amber-600 font-extrabold text-sm">★</span> Essential Information
+                      </h4>
+                      <span className="text-[10px] text-amber-900 font-medium bg-amber-100/90 px-2 py-0.5 rounded">
+                        Only these 3 fields are required to create & save a package
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-700 uppercase flex items-center justify-between">
+                          <span>Package Name (EN) <span className="text-red-500 font-black">*</span></span>
+                          <span className="text-[10px] text-red-600 font-semibold lowercase">required</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={packageForm.title?.en || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const title: LocalizedText = {
+                              en: val,
+                              de: packageForm.title?.de || "",
+                              fr: packageForm.title?.fr || "",
+                              ru: packageForm.title?.ru || "",
+                            };
+                            let slug = packageForm.slug || "";
+                            if (!isSlugManuallyEdited) {
+                              slug = slugify(val);
+                            }
+                            setPackageForm({ ...packageForm, title, slug });
+                          }}
+                          placeholder="e.g. Thekkady Wildlife & Spice Tour"
+                          className="border p-2.5 rounded text-xs bg-white focus:ring-1 focus:ring-brand-gold focus:border-brand-gold font-medium"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-bold text-gray-700 uppercase flex items-center justify-between">
+                          <span>Unique Slug URL <span className="text-red-500 font-black">*</span></span>
+                          <span className="text-[10px] text-gray-500 font-normal lowercase">auto-generated & editable</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={packageForm.slug || ""}
+                          onChange={(e) => {
+                            setIsSlugManuallyEdited(true);
+                            setPackageForm({ ...packageForm, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") });
+                          }}
+                          placeholder="e.g. thekkady-wildlife-and-spice-tour"
+                          className="border p-2.5 rounded text-xs bg-white focus:ring-1 focus:ring-brand-gold focus:border-brand-gold font-mono"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <label className="font-bold text-gray-700 uppercase flex items-center justify-between">
+                          <span>Short Description (EN) <span className="text-red-500 font-black">*</span></span>
+                          <span className="text-[10px] text-red-600 font-semibold lowercase">required</span>
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={packageForm.shortDescription?.en || ""}
+                          onChange={(e) => {
+                            const shortDescription: LocalizedText = {
+                              en: e.target.value,
+                              de: packageForm.shortDescription?.de || "",
+                              fr: packageForm.shortDescription?.fr || "",
+                              ru: packageForm.shortDescription?.ru || "",
+                            };
+                            setPackageForm({ ...packageForm, shortDescription });
+                          }}
+                          placeholder="Brief 1-2 sentence overview shown on package listing cards..."
+                          className="border p-2.5 rounded font-sans text-xs bg-white focus:ring-1 focus:ring-brand-gold focus:border-brand-gold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="font-bold text-gray-600 uppercase">Package Categories (Select one or more)</label>
+                      <label className="font-bold text-gray-600 uppercase">Package Categories (Optional - defaults to Varkala Sightseeing)</label>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-1">
                         {[
                           { value: "varkalaSightseeing", label: "Varkala Sightseeing" },
@@ -6505,23 +6634,15 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Unique Slug URL</label>
-                        <input
-                          type="text"
-                          value={packageForm.slug}
-                          onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
-                          className="border p-2.5 rounded text-xs bg-white"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Starting Price (₹)</label>
+                        <label className="font-bold text-gray-600 uppercase">Starting Price (₹, Optional)</label>
                         <input
                           type="number"
-                          value={packageForm.price}
-                          onChange={(e) => setPackageForm({ ...packageForm, price: Number(e.target.value) })}
+                          value={packageForm.price || ""}
+                          onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value === "" ? 0 : Number(e.target.value) })}
                           className="border p-2.5 rounded text-xs bg-white"
+                          placeholder="e.g. 2500 (or leave 0 for On Request)"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
@@ -6534,7 +6655,7 @@ export default function AdminDashboard() {
                             setPackageForm({ ...packageForm, actualPrice: val === "" ? undefined : Number(val) });
                           }}
                           className="border p-2.5 rounded text-xs bg-white"
-                          placeholder="e.g. 15000"
+                          placeholder="e.g. 15000 (shows strike-through)"
                         />
                       </div>
                     </div>
@@ -6655,19 +6776,27 @@ export default function AdminDashboard() {
                     <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Localized Content ({activeLangTab.toUpperCase()})</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Package Title</label>
+                        <label className="font-bold text-gray-600 uppercase flex items-center justify-between">
+                          <span>Package Title ({activeLangTab.toUpperCase()}) {activeLangTab === "en" ? <span className="text-red-500 font-black">*</span> : <span className="text-gray-400 font-normal lowercase">(optional)</span>}</span>
+                        </label>
                         <input
                           type="text"
                           value={packageForm.title?.[activeLangTab] || ""}
                           onChange={(e) => {
-                            const title = { ...packageForm.title, [activeLangTab]: e.target.value } as any;
-                            setPackageForm({ ...packageForm, title });
+                            const val = e.target.value;
+                            const title = { ...packageForm.title, [activeLangTab]: val } as any;
+                            let slug = packageForm.slug || "";
+                            if (activeLangTab === "en" && !isSlugManuallyEdited) {
+                              slug = slugify(val);
+                            }
+                            setPackageForm({ ...packageForm, title, slug });
                           }}
+                          placeholder={activeLangTab === "en" ? "e.g. Thekkady Wildlife & Spice Tour" : "Translation (optional)..."}
                           className="border p-2.5 rounded text-xs"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Price Period Label</label>
+                        <label className="font-bold text-gray-600 uppercase">Price Period Label (Optional)</label>
                         <input
                           type="text"
                           value={packageForm.pricePeriod?.[activeLangTab] || ""}
@@ -6675,11 +6804,12 @@ export default function AdminDashboard() {
                             const pricePeriod = { ...packageForm.pricePeriod, [activeLangTab]: e.target.value } as any;
                             setPackageForm({ ...packageForm, pricePeriod });
                           }}
+                          placeholder="e.g. / person"
                           className="border p-2.5 rounded text-xs"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Tagline</label>
+                        <label className="font-bold text-gray-600 uppercase">Tagline (Optional)</label>
                         <input
                           type="text"
                           value={packageForm.tagline?.[activeLangTab] || ""}
@@ -6687,6 +6817,7 @@ export default function AdminDashboard() {
                             const tagline = { ...packageForm.tagline, [activeLangTab]: e.target.value } as any;
                             setPackageForm({ ...packageForm, tagline });
                           }}
+                          placeholder="e.g. Deep in the heart of Periyar"
                           className="border p-2.5 rounded text-xs"
                         />
                       </div>
@@ -6704,7 +6835,9 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">Short Description</label>
+                        <label className="font-bold text-gray-600 uppercase flex items-center justify-between">
+                          <span>Short Description ({activeLangTab.toUpperCase()}) {activeLangTab === "en" ? <span className="text-red-500 font-black">*</span> : <span className="text-gray-400 font-normal lowercase">(optional)</span>}</span>
+                        </label>
                         <textarea
                           rows={3}
                           value={packageForm.shortDescription?.[activeLangTab] || ""}
@@ -6712,11 +6845,12 @@ export default function AdminDashboard() {
                             const shortDescription = { ...packageForm.shortDescription, [activeLangTab]: e.target.value } as any;
                             setPackageForm({ ...packageForm, shortDescription });
                           }}
+                          placeholder={activeLangTab === "en" ? "Brief 1-2 sentence overview shown on package listing cards..." : "Translation (optional)..."}
                           className="border p-2.5 rounded font-sans text-xs"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-bold text-gray-600 uppercase">About (Full Description)</label>
+                        <label className="font-bold text-gray-600 uppercase">About - Full Description (Optional)</label>
                         <textarea
                           rows={3}
                           value={packageForm.aboutText?.[activeLangTab] || ""}
@@ -6724,6 +6858,7 @@ export default function AdminDashboard() {
                             const aboutText = { ...packageForm.aboutText, [activeLangTab]: e.target.value } as any;
                             setPackageForm({ ...packageForm, aboutText });
                           }}
+                          placeholder="Detailed overview and background..."
                           className="border p-2.5 rounded font-sans text-xs"
                         />
                       </div>
@@ -7874,7 +8009,13 @@ export default function AdminDashboard() {
                         rows={3}
                         value={packageForm.notes?.[activeLangTab] || ""}
                         onChange={(e) => {
-                          const notes = { ...packageForm.notes, [activeLangTab]: e.target.value } as any;
+                          const notes = {
+                            en: packageForm.notes?.en || "",
+                            de: packageForm.notes?.de || "",
+                            fr: packageForm.notes?.fr || "",
+                            ru: packageForm.notes?.ru || "",
+                            [activeLangTab]: e.target.value,
+                          };
                           setPackageForm({ ...packageForm, notes });
                         }}
                         className="border p-2.5 rounded font-sans text-xs"

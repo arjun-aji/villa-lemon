@@ -1,0 +1,62 @@
+{
+  "villa-lemon/packages/thekkady_periyar_lake_cover.jpg": {
+    "role": "cover",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/packages/thekkady_periyar_lake_cover.jpg",
+    "alt": "Periyar Lake and surrounding forest scenery in Thekkady, Kerala",
+    "source": "File:Thekkady, Periyar Lake.JPG"
+  },
+  "villa-lemon/packages/thekkady_lake_landscape_about.jpg": {
+    "role": "about",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/packages/thekkady_lake_landscape_about.jpg",
+    "alt": "Scenic view of Thekkady Lake and Periyar Tiger Reserve landscape",
+    "source": "File:Thekkady Lake.jpg"
+  },
+  "villa-lemon/gallery/thekkady_periyar_lake_boating.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_periyar_lake_boating.jpg",
+    "alt": "Periyar Lake boating safari in Thekkady, Kerala",
+    "source": "File:Periyar National Park boat.JPG"
+  },
+  "villa-lemon/gallery/thekkady_connemara_tea_factory.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_connemara_tea_factory.jpg",
+    "alt": "Connemara Tea Factory in Vandiperiyar, Thekkady",
+    "source": "File:Connemara Tea Factory.jpg"
+  },
+  "villa-lemon/gallery/thekkady_vandiperiyar_tea_plantation.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_vandiperiyar_tea_plantation.jpg",
+    "alt": "Lush green tea plantation near Vandiperiyar and Thekkady",
+    "source": "File:Tea Plantation near Vandiperiyar.JPG"
+  },
+  "villa-lemon/gallery/thekkady_kuttikkanam_tea_hills.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_kuttikkanam_tea_hills.jpg",
+    "alt": "Rolling tea plantation hills near Thekkady, Idukki",
+    "source": "File:Tea Plantations at Kuttikkanam, near Thekkady.jpg"
+  },
+  "villa-lemon/gallery/thekkady_abrahams_spice_garden_cardamom.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_abrahams_spice_garden_cardamom.jpg",
+    "alt": "Cardamom plant at Abraham's Spice Garden in Thekkady, Kerala",
+    "source": "File:Thekkady, Cardomom Abrahams Spice Garden (2267500654).jpg"
+  },
+  "villa-lemon/gallery/thekkady_spice_plantation_flora.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_spice_plantation_flora.jpg",
+    "alt": "Aromatic spice plantation in Thekkady, Kerala",
+    "source": "File:In a Spice Garden in Thekkady, India (39903078671).jpg"
+  },
+  "villa-lemon/gallery/thekkady_periyar_sanctuary_boat_view.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_periyar_sanctuary_boat_view.jpg",
+    "alt": "View of Periyar Wildlife Sanctuary shoreline from boat ride",
+    "source": "File:A view of Periyar Wildlife Sanctuary from boat.jpg"
+  },
+  "villa-lemon/gallery/thekkady_wild_elephants_periyar.jpg": {
+    "role": "gallery",
+    "url": "https://pub-824c679c710f43e0bfba8b5d719707ac.r2.dev/villa-lemon/gallery/thekkady_wild_elephants_periyar.jpg",
+    "alt": "Wild elephants in Periyar Wildlife Sanctuary near Thekkady",
+    "source": "File:Wild Elephants at Thekkady (periyar wild life sanctuary).jpg"
+  }
+}

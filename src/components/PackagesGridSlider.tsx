@@ -136,10 +136,12 @@ export default function PackagesGridSlider({ packages, locale, categorySlug }: P
 
               {/* Card content */}
               <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
-                <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none font-semibold">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{p.duration}</span>
-                </div>
+                {p.duration && (
+                  <div className="flex items-center gap-1.5 text-brand-gold text-[9px] font-bold tracking-widest uppercase mb-1 select-none font-semibold">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{p.duration}</span>
+                  </div>
+                )}
 
                 <h3 className="font-serif text-lg font-normal text-[#121212] mb-2 tracking-wide leading-tight group-hover:text-brand-gold transition-colors duration-300">
                   {p.title}

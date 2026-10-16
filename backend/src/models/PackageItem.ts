@@ -23,8 +23,8 @@ const optionalLocalizedTextSchema = new Schema(
 
 const highlightSchema = new Schema(
   {
-    icon: { type: String, required: true },
-    label: { type: localizedTextSchema, required: true },
+    icon: { type: String, default: "sparkles" },
+    label: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
@@ -32,41 +32,41 @@ const highlightSchema = new Schema(
 const whyLoveUsSchema = new Schema(
   {
     icon: { type: String, required: false, default: "" },
-    title: { type: localizedTextSchema },
-    desc: { type: localizedTextSchema },
+    title: { type: optionalLocalizedTextSchema },
+    desc: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
 
 const itinerarySchema = new Schema(
   {
-    timeOrDay: { type: localizedTextSchema },
-    activity: { type: localizedTextSchema },
-    desc: { type: localizedTextSchema },
+    timeOrDay: { type: optionalLocalizedTextSchema },
+    activity: { type: optionalLocalizedTextSchema },
+    desc: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
 
 const quickFactSchema = new Schema(
   {
-    key: { type: localizedTextSchema },
-    value: { type: localizedTextSchema },
+    key: { type: optionalLocalizedTextSchema },
+    value: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
 
 const attractionSchema = new Schema(
   {
-    name: { type: localizedTextSchema },
-    distance: { type: localizedTextSchema },
+    name: { type: optionalLocalizedTextSchema },
+    distance: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
 
 const faqSchema = new Schema(
   {
-    question: { type: localizedTextSchema },
-    answer: { type: localizedTextSchema },
+    question: { type: optionalLocalizedTextSchema },
+    answer: { type: optionalLocalizedTextSchema },
   },
   { _id: false }
 );
@@ -77,13 +77,13 @@ const packageItemSchema = new Schema<IPackageItem>(
       type: [String],
       enum: ["varkalaSightseeing", "dayTrips", "backwaterExperiences", "adventureActivities", "varkalaPackages"],
       required: true,
-      default: [],
+      default: ["varkalaSightseeing"],
     },
-    title: { type: localizedTextSchema },
+    title: { type: localizedTextSchema, required: true },
     slug: { type: String, required: true, unique: true },
     price: { type: Number, default: 0 },
     actualPrice: { type: Number },
-    pricePeriod: { type: localizedTextSchema },
+    pricePeriod: { type: optionalLocalizedTextSchema },
     image: { type: String, default: "" },
     imagePublicId: { type: String },
     images: { type: [String], default: [] },
@@ -92,30 +92,30 @@ const packageItemSchema = new Schema<IPackageItem>(
     aboutImagePublicId: { type: String },
     aboutImages: { type: [String], default: [] },
     aboutImagePublicIds: { type: [String], default: [] },
-    duration: { type: localizedTextSchema },
-    shortDescription: { type: localizedTextSchema },
-    tagline: { type: localizedTextSchema },
-    aboutText: { type: localizedTextSchema },
+    duration: { type: optionalLocalizedTextSchema },
+    shortDescription: { type: localizedTextSchema, required: true },
+    tagline: { type: optionalLocalizedTextSchema },
+    aboutText: { type: optionalLocalizedTextSchema },
     itinerary: [itinerarySchema],
     itineraryEvening: [itinerarySchema],
-    inclusions: [localizedTextSchema],
-    exclusions: [localizedTextSchema],
+    inclusions: [optionalLocalizedTextSchema],
+    exclusions: [optionalLocalizedTextSchema],
     highlights: [highlightSchema],
     whyGuestsLoveUs: [whyLoveUsSchema],
 
     // General Info
-    travelTime: { type: localizedTextSchema },
-    entryFee: { type: localizedTextSchema },
-    optionalCharges: { type: localizedTextSchema },
-    difficulty: { type: localizedTextSchema },
-    groupSize: { type: localizedTextSchema },
-    location: { type: localizedTextSchema },
+    travelTime: { type: optionalLocalizedTextSchema },
+    entryFee: { type: optionalLocalizedTextSchema },
+    optionalCharges: { type: optionalLocalizedTextSchema },
+    difficulty: { type: optionalLocalizedTextSchema },
+    groupSize: { type: optionalLocalizedTextSchema },
+    location: { type: optionalLocalizedTextSchema },
 
     // Localized Content
-    tourOverview: { type: localizedTextSchema },
-    bestTime: { type: localizedTextSchema },
-    dressCode: { type: localizedTextSchema },
-    cta: { type: localizedTextSchema },
+    tourOverview: { type: optionalLocalizedTextSchema },
+    bestTime: { type: optionalLocalizedTextSchema },
+    dressCode: { type: optionalLocalizedTextSchema },
+    cta: { type: optionalLocalizedTextSchema },
 
     // Images & Media
     gallery: [{ type: String }],
@@ -124,25 +124,25 @@ const packageItemSchema = new Schema<IPackageItem>(
 
     // Structural lists
     quickFacts: [quickFactSchema],
-    thingsToBring: [localizedTextSchema],
+    thingsToBring: [optionalLocalizedTextSchema],
     nearbyAttractions: [attractionSchema],
     relatedPackages: [{ type: String }],
     faqs: [faqSchema],
 
     // SEO
-    metaTitle: { type: localizedTextSchema },
-    metaDescription: { type: localizedTextSchema },
-    keywords: { type: localizedTextSchema },
+    metaTitle: { type: optionalLocalizedTextSchema },
+    metaDescription: { type: optionalLocalizedTextSchema },
+    keywords: { type: optionalLocalizedTextSchema },
     ogImage: { type: String, default: "" },
     ogImagePublicId: { type: String, default: "" },
     canonicalUrl: { type: String, default: "" },
 
     // Booking Info
-    cancellation: { type: localizedTextSchema },
-    refund: { type: localizedTextSchema },
-    pickup: { type: localizedTextSchema },
-    drop: { type: localizedTextSchema },
-    notes: { type: localizedTextSchema },
+    cancellation: { type: optionalLocalizedTextSchema },
+    refund: { type: optionalLocalizedTextSchema },
+    pickup: { type: optionalLocalizedTextSchema },
+    drop: { type: optionalLocalizedTextSchema },
+    notes: { type: optionalLocalizedTextSchema, default: () => ({ en: "", de: "", fr: "", ru: "" }) },
     displayOrder: { type: Number, default: 0 },
     hideRate: { type: Boolean, default: false },
     badgeText: { type: optionalLocalizedTextSchema, default: () => ({ en: "", de: "", fr: "", ru: "" }) },
