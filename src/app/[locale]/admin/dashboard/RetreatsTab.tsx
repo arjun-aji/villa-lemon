@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Plus, Edit2, Trash2, X, Loader2, Upload, Check,
+  Plus, Edit2, Trash2, X, Loader2, Upload, Check, ArrowUp, ArrowDown, GripVertical,
   Calendar, Users, Clock, BookOpen, Leaf, Heart, Star, Mountain, Home, Coffee, Sun, DollarSign, Settings, FileText, Globe
 } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
@@ -379,6 +379,38 @@ export default function RetreatsTab({
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
   const [heroImagePreview, setHeroImagePreview] = useState("");
   const [teachersList, setTeachersList] = useState<any[]>([]);
+
+  // Drag-and-drop & editing state for itinerary (curriculum) and FAQs
+  const [draggedCurriculumIdx, setDraggedCurriculumIdx] = useState<number | null>(null);
+  const [draggedFaqIdx, setDraggedFaqIdx] = useState<number | null>(null);
+  const [draggedExcursionIdx, setDraggedExcursionIdx] = useState<number | null>(null);
+  const [collapsedCurriculum, setCollapsedCurriculum] = useState<Record<number, boolean>>({});
+  const [collapsedFaqs, setCollapsedFaqs] = useState<Record<number, boolean>>({});
+
+  const moveCurriculum = (fromIdx: number, toIdx: number) => {
+    const list = [...form.curriculum];
+    if (toIdx < 0 || toIdx >= list.length || fromIdx === toIdx) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    const updated = list.map((item, idx) => ({ ...item, dayNumber: idx + 1 }));
+    setF("curriculum", updated);
+  };
+
+  const moveFaq = (fromIdx: number, toIdx: number) => {
+    const list = [...form.faqs];
+    if (toIdx < 0 || toIdx >= list.length || fromIdx === toIdx) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    setF("faqs", list);
+  };
+
+  const moveExcursion = (fromIdx: number, toIdx: number) => {
+    const list = [...form.excursions];
+    if (toIdx < 0 || toIdx >= list.length || fromIdx === toIdx) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    setF("excursions", list);
+  };
 
   // Fetch teachers list
   const fetchTeachers = useCallback(async () => {
@@ -1417,58 +1449,250 @@ export default function RetreatsTab({
           <div className="space-y-6 animate-fade-in">
             {/* Curriculum Days Repeater */}
             <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-serif text-sm font-semibold text-gray-800">Day-by-Day Curriculum Itinerary</span>
-                <button type="button" onClick={() => setF("curriculum", [...form.curriculum, { dayNumber: form.curriculum.length + 1, dayTitle: emptyLT(), description: emptyLT(), topics: [], learningOutcome: emptyLT(), images: [] }])}
-                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
-                  <Plus className="w-3.5 h-3.5" /> Add Day Itinerary
-                </button>
-              </div>
-              <div className="space-y-4">
-                {form.curriculum.map((c, i) => (
-                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
-                    <button type="button" onClick={() => setF("curriculum", form.curriculum.filter((_, idx) => idx !== i))}
-                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
-                      <X className="w-4 h-4" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif text-sm font-semibold text-gray-800">Day-by-Day Curriculum Itinerary</span>
+                  <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                    {form.curriculum.length} Days
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {form.curriculum.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const allCollapsed = form.curriculum.every((_, idx) => collapsedCurriculum[idx]);
+                        const next: Record<number, boolean> = {};
+                        form.curriculum.forEach((_, idx) => { next[idx] = !allCollapsed; });
+                        setCollapsedCurriculum(next);
+                      }}
+                      className="text-[10px] bg-white border border-gray-200 hover:border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-sm font-medium transition-colors"
+                    >
+                      {form.curriculum.every((_, idx) => collapsedCurriculum[idx]) ? "Expand All Days" : "Collapse All Days"}
                     </button>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                      <div className="flex flex-col gap-1">
-                        <label className="font-bold text-gray-600 uppercase text-[9px]">Day Number</label>
-                        <input type="number" value={c.dayNumber} onChange={e => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayNumber: Number(e.target.value) }; setF("curriculum", arr); }}
-                          className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none" />
+                  )}
+                  <button type="button" onClick={() => {
+                    const newIdx = form.curriculum.length;
+                    setF("curriculum", [...form.curriculum, { dayNumber: newIdx + 1, dayTitle: emptyLT(), description: emptyLT(), topics: [], learningOutcome: emptyLT(), images: [] }]);
+                    setCollapsedCurriculum(prev => ({ ...prev, [newIdx]: false }));
+                  }}
+                    className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                    <Plus className="w-3.5 h-3.5" /> Add Day Itinerary
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {form.curriculum.map((c, i) => {
+                  const isCollapsed = collapsedCurriculum[i] ?? false;
+                  return (
+                    <div
+                      key={i}
+                      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedCurriculumIdx !== null && draggedCurriculumIdx !== i) {
+                          moveCurriculum(draggedCurriculumIdx, i);
+                        }
+                        setDraggedCurriculumIdx(null);
+                      }}
+                      className={`bg-white rounded border transition-all shadow-sm ${
+                        draggedCurriculumIdx === i ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                      }`}
+                    >
+                      {/* Top Bar / Controls */}
+                      <div className="p-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between gap-2 select-none">
+                        <div className="flex items-center gap-2 flex-grow min-w-0">
+                          <div
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData("text/plain", `${i}`);
+                              setDraggedCurriculumIdx(i);
+                            }}
+                            onDragEnd={() => setDraggedCurriculumIdx(null)}
+                            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200 shrink-0"
+                            title="Drag to reorder day"
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+                          <span className="font-bold text-xs bg-amber-100/70 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded shrink-0">
+                            Day #{c.dayNumber || i + 1}
+                          </span>
+                          <span className="text-xs font-semibold text-gray-800 truncate">
+                            {c.dayTitle?.[activeLangTab] || c.dayTitle?.en || "(Untitled Day)"}
+                          </span>
+                        </div>
+
+                        {/* Order & Edit buttons */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => moveCurriculum(i, i - 1)}
+                            disabled={i === 0}
+                            className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveCurriculum(i, i + 1)}
+                            disabled={i === form.curriculum.length - 1}
+                            className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setCollapsedCurriculum(prev => ({ ...prev, [i]: !isCollapsed }))}
+                            className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-colors ${
+                              isCollapsed
+                                ? "bg-white border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold"
+                                : "bg-[#121212] text-white hover:bg-brand-gold hover:text-black"
+                            }`}
+                            title={isCollapsed ? "Edit Day" : "Done Editing"}
+                          >
+                            {isCollapsed ? (
+                              <>
+                                <Edit2 className="w-3 h-3 text-brand-gold" />
+                                <span>Edit</span>
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-3 h-3 text-green-400" />
+                                <span>Done</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = form.curriculum.filter((_, idx) => idx !== i).map((item, idx) => ({ ...item, dayNumber: idx + 1 }));
+                              setF("curriculum", updated);
+                            }}
+                            className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors"
+                            title="Delete Day"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="col-span-3">
-                        <LocalInput value={c.dayTitle} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], dayTitle: v }; setF("curriculum", arr); }} label="Day Heading Title" activeLang={activeLangTab} placeholder="Arrival in Varkala" />
-                      </div>
+
+                      {/* Day Content */}
+                      {isCollapsed ? (
+                        <div className="p-3 text-[11px] text-gray-500 space-y-1 bg-white">
+                          <p className="line-clamp-2">
+                            {c.description?.[activeLangTab] || c.description?.en || "(No description added yet)"}
+                          </p>
+                          {c.topics && c.topics.length > 0 && (
+                            <div className="flex gap-1 flex-wrap pt-1">
+                              {c.topics.slice(0, 4).map((t, tidx) => (
+                                <span key={tidx} className="bg-gray-100 text-gray-600 text-[9px] px-1.5 py-0.5 rounded">
+                                  {t[activeLangTab] || t.en}
+                                </span>
+                              ))}
+                              {c.topics.length > 4 && (
+                                <span className="text-[9px] text-gray-400">+{c.topics.length - 4} more</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-4 space-y-3 bg-white">
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div className="flex flex-col gap-1">
+                              <label className="font-bold text-gray-600 uppercase text-[9px]">Day Number</label>
+                              <input
+                                type="number"
+                                value={c.dayNumber}
+                                onChange={e => {
+                                  const arr = [...form.curriculum];
+                                  arr[i] = { ...arr[i], dayNumber: Number(e.target.value) };
+                                  setF("curriculum", arr);
+                                }}
+                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none"
+                              />
+                            </div>
+                            <div className="col-span-3">
+                              <LocalInput
+                                value={c.dayTitle}
+                                onChange={v => {
+                                  const arr = [...form.curriculum];
+                                  arr[i] = { ...arr[i], dayTitle: v };
+                                  setF("curriculum", arr);
+                                }}
+                                label="Day Heading Title"
+                                activeLang={activeLangTab}
+                                placeholder="Arrival in Varkala"
+                              />
+                            </div>
+                          </div>
+                          <LocalTextarea
+                            value={c.description}
+                            onChange={v => {
+                              const arr = [...form.curriculum];
+                              arr[i] = { ...arr[i], description: v };
+                              setF("curriculum", arr);
+                            }}
+                            label="Description details"
+                            activeLang={activeLangTab}
+                            placeholder="Welcome drink, check-in, gentle orientation"
+                            rows={3}
+                          />
+                          <LocalInput
+                            value={c.learningOutcome}
+                            onChange={v => {
+                              const arr = [...form.curriculum];
+                              arr[i] = { ...arr[i], learningOutcome: v };
+                              setF("curriculum", arr);
+                            }}
+                            label="Learning Outcome / Daily Focus"
+                            activeLang={activeLangTab}
+                            placeholder="Settle into the retreat environment..."
+                          />
+
+                          {/* Bullet Highlights under day */}
+                          <div className="flex flex-col gap-1">
+                            <label className="font-bold text-gray-600 uppercase text-[9px]">
+                              Day Bullet Highlights (Comma separated)
+                            </label>
+                            <input
+                              type="text"
+                              value={c.topics.map(t => t[activeLangTab] || "").join(", ")}
+                              onChange={e => {
+                                const list = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                                const arr = [...form.curriculum];
+                                arr[i].topics = list.map(itemText => {
+                                  const found = c.topics.find(t => t[activeLangTab] === itemText);
+                                  if (found) return found;
+                                  return { ...emptyLT(), [activeLangTab]: itemText };
+                                });
+                                setF("curriculum", arr);
+                              }}
+                              placeholder="Welcome Circle, Property Tour, Evening Meditation"
+                              className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <LocalTextarea value={c.description} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], description: v }; setF("curriculum", arr); }} label="Description details" activeLang={activeLangTab} placeholder="Welcome drink, check-in, gentle orientation" rows={3} />
-                    <LocalInput value={c.learningOutcome} onChange={v => { const arr = [...form.curriculum]; arr[i] = { ...arr[i], learningOutcome: v }; setF("curriculum", arr); }} label="Learning Outcome / Daily Focus" activeLang={activeLangTab} placeholder="Settle into the retreat environment..." />
-                    
-                    {/* Bullet Highlights under day */}
-                    <div className="flex flex-col gap-1">
-                      <label className="font-bold text-gray-600 uppercase text-[9px]">Day Bullet Highlights (Comma separated)</label>
-                      <input type="text" value={c.topics.map(t => t[activeLangTab] || "").join(", ")}
-                        onChange={e => {
-                          const list = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
-                          const arr = [...form.curriculum];
-                          arr[i].topics = list.map(itemText => {
-                            const found = c.topics.find(t => t[activeLangTab] === itemText);
-                            if (found) return found;
-                            return { ...emptyLT(), [activeLangTab]: itemText };
-                          });
-                          setF("curriculum", arr);
-                        }}
-                        placeholder="Welcome Circle, Property Tour, Evening Meditation" className="border border-gray-200 p-2.5 rounded text-xs bg-white focus:outline-none w-full" />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Excursions Repeater */}
             <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-serif text-sm font-semibold text-gray-800">Included Excursions</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-serif text-sm font-semibold text-gray-800">Included Excursions</span>
+                  <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                    {form.excursions.length}
+                  </span>
+                </div>
                 <button type="button" onClick={() => setF("excursions", [...form.excursions, { name: emptyLT(), duration: emptyLT(), description: emptyLT(), image: "", highlights: [], relatedTour: "", included: true }])}
                   className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
                   <Plus className="w-3.5 h-3.5" /> Add Excursion
@@ -1476,11 +1700,71 @@ export default function RetreatsTab({
               </div>
               <div className="space-y-4">
                 {form.excursions.map((exc, i) => (
-                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
-                    <button type="button" onClick={() => setF("excursions", form.excursions.filter((_, idx) => idx !== i))}
-                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
-                      <X className="w-4 h-4" />
-                    </button>
+                  <div
+                    key={i}
+                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedExcursionIdx !== null && draggedExcursionIdx !== i) {
+                        moveExcursion(draggedExcursionIdx, i);
+                      }
+                      setDraggedExcursionIdx(null);
+                    }}
+                    className={`bg-white p-4 rounded border relative space-y-3 shadow-sm transition-all ${
+                      draggedExcursionIdx === i ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                    }`}
+                  >
+                    {/* Excursion controls */}
+                    <div className="flex items-center justify-between border-b pb-2 select-none">
+                      <div className="flex items-center gap-2">
+                        <div
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/plain", `${i}`);
+                            setDraggedExcursionIdx(i);
+                          }}
+                          onDragEnd={() => setDraggedExcursionIdx(null)}
+                          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200"
+                          title="Drag to reorder excursion"
+                        >
+                          <GripVertical className="w-4 h-4" />
+                        </div>
+                        <span className="font-bold text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                          Excursion #{i + 1}
+                        </span>
+                        <span className="text-xs font-semibold text-gray-800 truncate">
+                          {exc.name?.[activeLangTab] || exc.name?.en || "(Untitled Excursion)"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveExcursion(i, i - 1)}
+                          disabled={i === 0}
+                          className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                          title="Move Up"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveExcursion(i, i + 1)}
+                          disabled={i === form.excursions.length - 1}
+                          className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                          title="Move Down"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setF("excursions", form.excursions.filter((_, idx) => idx !== i))}
+                          className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors ml-1"
+                          title="Delete Excursion"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <LocalInput value={exc.name} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], name: v }; setF("excursions", arr); }} label="Excursion Name" activeLang={activeLangTab} placeholder="Golden Island Backwater Experience" />
                       <LocalInput value={exc.duration} onChange={v => { const arr = [...form.excursions]; arr[i] = { ...arr[i], duration: v }; setF("excursions", arr); }} label="Duration Label" activeLang={activeLangTab} placeholder="Approximately 2 Hours" />
@@ -1965,24 +2249,175 @@ export default function RetreatsTab({
 
             {/* FAQs Repeater */}
             <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-serif text-sm font-semibold text-gray-800">Frequently Asked Questions</span>
-                <button type="button" onClick={() => setF("faqs", [...form.faqs, { question: emptyLT(), answer: emptyLT() }])}
-                  className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
-                  <Plus className="w-3.5 h-3.5" /> Add FAQ
-                </button>
-              </div>
-              <div className="space-y-4">
-                {form.faqs.map((f, i) => (
-                  <div key={i} className="bg-white p-4 rounded border border-gray-200 relative space-y-3 shadow-sm">
-                    <button type="button" onClick={() => setF("faqs", form.faqs.filter((_, idx) => idx !== i))}
-                      className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 transition-colors cursor-pointer">
-                      <X className="w-4 h-4" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif text-sm font-semibold text-gray-800">Frequently Asked Questions</span>
+                  <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                    {form.faqs.length} FAQs
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {form.faqs.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const allCollapsed = form.faqs.every((_, idx) => collapsedFaqs[idx]);
+                        const next: Record<number, boolean> = {};
+                        form.faqs.forEach((_, idx) => { next[idx] = !allCollapsed; });
+                        setCollapsedFaqs(next);
+                      }}
+                      className="text-[10px] bg-white border border-gray-200 hover:border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-sm font-medium transition-colors"
+                    >
+                      {form.faqs.every((_, idx) => collapsedFaqs[idx]) ? "Expand All FAQs" : "Collapse All FAQs"}
                     </button>
-                    <LocalInput value={f.question} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], question: v }; setF("faqs", arr); }} label="Question" activeLang={activeLangTab} placeholder="Is this retreat beginner friendly?" />
-                    <LocalTextarea value={f.answer} onChange={v => { const arr = [...form.faqs]; arr[i] = { ...arr[i], answer: v }; setF("faqs", arr); }} label="Answer Description" activeLang={activeLangTab} placeholder="Yes, Hatha sessions are beginner friendly..." rows={3} />
-                  </div>
-                ))}
+                  )}
+                  <button type="button" onClick={() => {
+                    const newIdx = form.faqs.length;
+                    setF("faqs", [...form.faqs, { question: emptyLT(), answer: emptyLT() }]);
+                    setCollapsedFaqs(prev => ({ ...prev, [newIdx]: false }));
+                  }}
+                    className="flex items-center gap-1 text-[10px] bg-[#121212] hover:bg-brand-gold text-white hover:text-black font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors cursor-pointer select-none">
+                    <Plus className="w-3.5 h-3.5" /> Add FAQ
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {form.faqs.map((f, i) => {
+                  const isCollapsed = collapsedFaqs[i] ?? false;
+                  return (
+                    <div
+                      key={i}
+                      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedFaqIdx !== null && draggedFaqIdx !== i) {
+                          moveFaq(draggedFaqIdx, i);
+                        }
+                        setDraggedFaqIdx(null);
+                      }}
+                      className={`bg-white rounded border transition-all shadow-sm ${
+                        draggedFaqIdx === i ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                      }`}
+                    >
+                      {/* Top Bar / Controls */}
+                      <div className="p-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between gap-2 select-none">
+                        <div className="flex items-center gap-2 flex-grow min-w-0">
+                          <div
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData("text/plain", `${i}`);
+                              setDraggedFaqIdx(i);
+                            }}
+                            onDragEnd={() => setDraggedFaqIdx(null)}
+                            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200 shrink-0"
+                            title="Drag to reorder FAQ"
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </div>
+                          <span className="font-bold text-xs bg-amber-100/70 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded shrink-0">
+                            FAQ #{i + 1}
+                          </span>
+                          <span className="text-xs font-semibold text-gray-800 truncate">
+                            {f.question?.[activeLangTab] || f.question?.en || "(Untitled Question)"}
+                          </span>
+                        </div>
+
+                        {/* Order & Edit buttons */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => moveFaq(i, i - 1)}
+                            disabled={i === 0}
+                            className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveFaq(i, i + 1)}
+                            disabled={i === form.faqs.length - 1}
+                            className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setCollapsedFaqs(prev => ({ ...prev, [i]: !isCollapsed }))}
+                            className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-colors ${
+                              isCollapsed
+                                ? "bg-white border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold"
+                                : "bg-[#121212] text-white hover:bg-brand-gold hover:text-black"
+                            }`}
+                            title={isCollapsed ? "Edit FAQ" : "Done Editing"}
+                          >
+                            {isCollapsed ? (
+                              <>
+                                <Edit2 className="w-3 h-3 text-brand-gold" />
+                                <span>Edit</span>
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-3 h-3 text-green-400" />
+                                <span>Done</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setF("faqs", form.faqs.filter((_, idx) => idx !== i))}
+                            className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors"
+                            title="Delete FAQ"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      {isCollapsed ? (
+                        <div className="p-3 text-[11px] text-gray-500 space-y-1 bg-white">
+                          <p className="font-medium text-gray-700">
+                            Q: {f.question?.[activeLangTab] || f.question?.en || "(No question)"}
+                          </p>
+                          <p className="line-clamp-2 text-gray-500">
+                            A: {f.answer?.[activeLangTab] || f.answer?.en || "(No answer)"}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-4 space-y-3 bg-white">
+                          <LocalInput
+                            value={f.question}
+                            onChange={v => {
+                              const arr = [...form.faqs];
+                              arr[i] = { ...arr[i], question: v };
+                              setF("faqs", arr);
+                            }}
+                            label="Question"
+                            activeLang={activeLangTab}
+                            placeholder="Is this retreat beginner friendly?"
+                          />
+                          <LocalTextarea
+                            value={f.answer}
+                            onChange={v => {
+                              const arr = [...form.faqs];
+                              arr[i] = { ...arr[i], answer: v };
+                              setF("faqs", arr);
+                            }}
+                            label="Answer Description"
+                            activeLang={activeLangTab}
+                            placeholder="Yes, Hatha sessions are beginner friendly..."
+                            rows={3}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

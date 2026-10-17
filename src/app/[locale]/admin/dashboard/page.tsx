@@ -45,7 +45,8 @@ import {
   Sliders,
   DollarSign,
   Mail,
-  Camera
+  Camera,
+  GripVertical
 } from "lucide-react";
 
 interface LocalizedText {
@@ -1301,6 +1302,30 @@ export default function AdminDashboard() {
   const [packageForm, setPackageForm] = useState<Partial<PackageItemData>>({});
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
+  // Drag-and-drop & editing state for package itineraries and FAQs
+  const [draggedItineraryIdx, setDraggedItineraryIdx] = useState<number | null>(null);
+  const [draggedEveningItineraryIdx, setDraggedEveningItineraryIdx] = useState<number | null>(null);
+  const [draggedPkgFaqIdx, setDraggedPkgFaqIdx] = useState<number | null>(null);
+  const [editingItineraryMap, setEditingItineraryMap] = useState<Record<number, boolean>>({});
+  const [editingEveningItineraryMap, setEditingEveningItineraryMap] = useState<Record<number, boolean>>({});
+  const [editingPkgFaqMap, setEditingPkgFaqMap] = useState<Record<number, boolean>>({});
+
+  const movePackageItinerary = (type: "itinerary" | "itineraryEvening", fromIdx: number, toIdx: number) => {
+    const list = [...(packageForm[type] || [])];
+    if (toIdx < 0 || toIdx >= list.length || fromIdx === toIdx) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    setPackageForm({ ...packageForm, [type]: list });
+  };
+
+  const movePackageFaq = (fromIdx: number, toIdx: number) => {
+    const list = [...(packageForm.faqs || [])];
+    if (toIdx < 0 || toIdx >= list.length || fromIdx === toIdx) return;
+    const [moved] = list.splice(fromIdx, 1);
+    list.splice(toIdx, 0, moved);
+    setPackageForm({ ...packageForm, faqs: list });
+  };
+
   const slugify = (text: string) => {
     return text
       .toString()
@@ -1751,6 +1776,41 @@ export default function AdminDashboard() {
     });
     setSubgroupForm({ ...subgroupForm, hostRetreatConfig: config });
     setFaqCount(c => c - 1);
+  };
+
+  const [draggedHostRetreatFaqNum, setDraggedHostRetreatFaqNum] = useState<number | null>(null);
+
+  const moveHostRetreatFaq = (num: number, direction: "up" | "down") => {
+    const target = direction === "up" ? num - 1 : num + 1;
+    if (target < 1 || target > faqCount) return;
+    const config = { ...(subgroupForm.hostRetreatConfig || {}) };
+    const curQ = config[`faq${num}Question`];
+    const curA = config[`faq${num}Answer`];
+    const targetQ = config[`faq${target}Question`];
+    const targetA = config[`faq${target}Answer`];
+
+    config[`faq${num}Question`] = targetQ;
+    config[`faq${num}Answer`] = targetA;
+    config[`faq${target}Question`] = curQ;
+    config[`faq${target}Answer`] = curA;
+
+    setSubgroupForm({ ...subgroupForm, hostRetreatConfig: config });
+  };
+
+  const swapHostRetreatFaq = (fromNum: number, toNum: number) => {
+    if (fromNum < 1 || fromNum > faqCount || toNum < 1 || toNum > faqCount || fromNum === toNum) return;
+    const config = { ...(subgroupForm.hostRetreatConfig || {}) };
+    const curQ = config[`faq${fromNum}Question`];
+    const curA = config[`faq${fromNum}Answer`];
+    const targetQ = config[`faq${toNum}Question`];
+    const targetA = config[`faq${toNum}Answer`];
+
+    config[`faq${fromNum}Question`] = targetQ;
+    config[`faq${fromNum}Answer`] = targetA;
+    config[`faq${toNum}Question`] = curQ;
+    config[`faq${toNum}Answer`] = curA;
+
+    setSubgroupForm({ ...subgroupForm, hostRetreatConfig: config });
   };
 
   const handleAddRoomClick = () => {
@@ -5018,18 +5078,65 @@ export default function AdminDashboard() {
                         <div className="space-y-4">
                           {/* DYNAMIC FAQ LIST */}
                           {Array.from({ length: faqCount }, (_, i) => i + 1).map((num) => (
-                            <div key={num} className="p-3 border rounded bg-white space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-brand-gold uppercase text-[10px] tracking-widest">FAQ #{num}</span>
-                                {faqCount > 1 && (
+                            <div
+                              key={num}
+                              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                if (draggedHostRetreatFaqNum !== null && draggedHostRetreatFaqNum !== num) {
+                                  swapHostRetreatFaq(draggedHostRetreatFaqNum, num);
+                                }
+                                setDraggedHostRetreatFaqNum(null);
+                              }}
+                              className={`p-3 border rounded bg-white space-y-3 transition-all ${
+                                draggedHostRetreatFaqNum === num ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between select-none">
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    draggable
+                                    onDragStart={(e) => {
+                                      e.dataTransfer.setData("text/plain", `${num}`);
+                                      setDraggedHostRetreatFaqNum(num);
+                                    }}
+                                    onDragEnd={() => setDraggedHostRetreatFaqNum(null)}
+                                    className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-100"
+                                    title="Drag to reorder FAQ"
+                                  >
+                                    <GripVertical className="w-4 h-4" />
+                                  </div>
+                                  <span className="font-bold text-brand-gold uppercase text-[10px] tracking-widest">FAQ #{num}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
                                   <button
                                     type="button"
-                                    onClick={() => removeFaq(num)}
-                                    className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded"
+                                    onClick={() => moveHostRetreatFaq(num, "up")}
+                                    disabled={num === 1}
+                                    className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                    title="Move Up"
                                   >
-                                    ✕ Remove
+                                    <ArrowUp className="w-3.5 h-3.5" />
                                   </button>
-                                )}
+                                  <button
+                                    type="button"
+                                    onClick={() => moveHostRetreatFaq(num, "down")}
+                                    disabled={num === faqCount}
+                                    className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                    title="Move Down"
+                                  >
+                                    <ArrowDown className="w-3.5 h-3.5" />
+                                  </button>
+                                  {faqCount > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => removeFaq(num)}
+                                      className="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase flex items-center gap-1 border border-red-300 px-2 py-0.5 rounded ml-1"
+                                    >
+                                      ✕ Remove
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex flex-col gap-1.5">
                                 <label className="font-semibold text-gray-600 text-xs">Question</label>
@@ -7440,85 +7547,206 @@ export default function AdminDashboard() {
                 <div className="space-y-6 animate-fade-in">
                   {/* Morning / Primary Itinerary editor */}
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Morning / Primary Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider text-xs">
+                          Morning / Primary Itinerary Steps ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                          {(packageForm.itinerary || []).length} Steps
+                        </span>
+                      </div>
+                      {(packageForm.itinerary || []).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allEditing = (packageForm.itinerary || []).every((_, idx) => editingItineraryMap[idx]);
+                            const next: Record<number, boolean> = {};
+                            (packageForm.itinerary || []).forEach((_, idx) => { next[idx] = !allEditing; });
+                            setEditingItineraryMap(next);
+                          }}
+                          className="text-[10px] bg-white border border-gray-200 hover:border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-sm font-medium transition-colors self-start sm:self-auto"
+                        >
+                          {(packageForm.itinerary || []).every((_, idx) => editingItineraryMap[idx]) ? "Collapse All Steps" : "Expand / Edit All Steps"}
+                        </button>
+                      )}
+                    </div>
+
                     <div className="flex flex-col gap-3">
-                      {(packageForm.itinerary || []).map((step, idx) => (
-                        <div key={idx} className="flex items-center border bg-white p-3 rounded gap-3 shadow-sm">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-grow">
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
-                              <input
-                                type="text"
-                                value={step.timeOrDay[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itinerary = [...(packageForm.itinerary || [])];
-                                  itinerary[idx] = {
-                                    ...itinerary[idx],
-                                    timeOrDay: {
-                                      ...itinerary[idx].timeOrDay,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itinerary });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. 09:00 AM"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
-                              <input
-                                type="text"
-                                value={step.activity[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itinerary = [...(packageForm.itinerary || [])];
-                                  itinerary[idx] = {
-                                    ...itinerary[idx],
-                                    activity: {
-                                      ...itinerary[idx].activity,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itinerary });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. Pick-up"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
-                              <input
-                                type="text"
-                                value={step.desc[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itinerary = [...(packageForm.itinerary || [])];
-                                  itinerary[idx] = {
-                                    ...itinerary[idx],
-                                    desc: {
-                                      ...itinerary[idx].desc,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itinerary });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. Meeting at Villa Lemon..."
-                              />
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const itinerary = [...(packageForm.itinerary || [])];
-                              itinerary.splice(idx, 1);
-                              setPackageForm({ ...packageForm, itinerary });
+                      {(packageForm.itinerary || []).map((step, idx) => {
+                        const isEditing = editingItineraryMap[idx] ?? false;
+                        return (
+                          <div
+                            key={idx}
+                            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              if (draggedItineraryIdx !== null && draggedItineraryIdx !== idx) {
+                                movePackageItinerary("itinerary", draggedItineraryIdx, idx);
+                              }
+                              setDraggedItineraryIdx(null);
                             }}
-                            className="text-red-500 shrink-0 p-1.5 hover:bg-red-50 rounded transition-colors self-end sm:self-center mb-0.5 sm:mb-0"
+                            className={`border bg-white rounded shadow-sm transition-all overflow-hidden ${
+                              draggedItineraryIdx === idx ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                            }`}
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                            {/* Step Top Bar */}
+                            <div className="p-2.5 bg-gray-50/70 border-b border-gray-150 flex items-center justify-between gap-2 select-none">
+                              <div className="flex items-center gap-2 flex-grow min-w-0">
+                                <div
+                                  draggable
+                                  onDragStart={(e) => {
+                                    e.dataTransfer.setData("text/plain", `${idx}`);
+                                    setDraggedItineraryIdx(idx);
+                                  }}
+                                  onDragEnd={() => setDraggedItineraryIdx(null)}
+                                  className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200 shrink-0"
+                                  title="Drag to reorder step"
+                                >
+                                  <GripVertical className="w-4 h-4" />
+                                </div>
+                                <span className="font-bold text-[10px] bg-amber-100/70 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded shrink-0">
+                                  #{idx + 1}
+                                </span>
+                                <span className="text-[10px] font-mono font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded shrink-0">
+                                  {step.timeOrDay[activeLangTab] || step.timeOrDay.en || "Time"}
+                                </span>
+                                <span className="text-xs font-bold text-[#121212] truncate">
+                                  {step.activity[activeLangTab] || step.activity.en || "(No activity title)"}
+                                </span>
+                                {!isEditing && (
+                                  <span className="text-[11px] text-gray-500 font-light truncate hidden sm:inline">
+                                    — {step.desc[activeLangTab] || step.desc.en || ""}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageItinerary("itinerary", idx, idx - 1)}
+                                  disabled={idx === 0}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move Step Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageItinerary("itinerary", idx, idx + 1)}
+                                  disabled={idx === (packageForm.itinerary || []).length - 1}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move Step Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingItineraryMap(prev => ({ ...prev, [idx]: !isEditing }))}
+                                  className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-colors ${
+                                    isEditing
+                                      ? "bg-[#121212] text-white hover:bg-brand-gold hover:text-black"
+                                      : "bg-white border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold"
+                                  }`}
+                                  title={isEditing ? "Done Editing" : "Edit Step"}
+                                >
+                                  {isEditing ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-400" />
+                                      <span>Done</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Edit2 className="w-3 h-3 text-brand-gold" />
+                                      <span>Edit</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const itinerary = [...(packageForm.itinerary || [])];
+                                    itinerary.splice(idx, 1);
+                                    setPackageForm({ ...packageForm, itinerary });
+                                  }}
+                                  className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors ml-0.5"
+                                  title="Delete Step"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Step Inputs when in edit mode */}
+                            {isEditing && (
+                              <div className="p-3 bg-white">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
+                                    <input
+                                      type="text"
+                                      value={step.timeOrDay[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itinerary = [...(packageForm.itinerary || [])];
+                                        itinerary[idx] = {
+                                          ...itinerary[idx],
+                                          timeOrDay: {
+                                            ...itinerary[idx].timeOrDay,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itinerary });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. 09:00 AM"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
+                                    <input
+                                      type="text"
+                                      value={step.activity[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itinerary = [...(packageForm.itinerary || [])];
+                                        itinerary[idx] = {
+                                          ...itinerary[idx],
+                                          activity: {
+                                            ...itinerary[idx].activity,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itinerary });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. Pick-up"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
+                                    <input
+                                      type="text"
+                                      value={step.desc[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itinerary = [...(packageForm.itinerary || [])];
+                                        itinerary[idx] = {
+                                          ...itinerary[idx],
+                                          desc: {
+                                            ...itinerary[idx].desc,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itinerary });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. Meeting at Villa Lemon..."
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end pt-2 border-t border-dashed">
@@ -7540,18 +7768,20 @@ export default function AdminDashboard() {
                             const dIn = document.getElementById("newStepDesc") as HTMLInputElement;
                             if (tIn && aIn && dIn && tIn.value.trim() && aIn.value.trim() && dIn.value.trim()) {
                               const itinerary = [...(packageForm.itinerary || [])];
+                              const newIdx = itinerary.length;
                               itinerary.push({
                                 timeOrDay: createEmptyLocalizedText(tIn.value.trim()),
                                 activity: createEmptyLocalizedText(aIn.value.trim()),
                                 desc: createEmptyLocalizedText(dIn.value.trim())
                               });
                               setPackageForm({ ...packageForm, itinerary });
+                              setEditingItineraryMap(prev => ({ ...prev, [newIdx]: false }));
                               tIn.value = "";
                               aIn.value = "";
                               dIn.value = "";
                             }
                           }}
-                          className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
+                          className="bg-[#121212] hover:bg-brand-gold text-white hover:text-black transition-colors px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
                         >
                           Add Step
                         </button>
@@ -7561,85 +7791,206 @@ export default function AdminDashboard() {
 
                   {/* Evening Itinerary editor */}
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                    <h4 className="font-bold text-[#121212] uppercase tracking-wider border-b pb-1.5">Evening Itinerary Steps ({activeLangTab.toUpperCase()})</h4>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-[#121212] uppercase tracking-wider text-xs">
+                          Evening Itinerary Steps ({activeLangTab.toUpperCase()})
+                        </h4>
+                        <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                          {(packageForm.itineraryEvening || []).length} Steps
+                        </span>
+                      </div>
+                      {(packageForm.itineraryEvening || []).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allEditing = (packageForm.itineraryEvening || []).every((_, idx) => editingEveningItineraryMap[idx]);
+                            const next: Record<number, boolean> = {};
+                            (packageForm.itineraryEvening || []).forEach((_, idx) => { next[idx] = !allEditing; });
+                            setEditingEveningItineraryMap(next);
+                          }}
+                          className="text-[10px] bg-white border border-gray-200 hover:border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-sm font-medium transition-colors self-start sm:self-auto"
+                        >
+                          {(packageForm.itineraryEvening || []).every((_, idx) => editingEveningItineraryMap[idx]) ? "Collapse All Steps" : "Expand / Edit All Steps"}
+                        </button>
+                      )}
+                    </div>
+
                     <div className="flex flex-col gap-3">
-                      {(packageForm.itineraryEvening || []).map((step, idx) => (
-                        <div key={idx} className="flex items-center border bg-white p-3 rounded gap-3 shadow-sm">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-grow">
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
-                              <input
-                                type="text"
-                                value={step.timeOrDay[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
-                                  itineraryEvening[idx] = {
-                                    ...itineraryEvening[idx],
-                                    timeOrDay: {
-                                      ...itineraryEvening[idx].timeOrDay,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itineraryEvening });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. 03:30 PM"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
-                              <input
-                                type="text"
-                                value={step.activity[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
-                                  itineraryEvening[idx] = {
-                                    ...itineraryEvening[idx],
-                                    activity: {
-                                      ...itineraryEvening[idx].activity,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itineraryEvening });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. Pick-up"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
-                              <input
-                                type="text"
-                                value={step.desc[activeLangTab] || ""}
-                                onChange={(e) => {
-                                  const itineraryEvening = [...(packageForm.itineraryEvening || [])];
-                                  itineraryEvening[idx] = {
-                                    ...itineraryEvening[idx],
-                                    desc: {
-                                      ...itineraryEvening[idx].desc,
-                                      [activeLangTab]: e.target.value
-                                    }
-                                  };
-                                  setPackageForm({ ...packageForm, itineraryEvening });
-                                }}
-                                className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
-                                placeholder="e.g. Meeting at Villa Lemon..."
-                              />
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const itineraryEvening = [...(packageForm.itineraryEvening || [])];
-                              itineraryEvening.splice(idx, 1);
-                              setPackageForm({ ...packageForm, itineraryEvening });
+                      {(packageForm.itineraryEvening || []).map((step, idx) => {
+                        const isEditing = editingEveningItineraryMap[idx] ?? false;
+                        return (
+                          <div
+                            key={idx}
+                            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              if (draggedEveningItineraryIdx !== null && draggedEveningItineraryIdx !== idx) {
+                                movePackageItinerary("itineraryEvening", draggedEveningItineraryIdx, idx);
+                              }
+                              setDraggedEveningItineraryIdx(null);
                             }}
-                            className="text-red-500 shrink-0 p-1.5 hover:bg-red-50 rounded transition-colors self-end sm:self-center mb-0.5 sm:mb-0"
+                            className={`border bg-white rounded shadow-sm transition-all overflow-hidden ${
+                              draggedEveningItineraryIdx === idx ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                            }`}
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                            {/* Step Top Bar */}
+                            <div className="p-2.5 bg-gray-50/70 border-b border-gray-150 flex items-center justify-between gap-2 select-none">
+                              <div className="flex items-center gap-2 flex-grow min-w-0">
+                                <div
+                                  draggable
+                                  onDragStart={(e) => {
+                                    e.dataTransfer.setData("text/plain", `${idx}`);
+                                    setDraggedEveningItineraryIdx(idx);
+                                  }}
+                                  onDragEnd={() => setDraggedEveningItineraryIdx(null)}
+                                  className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200 shrink-0"
+                                  title="Drag to reorder evening step"
+                                >
+                                  <GripVertical className="w-4 h-4" />
+                                </div>
+                                <span className="font-bold text-[10px] bg-amber-100/70 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded shrink-0">
+                                  #{idx + 1}
+                                </span>
+                                <span className="text-[10px] font-mono font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded shrink-0">
+                                  {step.timeOrDay[activeLangTab] || step.timeOrDay.en || "Time"}
+                                </span>
+                                <span className="text-xs font-bold text-[#121212] truncate">
+                                  {step.activity[activeLangTab] || step.activity.en || "(No activity title)"}
+                                </span>
+                                {!isEditing && (
+                                  <span className="text-[11px] text-gray-500 font-light truncate hidden sm:inline">
+                                    — {step.desc[activeLangTab] || step.desc.en || ""}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageItinerary("itineraryEvening", idx, idx - 1)}
+                                  disabled={idx === 0}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move Step Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageItinerary("itineraryEvening", idx, idx + 1)}
+                                  disabled={idx === (packageForm.itineraryEvening || []).length - 1}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move Step Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingEveningItineraryMap(prev => ({ ...prev, [idx]: !isEditing }))}
+                                  className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-colors ${
+                                    isEditing
+                                      ? "bg-[#121212] text-white hover:bg-brand-gold hover:text-black"
+                                      : "bg-white border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold"
+                                  }`}
+                                  title={isEditing ? "Done Editing" : "Edit Step"}
+                                >
+                                  {isEditing ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-400" />
+                                      <span>Done</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Edit2 className="w-3 h-3 text-brand-gold" />
+                                      <span>Edit</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                    itineraryEvening.splice(idx, 1);
+                                    setPackageForm({ ...packageForm, itineraryEvening });
+                                  }}
+                                  className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors ml-0.5"
+                                  title="Delete Step"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Step Inputs when in edit mode */}
+                            {isEditing && (
+                              <div className="p-3 bg-white">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Time/Day Label</label>
+                                    <input
+                                      type="text"
+                                      value={step.timeOrDay[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                        itineraryEvening[idx] = {
+                                          ...itineraryEvening[idx],
+                                          timeOrDay: {
+                                            ...itineraryEvening[idx].timeOrDay,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itineraryEvening });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. 03:30 PM"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Activity Label</label>
+                                    <input
+                                      type="text"
+                                      value={step.activity[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                        itineraryEvening[idx] = {
+                                          ...itineraryEvening[idx],
+                                          activity: {
+                                            ...itineraryEvening[idx].activity,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itineraryEvening });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. Pick-up"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <label className="font-bold text-gray-500 uppercase text-[9px]">Description</label>
+                                    <input
+                                      type="text"
+                                      value={step.desc[activeLangTab] || ""}
+                                      onChange={(e) => {
+                                        const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                                        itineraryEvening[idx] = {
+                                          ...itineraryEvening[idx],
+                                          desc: {
+                                            ...itineraryEvening[idx].desc,
+                                            [activeLangTab]: e.target.value
+                                          }
+                                        };
+                                        setPackageForm({ ...packageForm, itineraryEvening });
+                                      }}
+                                      className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                      placeholder="e.g. Meeting at Villa Lemon..."
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end pt-2 border-t border-dashed">
@@ -7661,18 +8012,20 @@ export default function AdminDashboard() {
                             const dIn = document.getElementById("newStepDescEvening") as HTMLInputElement;
                             if (tIn && aIn && dIn && tIn.value.trim() && aIn.value.trim() && dIn.value.trim()) {
                               const itineraryEvening = [...(packageForm.itineraryEvening || [])];
+                              const newIdx = itineraryEvening.length;
                               itineraryEvening.push({
                                 timeOrDay: createEmptyLocalizedText(tIn.value.trim()),
                                 activity: createEmptyLocalizedText(aIn.value.trim()),
                                 desc: createEmptyLocalizedText(dIn.value.trim())
                               });
                               setPackageForm({ ...packageForm, itineraryEvening });
+                              setEditingEveningItineraryMap(prev => ({ ...prev, [newIdx]: false }));
                               tIn.value = "";
                               aIn.value = "";
                               dIn.value = "";
                             }
                           }}
-                          className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
+                          className="bg-[#121212] hover:bg-brand-gold text-white hover:text-black transition-colors px-4 py-2 rounded font-bold uppercase tracking-wider shrink-0 text-[10px]"
                         >
                           Add Step
                         </button>
@@ -7813,25 +8166,185 @@ export default function AdminDashboard() {
 
                   {/* FAQs */}
                   <div className="bg-gray-50 p-4 rounded border border-gray-100 space-y-4">
-                    <label className="font-bold text-gray-600 uppercase block">Frequently Asked Questions ({activeLangTab.toUpperCase()})</label>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-2 gap-2">
+                      <div className="flex items-center gap-2">
+                        <label className="font-bold text-gray-600 uppercase block text-xs">
+                          Frequently Asked Questions ({activeLangTab.toUpperCase()})
+                        </label>
+                        <span className="text-[10px] bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                          {(packageForm.faqs || []).length} FAQs
+                        </span>
+                      </div>
+                      {(packageForm.faqs || []).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allEditing = (packageForm.faqs || []).every((_, idx) => editingPkgFaqMap[idx]);
+                            const next: Record<number, boolean> = {};
+                            (packageForm.faqs || []).forEach((_, idx) => { next[idx] = !allEditing; });
+                            setEditingPkgFaqMap(next);
+                          }}
+                          className="text-[10px] bg-white border border-gray-200 hover:border-gray-300 text-gray-600 px-2.5 py-1.5 rounded-sm font-medium transition-colors self-start sm:self-auto"
+                        >
+                          {(packageForm.faqs || []).every((_, idx) => editingPkgFaqMap[idx]) ? "Collapse All FAQs" : "Expand / Edit All FAQs"}
+                        </button>
+                      )}
+                    </div>
+
                     <div className="flex flex-col gap-3">
-                      {(packageForm.faqs || []).map((faq, idx) => (
-                        <div key={idx} className="border bg-white p-3 rounded shadow-sm space-y-1 relative">
-                          <h5 className="font-bold text-xs text-[#121212]">Q: {faq.question[activeLangTab]}</h5>
-                          <p className="text-[11px] text-gray-600 font-light font-sans">A: {faq.answer[activeLangTab]}</p>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const faqs = [...(packageForm.faqs || [])];
-                              faqs.splice(idx, 1);
-                              setPackageForm({ ...packageForm, faqs });
+                      {(packageForm.faqs || []).map((faq, idx) => {
+                        const isEditing = editingPkgFaqMap[idx] ?? false;
+                        return (
+                          <div
+                            key={idx}
+                            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              if (draggedPkgFaqIdx !== null && draggedPkgFaqIdx !== idx) {
+                                movePackageFaq(draggedPkgFaqIdx, idx);
+                              }
+                              setDraggedPkgFaqIdx(null);
                             }}
-                            className="absolute top-2 right-2 text-red-500"
+                            className={`border bg-white rounded shadow-sm transition-all overflow-hidden ${
+                              draggedPkgFaqIdx === idx ? "border-brand-gold bg-amber-50/20 opacity-60" : "border-gray-200"
+                            }`}
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
+                            {/* FAQ Top Bar */}
+                            <div className="p-2.5 bg-gray-50/70 border-b border-gray-150 flex items-center justify-between gap-2 select-none">
+                              <div className="flex items-center gap-2 flex-grow min-w-0">
+                                <div
+                                  draggable
+                                  onDragStart={(e) => {
+                                    e.dataTransfer.setData("text/plain", `${idx}`);
+                                    setDraggedPkgFaqIdx(idx);
+                                  }}
+                                  onDragEnd={() => setDraggedPkgFaqIdx(null)}
+                                  className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700 p-0.5 rounded hover:bg-gray-200 shrink-0"
+                                  title="Drag to reorder FAQ"
+                                >
+                                  <GripVertical className="w-4 h-4" />
+                                </div>
+                                <span className="font-bold text-[10px] bg-amber-100/70 text-brand-gold border border-brand-gold/30 px-2 py-0.5 rounded shrink-0">
+                                  FAQ #{idx + 1}
+                                </span>
+                                <span className="text-xs font-semibold text-gray-800 truncate">
+                                  {faq.question[activeLangTab] || faq.question.en || "(Untitled Question)"}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageFaq(idx, idx - 1)}
+                                  disabled={idx === 0}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move FAQ Up"
+                                >
+                                  <ArrowUp className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => movePackageFaq(idx, idx + 1)}
+                                  disabled={idx === (packageForm.faqs || []).length - 1}
+                                  className="p-1 border border-gray-200 rounded text-gray-600 hover:text-brand-gold hover:border-brand-gold transition-colors disabled:opacity-25 disabled:pointer-events-none"
+                                  title="Move FAQ Down"
+                                >
+                                  <ArrowDown className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingPkgFaqMap(prev => ({ ...prev, [idx]: !isEditing }))}
+                                  className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-colors ${
+                                    isEditing
+                                      ? "bg-[#121212] text-white hover:bg-brand-gold hover:text-black"
+                                      : "bg-white border border-gray-200 text-gray-700 hover:border-brand-gold hover:text-brand-gold"
+                                  }`}
+                                  title={isEditing ? "Done Editing" : "Edit FAQ"}
+                                >
+                                  {isEditing ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-400" />
+                                      <span>Done</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Edit2 className="w-3 h-3 text-brand-gold" />
+                                      <span>Edit</span>
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const faqs = [...(packageForm.faqs || [])];
+                                    faqs.splice(idx, 1);
+                                    setPackageForm({ ...packageForm, faqs });
+                                  }}
+                                  className="p-1 border border-gray-200 rounded text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors ml-0.5"
+                                  title="Delete FAQ"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Content */}
+                            {isEditing ? (
+                              <div className="p-3 bg-white space-y-2.5">
+                                <div className="flex flex-col gap-1">
+                                  <label className="font-bold text-gray-500 text-[9px] uppercase">Question</label>
+                                  <input
+                                    type="text"
+                                    value={faq.question[activeLangTab] || ""}
+                                    onChange={(e) => {
+                                      const faqs = [...(packageForm.faqs || [])];
+                                      faqs[idx] = {
+                                        ...faqs[idx],
+                                        question: {
+                                          ...faqs[idx].question,
+                                          [activeLangTab]: e.target.value
+                                        }
+                                      };
+                                      setPackageForm({ ...packageForm, faqs });
+                                    }}
+                                    className="border border-gray-200 p-2 rounded text-xs bg-white focus:outline-none w-full"
+                                    placeholder="e.g. What is the dress code?"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  <label className="font-bold text-gray-500 text-[9px] uppercase">Answer</label>
+                                  <textarea
+                                    rows={2}
+                                    value={faq.answer[activeLangTab] || ""}
+                                    onChange={(e) => {
+                                      const faqs = [...(packageForm.faqs || [])];
+                                      faqs[idx] = {
+                                        ...faqs[idx],
+                                        answer: {
+                                          ...faqs[idx].answer,
+                                          [activeLangTab]: e.target.value
+                                        }
+                                      };
+                                      setPackageForm({ ...packageForm, faqs });
+                                    }}
+                                    className="border border-gray-200 p-2 rounded text-xs bg-white font-sans focus:outline-none w-full"
+                                    placeholder="e.g. Dress modestly when visiting local villages."
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-3 bg-white space-y-1">
+                                <h5 className="font-bold text-xs text-[#121212]">
+                                  Q: {faq.question[activeLangTab] || faq.question.en || "(No question entered)"}
+                                </h5>
+                                <p className="text-[11px] text-gray-600 font-light font-sans">
+                                  A: {faq.answer[activeLangTab] || faq.answer.en || "(No answer entered)"}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="bg-white border rounded p-4 space-y-3 shadow-sm">
@@ -7853,16 +8366,18 @@ export default function AdminDashboard() {
                           const aIn = document.getElementById("newFaqAnswer") as HTMLTextAreaElement;
                           if (qIn && aIn && qIn.value.trim() && aIn.value.trim()) {
                             const faqs = [...(packageForm.faqs || [])];
+                            const newIdx = faqs.length;
                             faqs.push({
                               question: createEmptyLocalizedText(qIn.value.trim()),
                               answer: createEmptyLocalizedText(aIn.value.trim())
                             });
                             setPackageForm({ ...packageForm, faqs });
+                            setEditingPkgFaqMap(prev => ({ ...prev, [newIdx]: false }));
                             qIn.value = "";
                             aIn.value = "";
                           }
                         }}
-                        className="bg-[#121212] text-white px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
+                        className="bg-[#121212] hover:bg-brand-gold text-white hover:text-black transition-colors px-4 py-2 rounded font-bold uppercase tracking-wider text-[10px]"
                       >
                         Add FAQ
                       </button>
