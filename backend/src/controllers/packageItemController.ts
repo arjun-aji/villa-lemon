@@ -144,6 +144,8 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
     // Arrays/Objects
     const itinerary = parseField(req.body.itinerary) || [];
     const itineraryEvening = parseField(req.body.itineraryEvening) || [];
+    const hasMultipleDays = req.body.hasMultipleDays === "true" || req.body.hasMultipleDays === true;
+    const itineraryDays = parseField(req.body.itineraryDays) || [];
     const inclusions = parseField(req.body.inclusions) || [];
     const exclusions = parseField(req.body.exclusions) || [];
     const highlights = parseField(req.body.highlights) || [];
@@ -230,6 +232,8 @@ export const createPackageItem = async (req: Request, res: Response): Promise<an
       aboutText,
       itinerary,
       itineraryEvening,
+      hasMultipleDays,
+      itineraryDays,
       inclusions,
       exclusions,
       highlights,
@@ -369,6 +373,10 @@ export const updatePackageItem = async (req: Request, res: Response): Promise<an
     }
 
     // Lists
+    if (req.body.hasMultipleDays !== undefined) {
+      item.hasMultipleDays = req.body.hasMultipleDays === "true" || req.body.hasMultipleDays === true;
+    }
+    if (req.body.itineraryDays !== undefined) item.itineraryDays = parseField(req.body.itineraryDays);
     if (req.body.itinerary !== undefined) item.itinerary = parseField(req.body.itinerary);
     if (req.body.itineraryEvening !== undefined) item.itineraryEvening = parseField(req.body.itineraryEvening);
     if (req.body.inclusions !== undefined) item.inclusions = parseField(req.body.inclusions);

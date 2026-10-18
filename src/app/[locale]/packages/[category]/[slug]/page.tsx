@@ -93,6 +93,12 @@ interface PackageDetails {
   aboutText: Record<string, string>;
   itinerary: Array<{ timeOrDay: Record<string, string>; activity: Record<string, string>; desc: Record<string, string> }>;
   itineraryEvening?: Array<{ timeOrDay: Record<string, string>; activity: Record<string, string>; desc: Record<string, string> }>;
+  hasMultipleDays?: boolean;
+  itineraryDays?: Array<{
+    dayTitle: Record<string, string>;
+    dayDescription?: Record<string, string>;
+    steps: Array<{ timeOrDay: Record<string, string>; activity: Record<string, string>; desc: Record<string, string> }>;
+  }>;
   inclusions: Array<Record<string, string>>;
   exclusions: Array<Record<string, string>>;
   highlights: Array<{ icon: string; label: Record<string, string> }>;
@@ -255,6 +261,16 @@ export default async function PackageDetailsPage({
       timeOrDay: loc(it.timeOrDay),
       activity: loc(it.activity),
       desc: loc(it.desc),
+    })),
+    hasMultipleDays: !!rawPackage.hasMultipleDays,
+    itineraryDays: (rawPackage.itineraryDays || []).map((d: any) => ({
+      dayTitle: loc(d.dayTitle),
+      dayDescription: loc(d.dayDescription),
+      steps: (d.steps || []).map((it: any) => ({
+        timeOrDay: loc(it.timeOrDay),
+        activity: loc(it.activity),
+        desc: loc(it.desc),
+      })),
     })),
     inclusions: (rawPackage.inclusions || []).map((inc: any) => loc(inc)),
     exclusions: (rawPackage.exclusions || []).map((exc: any) => loc(exc)),
@@ -782,13 +798,78 @@ export default async function PackageDetailsPage({
           
           {/* Left: Itinerary Timeline (7 cols) */}
           <div className="lg:col-span-7">
-            {pkg.itinerary.length > 0 && (
+            {((pkg.hasMultipleDays && pkg.itineraryDays && pkg.itineraryDays.length > 0) || pkg.itinerary.length > 0) && (
               <div>
-                <h3 className="font-serif text-2xl font-normal text-[#121212] mb-8 border-b border-[#eae6db] pb-3">
-                  {tPkg.itinerary || "Itinerary"}
-                </h3>
+                <div className="flex items-center justify-between mb-8 border-b border-[#eae6db] pb-3">
+                  <h3 className="font-serif text-2xl font-normal text-[#121212]">
+                    {tPkg.itinerary || "Itinerary"}
+                  </h3>
+                  {pkg.hasMultipleDays && pkg.itineraryDays && pkg.itineraryDays.length > 0 && (
+                    <span className="text-[11px] font-mono font-bold tracking-widest uppercase bg-brand-gold/15 text-brand-gold border border-brand-gold/30 px-3 py-1 rounded-full select-none">
+                      {pkg.itineraryDays.length} Days Tour
+                    </span>
+                  )}
+                </div>
 
-                {pkg.itineraryEvening && pkg.itineraryEvening.length > 0 ? (
+                {pkg.hasMultipleDays && pkg.itineraryDays && pkg.itineraryDays.length > 0 ? (
+                  <div className="space-y-8 select-text">
+                    {pkg.itineraryDays.map((day, dayIdx) => (
+                      <div key={dayIdx} className="border border-[#eae6db] rounded-sm bg-[#faf9f5]/60 overflow-hidden shadow-xs">
+                        {/* Day Card Header */}
+                        <div className="p-4 bg-[#f4f1ea] border-b border-[#eae6db] flex flex-wrap items-center justify-between gap-3 select-none">
+                          <div className="flex items-center gap-3">
+                            <span className="bg-[#121212] text-brand-gold font-serif text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm shadow-xs">
+                              Day {dayIdx + 1}
+                            </span>
+                            <h4 className="font-serif text-base md:text-lg font-semibold text-[#121212]">
+                              {day.dayTitle || `Day ${dayIdx + 1}`}
+                            </h4>
+                          </div>
+                          {day.steps.length > 0 && (
+                            <span className="text-[11px] text-gray-500 font-mono tracking-wider">
+                              {day.steps.length} {day.steps.length === 1 ? "activity" : "activities"}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Optional Day Overview / Description */}
+                        {day.dayDescription && (
+                          <div className="px-5 py-3 text-xs text-gray-600 font-light leading-relaxed italic border-b border-[#eae6db]/60 bg-white/40">
+                            {day.dayDescription}
+                          </div>
+                        )}
+
+                        {/* Day Steps Timeline */}
+                        <div className="p-5 md:p-6 bg-white/80">
+                          {day.steps.length > 0 ? (
+                            <div className="relative pl-6 border-l-2 border-brand-gold/30 space-y-6">
+                              {day.steps.map((it: { timeOrDay: string; activity: string; desc: string }, idx: number) => (
+                                <div key={idx} className="relative">
+                                  {/* Timeline dot */}
+                                  <div className="w-3 h-3 bg-[#121212] border-2 border-brand-gold rounded-full absolute -left-[31px] top-1" />
+
+                                  <div className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none select-none">
+                                    {it.timeOrDay}
+                                  </div>
+                                  <h5 className="font-serif text-sm md:text-base font-semibold text-[#121212] mt-1.5 leading-tight">
+                                    {it.activity}
+                                  </h5>
+                                  {it.desc && (
+                                    <p className="text-xs text-gray-500 font-light leading-relaxed mt-1 font-sans">
+                                      {it.desc}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">Day schedule details coming soon.</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : pkg.itineraryEvening && pkg.itineraryEvening.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Morning Tour Column */}
                     <div>

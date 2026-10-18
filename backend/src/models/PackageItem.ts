@@ -47,6 +47,15 @@ const itinerarySchema = new Schema(
   { _id: false }
 );
 
+const itineraryDaySchema = new Schema(
+  {
+    dayTitle: { type: optionalLocalizedTextSchema },
+    dayDescription: { type: optionalLocalizedTextSchema },
+    steps: [itinerarySchema],
+  },
+  { _id: false }
+);
+
 const quickFactSchema = new Schema(
   {
     key: { type: optionalLocalizedTextSchema },
@@ -98,6 +107,8 @@ const packageItemSchema = new Schema<IPackageItem>(
     aboutText: { type: optionalLocalizedTextSchema },
     itinerary: [itinerarySchema],
     itineraryEvening: [itinerarySchema],
+    hasMultipleDays: { type: Boolean, default: false },
+    itineraryDays: [itineraryDaySchema],
     inclusions: [optionalLocalizedTextSchema],
     exclusions: [optionalLocalizedTextSchema],
     highlights: [highlightSchema],

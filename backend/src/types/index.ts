@@ -227,6 +227,8 @@ export interface IPackageItem extends Document {
   aboutText: ILocalizedText;
   itinerary: { timeOrDay: ILocalizedText; activity: ILocalizedText; desc: ILocalizedText }[];
   itineraryEvening?: { timeOrDay: ILocalizedText; activity: ILocalizedText; desc: ILocalizedText }[];
+  hasMultipleDays?: boolean;
+  itineraryDays?: { dayTitle?: ILocalizedText; dayDescription?: ILocalizedText; steps: { timeOrDay: ILocalizedText; activity: ILocalizedText; desc: ILocalizedText }[] }[];
   inclusions: ILocalizedText[];
   exclusions: ILocalizedText[];
   highlights: { icon: string; label: ILocalizedText }[];

@@ -164,63 +164,77 @@ thekkady_package = {
     ],
 
     # 9. Itinerary
-    "itinerary": [
+    "hasMultipleDays": True,
+    "itineraryDays": [
         {
-            "timeOrDay": local("Day 1 - 05:30 AM"),
-            "activity": local("Departure from Villa Lemon, Varkala"),
-            "desc": local("Begin the journey with pickup from Villa Lemon, Varkala, in the selected private vehicle. Travel towards Thekkady through Kerala's scenic countryside, with a breakfast stop en route.")
+            "dayTitle": local("Day 1: Departure, Tea Heritage & Spice Plantations"),
+            "dayDescription": local("Scenic drive from Varkala into the high ranges, tea factory visit, spice garden tour, and overnight stay in Kumily/Thekkady."),
+            "steps": [
+                {
+                    "timeOrDay": local("05:30 AM"),
+                    "activity": local("Departure from Villa Lemon, Varkala"),
+                    "desc": local("Begin the journey with pickup from Villa Lemon, Varkala, in the selected private vehicle. Travel towards Thekkady through Kerala's scenic countryside, with a breakfast stop en route.")
+                },
+                {
+                    "timeOrDay": local("11:30 AM"),
+                    "activity": local("Connemara Tea Factory, Vandiperiyar"),
+                    "desc": local("Discover the tea-growing heritage of the region and learn about tea processing. Factory access, guided tours and demonstrations are subject to the factory's operating arrangements and prior confirmation.")
+                },
+                {
+                    "timeOrDay": local("01:30 PM"),
+                    "activity": local("Lunch & Hotel Check-in"),
+                    "desc": local("Proceed towards Thekkady/Kumily for lunch and check-in at the selected hotel, subject to the property's check-in time and availability.")
+                },
+                {
+                    "timeOrDay": local("03:30 PM"),
+                    "activity": local("Abraham's Spice Garden"),
+                    "desc": local("Explore a spice garden with an introduction to Kerala's spices, including cardamom, black pepper, cinnamon and cloves. Entry charges and guided-tour fees are additional unless included in the quotation.")
+                },
+                {
+                    "timeOrDay": local("05:00 PM"),
+                    "activity": local("Elephant Junction (Optional)"),
+                    "desc": local("Offer this as an optional visit. Activities, availability and charges depend on the operator's current offerings. Do not guarantee a specific elephant interaction or activity.")
+                },
+                {
+                    "timeOrDay": local("06:30 PM"),
+                    "activity": local("Optional Cultural Performance"),
+                    "desc": local("Guests may choose a Kathakali performance or Kalaripayattu martial arts show if a suitable performance is available. Tickets are additional unless included.")
+                },
+                {
+                    "timeOrDay": local("Night"),
+                    "activity": local("Overnight Stay in Thekkady/Kumily"),
+                    "desc": local("Stay at the selected hotel or resort in Thekkady/Kumily. Hotel name, room type and meal plan must be confirmed separately.")
+                }
+            ]
         },
         {
-            "timeOrDay": local("Day 1 - 11:30 AM"),
-            "activity": local("Connemara Tea Factory, Vandiperiyar"),
-            "desc": local("Discover the tea-growing heritage of the region and learn about tea processing. Factory access, guided tours and demonstrations are subject to the factory's operating arrangements and prior confirmation.")
-        },
-        {
-            "timeOrDay": local("Day 1 - 01:30 PM"),
-            "activity": local("Lunch & Hotel Check-in"),
-            "desc": local("Proceed towards Thekkady/Kumily for lunch and check-in at the selected hotel, subject to the property's check-in time and availability.")
-        },
-        {
-            "timeOrDay": local("Day 1 - 03:30 PM"),
-            "activity": local("Abraham's Spice Garden"),
-            "desc": local("Explore a spice garden with an introduction to Kerala's spices, including cardamom, black pepper, cinnamon and cloves. Entry charges and guided-tour fees are additional unless included in the quotation.")
-        },
-        {
-            "timeOrDay": local("Day 1 - 05:00 PM"),
-            "activity": local("Elephant Junction (Optional)"),
-            "desc": local("Offer this as an optional visit. Activities, availability and charges depend on the operator's current offerings. Do not guarantee a specific elephant interaction or activity.")
-        },
-        {
-            "timeOrDay": local("Day 1 - 06:30 PM"),
-            "activity": local("Optional Cultural Performance"),
-            "desc": local("Guests may choose a Kathakali performance or Kalaripayattu martial arts show if a suitable performance is available. Tickets are additional unless included.")
-        },
-        {
-            "timeOrDay": local("Day 1 - Night"),
-            "activity": local("Overnight Stay in Thekkady/Kumily"),
-            "desc": local("Stay at the selected hotel or resort in Thekkady/Kumily. Hotel name, room type and meal plan must be confirmed separately.")
-        },
-        {
-            "timeOrDay": local("Day 2 - 07:30 AM"),
-            "activity": local("Breakfast & Hotel Check-out"),
-            "desc": local("Enjoy breakfast and check out of the hotel.")
-        },
-        {
-            "timeOrDay": local("Day 2 - 09:00 AM"),
-            "activity": local("Periyar Lake Boating Safari"),
-            "desc": local("Enjoy a scheduled boat ride on Periyar Lake, surrounded by forested hills within the Periyar wildlife tourism region. Wildlife sightings are not guaranteed. Boat tickets, entry charges and applicable reserve transport charges are extra unless included.")
-        },
-        {
-            "timeOrDay": local("Day 2 - 12:00 PM"),
-            "activity": local("Return Journey towards Varkala"),
-            "desc": local("Begin the return journey to Villa Lemon, Varkala, with suitable breaks for lunch and refreshments.")
-        },
-        {
-            "timeOrDay": local("Day 2 - 06:00 PM"),
-            "activity": local("Drop-off at Villa Lemon"),
-            "desc": local("Return to Villa Lemon. Actual arrival time depends on traffic, boating schedules, weather and the duration of stops.")
+            "dayTitle": local("Day 2: Periyar Wildlife Boating & Return to Varkala"),
+            "dayDescription": local("Morning breakfast, Periyar Lake wildlife boating safari, scenic return drive with refreshments, and evening drop-off at Villa Lemon."),
+            "steps": [
+                {
+                    "timeOrDay": local("07:30 AM"),
+                    "activity": local("Breakfast & Hotel Check-out"),
+                    "desc": local("Enjoy breakfast and check out of the hotel.")
+                },
+                {
+                    "timeOrDay": local("09:00 AM"),
+                    "activity": local("Periyar Lake Boating Safari"),
+                    "desc": local("Enjoy a scheduled boat ride on Periyar Lake, surrounded by forested hills within the Periyar wildlife tourism region. Wildlife sightings are not guaranteed. Boat tickets, entry charges and applicable reserve transport charges are extra unless included.")
+                },
+                {
+                    "timeOrDay": local("12:00 PM"),
+                    "activity": local("Return Journey towards Varkala"),
+                    "desc": local("Begin the return journey to Villa Lemon, Varkala, with suitable breaks for lunch and refreshments.")
+                },
+                {
+                    "timeOrDay": local("06:00 PM"),
+                    "activity": local("Drop-off at Villa Lemon"),
+                    "desc": local("Return to Villa Lemon. Actual arrival time depends on traffic, boating schedules, weather and the duration of stops.")
+                }
+            ]
         }
     ],
+    "itinerary": [],
     "itineraryEvening": [],
 
     # 10. Inclusions & Exclusions
