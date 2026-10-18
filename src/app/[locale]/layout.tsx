@@ -6,6 +6,7 @@ import "../globals.css";
 import Preloader from "@/components/Preloader";
 import { BookingModalProvider } from "@/context/BookingModalContext";
 import BookingModal from "@/components/BookingModal";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-serif",
@@ -148,6 +149,7 @@ export default async function RootLayout({
             <Preloader />
             {children}
             <BookingModal />
+            <WhatsAppButton />
           </BookingModalProvider>
         </NextIntlClientProvider>
       </body>

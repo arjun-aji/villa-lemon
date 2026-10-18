@@ -422,5 +422,15 @@
     "menuDinnerTitle": "🌙 Dîner (19h30 – 21h00)",
     "menuDinnerItems": "Riz & Chapati avec Dal, Plat de paneer ou de tofu, Curry de légumes & salade, Soupe chaude, Dessert (jours sélectionnés)",
     "menuFooterItems": "✓ 100% végétarien, ✓ Menus personnalisés pour les groupes, ✓ Eau potable filtrée incluse, ✓ Végétalien/Sans gluten sur demande"
+  },
+  "WhatsApp": {
+    "enquiryTooltip": "Demande par WhatsApp",
+    "ariaLabel": "Envoyer une demande via WhatsApp",
+    "online": "En ligne",
+    "quickReply": "Réponse rapide",
+    "defaultEnquiry": "Bonjour Villa Lemon ! J'aimerais me renseigner sur les disponibilités et les réservations.",
+    "accommodationEnquiry": "Bonjour Villa Lemon ! Je souhaite me renseigner sur vos hébergements et chambres disponibles.",
+    "yogaEnquiry": "Bonjour Villa Lemon ! Je souhaite me renseigner sur vos retraites de yoga et programmes bien-être.",
+    "packageEnquiry": "Bonjour Villa Lemon ! J'aimerais en savoir plus sur vos forfaits touristiques et visites."
   }
 }
