@@ -165,9 +165,10 @@ export default async function RetreatsCatalogPage({
                   }
 
                   return (
-                    <div
+                    <Link
                       key={retreat._id}
-                      className="group flex flex-col bg-white border border-[#eae6db]/60 rounded-sm overflow-hidden shadow-sm hover:shadow-md hover:border-[#c5a880]/60 transition-all duration-300"
+                      href={`/${locale}/retreats/${retreat.slug}`}
+                      className="group flex flex-col bg-white border border-[#eae6db]/60 rounded-sm overflow-hidden shadow-sm hover:shadow-md hover:border-[#c5a880]/60 transition-all duration-300 cursor-pointer"
                     >
                       {/* Image container */}
                       <div className="relative aspect-[16/10] overflow-hidden bg-[#121212]">
@@ -262,16 +263,15 @@ export default async function RetreatsCatalogPage({
                             <div />
                           )}
 
-                          <Link
-                            href={`/${locale}/retreats/${retreat.slug}`}
+                          <div
                             className="flex items-center gap-1 text-[10px] font-bold tracking-widest text-[#121212] uppercase group-hover:text-brand-gold transition-colors select-none"
                           >
                             <span>Explore Retreat</span>
                             <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                          </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -230,8 +231,9 @@ export default function Yoga({
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {cards.map((card, index) => (
-              <div
+              <Link
                 key={index}
+                href={card.href}
                 id={
                   index === 0
                     ? "yoga-retreats"
@@ -241,7 +243,7 @@ export default function Yoga({
                     ? "private-yoga-sessions"
                     : "meet-our-teachers"
                 }
-                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg hover:border-[#c5a880]/80 transition-all duration-300 cursor-pointer"
               >
                 {/* IMAGE CONTAINER */}
                 <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
@@ -258,23 +260,22 @@ export default function Yoga({
                 {/* CARD DETAILS */}
                 <div className="p-6 md:p-8 flex flex-col flex-grow items-start text-left">
                   {card.icon}
-                  <h3 className="text-lg font-serif font-normal text-brand-dark mb-1.5 tracking-wide leading-snug">
+                  <h3 className="text-lg font-serif font-normal text-brand-dark mb-1.5 tracking-wide leading-snug group-hover:text-brand-gold transition-colors duration-300">
                     {card.title}
                   </h3>
                   <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-5 flex-grow line-clamp-2">
                     {card.desc}
                   </p>
-                  <a
-                    href={card.href}
-                    className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
+                  <div
+                    className="flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark group-hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
                   >
                     <span>{card.explore}</span>
-                    <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">
                       →
                     </span>
-                  </a>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

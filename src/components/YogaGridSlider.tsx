@@ -99,9 +99,10 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {items.map((item) => (
-          <div
+          <Link
             key={item.id}
-            className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+            href={item.detailUrl}
+            className="sm:snap-start shrink-0 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg hover:border-[#c5a880]/80 transition-all duration-300 cursor-pointer"
           >
             {/* Cover Image Wrapper */}
             <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
@@ -154,17 +155,16 @@ export default function YogaGridSlider({ items, locale }: YogaGridSliderProps) {
                 {item.shortDescription}
               </p>
 
-              <Link
-                href={item.detailUrl}
-                className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-[#121212] hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
+              <div
+                className="flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-[#121212] group-hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
               >
                 <span>{item.detailUrl.includes("/retreats/") ? "Explore Retreat" : "Explore Program"}</span>
-                <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                <span className="transition-transform duration-300 group-hover:translate-x-1">
                   →
                 </span>
-              </Link>
+              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ImageSlideshow } from "@/components/ImageSlideshow";
 
@@ -142,10 +143,11 @@ export default function Accommodations({
         {/* ACCOMMODATION CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card, index) => (
-            <div
+            <Link
               key={index}
+              href={card.href}
               id={index === 0 ? "entire-villas" : index === 1 ? "private-floors" : "individual-rooms"}
-              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 scroll-mt-24"
+              className="group flex flex-col bg-white border border-[#eae6db]/80 rounded-md overflow-hidden shadow-sm hover:shadow-lg hover:border-[#c5a880]/80 transition-all duration-300 scroll-mt-24 cursor-pointer"
             >
               {/* IMAGE CONTAINER */}
               <div className="relative w-full h-40 sm:h-48 md:aspect-[4/3] overflow-hidden bg-brand-cream-soft select-none">
@@ -168,23 +170,22 @@ export default function Accommodations({
               {/* CARD DETAILS */}
               <div className="p-6 md:p-8 flex flex-col flex-grow items-start">
                 {card.icon}
-                <h3 className="text-xl font-serif font-normal text-brand-dark mb-2 tracking-wide">
+                <h3 className="text-xl font-serif font-normal text-brand-dark mb-2 tracking-wide group-hover:text-brand-gold transition-colors duration-300">
                   {card.title}
                 </h3>
                 <p className="text-xs md:text-sm text-brand-dark/75 font-sans font-light leading-relaxed mb-6 flex-grow">
                   {card.desc}
                 </p>
-                <a
-                  href={card.href}
-                  className="group/link flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
+                <div
+                  className="flex items-center gap-2 text-[10px] md:text-xs font-bold tracking-widest text-brand-dark group-hover:text-brand-gold uppercase transition-colors duration-300 mt-auto select-none"
                 >
                   <span>{card.explore}</span>
-                  <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
                     →
                   </span>
-                </a>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
